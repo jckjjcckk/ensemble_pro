@@ -1,25 +1,36 @@
-import { useEffect, useState } from 'react'
-import { apiHealth } from './lib/api'
+import { lazy, Suspense } from 'react'
+import { BrowserRouter, Link, Route, Routes } from 'react-router'
+
+const explorations = [1, 2, 3, 4, 5].map(n => ({
+  n,
+  Component: lazy(() => import(`./explorations/${n}/App.tsx`)),
+}))
+
+function Index() {
+  return (
+    <main className="min-h-screen bg-neutral-950 text-neutral-100 p-10">
+      <h1 className="text-2xl font-semibold tracking-tight">Design explorations</h1>
+      <p className="text-neutral-400 mt-1">Five directions, same product, same data. Open each on an iPad in both orientations and on a Mac.</p>
+      <ul className="mt-8 flex flex-col gap-2">
+        {explorations.map(({ n }) => (
+          <li key={n}><Link className="underline underline-offset-4 hover:text-white" to={`/${n}`}>Exploration {n}</Link></li>
+        ))}
+      </ul>
+    </main>
+  )
+}
 
 export default function App() {
-  const [api, setApi] = useState<'checking' | 'ok' | 'down'>('checking')
-
-  useEffect(() => {
-    apiHealth()
-      .then(() => setApi('ok'))
-      .catch(() => setApi('down'))
-  }, [])
-
   return (
-    <main className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col items-center justify-center gap-4 p-8">
-      <h1 className="text-4xl font-semibold tracking-tight">Muse</h1>
-      <p className="text-neutral-400">AI librarian for ensembles</p>
-      <p className="text-sm">
-        API:{' '}
-        <span className={api === 'ok' ? 'text-emerald-400' : api === 'down' ? 'text-rose-400' : 'text-neutral-500'}>
-          {api}
-        </span>
-      </p>
-    </main>
+    <BrowserRouter>
+      <Suspense fallback={null}>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          {explorations.map(({ n, Component }) => (
+            <Route key={n} path={`/${n}/*`} element={<Component />} />
+          ))}
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
   )
 }
