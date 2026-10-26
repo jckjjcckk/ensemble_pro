@@ -24,3 +24,6 @@ docs_offline/
 # Claude Code project config and local skills — kept out of the public repo
 .claude/
 CLAUDE.md
+
+# local dev logs
+.logs/
