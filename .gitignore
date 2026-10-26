@@ -20,3 +20,7 @@ __pycache__/
 
 # Local reference material (hackathon rules, hosting docs) — never committed
 docs_offline/
+
+# Claude Code project config and local skills — kept out of the public repo
+.claude/
+CLAUDE.md
