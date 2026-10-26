@@ -17,3 +17,6 @@ __pycache__/
 .DS_Store
 .vscode/
 .idea/
+
+# Local reference material (hackathon rules, hosting docs) — never committed
+docs_offline/
