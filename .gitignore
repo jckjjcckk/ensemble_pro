@@ -27,3 +27,6 @@ CLAUDE.md
 
 # local dev logs
 .logs/
+
+# large public-domain PDFs for OMR testing
+api/fixtures/pdf/
