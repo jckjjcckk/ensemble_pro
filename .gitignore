@@ -1,0 +1,19 @@
+# Node
+node_modules/
+dist/
+*.local
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Secrets — only the .example files are tracked
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
