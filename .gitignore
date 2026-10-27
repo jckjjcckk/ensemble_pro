@@ -33,3 +33,8 @@ api/fixtures/pdf/
 
 # full-size exploration screenshots (2 MB); contact sheets in sheets/ are committed
 docs/design/explorations/shots/
+
+# voice-note recordings (ground truth CSV is committed)
+api/fixtures/voice/*.m4a
+api/fixtures/voice/*.wav
+api/fixtures/voice/*.mp3

@@ -1,0 +1,31 @@
+id,text,position,bar_from,bar_to,audience,kind,expect
+v01,"Everyone, bar thirty-four, piano please, really piano.",bar,34,34,ensemble,dynamic,"p at bar 34"
+v02,"Second violins, from forty-two to forty-eight we're cutting that, go straight to forty-nine.",range,42,48,part:Violin II,cut,"Cut 42–48"
+v03,"Cellos, bar twelve, that's an up bow, up bow on the first note.",bar,12,12,part:Cello,bowing,"Up bow at bar 12"
+v04,"Altos, breathe after the word 'rest' in bar sixty, not before.",bar,60,60,part:Alto,breath,"Breath after 'rest', bar 60"
+v05,"From letter C, everybody, we take it a little slower, more weight.",mark,,,ensemble,text,"From C: slower, more weight"
+v06,"Let's take it from the top.",global,,,ensemble,none,none
+v07,"Violas, you're late at seventy-one, the entry is on the and of two.",bar,71,71,part:Viola,text,"Entry on the and of 2, bar 71"
+v08,"Bar one-twelve, everyone, crescendo through to one-sixteen.",range,112,116,ensemble,dynamic,"cresc. 112–116"
+v09,"Tenors and basses, bar twenty, sing the consonant early, the T before the beat.",bar,20,20,part:Tenor;part:Bass,text,"T before the beat, bar 20"
+v10,"Not louder in eighty-eight, the opposite, hold it back.",bar,88,88,ensemble,dynamic,"Hold back at bar 88"
+v11,"Lin, your C sharp in bar fifteen is flat, listen to the viola there.",bar,15,15,member,text,"C♯ is flat, bar 15, tune to viola"
+v12,"Pickup to thirty-four, firsts, that's where you come in, nobody else.",bar,33,34,part:Violin I,text,"Entry at the pickup to 34"
+v13,"Sopranos, we'll skip the repeat the second time through, so after bar forty go straight on.",bar,40,40,part:Soprano,cut,"No repeat second time, from bar 40"
+v14,"Okay that's lunch, back at one thirty.",none,,,ensemble,none,none
+v15,"Everyone except the cello, bar fifty, pizzicato.",bar,50,50,part:Violin I;part:Violin II;part:Viola,marking,"pizz. at bar 50"
+v16,"Firsts and seconds, from ninety-six to the end, no vibrato.",range,96,,part:Violin I;part:Violin II,marking,"senza vib. 96 to end"
+v17,"Bar two hundred and three, basses, that's a low E, you're singing the octave.",bar,203,203,part:Bass,text,"Low E, not the octave, bar 203"
+v18,"Fiddles, bar seven, down bow, both of you.",bar,7,7,part:Violin I;part:Violin II,bowing,"Down bow at bar 7"
+v19,"From the double bar after letter B we're cutting to letter D.",mark,,,ensemble,cut,"Cut from after B to D"
+v20,"Can someone open a window?",none,,,ensemble,none,none
+v21,"Bar sixty-four, altos and tenors, breath mark, then sixty-five sforzando, everyone.",bar,64,65,part:Alto;part:Tenor;ensemble,breath;dynamic,"Breath at 64 (A, T); sfz at 65 (all)"
+v22,"Inès, bar thirty, that harmonic, try it on the A string.",bar,30,30,member,text,"Harmonic on the A string, bar 30"
+v23,"Whole choir, the last page, diminuendo to nothing.",global,,,ensemble,dynamic,"dim. to niente, last page"
+v24,"That was good, once more from twenty-two and this time don't rush.",bar,22,22,ensemble,text,"Don't rush, from bar 22"
+v25,"Viola, ritard in the bar before letter F, then a tempo at F.",mark,,,part:Viola,text,"rit. before F, a tempo at F"
+v26,"Seconds, mark it: bar fifty-five is forte, fifty-six is piano, subito.",range,55,56,part:Violin II,dynamic,"f at 55, subito p at 56"
+v27,"Everybody write in a fermata on the last chord.",global,,,ensemble,marking,"Fermata on the last chord"
+v28,"Cello, bar three, that's four beats not three, count it.",bar,3,3,part:Cello,text,"Four beats, bar 3"
+v29,"Sopranos, from the key change we're all down an octave till the coda.",mark,,,part:Soprano,text,"Down an octave from the key change to the coda"
+v30,"Right, bar one, here we go.",bar,1,1,ensemble,none,none
