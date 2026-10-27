@@ -46,3 +46,4 @@ export const IGrip = (p: P) => (
   </Svg>
 )
 export const IDisplay = (p: P) => <Svg {...p}><circle cx="12" cy="12" r="8.5" /><path d="M12 3.5v17" /><path d="M12 8.5a3.5 3.5 0 0 1 0 7" fill="currentColor" stroke="none" /></Svg>
+export const IImport = (p: P) => <Svg {...p}><path d="M12 3.5v11" /><path d="m8 10.5 4 4 4-4" /><path d="M4.5 15.5v3.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5v-3.5" /></Svg>

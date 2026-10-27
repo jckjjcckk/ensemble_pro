@@ -1,11 +1,12 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { fmtDuration, membersById, type Annotation } from '../mock'
+import { fmtDuration, type Annotation } from '../mock'
+import { useStore } from './store'
 import { barRange, firstName, fmtDateTime, kindLabel } from './store'
 import { IClose, IMic, IPause, IPencil, IPlay, IScissors } from './icons'
 import { spanRects, type Geo } from './geometry'
 
-export function pinText(a: Annotation): string {
-  const author = membersById[a.authorId]
+export function pinText(a: Annotation, authorName = ''): string {
+  const author = { name: authorName }
   switch (a.kind) {
     case 'voice': return `${firstName(author?.name ?? '')} · ${fmtDuration(a.durationSec ?? 0)}`
     case 'dynamic': return (a.text ?? '').split(' — ')[0]
@@ -49,6 +50,7 @@ export function VoicePlayer({ a }: { a: Annotation }) {
 }
 
 export function NoteBody({ a }: { a: Annotation }) {
+  const { membersById } = useStore()
   const author = membersById[a.authorId]
   return (
     <>
@@ -82,6 +84,7 @@ export function PinLayer({ geo, items, selected, onSelect }: {
   const open = items.find(a => a.id === selected)
   const openBox = open ? geo.bars.get(open.barFrom) : undefined
   const right = Math.max(0, ...geo.pages.map(p => (p ? p.x + p.w : 0)))
+  const { membersById } = useStore()
 
   useEffect(() => {
     if (!open) return
@@ -102,7 +105,7 @@ export function PinLayer({ geo, items, selected, onSelect }: {
                 onClick={e => { e.stopPropagation(); onSelect(selected === a.id ? null : a.id) }}
               >
                 <KindIcon kind={a.kind} size={14} />
-                <span>{pinText(a)}</span>
+                <span>{pinText(a, membersById[a.authorId]?.name)}</span>
               </button>
             ))}
           </div>
@@ -153,6 +156,7 @@ export function MarginLayer({ geo, items, width, selected, onSelect }: {
   selected: string | null
   onSelect: (id: string | null) => void
 }) {
+  const { membersById } = useStore()
   const ref = useRef<HTMLDivElement>(null)
   const [heights, setHeights] = useState<Record<string, number>>({})
   const shown = geo.pages.map((p, i) => (p ? i : -1)).filter(i => i >= 0)

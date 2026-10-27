@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
 import { StoreProvider, useStore, type TokenSet } from './store'
+import { AuthProvider, SignIn, useAuth } from './auth'
+import { useWorld } from './data'
 import Library from './Library'
 import Scan from './Scan'
 import ScoreDoc from './ScoreDoc'
@@ -58,10 +60,31 @@ function Shell() {
   )
 }
 
-export default function Folio() {
+function Gate() {
+  const { session, ready } = useAuth()
+  const world = useWorld(session)
+  const theme = readTheme()
+  if (!ready) return <div className="fo" data-tokens={theme.tokens} data-theme={theme.theme} />
+  if (!session) return <div className="fo" data-tokens={theme.tokens} data-theme={theme.theme}><SignIn /></div>
   return (
-    <StoreProvider>
+    <StoreProvider world={world}>
       <Shell />
     </StoreProvider>
+  )
+}
+
+/** Before the store exists (sign-in), the saved display setting still styles the page. */
+function readTheme(): { tokens: TokenSet; theme?: string } {
+  try {
+    const d = JSON.parse(window.localStorage.getItem('folio.display') ?? '{}')
+    return { tokens: d.tokens === 'bound' ? 'bound' : 'instrument', theme: d.theme === 'light' || d.theme === 'dark' ? d.theme : undefined }
+  } catch { return { tokens: 'instrument' } }
+}
+
+export default function Folio() {
+  return (
+    <AuthProvider>
+      <Gate />
+    </AuthProvider>
   )
 }

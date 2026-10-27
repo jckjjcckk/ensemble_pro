@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useStore, type Theme, type TokenSet } from './store'
 import { IDisplay } from './icons'
+import { useAuth } from './auth'
 
 const sets: { id: TokenSet; label: string }[] = [
   { id: 'instrument', label: 'Instrument' },
@@ -15,6 +16,7 @@ const themes: { id: Theme; label: string }[] = [
 /** Display settings: token set and theme. A small non-modal sheet under its button; closes on outside tap or Escape. */
 export function DisplayButton() {
   const { display, setDisplay } = useStore()
+  const { session, signOut } = useAuth()
   const [open, setOpen] = useState(false)
   const wrap = useRef<HTMLDivElement>(null)
 
@@ -52,6 +54,10 @@ export function DisplayButton() {
             </div>
           </div>
           <p className="disp-note">Auto follows the iPad's own light and dark switching. Settings change type, colour and line only; nothing moves.</p>
+          <div className="disp-row disp-account">
+            <span>{session?.user.email}</span>
+            <button type="button" className="btn btn-line is-small" onClick={() => signOut()}>Sign out</button>
+          </div>
         </div>
       )}
     </div>

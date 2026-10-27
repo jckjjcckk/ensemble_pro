@@ -106,7 +106,10 @@ async def import_musicxml(job: Job, ctx: JobContext) -> dict:
         "current_interpretation_id": interp["id"],
     }
     existing = ctx.db.table("scores").select("title,composer,work").eq("id", score_id).single().execute().data
-    if not existing.get("composer") and composer:
+    if not existing.get("title"):
+        filename = (src.get("meta") or {}).get("filename") or path.rsplit("/", 1)[-1]
+        facts["title"] = title or filename.rsplit(".", 1)[0].replace("-", " ").replace("_", " ")
+    if not existing.get("composer") and composer and composer.lower() != "music21":
         facts["composer"] = composer
     if not existing.get("work") and (title or movement):
         facts["work"] = movement or title

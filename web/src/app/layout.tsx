@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router'
-import { BASE, WORDMARK } from './store'
+import { BASE, WORDMARK, useStore } from './store'
 import { ILibrary, IPractice, IScore } from './icons'
 
 export interface Viewport { w: number; h: number; /** landscape with room for a tall control surface */ wide: boolean; narrow: boolean }
@@ -35,7 +35,7 @@ export function useReducedMotion(): boolean {
 
 type Area = 'library' | 'score' | 'practice'
 
-const areas: { id: Area; label: string; to: string; Icon: typeof ILibrary }[] = [
+const AREAS: { id: Area; label: string; to: string; Icon: typeof ILibrary }[] = [
   { id: 'library', label: 'Library', to: '/', Icon: ILibrary },
   { id: 'score', label: 'Score', to: `${BASE}/score/s-beethoven`, Icon: IScore },
   { id: 'practice', label: 'Practice', to: `${BASE}/practice`, Icon: IPractice },
@@ -49,7 +49,10 @@ function currentArea(path: string): Area {
 
 export function AreaNav({ stacked }: { stacked: boolean }) {
   const { pathname } = useLocation()
+  const { world, context } = useStore()
   const here = currentArea(pathname)
+  const firstScore = world.scores.find(s => s.status === 'ready' && s.ensembleId === context.ensemble.id) ?? world.scores.find(s => s.status === 'ready')
+  const areas = AREAS.map(a => (a.id === 'score' && firstScore ? { ...a, to: `${BASE}/score/${firstScore.id}` } : a))
   return (
     <nav className={`areas ${stacked ? 'is-stacked' : ''}`} aria-label="Areas">
       {areas.map(({ id, label, to, Icon }) => (

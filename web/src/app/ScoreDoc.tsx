@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router'
-import { ensembles, me, partsById, scoresById, type Annotation, type AnnotationKind } from '../mock'
+import type { Annotation, AnnotationKind } from '../mock'
 import { Screen, useViewport } from './layout'
 import { ScoreStage, type StageView } from './ScoreStage'
 import { Ruler, type RulerMark } from './Ruler'
@@ -19,9 +19,10 @@ const markKinds: { kind: AnnotationKind; label: string }[] = [
 ]
 
 export default function ScoreDoc() {
-  const { scoreId = 's-beethoven' } = useParams()
+  const { scoreId = '' } = useParams()
+  const { scoresById, world } = useStore()
   const score = scoresById[scoreId]
-  if (!score) return <Unavailable title="This score is not in the library." />
+  if (!score) return <Unavailable title={world.loaded ? 'This score is not in the library.' : 'Opening the score'} />
   if (score.status !== 'ready' || !score.fixture) {
     const why = score.status === 'failed' ? score.failureReason
       : score.status === 'processing' ? `Still processing, ${Math.round((score.progress ?? 0) * 100)} percent read.`
@@ -45,21 +46,22 @@ function Unavailable({ title, detail }: { title: string; detail?: string }) {
 
 function Doc({ scoreId }: { scoreId: string }) {
   const vp = useViewport()
-  const { contextFor, annotations, addAnnotation } = useStore()
+  const { contextFor, annotations, addAnnotation, scoresById, partsById, world } = useStore()
   const score = scoresById[scoreId]
   // Standing comes from the membership in the ensemble that owns the score, not from which library is open.
   const ctx = contextFor(score.ensembleId)
   const role = ctx?.membership.role ?? 'player'
-  const persona = ctx?.persona ?? me
+  const persona = ctx?.persona ?? world.ensembles[0].members[0]
   const canCut = role !== 'player'
-  const parts = score.partIds.map(id => partsById[id])
-  const ensemble = ensembles.find(e => e.id === score.ensembleId)
-  const hasPresence = score.id === 's-beethoven'
+  const parts = score.partIds.map(id => partsById[id]).filter(Boolean)
+  const ensemble = world.ensembles.find(e => e.id === score.ensembleId)
+  const hasPresence = false
   const performers = hasPresence ? (ensemble?.members ?? []).filter(m => m.role === 'leader' || m.role === 'player') : []
   const leader = performers.find(m => m.role === 'leader' && m.online)
   const groupBar = leader?.atBar ?? 1
 
-  const defaultPart = role === 'player' && persona.partId && score.partIds.includes(persona.partId) ? persona.partId : 'full'
+  const seat = parts.find(p => p.name === persona.instrument)?.id
+  const defaultPart = role === 'player' && seat ? seat : 'full'
   const [partSel, setPartSel] = useState<string>(defaultPart)
   useEffect(() => { setPartSel(defaultPart) }, [defaultPart])
   const [focus, setFocus] = useState({ bar: groupBar, key: 0 })

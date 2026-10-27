@@ -1,8 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
 import {
-  account, annotations as seedAnnotations, ensembles, membersById, practice, scanDraft,
-  type Annotation, type Ensemble, type Member, type Membership, type ScanPage,
+  annotations as seedAnnotations, practice, scanDraft,
+  type Annotation, type Ensemble, type Member, type Membership, type Part, type ScanPage, type Score,
 } from '../mock'
+import type { World } from './data'
 
 export const BASE = ''
 export const WORDMARK = 'Folio'
@@ -56,18 +57,22 @@ export interface Context {
   persona: Member
 }
 
-const contextsOf = (): Context[] =>
-  account.memberships
+const contextsOf = (world: World): Context[] =>
+  world.account.memberships
     .map(m => {
-      const ensemble = ensembles.find(e => e.id === m.ensembleId)
-      const persona = membersById[m.memberId]
+      const ensemble = world.ensembles.find(e => e.id === m.ensembleId)
+      const persona = ensemble?.members.find(x => x.id === m.memberId)
       return ensemble && persona ? { ensemble, membership: m, persona } : null
     })
     .filter((c): c is Context => c !== null)
 
-export const contexts = contextsOf()
-
 interface Store {
+  world: World
+  /** Every library the account can open: its own, then each ensemble. */
+  contexts: Context[]
+  scoresById: Record<string, Score>
+  partsById: Record<string, Part>
+  membersById: Record<string, Member>
   /** The library currently open. */
   context: Context
   setContext: (ensembleId: string) => void
@@ -85,7 +90,8 @@ interface Store {
 
 const Ctx = createContext<Store | null>(null)
 
-export function StoreProvider({ children }: { children: ReactNode }) {
+export function StoreProvider({ world, children }: { world: World; children: ReactNode }) {
+  const contexts = useMemo(() => contextsOf(world), [world])
   const [contextId, setContextId] = useState(contexts[0].ensemble.id)
   const [display, setDisplay] = useState<Display>(readDisplay)
   const [practiceUI, setPracticeUI] = useState<PracticeUI>({
@@ -105,16 +111,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     try { window.localStorage.setItem(DISPLAY_KEY, JSON.stringify(display)) } catch { /* private mode: settings last for the session */ }
   }, [display])
 
-  const contextFor = useCallback((ensembleId: string) => contexts.find(c => c.ensemble.id === ensembleId), [])
+  const contextFor = useCallback((ensembleId: string) => contexts.find(c => c.ensemble.id === ensembleId), [contexts])
   const setContext = useCallback((id: string) => { if (contextFor(id)) setContextId(id) }, [contextFor])
+  const byId = <T extends { id: string }>(xs: T[]) => Object.fromEntries(xs.map(x => [x.id, x])) as Record<string, T>
+  const scoresById = useMemo(() => byId(world.scores), [world.scores])
+  const partsById = useMemo(() => byId(world.parts), [world.parts])
+  const membersById = useMemo(() => byId(world.ensembles.flatMap(e => e.members)), [world.ensembles])
 
   const value = useMemo<Store>(() => ({
+    world, contexts, scoresById, partsById, membersById,
     context: contextFor(contextId) ?? contexts[0], setContext, contextFor,
     display, setDisplay,
     practiceUI, setPracticeUI,
     annotations, addAnnotation: a => setAnnotations(xs => [...xs, a]),
     scan, setScan,
-  }), [contextId, contextFor, setContext, display, practiceUI, annotations, scan])
+  }), [world, contexts, scoresById, partsById, membersById, contextId, contextFor, setContext, display, practiceUI, annotations, scan])
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
