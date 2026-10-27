@@ -55,7 +55,12 @@ export function ScoreView({ src, zoom = 1, pageFormat = 'Endless', onReady, clas
         setError(e instanceof Error ? e.message : String(e))
         setState('error')
       })
-    return () => { cancelled = true; osmd.clear() }
+    return () => {
+      cancelled = true
+      // OSMD never removes its window resize listener; disabling autoResize makes the stale listener inert.
+      osmd.AutoResizeEnabled = false
+      osmd.clear()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src, pageFormat])
 

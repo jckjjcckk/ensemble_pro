@@ -30,3 +30,6 @@ CLAUDE.md
 
 # large public-domain PDFs for OMR testing
 api/fixtures/pdf/
+
+# full-size exploration screenshots (2 MB); contact sheets in sheets/ are committed
+docs/design/explorations/shots/

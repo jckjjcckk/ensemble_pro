@@ -29,5 +29,7 @@ export default defineConfig({
     // Expose on the LAN so iPads on the same wifi can open the dev server.
     host: true,
     port: 5173,
+    // Let Cloudflare tunnels (random *.trycloudflare.com hosts or your own hostname) reach the dev server.
+    allowedHosts: ['.trycloudflare.com'],
   },
 })

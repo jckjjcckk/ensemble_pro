@@ -1,5 +1,11 @@
 # Design explorations
 
+**Verdict (2026-10-26).** Five directions were built and reviewed. **Exploration 5 (Instrument) is the base** for the product. **Exploration 4 (Bound)** stays in the repo as the source of a second design-token set (serif type, ecru palette) and of the facing-pages book view, which becomes a display setting. Explorations 1 to 3 were removed from the repo (1 Reading room: margin-note placement is the one idea carried over; 2 Pit: timeline dropped; 3 Console: rejected as too dashboard-like). Themes are token swaps only; there is one layout. The product is iPad-first and touch-first; see the handoff notes for the binding rules.
+
+The rest of this file is the original brief the five agents built from, kept for the record.
+
+---
+
 Five parallel visual directions for the same product, built on the same data, so the owner can pick one to build on and steal parts from the others. Product truth lives in [/PRODUCT.md](../../../PRODUCT.md) and is not up for debate here. Visitor mode for every screen is **Operate**: a musician came to do a job.
 
 Each exploration is a self-contained React app mounted at `/N` and written only inside `web/src/explorations/N/`. Four of five will be deleted; the survivor becomes the real app, so build it as if it will ship.
