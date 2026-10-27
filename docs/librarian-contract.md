@@ -37,7 +37,7 @@ async def process_pages(job: Job, ctx: JobContext) -> dict: ...
 | `await ctx.progress(0.4, "Read page 3 of 7")` | updates `jobs.progress` and `jobs.result.note` |
 | `await ctx.complete(prompt, system=, effort=, image_png_b64=)` | `app.llm.complete` plus the charge, on the job's user, tagged with the job id |
 | `ctx.charge(Charge(...))` | records a non-LLM model call (SAM image, Voice Transcribe seconds) |
-| `ctx.storage_download(path)` / `ctx.storage_upload(path, bytes, content_type)` | the `scores` bucket |
+| `ctx.storage_download(key)` / `ctx.storage_upload(key, bytes, content_type)` | the `scores` bucket; keys are `{score_id}/...` |
 | `ctx.needs_review(question: str, payload: dict)` | parks the job: `interpretations.status = 'needs_review'`, `jobs.result.question`, job `done`. The admin answers through a route in the app thread, which queues a follow-up job of the same kind with `payload.answer` set. |
 
 The return value is stored in `jobs.result`. Budget is checked by the route that creates the job, not by the
@@ -71,9 +71,9 @@ Annotations point at `measures.id`, so a reprocess keeps every marking. Placemen
 
 ## Pages and files
 
-`sources.storage_paths` lists the uploaded files under `scores/{score_id}/` in the private `scores` bucket; `kind`
+`sources.storage_paths` lists the uploaded files as object keys inside the private `scores` bucket, always `{score_id}/...` (the storage policies read the score id from the first folder); `kind`
 is `pdf`, `images` or `musicxml`. For pages, the app thread rasterises in the browser (pdf.js) and uploads
-`scores/{score_id}/pages/{n}.png`; `page_order` is the committed reading order (1-based indexes into the upload
+`{score_id}/pages/{n}.png`; `page_order` is the committed reading order (1-based indexes into the upload
 set). A handler reads pages in `page_order` and reports page numbers in that order.
 
 ## Money and models

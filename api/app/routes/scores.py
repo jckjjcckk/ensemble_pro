@@ -25,14 +25,14 @@ def assert_can_edit(user: User, score_id: str) -> dict:
 
 
 class ImportBody(BaseModel):
-    path: str                       # bucket path the browser uploaded to: scores/{score_id}/source.musicxml
+    path: str                       # object key inside the scores bucket: {score_id}/source.musicxml
 
 
 @router.post("/scores/{score_id}/import")
 def import_score(score_id: str, body: ImportBody, user: BudgetedUser) -> dict:
     """Queue the MusicXML import (Path A). Returns the source and job ids; the library watches the job row."""
     assert_can_edit(user, score_id)
-    if not body.path.startswith(f"scores/{score_id}/"):
+    if not body.path.startswith(f"{score_id}/"):
         raise HTTPException(400, "Path must be inside the score's folder")
     src = db().table("sources").insert({"score_id": score_id, "kind": "musicxml", "storage_paths": [body.path], "created_by": user.id}).execute().data[0]
     job = db().table("jobs").insert({"kind": "import_musicxml", "score_id": score_id, "created_by": user.id, "payload": {"score_id": score_id, "source_id": src["id"]}}).execute().data[0]
