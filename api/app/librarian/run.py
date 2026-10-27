@@ -5,7 +5,7 @@
     cd api && uv run -m app.librarian.run show --score <id>
 
 `seed` creates a score in admin@muse.test's personal library (the demo user `scripts/smoke_local.py` makes),
-uploads the PNGs as `scores/{id}/pages/{n}.png` and records an `images` source with `page_order` 1..n.
+uploads the PNGs as `{id}/pages/{n}.png` (bucket-relative, as the contract says) and records an `images` source with `page_order` 1..n.
 `process_pages` (or any registered kind) inserts a job row, builds the JobContext with `app.worker.context_for`,
 runs the handler like the worker would, writes the outcome to the job row and prints it. `show` prints the
 score, its current interpretation summary, parts and placements.
@@ -62,7 +62,7 @@ def cmd_seed(a) -> None:
     score = d.table("scores").insert({"owner_user_id": admin["id"], "created_by": admin["id"], "title": a.title, "status": "processing", "progress": 0}).execute().data[0]
     paths = []
     for i, p in enumerate(a.pages, start=1):
-        path = f"scores/{score['id']}/pages/{i}.png"
+        path = f"{score['id']}/pages/{i}.png"
         d.storage.from_("scores").upload(path, Path(p).read_bytes(), {"content-type": "image/png", "upsert": "true"})
         paths.append(path)
     src = d.table("sources").insert({"score_id": score["id"], "kind": "images", "storage_paths": paths, "page_order": list(range(1, len(paths) + 1)),

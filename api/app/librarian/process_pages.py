@@ -46,7 +46,7 @@ def page_paths(score_id: str, src: dict[str, Any]) -> list[str]:
         if 1 <= idx <= len(paths) and paths[idx - 1].lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
             out.append(paths[idx - 1])
         else:
-            out.append(f"scores/{score_id}/pages/{idx}.png")
+            out.append(f"{score_id}/pages/{idx}.png")
     return out
 
 
