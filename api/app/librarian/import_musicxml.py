@@ -20,6 +20,9 @@ ROMAN = ["I", "II", "III", "IV", "V", "VI"]
 
 def part_names(raw: list[str]) -> list[str]:
     names = [CANON.get(n.strip(), n.strip()) or f"Part {i + 1}" for i, n in enumerate(raw)]
+    # A piano exported as two "Piano" parts (one per staff) is one part, not Piano I and II.
+    if len(names) == 2 and names[0] == names[1] == "Piano":
+        return ["Piano"]
     out: list[str] = []
     for i, n in enumerate(names):
         if names.count(n) > 1:
@@ -60,6 +63,11 @@ async def import_musicxml(job: Job, ctx: JobContext) -> dict:
     measures = list(p0.getElementsByClass("Measure"))
     numbers = sorted({m.number for p in s.parts for m in p.getElementsByClass("Measure")})
     ks = p0.flatten().getElementsByClass(m21key.KeySignature)
+    # The signature alone cannot tell F major from D minor; let music21's key analysis pick the mode.
+    try:
+        mode = s.analyze("key").mode
+    except Exception:  # noqa: BLE001
+        mode = "major"
     ts = p0.flatten().getElementsByClass(m21meter.TimeSignature)
     mm = s.flatten().getElementsByClass(m21tempo.MetronomeMark)
     bpm = int(mm[0].number) if mm and mm[0].number else None
@@ -79,7 +87,8 @@ async def import_musicxml(job: Job, ctx: JobContext) -> dict:
 
     await ctx.progress(0.5, "Writing parts")
     part_rows = []
-    for i, (p, name) in enumerate(zip(s.parts, names)):
+    for i, name in enumerate(names):
+        p = s.parts[i] if len(names) == len(s.parts) else s
         part_rows.append({"score_id": score_id, "name": name, "position": i, "difficulty": difficulty_of(p), "storage_path": path})
     ctx.db.table("parts").upsert(part_rows, on_conflict="score_id,name").execute()
 
@@ -101,7 +110,7 @@ async def import_musicxml(job: Job, ctx: JobContext) -> dict:
 
     facts = {
         "status": "ready", "progress": 1.0, "failure_reason": None,
-        "bars": len(numbers), "key_sig": ks[0].asKey().name if ks else None, "meter": ts[0].ratioString if ts else None,
+        "bars": len(numbers), "key_sig": ks[0].asKey(mode).name if ks else None, "meter": ts[0].ratioString if ts else None,
         "tempo_bpm": bpm, "duration_sec": duration, "pages": max(1, round(len(measures) / 24)),
         "current_interpretation_id": interp["id"],
     }
