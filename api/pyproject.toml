@@ -3,6 +3,7 @@ name = "api"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "anthropic>=2.3.0",
     "fastapi>=0.162.0",
     "httpx>=0.28.1",
     "music21>=10.5.1",
