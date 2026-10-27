@@ -1,0 +1,602 @@
+{
+  "page": "goldberg-bga-p01",
+  "model": "muse-spark-1.3",
+  "effort": "low",
+  "latency_s": 16.3,
+  "usage": {
+    "input_tokens": 3125,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 3467,
+    "output_tokens_details": {
+      "reasoning_tokens": 2172
+    },
+    "total_tokens": 6592
+  },
+  "cost_usd": 0.0186,
+  "image_px": [
+    1274,
+    1624
+  ],
+  "raw_text": "{\"systems\":[{\"index\":1,\"bbox\":{\"x_min\":110,\"y_min\":120,\"x_max\":967,\"y_max\":238},\"staves\":2,\"measures\":[{\"number\":1,\"bbox\":{\"x_min\":110,\"y_min\":120,\"x_max\":293,\"y_max\":238},\"uncertain\":false},{\"number\":2,\"bbox\":{\"x_min\":293,\"y_min\":120,\"x_max\":415,\"y_max\":238},\"uncertain\":false},{\"number\":3,\"bbox\":{\"x_min\":415,\"y_min\":120,\"x_max\":535,\"y_max\":238},\"uncertain\":false},{\"number\":4,\"bbox\":{\"x_min\":535,\"y_min\":120,\"x_max\":688,\"y_max\":238},\"uncertain\":false},{\"number\":5,\"bbox\":{\"x_min\":688,\"y_min\":120,\"x_max\":815,\"y_max\":238},\"uncertain\":false},{\"number\":6,\"bbox\":{\"x_min\":815,\"y_min\":120,\"x_max\":967,\"y_max\":238},\"uncertain\":false}]},{\"index\":2,\"bbox\":{\"x_min\":22,\"y_min\":265,\"x_max\":968,\"y_max\":365},\"staves\":2,\"measures\":[{\"number\":7,\"bbox\":{\"x_min\":22,\"y_min\":265,\"x_max\":305,\"y_max\":365},\"uncertain\":false},{\"number\":8,\"bbox\":{\"x_min\":305,\"y_min\":265,\"x_max\":418,\"y_max\":365},\"uncertain\":false},{\"number\":9,\"bbox\":{\"x_min\":418,\"y_min\":265,\"x_max\":535,\"y_max\":365},\"uncertain\":false},{\"number\":10,\"bbox\":{\"x_min\":535,\"y_min\":265,\"x_max\":660,\"y_max\":365},\"uncertain\":false},{\"number\":11,\"bbox\":{\"x_min\":660,\"y_min\":265,\"x_max\":783,\"y_max\":365},\"uncertain\":false},{\"number\":12,\"bbox\":{\"x_min\":783,\"y_min\":265,\"x_max\":968,\"y_max\":365},\"uncertain\":false}]},{\"index\":3,\"bbox\":{\"x_min\":22,\"y_min\":390,\"x_max\":970,\"y_max\":488},\"staves\":2,\"measures\":[{\"number\":13,\"bbox\":{\"x_min\":22,\"y_min\":390,\"x_max\":333,\"y_max\":488},\"uncertain\":false},{\"number\":14,\"bbox\":{\"x_min\":333,\"y_min\":390,\"x_max\":530,\"y_max\":488},\"uncertain\":false},{\"number\":15,\"bbox\":{\"x_min\":530,\"y_min\":390,\"x_max\":735,\"y_max\":488},\"uncertain\":false},{\"number\":16,\"bbox\":{\"x_min\":735,\"y_min\":390,\"x_max\":970,\"y_max\":488},\"uncertain\":false}]},{\"index\":4,\"bbox\":{\"x_min\":100,\"y_min\":517,\"x_max\":968,\"y_max\":615},\"staves\":2,\"measures\":[{\"number\":17,\"bbox\":{\"x_min\":100,\"y_min\":517,\"x_max\":322,\"y_max\":615},\"uncertain\":false},{\"number\":18,\"bbox\":{\"x_min\":322,\"y_min\":517,\"x_max\":482,\"y_max\":615},\"uncertain\":true},{\"number\":19,\"bbox\":{\"x_min\":482,\"y_min\":517,\"x_max\":678,\"y_max\":615},\"uncertain\":false},{\"number\":20,\"bbox\":{\"x_min\":678,\"y_min\":517,\"x_max\":968,\"y_max\":615},\"uncertain\":true}]},{\"index\":5,\"bbox\":{\"x_min\":22,\"y_min\":645,\"x_max\":968,\"y_max\":750},\"staves\":2,\"measures\":[{\"number\":21,\"bbox\":{\"x_min\":22,\"y_min\":645,\"x_max\":335,\"y_max\":750},\"uncertain\":false},{\"number\":22,\"bbox\":{\"x_min\":335,\"y_min\":645,\"x_max\":548,\"y_max\":750},\"uncertain\":false},{\"number\":23,\"bbox\":{\"x_min\":548,\"y_min\":645,\"x_max\":968,\"y_max\":750},\"uncertain\":true}]},{\"index\":6,\"bbox\":{\"x_min\":22,\"y_min\":775,\"x_max\":968,\"y_max\":972},\"staves\":2,\"measures\":[{\"number\":24,\"bbox\":{\"x_min\":22,\"y_min\":775,\"x_max\":263,\"y_max\":972},\"uncertain\":false},{\"number\":25,\"bbox\":{\"x_min\":263,\"y_min\":775,\"x_max\":495,\"y_max\":972},\"uncertain\":false},{\"number\":26,\"bbox\":{\"x_min\":495,\"y_min\":775,\"x_max\":705,\"y_max\":972},\"uncertain\":true},{\"number\":27,\"bbox\":{\"x_min\":705,\"y_min\":775,\"x_max\":968,\"y_max\":972},\"uncertain\":false}]}],\"uncertain_regions\":[{\"bbox\":{\"x_min\":470,\"y_min\":517,\"x_max\":490,\"y_max\":615},\"why\":\"thin barline in system 4 between measures 18-19 could be confused with stems of beamed notes\"},{\"bbox\":{\"x_min\":670,\"y_min\":517,\"x_max\":690,\"y_max\":615},\"why\":\"barline in system 4 between measures 19-20 faint near middle of dense ornamentation\"},{\"bbox\":{\"x_min\":540,\"y_min\":645,\"x_max\":560,\"y_max\":750},\"why\":\"barline in system 5 between measures 22-23 close to beam and slur endpoints\"},{\"bbox\":{\"x_min\":488,\"y_min\":775,\"x_max\":508,\"y_max\":972},\"why\":\"barline in system 6 between measures 25-26 partially obscured by note stems\"},{\"bbox\":{\"x_min\":695,\"y_min\":775,\"x_max\":715,\"y_max\":972},\"why\":\"possible barline in system 6 between measures 26-27 in area of dense 32nd beams and cresc. text\"}],\"total_measures_on_page\":27}",
+  "status": "completed",
+  "incomplete": null,
+  "systems": [
+    {
+      "index": 1,
+      "box": {
+        "x0": 140,
+        "y0": 195,
+        "x1": 1232,
+        "y1": 387
+      },
+      "staves": 2,
+      "n_measures": 6
+    },
+    {
+      "index": 2,
+      "box": {
+        "x0": 28,
+        "y0": 430,
+        "x1": 1233,
+        "y1": 593
+      },
+      "staves": 2,
+      "n_measures": 6
+    },
+    {
+      "index": 3,
+      "box": {
+        "x0": 28,
+        "y0": 633,
+        "x1": 1236,
+        "y1": 793
+      },
+      "staves": 2,
+      "n_measures": 4
+    },
+    {
+      "index": 4,
+      "box": {
+        "x0": 127,
+        "y0": 840,
+        "x1": 1233,
+        "y1": 999
+      },
+      "staves": 2,
+      "n_measures": 4
+    },
+    {
+      "index": 5,
+      "box": {
+        "x0": 28,
+        "y0": 1047,
+        "x1": 1233,
+        "y1": 1218
+      },
+      "staves": 2,
+      "n_measures": 3
+    },
+    {
+      "index": 6,
+      "box": {
+        "x0": 28,
+        "y0": 1259,
+        "x1": 1233,
+        "y1": 1579
+      },
+      "staves": 2,
+      "n_measures": 4
+    }
+  ],
+  "measures": [
+    {
+      "number": 1,
+      "system": 1,
+      "box": {
+        "x0": 140,
+        "y0": 195,
+        "x1": 373,
+        "y1": 387
+      },
+      "grid": {
+        "x_min": 110,
+        "y_min": 120,
+        "x_max": 293,
+        "y_max": 238
+      },
+      "uncertain": false
+    },
+    {
+      "number": 2,
+      "system": 1,
+      "box": {
+        "x0": 373,
+        "y0": 195,
+        "x1": 529,
+        "y1": 387
+      },
+      "grid": {
+        "x_min": 293,
+        "y_min": 120,
+        "x_max": 415,
+        "y_max": 238
+      },
+      "uncertain": false
+    },
+    {
+      "number": 3,
+      "system": 1,
+      "box": {
+        "x0": 529,
+        "y0": 195,
+        "x1": 682,
+        "y1": 387
+      },
+      "grid": {
+        "x_min": 415,
+        "y_min": 120,
+        "x_max": 535,
+        "y_max": 238
+      },
+      "uncertain": false
+    },
+    {
+      "number": 4,
+      "system": 1,
+      "box": {
+        "x0": 682,
+        "y0": 195,
+        "x1": 877,
+        "y1": 387
+      },
+      "grid": {
+        "x_min": 535,
+        "y_min": 120,
+        "x_max": 688,
+        "y_max": 238
+      },
+      "uncertain": false
+    },
+    {
+      "number": 5,
+      "system": 1,
+      "box": {
+        "x0": 877,
+        "y0": 195,
+        "x1": 1038,
+        "y1": 387
+      },
+      "grid": {
+        "x_min": 688,
+        "y_min": 120,
+        "x_max": 815,
+        "y_max": 238
+      },
+      "uncertain": false
+    },
+    {
+      "number": 6,
+      "system": 1,
+      "box": {
+        "x0": 1038,
+        "y0": 195,
+        "x1": 1232,
+        "y1": 387
+      },
+      "grid": {
+        "x_min": 815,
+        "y_min": 120,
+        "x_max": 967,
+        "y_max": 238
+      },
+      "uncertain": false
+    },
+    {
+      "number": 7,
+      "system": 2,
+      "box": {
+        "x0": 28,
+        "y0": 430,
+        "x1": 389,
+        "y1": 593
+      },
+      "grid": {
+        "x_min": 22,
+        "y_min": 265,
+        "x_max": 305,
+        "y_max": 365
+      },
+      "uncertain": false
+    },
+    {
+      "number": 8,
+      "system": 2,
+      "box": {
+        "x0": 389,
+        "y0": 430,
+        "x1": 533,
+        "y1": 593
+      },
+      "grid": {
+        "x_min": 305,
+        "y_min": 265,
+        "x_max": 418,
+        "y_max": 365
+      },
+      "uncertain": false
+    },
+    {
+      "number": 9,
+      "system": 2,
+      "box": {
+        "x0": 533,
+        "y0": 430,
+        "x1": 682,
+        "y1": 593
+      },
+      "grid": {
+        "x_min": 418,
+        "y_min": 265,
+        "x_max": 535,
+        "y_max": 365
+      },
+      "uncertain": false
+    },
+    {
+      "number": 10,
+      "system": 2,
+      "box": {
+        "x0": 682,
+        "y0": 430,
+        "x1": 841,
+        "y1": 593
+      },
+      "grid": {
+        "x_min": 535,
+        "y_min": 265,
+        "x_max": 660,
+        "y_max": 365
+      },
+      "uncertain": false
+    },
+    {
+      "number": 11,
+      "system": 2,
+      "box": {
+        "x0": 841,
+        "y0": 430,
+        "x1": 998,
+        "y1": 593
+      },
+      "grid": {
+        "x_min": 660,
+        "y_min": 265,
+        "x_max": 783,
+        "y_max": 365
+      },
+      "uncertain": false
+    },
+    {
+      "number": 12,
+      "system": 2,
+      "box": {
+        "x0": 998,
+        "y0": 430,
+        "x1": 1233,
+        "y1": 593
+      },
+      "grid": {
+        "x_min": 783,
+        "y_min": 265,
+        "x_max": 968,
+        "y_max": 365
+      },
+      "uncertain": false
+    },
+    {
+      "number": 13,
+      "system": 3,
+      "box": {
+        "x0": 28,
+        "y0": 633,
+        "x1": 424,
+        "y1": 793
+      },
+      "grid": {
+        "x_min": 22,
+        "y_min": 390,
+        "x_max": 333,
+        "y_max": 488
+      },
+      "uncertain": false
+    },
+    {
+      "number": 14,
+      "system": 3,
+      "box": {
+        "x0": 424,
+        "y0": 633,
+        "x1": 675,
+        "y1": 793
+      },
+      "grid": {
+        "x_min": 333,
+        "y_min": 390,
+        "x_max": 530,
+        "y_max": 488
+      },
+      "uncertain": false
+    },
+    {
+      "number": 15,
+      "system": 3,
+      "box": {
+        "x0": 675,
+        "y0": 633,
+        "x1": 936,
+        "y1": 793
+      },
+      "grid": {
+        "x_min": 530,
+        "y_min": 390,
+        "x_max": 735,
+        "y_max": 488
+      },
+      "uncertain": false
+    },
+    {
+      "number": 16,
+      "system": 3,
+      "box": {
+        "x0": 936,
+        "y0": 633,
+        "x1": 1236,
+        "y1": 793
+      },
+      "grid": {
+        "x_min": 735,
+        "y_min": 390,
+        "x_max": 970,
+        "y_max": 488
+      },
+      "uncertain": false
+    },
+    {
+      "number": 17,
+      "system": 4,
+      "box": {
+        "x0": 127,
+        "y0": 840,
+        "x1": 410,
+        "y1": 999
+      },
+      "grid": {
+        "x_min": 100,
+        "y_min": 517,
+        "x_max": 322,
+        "y_max": 615
+      },
+      "uncertain": false
+    },
+    {
+      "number": 18,
+      "system": 4,
+      "box": {
+        "x0": 410,
+        "y0": 840,
+        "x1": 614,
+        "y1": 999
+      },
+      "grid": {
+        "x_min": 322,
+        "y_min": 517,
+        "x_max": 482,
+        "y_max": 615
+      },
+      "uncertain": true
+    },
+    {
+      "number": 19,
+      "system": 4,
+      "box": {
+        "x0": 614,
+        "y0": 840,
+        "x1": 864,
+        "y1": 999
+      },
+      "grid": {
+        "x_min": 482,
+        "y_min": 517,
+        "x_max": 678,
+        "y_max": 615
+      },
+      "uncertain": false
+    },
+    {
+      "number": 20,
+      "system": 4,
+      "box": {
+        "x0": 864,
+        "y0": 840,
+        "x1": 1233,
+        "y1": 999
+      },
+      "grid": {
+        "x_min": 678,
+        "y_min": 517,
+        "x_max": 968,
+        "y_max": 615
+      },
+      "uncertain": true
+    },
+    {
+      "number": 21,
+      "system": 5,
+      "box": {
+        "x0": 28,
+        "y0": 1047,
+        "x1": 427,
+        "y1": 1218
+      },
+      "grid": {
+        "x_min": 22,
+        "y_min": 645,
+        "x_max": 335,
+        "y_max": 750
+      },
+      "uncertain": false
+    },
+    {
+      "number": 22,
+      "system": 5,
+      "box": {
+        "x0": 427,
+        "y0": 1047,
+        "x1": 698,
+        "y1": 1218
+      },
+      "grid": {
+        "x_min": 335,
+        "y_min": 645,
+        "x_max": 548,
+        "y_max": 750
+      },
+      "uncertain": false
+    },
+    {
+      "number": 23,
+      "system": 5,
+      "box": {
+        "x0": 698,
+        "y0": 1047,
+        "x1": 1233,
+        "y1": 1218
+      },
+      "grid": {
+        "x_min": 548,
+        "y_min": 645,
+        "x_max": 968,
+        "y_max": 750
+      },
+      "uncertain": true
+    },
+    {
+      "number": 24,
+      "system": 6,
+      "box": {
+        "x0": 28,
+        "y0": 1259,
+        "x1": 335,
+        "y1": 1579
+      },
+      "grid": {
+        "x_min": 22,
+        "y_min": 775,
+        "x_max": 263,
+        "y_max": 972
+      },
+      "uncertain": false
+    },
+    {
+      "number": 25,
+      "system": 6,
+      "box": {
+        "x0": 335,
+        "y0": 1259,
+        "x1": 631,
+        "y1": 1579
+      },
+      "grid": {
+        "x_min": 263,
+        "y_min": 775,
+        "x_max": 495,
+        "y_max": 972
+      },
+      "uncertain": false
+    },
+    {
+      "number": 26,
+      "system": 6,
+      "box": {
+        "x0": 631,
+        "y0": 1259,
+        "x1": 898,
+        "y1": 1579
+      },
+      "grid": {
+        "x_min": 495,
+        "y_min": 775,
+        "x_max": 705,
+        "y_max": 972
+      },
+      "uncertain": true
+    },
+    {
+      "number": 27,
+      "system": 6,
+      "box": {
+        "x0": 898,
+        "y0": 1259,
+        "x1": 1233,
+        "y1": 1579
+      },
+      "grid": {
+        "x_min": 705,
+        "y_min": 775,
+        "x_max": 968,
+        "y_max": 972
+      },
+      "uncertain": false
+    }
+  ],
+  "uncertain_regions": [
+    {
+      "box": {
+        "x0": 599,
+        "y0": 840,
+        "x1": 624,
+        "y1": 999
+      },
+      "why": "thin barline in system 4 between measures 18-19 could be confused with stems of beamed notes"
+    },
+    {
+      "box": {
+        "x0": 854,
+        "y0": 840,
+        "x1": 879,
+        "y1": 999
+      },
+      "why": "barline in system 4 between measures 19-20 faint near middle of dense ornamentation"
+    },
+    {
+      "box": {
+        "x0": 688,
+        "y0": 1047,
+        "x1": 713,
+        "y1": 1218
+      },
+      "why": "barline in system 5 between measures 22-23 close to beam and slur endpoints"
+    },
+    {
+      "box": {
+        "x0": 622,
+        "y0": 1259,
+        "x1": 647,
+        "y1": 1579
+      },
+      "why": "barline in system 6 between measures 25-26 partially obscured by note stems"
+    },
+    {
+      "box": {
+        "x0": 885,
+        "y0": 1259,
+        "x1": 911,
+        "y1": 1579
+      },
+      "why": "possible barline in system 6 between measures 26-27 in area of dense 32nd beams and cresc. text"
+    }
+  ],
+  "total_measures_on_page": 27
+}

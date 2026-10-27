@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>spark-rach1-2pf-gutheil-p03</title>
+<style>
+  body { margin: 0; font: 15px/1.4 -apple-system, system-ui, sans-serif; background: #f3f1ec; color: #222; }
+  header { padding: 10px 16px; display: flex; gap: 16px; align-items: baseline; }
+  header b { font-size: 18px; }
+  #sel { font-variant-numeric: tabular-nums; }
+  .page { position: relative; margin: 0 auto; max-width: 1000px; }
+  .page img { display: block; width: 100%; height: auto; }
+  .m { position: absolute; box-sizing: border-box; border: 2px solid rgba(0,110,220,.55); background: rgba(0,110,220,.07); cursor: pointer; }
+  .m.unc { border-color: rgba(220,120,0,.8); background: rgba(220,120,0,.10); }
+  .m:hover { background: rgba(0,110,220,.18); }
+  .m.on { border-color: #d2232a; background: rgba(210,35,42,.22); z-index: 2; }
+  .m span { position: absolute; left: 2px; top: 2px; font-size: 12px; font-weight: 600; padding: 0 4px; background: rgba(255,255,255,.85); border-radius: 3px; color: #0a4; }
+  .m.unc span { color: #b60; }
+  .m.on span { color: #d2232a; }
+  .sys { position: absolute; box-sizing: border-box; border: 1px dashed rgba(0,0,0,.35); pointer-events: none; }
+</style></head>
+<body>
+<header><b>spark-rach1-2pf-gutheil-p03</b><span>13 measures (muse-spark-1.3)</span><span id="sel">tap a measure</span></header>
+<div class="page">
+  <img src="../pages/rach1-2pf-gutheil-p03.png" alt="spark-rach1-2pf-gutheil-p03">
+  <div class="sys" style="left:13.277%;top:20.503%;width:81.497%;height:21.395%"></div>
+  <div class="sys" style="left:6.427%;top:44.678%;width:88.559%;height:18.144%"></div>
+  <div class="sys" style="left:6.780%;top:64.080%;width:88.489%;height:27.897%"></div>
+  <div class="m" data-n="1" style="left:13.277%;top:20.503%;width:16.525%;height:21.395%"><span>1</span></div>
+  <div class="m" data-n="2" style="left:29.802%;top:20.503%;width:6.427%;height:21.395%"><span>2</span></div>
+  <div class="m" data-n="3" style="left:36.229%;top:20.503%;width:17.090%;height:21.395%"><span>3</span></div>
+  <div class="m" data-n="4" style="left:53.319%;top:20.503%;width:20.975%;height:21.395%"><span>4</span></div>
+  <div class="m" data-n="5" style="left:74.294%;top:20.503%;width:20.480%;height:21.395%"><span>5</span></div>
+  <div class="m" data-n="6" style="left:6.427%;top:44.678%;width:30.579%;height:18.144%"><span>6</span></div>
+  <div class="m" data-n="7" style="left:37.006%;top:44.678%;width:22.387%;height:18.144%"><span>7</span></div>
+  <div class="m" data-n="8" style="left:59.393%;top:44.678%;width:21.398%;height:18.144%"><span>8</span></div>
+  <div class="m" data-n="9" style="left:80.791%;top:44.678%;width:14.195%;height:18.144%"><span>9</span></div>
+  <div class="m" data-n="10" style="left:6.780%;top:64.080%;width:16.243%;height:27.897%"><span>10</span></div>
+  <div class="m" data-n="11" style="left:23.023%;top:64.080%;width:8.192%;height:27.897%"><span>11</span></div>
+  <div class="m" data-n="12" style="left:31.215%;top:64.080%;width:13.277%;height:27.897%"><span>12</span></div>
+  <div class="m" data-n="13" style="left:44.492%;top:64.080%;width:50.777%;height:27.897%"><span>13</span></div>
+</div>
+<script>
+  const sel = document.getElementById('sel');
+  document.querySelectorAll('.m').forEach(el => el.addEventListener('click', () => {
+    document.querySelectorAll('.m.on').forEach(o => o.classList.remove('on'));
+    el.classList.add('on');
+    sel.textContent = 'selected measure ' + el.dataset.n + (el.classList.contains('unc') ? ' (flagged uncertain)' : '');
+  }));
+</script>
+</body></html>

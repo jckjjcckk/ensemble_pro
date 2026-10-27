@@ -1,0 +1,1223 @@
+{
+  "page": "goldberg-bga-p01",
+  "engine": "opencv-geometry + muse-spark-1.3 labels",
+  "effort": "low",
+  "latency_s": 6.4,
+  "usage": {
+    "input_tokens": 3058,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 948,
+    "output_tokens_details": {
+      "reasoning_tokens": 744
+    },
+    "total_tokens": 4006
+  },
+  "cost_usd": 0.0079,
+  "cv_skew_deg": 1.3322676295501878e-15,
+  "labels": {
+    "first_measure_number": 1,
+    "is_pickup": false,
+    "confidence": "high",
+    "systems": [
+      {
+        "index": 1,
+        "parts": [
+          "Piano"
+        ],
+        "staves_per_part": [
+          2
+        ]
+      },
+      {
+        "index": 2,
+        "parts": [
+          "Piano"
+        ],
+        "staves_per_part": [
+          2
+        ]
+      },
+      {
+        "index": 3,
+        "parts": [
+          "Piano"
+        ],
+        "staves_per_part": [
+          2
+        ]
+      },
+      {
+        "index": 4,
+        "parts": [
+          "Piano"
+        ],
+        "staves_per_part": [
+          2
+        ]
+      },
+      {
+        "index": 5,
+        "parts": [
+          "Piano"
+        ],
+        "staves_per_part": [
+          2
+        ]
+      },
+      {
+        "index": 6,
+        "parts": [
+          "Piano"
+        ],
+        "staves_per_part": [
+          2
+        ]
+      }
+    ],
+    "rehearsal_marks": [],
+    "doubtful_measures": [],
+    "title": "Aria con Variazioni.",
+    "composer": "J. S. Bach."
+  },
+  "raw_text": "{\"first_measure_number\": 1, \"is_pickup\": false, \"confidence\": \"high\", \"systems\": [{\"index\": 1, \"parts\": [\"Piano\"], \"staves_per_part\": [2]}, {\"index\": 2, \"parts\": [\"Piano\"], \"staves_per_part\": [2]}, {\"index\": 3, \"parts\": [\"Piano\"], \"staves_per_part\": [2]}, {\"index\": 4, \"parts\": [\"Piano\"], \"staves_per_part\": [2]}, {\"index\": 5, \"parts\": [\"Piano\"], \"staves_per_part\": [2]}, {\"index\": 6, \"parts\": [\"Piano\"], \"staves_per_part\": [2]}], \"rehearsal_marks\": [], \"doubtful_measures\": [], \"title\": \"Aria con Variazioni.\", \"composer\": \"J. S. Bach.\"}",
+  "systems": [
+    {
+      "index": 1,
+      "box": {
+        "x0": 150,
+        "y0": 188,
+        "x1": 1199,
+        "y1": 350
+      },
+      "staves": 2,
+      "barlines": [
+        [
+          157,
+          160
+        ],
+        [
+          354,
+          357
+        ],
+        [
+          509,
+          513
+        ],
+        [
+          661,
+          664
+        ],
+        [
+          878,
+          881
+        ],
+        [
+          1019,
+          1022
+        ],
+        [
+          1196,
+          1199
+        ]
+      ],
+      "n_measures": 6,
+      "parts": [
+        "Piano"
+      ]
+    },
+    {
+      "index": 2,
+      "box": {
+        "x0": 71,
+        "y0": 418,
+        "x1": 1200,
+        "y1": 587
+      },
+      "staves": 2,
+      "barlines": [
+        [
+          72,
+          75
+        ],
+        [
+          385,
+          389
+        ],
+        [
+          560,
+          563
+        ],
+        [
+          684,
+          687
+        ],
+        [
+          867,
+          870
+        ],
+        [
+          1026,
+          1029
+        ],
+        [
+          1197,
+          1200
+        ]
+      ],
+      "n_measures": 6,
+      "parts": [
+        "Piano"
+      ]
+    },
+    {
+      "index": 3,
+      "box": {
+        "x0": 69,
+        "y0": 662,
+        "x1": 1201,
+        "y1": 823
+      },
+      "staves": 2,
+      "barlines": [
+        [
+          70,
+          74
+        ],
+        [
+          392,
+          396
+        ],
+        [
+          649,
+          652
+        ],
+        [
+          921,
+          924
+        ],
+        [
+          1189,
+          1200
+        ]
+      ],
+      "n_measures": 4,
+      "parts": [
+        "Piano"
+      ]
+    },
+    {
+      "index": 4,
+      "box": {
+        "x0": 70,
+        "y0": 896,
+        "x1": 1201,
+        "y1": 1060
+      },
+      "staves": 2,
+      "barlines": [
+        [
+          70,
+          73
+        ],
+        [
+          133,
+          145
+        ],
+        [
+          401,
+          405
+        ],
+        [
+          613,
+          616
+        ],
+        [
+          952,
+          955
+        ],
+        [
+          1198,
+          1201
+        ]
+      ],
+      "n_measures": 4,
+      "parts": [
+        "Piano"
+      ]
+    },
+    {
+      "index": 5,
+      "box": {
+        "x0": 69,
+        "y0": 1133,
+        "x1": 1202,
+        "y1": 1295
+      },
+      "staves": 2,
+      "barlines": [
+        [
+          71,
+          74
+        ],
+        [
+          398,
+          401
+        ],
+        [
+          683,
+          687
+        ],
+        [
+          932,
+          935
+        ],
+        [
+          1199,
+          1202
+        ]
+      ],
+      "n_measures": 4,
+      "parts": [
+        "Piano"
+      ]
+    },
+    {
+      "index": 6,
+      "box": {
+        "x0": 72,
+        "y0": 1364,
+        "x1": 1204,
+        "y1": 1531
+      },
+      "staves": 2,
+      "barlines": [
+        [
+          72,
+          76
+        ],
+        [
+          319,
+          322
+        ],
+        [
+          637,
+          641
+        ],
+        [
+          915,
+          918
+        ],
+        [
+          1201,
+          1204
+        ]
+      ],
+      "n_measures": 4,
+      "parts": [
+        "Piano"
+      ]
+    }
+  ],
+  "measures": [
+    {
+      "number": 1,
+      "system": 1,
+      "box": {
+        "x0": 150,
+        "y0": 188,
+        "x1": 357,
+        "y1": 350
+      },
+      "uncertain": false
+    },
+    {
+      "number": 2,
+      "system": 1,
+      "box": {
+        "x0": 354,
+        "y0": 188,
+        "x1": 513,
+        "y1": 350
+      },
+      "uncertain": false
+    },
+    {
+      "number": 3,
+      "system": 1,
+      "box": {
+        "x0": 509,
+        "y0": 188,
+        "x1": 664,
+        "y1": 350
+      },
+      "uncertain": false
+    },
+    {
+      "number": 4,
+      "system": 1,
+      "box": {
+        "x0": 661,
+        "y0": 188,
+        "x1": 881,
+        "y1": 350
+      },
+      "uncertain": false
+    },
+    {
+      "number": 5,
+      "system": 1,
+      "box": {
+        "x0": 878,
+        "y0": 188,
+        "x1": 1022,
+        "y1": 350
+      },
+      "uncertain": false
+    },
+    {
+      "number": 6,
+      "system": 1,
+      "box": {
+        "x0": 1019,
+        "y0": 188,
+        "x1": 1199,
+        "y1": 350
+      },
+      "uncertain": false
+    },
+    {
+      "number": 7,
+      "system": 2,
+      "box": {
+        "x0": 71,
+        "y0": 418,
+        "x1": 389,
+        "y1": 587
+      },
+      "uncertain": false
+    },
+    {
+      "number": 8,
+      "system": 2,
+      "box": {
+        "x0": 385,
+        "y0": 418,
+        "x1": 563,
+        "y1": 587
+      },
+      "uncertain": false
+    },
+    {
+      "number": 9,
+      "system": 2,
+      "box": {
+        "x0": 560,
+        "y0": 418,
+        "x1": 687,
+        "y1": 587
+      },
+      "uncertain": false
+    },
+    {
+      "number": 10,
+      "system": 2,
+      "box": {
+        "x0": 684,
+        "y0": 418,
+        "x1": 870,
+        "y1": 587
+      },
+      "uncertain": false
+    },
+    {
+      "number": 11,
+      "system": 2,
+      "box": {
+        "x0": 867,
+        "y0": 418,
+        "x1": 1029,
+        "y1": 587
+      },
+      "uncertain": false
+    },
+    {
+      "number": 12,
+      "system": 2,
+      "box": {
+        "x0": 1026,
+        "y0": 418,
+        "x1": 1200,
+        "y1": 587
+      },
+      "uncertain": false
+    },
+    {
+      "number": 13,
+      "system": 3,
+      "box": {
+        "x0": 69,
+        "y0": 662,
+        "x1": 396,
+        "y1": 823
+      },
+      "uncertain": false
+    },
+    {
+      "number": 14,
+      "system": 3,
+      "box": {
+        "x0": 392,
+        "y0": 662,
+        "x1": 652,
+        "y1": 823
+      },
+      "uncertain": false
+    },
+    {
+      "number": 15,
+      "system": 3,
+      "box": {
+        "x0": 649,
+        "y0": 662,
+        "x1": 924,
+        "y1": 823
+      },
+      "uncertain": false
+    },
+    {
+      "number": 16,
+      "system": 3,
+      "box": {
+        "x0": 921,
+        "y0": 662,
+        "x1": 1200,
+        "y1": 823
+      },
+      "uncertain": false
+    },
+    {
+      "number": 17,
+      "system": 4,
+      "box": {
+        "x0": 70,
+        "y0": 896,
+        "x1": 405,
+        "y1": 1060
+      },
+      "uncertain": false
+    },
+    {
+      "number": 18,
+      "system": 4,
+      "box": {
+        "x0": 401,
+        "y0": 896,
+        "x1": 616,
+        "y1": 1060
+      },
+      "uncertain": false
+    },
+    {
+      "number": 19,
+      "system": 4,
+      "box": {
+        "x0": 613,
+        "y0": 896,
+        "x1": 955,
+        "y1": 1060
+      },
+      "uncertain": false
+    },
+    {
+      "number": 20,
+      "system": 4,
+      "box": {
+        "x0": 952,
+        "y0": 896,
+        "x1": 1201,
+        "y1": 1060
+      },
+      "uncertain": false
+    },
+    {
+      "number": 21,
+      "system": 5,
+      "box": {
+        "x0": 69,
+        "y0": 1133,
+        "x1": 401,
+        "y1": 1295
+      },
+      "uncertain": false
+    },
+    {
+      "number": 22,
+      "system": 5,
+      "box": {
+        "x0": 398,
+        "y0": 1133,
+        "x1": 687,
+        "y1": 1295
+      },
+      "uncertain": false
+    },
+    {
+      "number": 23,
+      "system": 5,
+      "box": {
+        "x0": 683,
+        "y0": 1133,
+        "x1": 935,
+        "y1": 1295
+      },
+      "uncertain": false
+    },
+    {
+      "number": 24,
+      "system": 5,
+      "box": {
+        "x0": 932,
+        "y0": 1133,
+        "x1": 1202,
+        "y1": 1295
+      },
+      "uncertain": false
+    },
+    {
+      "number": 25,
+      "system": 6,
+      "box": {
+        "x0": 72,
+        "y0": 1364,
+        "x1": 322,
+        "y1": 1531
+      },
+      "uncertain": false
+    },
+    {
+      "number": 26,
+      "system": 6,
+      "box": {
+        "x0": 319,
+        "y0": 1364,
+        "x1": 641,
+        "y1": 1531
+      },
+      "uncertain": false
+    },
+    {
+      "number": 27,
+      "system": 6,
+      "box": {
+        "x0": 637,
+        "y0": 1364,
+        "x1": 918,
+        "y1": 1531
+      },
+      "uncertain": false
+    },
+    {
+      "number": 28,
+      "system": 6,
+      "box": {
+        "x0": 915,
+        "y0": 1364,
+        "x1": 1204,
+        "y1": 1531
+      },
+      "uncertain": false
+    }
+  ],
+  "records": [
+    {
+      "measure_number": 1,
+      "page": 1,
+      "system": 1,
+      "part": "Piano",
+      "box": {
+        "x0": 150,
+        "y0": 188,
+        "x1": 357,
+        "y1": 350
+      },
+      "box_norm": {
+        "x0": 0.1177,
+        "y0": 0.1158,
+        "x1": 0.2802,
+        "y1": 0.2155
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 2,
+      "page": 1,
+      "system": 1,
+      "part": "Piano",
+      "box": {
+        "x0": 354,
+        "y0": 188,
+        "x1": 513,
+        "y1": 350
+      },
+      "box_norm": {
+        "x0": 0.2779,
+        "y0": 0.1158,
+        "x1": 0.4027,
+        "y1": 0.2155
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 3,
+      "page": 1,
+      "system": 1,
+      "part": "Piano",
+      "box": {
+        "x0": 509,
+        "y0": 188,
+        "x1": 664,
+        "y1": 350
+      },
+      "box_norm": {
+        "x0": 0.3995,
+        "y0": 0.1158,
+        "x1": 0.5212,
+        "y1": 0.2155
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 4,
+      "page": 1,
+      "system": 1,
+      "part": "Piano",
+      "box": {
+        "x0": 661,
+        "y0": 188,
+        "x1": 881,
+        "y1": 350
+      },
+      "box_norm": {
+        "x0": 0.5188,
+        "y0": 0.1158,
+        "x1": 0.6915,
+        "y1": 0.2155
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 5,
+      "page": 1,
+      "system": 1,
+      "part": "Piano",
+      "box": {
+        "x0": 878,
+        "y0": 188,
+        "x1": 1022,
+        "y1": 350
+      },
+      "box_norm": {
+        "x0": 0.6892,
+        "y0": 0.1158,
+        "x1": 0.8022,
+        "y1": 0.2155
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 6,
+      "page": 1,
+      "system": 1,
+      "part": "Piano",
+      "box": {
+        "x0": 1019,
+        "y0": 188,
+        "x1": 1199,
+        "y1": 350
+      },
+      "box_norm": {
+        "x0": 0.7998,
+        "y0": 0.1158,
+        "x1": 0.9411,
+        "y1": 0.2155
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 7,
+      "page": 1,
+      "system": 2,
+      "part": "Piano",
+      "box": {
+        "x0": 71,
+        "y0": 418,
+        "x1": 389,
+        "y1": 587
+      },
+      "box_norm": {
+        "x0": 0.0557,
+        "y0": 0.2574,
+        "x1": 0.3053,
+        "y1": 0.3615
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 8,
+      "page": 1,
+      "system": 2,
+      "part": "Piano",
+      "box": {
+        "x0": 385,
+        "y0": 418,
+        "x1": 563,
+        "y1": 587
+      },
+      "box_norm": {
+        "x0": 0.3022,
+        "y0": 0.2574,
+        "x1": 0.4419,
+        "y1": 0.3615
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 9,
+      "page": 1,
+      "system": 2,
+      "part": "Piano",
+      "box": {
+        "x0": 560,
+        "y0": 418,
+        "x1": 687,
+        "y1": 587
+      },
+      "box_norm": {
+        "x0": 0.4396,
+        "y0": 0.2574,
+        "x1": 0.5392,
+        "y1": 0.3615
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 10,
+      "page": 1,
+      "system": 2,
+      "part": "Piano",
+      "box": {
+        "x0": 684,
+        "y0": 418,
+        "x1": 870,
+        "y1": 587
+      },
+      "box_norm": {
+        "x0": 0.5369,
+        "y0": 0.2574,
+        "x1": 0.6829,
+        "y1": 0.3615
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 11,
+      "page": 1,
+      "system": 2,
+      "part": "Piano",
+      "box": {
+        "x0": 867,
+        "y0": 418,
+        "x1": 1029,
+        "y1": 587
+      },
+      "box_norm": {
+        "x0": 0.6805,
+        "y0": 0.2574,
+        "x1": 0.8077,
+        "y1": 0.3615
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 12,
+      "page": 1,
+      "system": 2,
+      "part": "Piano",
+      "box": {
+        "x0": 1026,
+        "y0": 418,
+        "x1": 1200,
+        "y1": 587
+      },
+      "box_norm": {
+        "x0": 0.8053,
+        "y0": 0.2574,
+        "x1": 0.9419,
+        "y1": 0.3615
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 13,
+      "page": 1,
+      "system": 3,
+      "part": "Piano",
+      "box": {
+        "x0": 69,
+        "y0": 662,
+        "x1": 396,
+        "y1": 823
+      },
+      "box_norm": {
+        "x0": 0.0542,
+        "y0": 0.4076,
+        "x1": 0.3108,
+        "y1": 0.5068
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 14,
+      "page": 1,
+      "system": 3,
+      "part": "Piano",
+      "box": {
+        "x0": 392,
+        "y0": 662,
+        "x1": 652,
+        "y1": 823
+      },
+      "box_norm": {
+        "x0": 0.3077,
+        "y0": 0.4076,
+        "x1": 0.5118,
+        "y1": 0.5068
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 15,
+      "page": 1,
+      "system": 3,
+      "part": "Piano",
+      "box": {
+        "x0": 649,
+        "y0": 662,
+        "x1": 924,
+        "y1": 823
+      },
+      "box_norm": {
+        "x0": 0.5094,
+        "y0": 0.4076,
+        "x1": 0.7253,
+        "y1": 0.5068
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 16,
+      "page": 1,
+      "system": 3,
+      "part": "Piano",
+      "box": {
+        "x0": 921,
+        "y0": 662,
+        "x1": 1200,
+        "y1": 823
+      },
+      "box_norm": {
+        "x0": 0.7229,
+        "y0": 0.4076,
+        "x1": 0.9419,
+        "y1": 0.5068
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 17,
+      "page": 1,
+      "system": 4,
+      "part": "Piano",
+      "box": {
+        "x0": 70,
+        "y0": 896,
+        "x1": 405,
+        "y1": 1060
+      },
+      "box_norm": {
+        "x0": 0.0549,
+        "y0": 0.5517,
+        "x1": 0.3179,
+        "y1": 0.6527
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 18,
+      "page": 1,
+      "system": 4,
+      "part": "Piano",
+      "box": {
+        "x0": 401,
+        "y0": 896,
+        "x1": 616,
+        "y1": 1060
+      },
+      "box_norm": {
+        "x0": 0.3148,
+        "y0": 0.5517,
+        "x1": 0.4835,
+        "y1": 0.6527
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 19,
+      "page": 1,
+      "system": 4,
+      "part": "Piano",
+      "box": {
+        "x0": 613,
+        "y0": 896,
+        "x1": 955,
+        "y1": 1060
+      },
+      "box_norm": {
+        "x0": 0.4812,
+        "y0": 0.5517,
+        "x1": 0.7496,
+        "y1": 0.6527
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 20,
+      "page": 1,
+      "system": 4,
+      "part": "Piano",
+      "box": {
+        "x0": 952,
+        "y0": 896,
+        "x1": 1201,
+        "y1": 1060
+      },
+      "box_norm": {
+        "x0": 0.7473,
+        "y0": 0.5517,
+        "x1": 0.9427,
+        "y1": 0.6527
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 21,
+      "page": 1,
+      "system": 5,
+      "part": "Piano",
+      "box": {
+        "x0": 69,
+        "y0": 1133,
+        "x1": 401,
+        "y1": 1295
+      },
+      "box_norm": {
+        "x0": 0.0542,
+        "y0": 0.6977,
+        "x1": 0.3148,
+        "y1": 0.7974
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 22,
+      "page": 1,
+      "system": 5,
+      "part": "Piano",
+      "box": {
+        "x0": 398,
+        "y0": 1133,
+        "x1": 687,
+        "y1": 1295
+      },
+      "box_norm": {
+        "x0": 0.3124,
+        "y0": 0.6977,
+        "x1": 0.5392,
+        "y1": 0.7974
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 23,
+      "page": 1,
+      "system": 5,
+      "part": "Piano",
+      "box": {
+        "x0": 683,
+        "y0": 1133,
+        "x1": 935,
+        "y1": 1295
+      },
+      "box_norm": {
+        "x0": 0.5361,
+        "y0": 0.6977,
+        "x1": 0.7339,
+        "y1": 0.7974
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 24,
+      "page": 1,
+      "system": 5,
+      "part": "Piano",
+      "box": {
+        "x0": 932,
+        "y0": 1133,
+        "x1": 1202,
+        "y1": 1295
+      },
+      "box_norm": {
+        "x0": 0.7316,
+        "y0": 0.6977,
+        "x1": 0.9435,
+        "y1": 0.7974
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 25,
+      "page": 1,
+      "system": 6,
+      "part": "Piano",
+      "box": {
+        "x0": 72,
+        "y0": 1364,
+        "x1": 322,
+        "y1": 1531
+      },
+      "box_norm": {
+        "x0": 0.0565,
+        "y0": 0.8399,
+        "x1": 0.2527,
+        "y1": 0.9427
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 26,
+      "page": 1,
+      "system": 6,
+      "part": "Piano",
+      "box": {
+        "x0": 319,
+        "y0": 1364,
+        "x1": 641,
+        "y1": 1531
+      },
+      "box_norm": {
+        "x0": 0.2504,
+        "y0": 0.8399,
+        "x1": 0.5031,
+        "y1": 0.9427
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 27,
+      "page": 1,
+      "system": 6,
+      "part": "Piano",
+      "box": {
+        "x0": 637,
+        "y0": 1364,
+        "x1": 918,
+        "y1": 1531
+      },
+      "box_norm": {
+        "x0": 0.5,
+        "y0": 0.8399,
+        "x1": 0.7206,
+        "y1": 0.9427
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    },
+    {
+      "measure_number": 28,
+      "page": 1,
+      "system": 6,
+      "part": "Piano",
+      "box": {
+        "x0": 915,
+        "y0": 1364,
+        "x1": 1204,
+        "y1": 1531
+      },
+      "box_norm": {
+        "x0": 0.7182,
+        "y0": 0.8399,
+        "x1": 0.9451,
+        "y1": 0.9427
+      },
+      "confidence": "high",
+      "flag": null,
+      "rehearsal_mark": null
+    }
+  ]
+}

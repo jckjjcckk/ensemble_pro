@@ -1,0 +1,30 @@
+{
+  "page": "rach1-2pf-gutheil-p03",
+  "prompt": "sheet of paper",
+  "latency_s": 2.96,
+  "usage": {
+    "input_tokens": 0,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 0,
+    "output_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "total_tokens": 0,
+    "images_processed": 1
+  },
+  "boxes": [
+    {
+      "x1": 4,
+      "y1": 0,
+      "x2": 1410,
+      "y2": 1906,
+      "img_w": 1416,
+      "img_h": 1907,
+      "confidence": 0.5775577425956726
+    }
+  ],
+  "raw_text_head": "<0f>0<|box;x1=4;y1=0;x2=1410;y2=1906;w=1416;h=1907;c=0.5775577425956726|><|mask;x=0;y=0;c=0.5775577425956726;data=1024,756,~!!=3##Pe!/jXYC.HM1B4IV=+jh7Vk0c.6S`IY7G2k/jnijDZAKc6oAqE9u#(b@i.C?C2kXThv)/HA6.!Cnt)09U'oB+.doV`nd!t-:K?jfcjm#x!_fx^7=Ja+3MM_*vlDN&uX2[r:MM6T8Cnri`uwy[9a'iOMDsoT`/Y[cBZ*D5LHv89WvuDwUf@kbmg=@e$SBm.H5I6bC#w57fu%2PFIVn'S%p&mB?GJ$!8hEt`KvS2bPzA/@*Z%'ky#Bnw@&U0VOzM.9am/Qvl*d-V@(fx",
+  "mask_count": 1
+}

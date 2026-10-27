@@ -1,0 +1,30 @@
+{
+  "page": "goldberg-bga-p01",
+  "prompt": "sheet music",
+  "latency_s": 5.87,
+  "usage": {
+    "input_tokens": 0,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 0,
+    "output_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "total_tokens": 0,
+    "images_processed": 1
+  },
+  "boxes": [
+    {
+      "x1": 2,
+      "y1": 0,
+      "x2": 1271,
+      "y2": 1623,
+      "img_w": 1274,
+      "img_h": 1624,
+      "confidence": 0.8750000596046448
+    }
+  ],
+  "raw_text_head": "<0f>0<|box;x1=2;y1=0;x2=1271;y2=1623;w=1274;h=1624;c=0.8750000596046448|><|mask;x=0;y=0;c=0.8750000596046448;data=1024,801,~!!=#P#R#:VWBdtM_]].MV+k?%?.f{FsXIu_CGAx/0uOArj_E%Mt9{MbRpN^R5jB%=dF+OTv-X9OI0cM]uVFcan&%]n84gHm#Y4N3-0kv58a1SF+[J*eRK!7muxEYp-.Rx):oQE9S%hBrPiO=ikeOwh*R30SW::+r1{+7qV+jKF=oAu^`J6Rcx1K&#SKd$+Ywex0OCWPwFUB1S!723MB$+z:=3iRzxKhiF7dh6`&QSVOu#583okb3ggyE9{I8_:sYC+L2duAfsY{kCY0iWLMT",
+  "mask_count": 1
+}

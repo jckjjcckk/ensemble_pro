@@ -1,0 +1,75 @@
+{
+  "page": "rach1-2pf-gutheil-p03",
+  "prompt": "line of music",
+  "latency_s": 2.91,
+  "usage": {
+    "input_tokens": 0,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 0,
+    "output_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "total_tokens": 0,
+    "images_processed": 1
+  },
+  "boxes": [
+    {
+      "x1": 227,
+      "y1": 642,
+      "x2": 1342,
+      "y2": 798,
+      "img_w": 1416,
+      "img_h": 1907,
+      "confidence": 0.6167664527893066
+    },
+    {
+      "x1": 223,
+      "y1": 393,
+      "x2": 1340,
+      "y2": 629,
+      "img_w": 1416,
+      "img_h": 1907,
+      "confidence": 0.5816993117332458
+    },
+    {
+      "x1": 94,
+      "y1": 856,
+      "x2": 1343,
+      "y2": 1104,
+      "img_w": 1416,
+      "img_h": 1907,
+      "confidence": 0.6289855241775513
+    },
+    {
+      "x1": 95,
+      "y1": 1102,
+      "x2": 1345,
+      "y2": 1319,
+      "img_w": 1416,
+      "img_h": 1907,
+      "confidence": 0.6246334314346313
+    },
+    {
+      "x1": 96,
+      "y1": 1314,
+      "x2": 1347,
+      "y2": 1601,
+      "img_w": 1416,
+      "img_h": 1907,
+      "confidence": 0.6246334314346313
+    },
+    {
+      "x1": 100,
+      "y1": 1592,
+      "x2": 1349,
+      "y2": 1797,
+      "img_w": 1416,
+      "img_h": 1907,
+      "confidence": 0.6483516097068787
+    }
+  ],
+  "raw_text_head": "<0f>0<|box;x1=227;y1=642;x2=1342;y2=798;w=1416;h=1907;c=0.6167664527893066|><|mask;x=0;y=0;c=0.6167664527893066;data=144,1024,~!!%ku#L@Jri6ZI0%@!?Ne!w=Bo)JabRzcM)#%:MpKW/nmDf*O)R6a'MSK.?m3aRk+M8H?R7@eFep%7EK7PhF&(O*KQ*et7xj&E=1ZNG(*k(_N9VSY7rZCA1]Hqik_f%S%w=i)?e#PnOg)pu)d0Z5CV!Hfm+03bHN8@G%@q&m&CNj0k74y+S^PX)A7HceXY(ct_*FE1[juibdxbA2Lv0Cxd/r*5tM:-/f-nm_ukntTr#Ph5ZxWf/!`?@rMK6N83NGjC{A/!teeL5?]+'g0",
+  "mask_count": 6
+}

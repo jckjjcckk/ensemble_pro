@@ -1,0 +1,322 @@
+{
+  "page": "rach1-2pf-gutheil-p03",
+  "model": "muse-spark-1.3",
+  "effort": "medium",
+  "latency_s": 28.2,
+  "usage": {
+    "input_tokens": 3976,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 5971,
+    "output_tokens_details": {
+      "reasoning_tokens": 5233
+    },
+    "total_tokens": 9947
+  },
+  "cost_usd": 0.0303,
+  "image_px": [
+    1416,
+    1907
+  ],
+  "raw_text": "{\"systems\":[{\"index\":1,\"bbox\":{\"x_min\":130,\"y_min\":205,\"x_max\":950,\"y_max\":418},\"staves\":4,\"measures\":[{\"number\":1,\"bbox\":{\"x_min\":130,\"y_min\":205,\"x_max\":372,\"y_max\":418},\"uncertain\":true},{\"number\":2,\"bbox\":{\"x_min\":372,\"y_min\":205,\"x_max\":534,\"y_max\":418},\"uncertain\":true},{\"number\":3,\"bbox\":{\"x_min\":534,\"y_min\":205,\"x_max\":747,\"y_max\":418},\"uncertain\":true},{\"number\":4,\"bbox\":{\"x_min\":747,\"y_min\":205,\"x_max\":950,\"y_max\":418},\"uncertain\":true}]},{\"index\":2,\"bbox\":{\"x_min\":60,\"y_min\":440,\"x_max\":952,\"y_max\":632},\"staves\":4,\"measures\":[{\"number\":5,\"bbox\":{\"x_min\":60,\"y_min\":440,\"x_max\":370,\"y_max\":632},\"uncertain\":false},{\"number\":6,\"bbox\":{\"x_min\":370,\"y_min\":440,\"x_max\":595,\"y_max\":632},\"uncertain\":false},{\"number\":7,\"bbox\":{\"x_min\":595,\"y_min\":440,\"x_max\":810,\"y_max\":632},\"uncertain\":false},{\"number\":8,\"bbox\":{\"x_min\":810,\"y_min\":440,\"x_max\":952,\"y_max\":632},\"uncertain\":false}]},{\"index\":3,\"bbox\":{\"x_min\":62,\"y_min\":650,\"x_max\":955,\"y_max\":942},\"staves\":4,\"measures\":[{\"number\":9,\"bbox\":{\"x_min\":62,\"y_min\":650,\"x_max\":228,\"y_max\":942},\"uncertain\":false},{\"number\":10,\"bbox\":{\"x_min\":228,\"y_min\":650,\"x_max\":312,\"y_max\":942},\"uncertain\":false},{\"number\":11,\"bbox\":{\"x_min\":312,\"y_min\":650,\"x_max\":445,\"y_max\":942},\"uncertain\":false},{\"number\":12,\"bbox\":{\"x_min\":445,\"y_min\":650,\"x_max\":580,\"y_max\":942},\"uncertain\":true},{\"number\":13,\"bbox\":{\"x_min\":580,\"y_min\":650,\"x_max\":955,\"y_max\":942},\"uncertain\":true}]}],\"uncertain_regions\":[{\"bbox\":{\"x_min\":280,\"y_min\":230,\"x_max\":310,\"y_max\":410},\"why\":\"possible extra barline between two rests in Piano I upper staves; may be barline or engraving gap, does not clearly continue through Piano II\"},{\"bbox\":{\"x_min\":525,\"y_min\":205,\"x_max\":545,\"y_max\":330},\"why\":\"barline visible in Piano II rests but obscured by dense triplet beaming in Piano I solo run, cannot confirm continuation\"},{\"bbox\":{\"x_min\":735,\"y_min\":205,\"x_max\":755,\"y_max\":330},\"why\":\"barline visible in Piano II rests but obscured by dense triplet beaming in Piano I solo run, cannot confirm continuation\"},{\"bbox\":{\"x_min\":445,\"y_min\":650,\"x_max\":955,\"y_max\":830},\"why\":\"long cadenza / 8va run in Piano I with no clear intermediate barlines; division relies on Piano II sff and fermata barlines\"}],\"total_measures_on_page\":13}",
+  "status": "completed",
+  "incomplete": null,
+  "systems": [
+    {
+      "index": 1,
+      "box": {
+        "x0": 184,
+        "y0": 391,
+        "x1": 1345,
+        "y1": 797
+      },
+      "staves": 4,
+      "n_measures": 4
+    },
+    {
+      "index": 2,
+      "box": {
+        "x0": 85,
+        "y0": 839,
+        "x1": 1348,
+        "y1": 1205
+      },
+      "staves": 4,
+      "n_measures": 4
+    },
+    {
+      "index": 3,
+      "box": {
+        "x0": 88,
+        "y0": 1240,
+        "x1": 1352,
+        "y1": 1796
+      },
+      "staves": 4,
+      "n_measures": 5
+    }
+  ],
+  "measures": [
+    {
+      "number": 1,
+      "system": 1,
+      "box": {
+        "x0": 184,
+        "y0": 391,
+        "x1": 527,
+        "y1": 797
+      },
+      "grid": {
+        "x_min": 130,
+        "y_min": 205,
+        "x_max": 372,
+        "y_max": 418
+      },
+      "uncertain": true
+    },
+    {
+      "number": 2,
+      "system": 1,
+      "box": {
+        "x0": 527,
+        "y0": 391,
+        "x1": 756,
+        "y1": 797
+      },
+      "grid": {
+        "x_min": 372,
+        "y_min": 205,
+        "x_max": 534,
+        "y_max": 418
+      },
+      "uncertain": true
+    },
+    {
+      "number": 3,
+      "system": 1,
+      "box": {
+        "x0": 756,
+        "y0": 391,
+        "x1": 1058,
+        "y1": 797
+      },
+      "grid": {
+        "x_min": 534,
+        "y_min": 205,
+        "x_max": 747,
+        "y_max": 418
+      },
+      "uncertain": true
+    },
+    {
+      "number": 4,
+      "system": 1,
+      "box": {
+        "x0": 1058,
+        "y0": 391,
+        "x1": 1345,
+        "y1": 797
+      },
+      "grid": {
+        "x_min": 747,
+        "y_min": 205,
+        "x_max": 950,
+        "y_max": 418
+      },
+      "uncertain": true
+    },
+    {
+      "number": 5,
+      "system": 2,
+      "box": {
+        "x0": 85,
+        "y0": 839,
+        "x1": 524,
+        "y1": 1205
+      },
+      "grid": {
+        "x_min": 60,
+        "y_min": 440,
+        "x_max": 370,
+        "y_max": 632
+      },
+      "uncertain": false
+    },
+    {
+      "number": 6,
+      "system": 2,
+      "box": {
+        "x0": 524,
+        "y0": 839,
+        "x1": 843,
+        "y1": 1205
+      },
+      "grid": {
+        "x_min": 370,
+        "y_min": 440,
+        "x_max": 595,
+        "y_max": 632
+      },
+      "uncertain": false
+    },
+    {
+      "number": 7,
+      "system": 2,
+      "box": {
+        "x0": 843,
+        "y0": 839,
+        "x1": 1147,
+        "y1": 1205
+      },
+      "grid": {
+        "x_min": 595,
+        "y_min": 440,
+        "x_max": 810,
+        "y_max": 632
+      },
+      "uncertain": false
+    },
+    {
+      "number": 8,
+      "system": 2,
+      "box": {
+        "x0": 1147,
+        "y0": 839,
+        "x1": 1348,
+        "y1": 1205
+      },
+      "grid": {
+        "x_min": 810,
+        "y_min": 440,
+        "x_max": 952,
+        "y_max": 632
+      },
+      "uncertain": false
+    },
+    {
+      "number": 9,
+      "system": 3,
+      "box": {
+        "x0": 88,
+        "y0": 1240,
+        "x1": 323,
+        "y1": 1796
+      },
+      "grid": {
+        "x_min": 62,
+        "y_min": 650,
+        "x_max": 228,
+        "y_max": 942
+      },
+      "uncertain": false
+    },
+    {
+      "number": 10,
+      "system": 3,
+      "box": {
+        "x0": 323,
+        "y0": 1240,
+        "x1": 442,
+        "y1": 1796
+      },
+      "grid": {
+        "x_min": 228,
+        "y_min": 650,
+        "x_max": 312,
+        "y_max": 942
+      },
+      "uncertain": false
+    },
+    {
+      "number": 11,
+      "system": 3,
+      "box": {
+        "x0": 442,
+        "y0": 1240,
+        "x1": 630,
+        "y1": 1796
+      },
+      "grid": {
+        "x_min": 312,
+        "y_min": 650,
+        "x_max": 445,
+        "y_max": 942
+      },
+      "uncertain": false
+    },
+    {
+      "number": 12,
+      "system": 3,
+      "box": {
+        "x0": 630,
+        "y0": 1240,
+        "x1": 821,
+        "y1": 1796
+      },
+      "grid": {
+        "x_min": 445,
+        "y_min": 650,
+        "x_max": 580,
+        "y_max": 942
+      },
+      "uncertain": true
+    },
+    {
+      "number": 13,
+      "system": 3,
+      "box": {
+        "x0": 821,
+        "y0": 1240,
+        "x1": 1352,
+        "y1": 1796
+      },
+      "grid": {
+        "x_min": 580,
+        "y_min": 650,
+        "x_max": 955,
+        "y_max": 942
+      },
+      "uncertain": true
+    }
+  ],
+  "uncertain_regions": [
+    {
+      "box": {
+        "x0": 396,
+        "y0": 439,
+        "x1": 439,
+        "y1": 782
+      },
+      "why": "possible extra barline between two rests in Piano I upper staves; may be barline or engraving gap, does not clearly continue through Piano II"
+    },
+    {
+      "box": {
+        "x0": 743,
+        "y0": 391,
+        "x1": 772,
+        "y1": 629
+      },
+      "why": "barline visible in Piano II rests but obscured by dense triplet beaming in Piano I solo run, cannot confirm continuation"
+    },
+    {
+      "box": {
+        "x0": 1041,
+        "y0": 391,
+        "x1": 1069,
+        "y1": 629
+      },
+      "why": "barline visible in Piano II rests but obscured by dense triplet beaming in Piano I solo run, cannot confirm continuation"
+    },
+    {
+      "box": {
+        "x0": 630,
+        "y0": 1240,
+        "x1": 1352,
+        "y1": 1583
+      },
+      "why": "long cadenza / 8va run in Piano I with no clear intermediate barlines; division relies on Piano II sff and fermata barlines"
+    }
+  ],
+  "total_measures_on_page": 13
+}
