@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { fmtDuration, membersById, type Annotation } from '../shared'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { fmtDuration, membersById, type Annotation } from '../mock'
 import { barRange, firstName, fmtDateTime, kindLabel } from './store'
 import { IClose, IMic, IPause, IPencil, IPlay, IScissors } from './icons'
 import { spanRects, type Geo } from './geometry'
@@ -132,5 +132,81 @@ export function CutLayer({ geo, cuts }: { geo: Geo; cuts: { from: number; to: nu
         </div>
       )))}
     </>
+  )
+}
+
+/** Words go to the margin, pencil stays on the staff: which annotations the margin carries. */
+export const inMargin = (a: Annotation) => a.kind === 'voice' || a.kind === 'text'
+
+interface Placed { a: Annotation; side: 'left' | 'right'; y: number; top: number }
+
+/**
+ * Margin notes: each note level with the system that holds its bar, in the outer margin of its page
+ * (left page's notes on the left, right page's on the right). Collisions step down and a tick stays
+ * at the bar's true height, so a reader finds a note by looking across, never by scanning a list.
+ */
+export function MarginLayer({ geo, items, width, selected, onSelect }: {
+  geo: Geo
+  items: Annotation[]
+  /** Horizontal room beside the pages, from the stage edge to the page edge. */
+  width: number
+  selected: string | null
+  onSelect: (id: string | null) => void
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [heights, setHeights] = useState<Record<string, number>>({})
+  const shown = geo.pages.map((p, i) => (p ? i : -1)).filter(i => i >= 0)
+  const leftPage = shown.length === 2 ? shown[0] : -1
+  const noteW = Math.max(110, width - 62) // leaves the page-turn target at the stage edge clear
+
+  const placed = useMemo<Placed[]>(() => {
+    const raw: Placed[] = []
+    for (const a of items) {
+      const b = geo.bars.get(a.barFrom)
+      if (!b) continue
+      raw.push({ a, side: b.page === leftPage ? 'left' : 'right', y: b.y, top: b.y })
+    }
+    for (const side of ['left', 'right'] as const) {
+      const col = raw.filter(p => p.side === side).sort((p, q) => p.y - q.y)
+      let floor = 0
+      for (const p of col) {
+        p.top = Math.max(p.y, floor)
+        floor = p.top + (heights[p.a.id] ?? 72) + 10
+      }
+    }
+    return raw
+  }, [items, geo, leftPage, heights])
+
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const next: Record<string, number> = {}
+    el.querySelectorAll<HTMLElement>('[data-mnote]').forEach(n => { next[n.dataset.mnote!] = n.offsetHeight })
+    setHeights(h => (Object.keys(next).some(k => h[k] !== next[k]) ? next : h))
+  }, [placed, items])
+
+  const pageOf = (p: Placed) => geo.pages[geo.bars.get(p.a.barFrom)!.page]!
+
+  return (
+    <div className="margin-layer" ref={ref}>
+      {placed.map(p => {
+        const pg = pageOf(p)
+        const left = p.side === 'left' ? pg.x - width + 8 : pg.x + pg.w + 18
+        const author = membersById[p.a.authorId]
+        const sel = selected === p.a.id
+        return (
+          <div key={p.a.id} className={`m-note is-${p.side} ${sel ? 'is-sel' : ''}`} style={{ left, top: p.top, width: noteW }} data-mnote={p.a.id}>
+            <span className="m-tick" aria-hidden="true" style={{ top: p.y - p.top + 6 }} />
+            <button type="button" className="m-body" aria-pressed={sel} onClick={e => { e.stopPropagation(); onSelect(sel ? null : p.a.id) }}>
+              <span className="m-meta"><KindIcon kind={p.a.kind} size={13} />{firstName(author?.name ?? '')} · <span className="num">bar {barRange(p.a.barFrom, p.a.barTo)}</span></span>
+              {p.a.kind === 'voice'
+                ? (p.a.transcript ? <span className="m-text m-quote">{p.a.transcript}</span> : <span className="m-text m-pending">Transcript arrives after processing.</span>)
+                : <span className="m-text">{p.a.text}</span>}
+            </button>
+            {sel && p.a.kind === 'voice' && <VoicePlayer a={p.a} />}
+          </div>
+        )
+      })}
+    </div>
   )
 }

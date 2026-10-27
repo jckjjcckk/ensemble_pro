@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
 import { Link } from 'react-router'
-import { ensembles, scanDraft, scoresById, type ScanPage } from '../shared'
+import { ensembles, scanDraft, scoresById, type ScanPage } from '../mock'
 import { Screen, useViewport } from './layout'
-import { BASE, useStore } from './store'
+import { useStore } from './store'
 import { ICamera, ICheck, ILock, ITrash, IUndo, IWarning } from './icons'
 
 const score = scoresById['s-faure']
@@ -167,7 +167,7 @@ export default function Scan() {
     <div className="scan-dock">
       <p className="dock-msg"><ICheck size={20} /><span>Sent in this order. Processing has started.</span></p>
       <div className="grow" />
-      <Link to={BASE} className="dbtn is-primary">Back to the library</Link>
+      <Link to="/" className="dbtn is-primary">Back to the library</Link>
     </div>
   ) : (
     <div className="scan-dock">

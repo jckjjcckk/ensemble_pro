@@ -1,5 +1,5 @@
 import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import type { TroubleSpot } from '../shared'
+import type { TroubleSpot } from '../mock'
 import type { Span } from './store'
 
 export interface RulerMark { id: string; bar: number; kind: 'voice' | 'mark'; label: string }

@@ -1,7 +1,24 @@
 // Shared mock data for the design explorations. Realistic values, no placeholders.
 // Every exploration reads from here so the five designs show the same world.
 
+/** Seat a member holds in the mock ensemble data. The product has two roles per ensemble, admin and player; leader maps to admin. */
 export type Role = 'player' | 'leader' | 'pianist' | 'librarian'
+
+/** Role on a membership. Every account owns a personal library; in an ensemble it is admin or player. */
+export type MembershipRole = 'owner' | 'admin' | 'player'
+
+export interface Membership {
+  ensembleId: string
+  role: MembershipRole
+  /** The member record this account acts as inside that ensemble (the mock has no auth). */
+  memberId: string
+}
+
+/** Counts only: no percentages, no per-note heat. A doubtful page or bar gets a quiet mark; the box shows the numbers. */
+export interface ReadFlags {
+  pagesUnreadable: number
+  barsDoubtful: number
+}
 
 export type ScoreStatus = 'uploaded' | 'ordering' | 'processing' | 'ready' | 'failed'
 
@@ -52,9 +69,12 @@ export interface Score {
   durationSec: number
   updatedAt: string
   partIds: string[]
+  /** Folder inside the library, named by the admin or the owner. */
+  folder: string
   /** Short brief written by the model after processing. */
   brief?: string
-  confidence?: number
+  /** What the reader could not resolve, as counts. Absent for MusicXML imports, which have nothing to read. */
+  flags?: ReadFlags
 }
 
 export type AnnotationKind = 'marking' | 'cut' | 'voice' | 'text' | 'dynamic' | 'bowing' | 'breath'
@@ -141,7 +161,7 @@ export const members: Member[] = [
 export const ensembles: Ensemble[] = [
   { id: 'e-hart', name: 'Hart House Chamber Players', kind: 'chamber', members: members.filter(m => ['m-ada','m-lin','m-noor','m-tomas','m-ines','m-sam'].includes(m.id)) },
   { id: 'e-choir', name: 'MacMillan Singers', kind: 'choir', members: members.filter(m => ['m-ada','m-yuki','m-dev','m-sam'].includes(m.id)) },
-  { id: 'e-solo', name: 'Personal library', kind: 'solo', members: members.filter(m => m.id === 'm-ck') },
+  { id: 'e-solo', name: 'My library', kind: 'solo', members: members.filter(m => m.id === 'm-ck') },
 ]
 
 // ---------------------------------------------------------------- scores and parts
@@ -163,43 +183,41 @@ export const scores: Score[] = [
     id: 's-beethoven', ensembleId: 'e-hart',
     title: 'String Quartet No. 1 in F major', composer: 'Ludwig van Beethoven', work: 'Op. 18 No. 1, I. Allegro con brio',
     status: 'ready', fixture: '/fixtures/beethoven-op18no1-mv1.musicxml', pages: 12, bars: 313, tempoBpm: 132, key: 'F major', meter: '3/4', durationSec: 540,
-    updatedAt: '2026-10-25T19:42:00Z', partIds: ['p-bq-vn1','p-bq-vn2','p-bq-vla','p-bq-vc'],
+    updatedAt: '2026-10-25T19:42:00Z', partIds: ['p-bq-vn1','p-bq-vn2','p-bq-vla','p-bq-vc'], folder: 'Autumn programme',
     brief: 'Opening motif must be unanimous in rhythm and bow placement; the development (b. 115–178) modulates quickly, so tune the viola entry at 121. The recapitulation cut at 227–246 agreed on 25 Oct stands.',
-    confidence: 0.96,
   },
   {
     id: 's-bach', ensembleId: 'e-choir',
     title: 'Christ ist erstanden', composer: 'Johann Sebastian Bach', work: 'BWV 66.6, chorale',
     status: 'ready', fixture: '/fixtures/bach-bwv66-6.musicxml', pages: 1, bars: 10, tempoBpm: 72, key: 'F# minor', meter: '4/4', durationSec: 55,
-    updatedAt: '2026-10-24T09:12:00Z', partIds: ['p-ch-s','p-ch-a','p-ch-t','p-ch-b'],
+    updatedAt: '2026-10-24T09:12:00Z', partIds: ['p-ch-s','p-ch-a','p-ch-t','p-ch-b'], folder: 'Advent',
     brief: 'Short SATB chorale. Breath marks after each fermata; tenors carry the moving line in b. 6–7.',
-    confidence: 0.99,
   },
   {
     id: 's-piano', ensembleId: 'e-solo',
     title: 'Mazurka in C\u266f minor', composer: 'Frédéric Chopin', work: 'Op. 6 No. 2',
     status: 'ready', fixture: '/fixtures/piano-chopin-mazurka06-2.musicxml', pages: 3, bars: 75, tempoBpm: 126, key: 'C\u266f minor', meter: '3/4', durationSec: 160,
-    updatedAt: '2026-10-26T14:03:00Z', partIds: ['p-pf-solo'],
+    updatedAt: '2026-10-26T14:03:00Z', partIds: ['p-pf-solo'], folder: 'Chopin',
     brief: 'Rubato is written into the phrasing; keep the left-hand mazurka accent on beat two steady so the right hand can bend. Bars 33–48 carry the trio.',
-    confidence: 0.93,
+    flags: { pagesUnreadable: 0, barsDoubtful: 2 },
   },
   {
     id: 's-mozart', ensembleId: 'e-hart',
     title: 'Piano Concerto No. 21 in C major', composer: 'Wolfgang Amadeus Mozart', work: 'K. 467, II. Andante',
     status: 'processing', progress: 0.62, fixture: '', pages: 9, bars: 104, tempoBpm: 66, key: 'F major', meter: '4/4', durationSec: 420,
-    updatedAt: '2026-10-26T14:20:00Z', partIds: [],
+    updatedAt: '2026-10-26T14:20:00Z', partIds: [], folder: 'Autumn programme',
   },
   {
     id: 's-brahms', ensembleId: 'e-hart',
     title: 'Clarinet Quintet in B minor', composer: 'Johannes Brahms', work: 'Op. 115, I. Allegro',
     status: 'failed', failureReason: 'Pages 4 and 7 were too blurred to read staff lines. Retake them and process again.', fixture: '', pages: 14, bars: 218, tempoBpm: 120, key: 'B minor', meter: '6/8', durationSec: 780,
-    updatedAt: '2026-10-26T11:48:00Z', partIds: [],
+    updatedAt: '2026-10-26T11:48:00Z', partIds: [], folder: 'Reading week', flags: { pagesUnreadable: 2, barsDoubtful: 0 },
   },
   {
     id: 's-faure', ensembleId: 'e-choir',
     title: 'Cantique de Jean Racine', composer: 'Gabriel Fauré', work: 'Op. 11',
     status: 'ordering', fixture: '', pages: 8, bars: 0, tempoBpm: 0, key: 'D♭ major', meter: '4/4', durationSec: 0,
-    updatedAt: '2026-10-26T15:01:00Z', partIds: [],
+    updatedAt: '2026-10-26T15:01:00Z', partIds: [], folder: 'Advent',
   },
 ]
 
@@ -246,7 +264,16 @@ export const scanDraft: ScanDraft = {
 
 // ---------------------------------------------------------------- helpers
 
-export const me: Member = members[1] // CK, pianist, switchable in the UI
+/** The signed-in account of the mock. One account, three contexts: its own library, admin of the quartet, player in the choir. */
+export const account = {
+  name: 'CK Jiang',
+  memberships: [
+    { ensembleId: 'e-solo', role: 'owner', memberId: 'm-ck' },
+    { ensembleId: 'e-hart', role: 'admin', memberId: 'm-ada' },
+    { ensembleId: 'e-choir', role: 'player', memberId: 'm-yuki' },
+  ] as Membership[],
+}
+export const me: Member = members[1] // CK, the account's own seat
 export const byId = <T extends { id: string }>(xs: T[]) => Object.fromEntries(xs.map(x => [x.id, x])) as Record<string, T>
 export const membersById = byId(members)
 export const scoresById = byId(scores)

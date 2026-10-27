@@ -45,3 +45,4 @@ export const IGrip = (p: P) => (
     {[8, 12, 16].map(y => [9.5, 14.5].map(x => <circle key={`${x}-${y}`} cx={x} cy={y} r="1.3" fill="currentColor" />))}
   </Svg>
 )
+export const IDisplay = (p: P) => <Svg {...p}><circle cx="12" cy="12" r="8.5" /><path d="M12 3.5v17" /><path d="M12 8.5a3.5 3.5 0 0 1 0 7" fill="currentColor" stroke="none" /></Svg>

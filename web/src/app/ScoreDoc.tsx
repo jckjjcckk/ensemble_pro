@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router'
-import { ensembles, partsById, scoresById, type Annotation, type AnnotationKind } from '../shared'
+import { ensembles, me, partsById, scoresById, type Annotation, type AnnotationKind } from '../mock'
 import { Screen, useViewport } from './layout'
 import { ScoreStage, type StageView } from './ScoreStage'
 import { Ruler, type RulerMark } from './Ruler'
 import { spanRects, type Geo } from './geometry'
-import { CutLayer, KindIcon, NoteBody, PinLayer } from './marks'
-import { BASE, barRange, firstName, initials, kindLabel, partShort, useStore, type Span } from './store'
+import { CutLayer, KindIcon, MarginLayer, NoteBody, PinLayer, inMargin } from './marks'
+import { barRange, firstName, initials, kindLabel, partShort, useStore, type Span } from './store'
 import { IClose, IList, IMic, IMinus, IPencil, IPlus, IScissors } from './icons'
 
 type Tool = null | 'marking' | 'cut' | 'voice'
@@ -37,7 +37,7 @@ function Unavailable({ title, detail }: { title: string; detail?: string }) {
       <div className="empty">
         <p className="empty-title">{title}</p>
         {detail && <p>{detail}</p>}
-        <Link className="btn btn-line" to={BASE}>Back to the library</Link>
+        <Link className="btn btn-line" to="/">Back to the library</Link>
       </div>
     </Screen>
   )
@@ -45,8 +45,13 @@ function Unavailable({ title, detail }: { title: string; detail?: string }) {
 
 function Doc({ scoreId }: { scoreId: string }) {
   const vp = useViewport()
-  const { role, persona, annotations, addAnnotation } = useStore()
+  const { contextFor, annotations, addAnnotation } = useStore()
   const score = scoresById[scoreId]
+  // Standing comes from the membership in the ensemble that owns the score, not from which library is open.
+  const ctx = contextFor(score.ensembleId)
+  const role = ctx?.membership.role ?? 'player'
+  const persona = ctx?.persona ?? me
+  const canCut = role !== 'player'
   const parts = score.partIds.map(id => partsById[id])
   const ensemble = ensembles.find(e => e.id === score.ensembleId)
   const hasPresence = score.id === 's-beethoven'
@@ -72,6 +77,8 @@ function Doc({ scoreId }: { scoreId: string }) {
 
   const isFull = partSel === 'full'
   const instruments = isFull ? null : [score.partIds.indexOf(partSel)]
+  // Words go to the outer margin when there is room for one beside each page; otherwise the Markings panel carries them.
+  const marginW = vp.w >= 1180 && !(listOpen && vp.w < 1500) ? 184 : 0
   const visible = useMemo(
     () => annotations.filter(a => a.scoreId === score.id && (isFull || a.partId === null || a.partId === partSel)).sort((a, b) => a.barFrom - b.barFrom),
     [annotations, score.id, isFull, partSel],
@@ -121,6 +128,13 @@ function Doc({ scoreId }: { scoreId: string }) {
     else setPin(null)
   }
 
+  // Long press on a bar: annotate it from the music, without reaching for the dock first.
+  const onBarHold = (bar: number) => {
+    if (tool) { onBarTap(bar); return }
+    startTool('marking')
+    setDraftBar(bar)
+  }
+
   const presenceAt = (bar: number) => performers.filter(m => m.online && m.atBar === bar)
 
   const underlay = (g: Geo) => (
@@ -148,7 +162,8 @@ function Doc({ scoreId }: { scoreId: string }) {
           </span>
         )
       })}
-      <PinLayer geo={g} items={visible} selected={pin} onSelect={setPin} />
+      <PinLayer geo={g} items={marginW ? visible.filter(a => !inMargin(a)) : visible} selected={pin} onSelect={setPin} />
+      {marginW > 0 && <MarginLayer geo={g} items={visible.filter(inMargin)} width={marginW} selected={pin} onSelect={setPin} />}
     </>
   )
 
@@ -208,7 +223,7 @@ function Doc({ scoreId }: { scoreId: string }) {
   const tools = (
     <div className="doc-tools" role="group" aria-label="Add">
       <button type="button" className="dbtn" onClick={() => startTool('marking')}><IPencil size={20} /><span>Marking</span></button>
-      <button type="button" className="dbtn" onClick={() => startTool('cut')}><IScissors size={20} /><span>Cut</span></button>
+      <button type="button" className="dbtn" onClick={() => startTool('cut')} disabled={!canCut} title={canCut ? undefined : 'Only the admin can cut'}><IScissors size={20} /><span>Cut</span></button>
       <button type="button" className="dbtn" onClick={() => startTool('voice')}><IMic size={20} /><span>Voice note</span></button>
     </div>
   )
@@ -284,7 +299,9 @@ function Doc({ scoreId }: { scoreId: string }) {
           underlay={underlay}
           overlay={overlay}
           onBarTap={onBarTap}
+          onBarHold={onBarHold}
           onView={setView}
+          margin={marginW || undefined}
           label={`${scoreParts}, ${score.title}`}
         />
         {listOpen && (

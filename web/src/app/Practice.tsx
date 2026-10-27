@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
-import { partsById, practice, scoresById, type TroubleSpot } from '../shared'
+import { partsById, practice, scoresById, type TroubleSpot } from '../mock'
 import { Screen, useReducedMotion, useViewport } from './layout'
 import { ScoreStage } from './ScoreStage'
 import { Ruler } from './Ruler'

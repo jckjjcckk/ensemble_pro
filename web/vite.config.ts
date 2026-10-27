@@ -11,9 +11,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Muse',
-        short_name: 'Muse',
-        description: 'AI librarian for ensembles',
+        name: 'Folio',
+        short_name: 'Folio',
+        description: 'One score for the whole ensemble',
         theme_color: '#111111',
         background_color: '#111111',
         display: 'standalone',

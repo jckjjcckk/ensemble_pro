@@ -36,7 +36,7 @@ export function useReducedMotion(): boolean {
 type Area = 'library' | 'score' | 'practice'
 
 const areas: { id: Area; label: string; to: string; Icon: typeof ILibrary }[] = [
-  { id: 'library', label: 'Library', to: BASE, Icon: ILibrary },
+  { id: 'library', label: 'Library', to: '/', Icon: ILibrary },
   { id: 'score', label: 'Score', to: `${BASE}/score/s-beethoven`, Icon: IScore },
   { id: 'practice', label: 'Practice', to: `${BASE}/practice`, Icon: IPractice },
 ]
@@ -64,7 +64,7 @@ export function AreaNav({ stacked }: { stacked: boolean }) {
 
 export function Wordmark() {
   return (
-    <Link to={BASE} className="wordmark" aria-label={`${WORDMARK}, library`}>
+    <Link to="/" className="wordmark" aria-label={`${WORDMARK}, library`}>
       <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
         <path d="M3 3.5v11M15 3.5v11M3 3.5h2.6M3 14.5h2.6M15 3.5h-2.6M15 14.5h-2.6" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
       </svg>

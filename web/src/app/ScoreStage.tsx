@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react'
 import type { OpenSheetMusicDisplay } from 'opensheetmusicdisplay'
-import { ScoreView } from '../shared'
+import { ScoreView } from '../mock'
 import { measureGeo, readModel, type Geo } from './geometry'
 import { IChevronLeft, IChevronRight } from './icons'
 
@@ -22,15 +22,22 @@ interface Props {
   underlay?: (g: Geo) => ReactNode
   overlay?: (g: Geo) => ReactNode
   onBarTap?: (bar: number) => void
+  /** Long press on a bar (500 ms without moving), for annotating from the music itself. */
+  onBarHold?: (bar: number) => void
   onView?: (v: StageView) => void
+  /** Horizontal room kept free beside the pages, for margin notes. Defaults to the stage's own padding. */
+  margin?: number
   label: string
 }
+
+const HOLD_MS = 500
+const SWIPE_PX = 56
 
 function nearest(xs: number[], v: number) {
   return xs.reduce((a, b) => (Math.abs(b - v) < Math.abs(a - v) ? b : a))
 }
 
-export function ScoreStage({ src, instruments, scale, focus, follow, underlay, overlay, onBarTap, onView, label }: Props) {
+export function ScoreStage({ src, instruments, scale, focus, follow, underlay, overlay, onBarTap, onBarHold, onView, margin, label }: Props) {
   const stageRef = useRef<HTMLDivElement>(null)
   const hostRef = useRef<HTMLDivElement>(null)
   const osmdRef = useRef<OpenSheetMusicDisplay | null>(null)
@@ -58,7 +65,7 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
     if (!size) return null
     const { w, h } = size
     const perView = w / h > 1.12 && w >= 860 ? 2 : 1
-    const padX = w < 760 ? 12 : 28
+    const padX = margin ?? (w < 760 ? 12 : 28)
     const padY = 14
     const gap = perView === 2 ? 28 : 0
     const footer = 30
@@ -71,7 +78,7 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
     const ratio = pw / availW
     const zoom = Math.max(0.3, Math.round((scale / ratio) * 20) / 20)
     return { perView, padX, padY, gap, availW, pw, ph, zoom, format: `1000x${Math.round(1000 * aspect)}` }
-  }, [size, scale])
+  }, [size, scale, margin])
 
   const perViewRef = useRef(1)
   useLayoutEffect(() => {
@@ -180,16 +187,52 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
     if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); turn(-1) }
   }
 
-  const onClick = (e: MouseEvent) => {
-    if (!geo || !onBarTap || !stageRef.current) return
+  const barAt = (clientX: number, clientY: number): number | null => {
+    if (!geo || !stageRef.current) return null
     const r = stageRef.current.getBoundingClientRect()
-    const x = e.clientX - r.left
-    const y = e.clientY - r.top
+    const x = clientX - r.left
+    const y = clientY - r.top
     for (const b of geo.bars.values()) {
       const pad = Math.max(10, b.h * 0.35)
-      if (x >= b.x && x <= b.x + b.w && y >= b.y - pad && y <= b.y + b.h + pad) { onBarTap(b.bar); return }
+      if (x >= b.x && x <= b.x + b.w && y >= b.y - pad && y <= b.y + b.h + pad) return b.bar
+    }
+    return null
+  }
+
+  // One pointer gesture, three outcomes: a tap selects a bar, a hold annotates it, a horizontal swipe turns the page.
+  const gesture = useRef<{ x: number; y: number; t: number; hold?: number; done: boolean } | null>(null)
+  const onPointerDown = (e: PointerEvent) => {
+    if (e.button > 0 || (e.target as HTMLElement).closest('button, a, [role="dialog"]')) return
+    const g = { x: e.clientX, y: e.clientY, t: performance.now(), done: false, hold: 0 }
+    if (onBarHold) {
+      g.hold = window.setTimeout(() => {
+        const bar = barAt(e.clientX, e.clientY)
+        if (bar != null && gesture.current === g && !g.done) { g.done = true; onBarHold(bar) }
+      }, HOLD_MS)
+    }
+    gesture.current = g
+  }
+  const onPointerMove = (e: PointerEvent) => {
+    const g = gesture.current
+    if (!g || g.done) return
+    if (Math.hypot(e.clientX - g.x, e.clientY - g.y) > 8) window.clearTimeout(g.hold)
+  }
+  const onPointerUp = (e: PointerEvent) => {
+    const g = gesture.current
+    gesture.current = null
+    if (!g) return
+    window.clearTimeout(g.hold)
+    if (g.done) return
+    const dx = e.clientX - g.x
+    const dy = e.clientY - g.y
+    const dt = performance.now() - g.t
+    if (Math.abs(dx) >= SWIPE_PX && Math.abs(dy) < Math.abs(dx) * 0.6 && dt < 700) { turn(dx < 0 ? 1 : -1); return }
+    if (Math.hypot(dx, dy) < 10 && onBarTap) {
+      const bar = barAt(e.clientX, e.clientY)
+      if (bar != null) onBarTap(bar)
     }
   }
+  const onPointerCancel = () => { window.clearTimeout(gesture.current?.hold); gesture.current = null }
 
   const hostStyle = layout ? ({
     left: layout.padX, top: layout.padY, width: layout.availW,
@@ -198,13 +241,17 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
   } as CSSProperties) : undefined
 
   return (
-    <div className="stage" ref={stageRef} tabIndex={0} role="region" aria-label={label} onKeyDown={onKeyDown}>
+    <div
+      className="stage" ref={stageRef} tabIndex={0} role="region" aria-label={label} onKeyDown={onKeyDown}
+      onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerCancel}
+      onContextMenu={e => e.preventDefault()}
+    >
       <div className="stage-under" aria-hidden="true">
         {settled && geo?.pages.map((p, i) => p && <div key={i} className="sheet" style={{ left: p.x, top: p.y, width: p.w, height: p.h }} />)}
         {settled && geo && underlay?.(geo)}
       </div>
       {layout && (
-        <div className="stage-host" ref={hostRef} style={hostStyle} onClick={onClick}>
+        <div className="stage-host" ref={hostRef} style={hostStyle}>
           <ScoreView src={src} zoom={layout.zoom} pageFormat={layout.format} onReady={onReady} className="osmd" />
         </div>
       )}
