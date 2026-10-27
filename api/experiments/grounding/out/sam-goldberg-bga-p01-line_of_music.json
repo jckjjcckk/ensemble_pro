@@ -1,0 +1,75 @@
+{
+  "page": "goldberg-bga-p01",
+  "prompt": "line of music",
+  "latency_s": 3.49,
+  "usage": {
+    "input_tokens": 0,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 0,
+    "output_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "total_tokens": 0,
+    "images_processed": 1
+  },
+  "boxes": [
+    {
+      "x1": 62,
+      "y1": 1102,
+      "x2": 1202,
+      "y2": 1312,
+      "img_w": 1274,
+      "img_h": 1624,
+      "confidence": 0.8048780560493469
+    },
+    {
+      "x1": 147,
+      "y1": 173,
+      "x2": 1198,
+      "y2": 357,
+      "img_w": 1274,
+      "img_h": 1624,
+      "confidence": 0.8048780560493469
+    },
+    {
+      "x1": 61,
+      "y1": 857,
+      "x2": 1201,
+      "y2": 1050,
+      "img_w": 1274,
+      "img_h": 1624,
+      "confidence": 0.8128654956817627
+    },
+    {
+      "x1": 63,
+      "y1": 412,
+      "x2": 1200,
+      "y2": 595,
+      "img_w": 1274,
+      "img_h": 1624,
+      "confidence": 0.8083832263946533
+    },
+    {
+      "x1": 62,
+      "y1": 1348,
+      "x2": 1203,
+      "y2": 1545,
+      "img_w": 1274,
+      "img_h": 1624,
+      "confidence": 0.8012422323226929
+    },
+    {
+      "x1": 62,
+      "y1": 644,
+      "x2": 1200,
+      "y2": 814,
+      "img_w": 1274,
+      "img_h": 1624,
+      "confidence": 0.8128654956817627
+    }
+  ],
+  "raw_text_head": "<0f>0<|box;x1=62;y1=1102;x2=1202;y2=1312;w=1274;h=1624;c=0.8048780560493469|><|mask;x=0;y=0;c=0.8048780560493469;data=189,1024,~!!'E*#K{&MHf9MZY(tK$t@8kJin(39`xpr[rGE`kreTurGve0wy(h37Y'lmbd9bd+u/q&T#o'WCDEV_=fA-fOAq10x`fSiKV!j^YvWhRzUr%V(_-.$yc:FrI4@ktZ[w[b_stVY0cLI+&5H%rz/4_$0(&xmUFh2408Xz?#^U!!'r6ThUUg=cb9bgl3Hu=`$Bo*E0xwYh1R7ahNNu0dHMSj]:Wu+?@4@Z4]v{PfM*bijvL9ZOs:&qU^vY[*eQN1mFKUCRe8]kGW(Mdw'SX",
+  "mask_count": 6
+}

@@ -1,0 +1,117 @@
+{
+  "_note": "Hand-verified from 150 dpi renders (pixel coordinates), checked against zoomed crops. Barlines are the x of each internal barline; the system box is from the systemic line to the end of the staves. Goldberg: Aria bars 1-28 (6,6,4,4,4,4; repeat after 16). Rachmaninoff: bars 1-13 (5,4,4); the stroke at x~685 in system 3 is a cross-staff stem, not a barline (the sff chord and the cadenza run are one bar), while the thin line at x~320 is a real barline.",
+  "goldberg-bga-p01": {
+    "first_measure": 1,
+    "systems": [
+      {
+        "x0": 157,
+        "x1": 1199,
+        "y0": 188,
+        "y1": 350,
+        "barlines": [
+          355,
+          511,
+          662,
+          879,
+          1020
+        ]
+      },
+      {
+        "x0": 72,
+        "x1": 1200,
+        "y0": 418,
+        "y1": 587,
+        "barlines": [
+          387,
+          561,
+          685,
+          868,
+          1027
+        ]
+      },
+      {
+        "x0": 70,
+        "x1": 1200,
+        "y0": 662,
+        "y1": 823,
+        "barlines": [
+          394,
+          650,
+          922
+        ]
+      },
+      {
+        "x0": 70,
+        "x1": 1201,
+        "y0": 896,
+        "y1": 1060,
+        "barlines": [
+          403,
+          615,
+          953
+        ]
+      },
+      {
+        "x0": 71,
+        "x1": 1202,
+        "y0": 1132,
+        "y1": 1295,
+        "barlines": [
+          399,
+          685,
+          933
+        ]
+      },
+      {
+        "x0": 72,
+        "x1": 1203,
+        "y0": 1365,
+        "y1": 1530,
+        "barlines": [
+          320,
+          639,
+          916
+        ]
+      }
+    ]
+  },
+  "rach1-2pf-gutheil-p03": {
+    "first_measure": 1,
+    "systems": [
+      {
+        "x0": 234,
+        "x1": 1344,
+        "y0": 430,
+        "y1": 800,
+        "barlines": [
+          421,
+          514,
+          758,
+          1082
+        ]
+      },
+      {
+        "x0": 101,
+        "x1": 1343,
+        "y0": 860,
+        "y1": 1280,
+        "barlines": [
+          523,
+          840,
+          1140
+        ]
+      },
+      {
+        "x0": 100,
+        "x1": 1345,
+        "y0": 1350,
+        "y1": 1800,
+        "barlines": [
+          320,
+          437,
+          603
+        ]
+      }
+    ]
+  }
+}

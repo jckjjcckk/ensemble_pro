@@ -1,0 +1,20 @@
+{
+  "page": "goldberg-bga-p01",
+  "prompt": "bar line",
+  "latency_s": 1.52,
+  "usage": {
+    "input_tokens": 0,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 0,
+    "output_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "total_tokens": 0,
+    "images_processed": 1
+  },
+  "boxes": [],
+  "raw_text_head": "",
+  "mask_count": 0
+}

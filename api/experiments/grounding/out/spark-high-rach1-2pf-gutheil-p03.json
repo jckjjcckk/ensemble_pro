@@ -1,0 +1,287 @@
+{
+  "page": "rach1-2pf-gutheil-p03",
+  "model": "muse-spark-1.3",
+  "effort": "high",
+  "latency_s": 27.4,
+  "usage": {
+    "input_tokens": 3976,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 4585,
+    "output_tokens_details": {
+      "reasoning_tokens": 3979
+    },
+    "total_tokens": 8561
+  },
+  "cost_usd": 0.0245,
+  "image_px": [
+    1416,
+    1907
+  ],
+  "raw_text": "{\"systems\":[{\"index\":1,\"bbox\":{\"x_min\":135,\"y_min\":199,\"x_max\":950,\"y_max\":419},\"staves\":4,\"measures\":[{\"number\":1,\"bbox\":{\"x_min\":135,\"y_min\":199,\"x_max\":358,\"y_max\":419},\"uncertain\":false},{\"number\":2,\"bbox\":{\"x_min\":358,\"y_min\":199,\"x_max\":533,\"y_max\":419},\"uncertain\":false},{\"number\":3,\"bbox\":{\"x_min\":533,\"y_min\":199,\"x_max\":743,\"y_max\":419},\"uncertain\":false},{\"number\":4,\"bbox\":{\"x_min\":743,\"y_min\":199,\"x_max\":950,\"y_max\":419},\"uncertain\":false}]},{\"index\":2,\"bbox\":{\"x_min\":62,\"y_min\":440,\"x_max\":951,\"y_max\":632},\"staves\":4,\"measures\":[{\"number\":5,\"bbox\":{\"x_min\":62,\"y_min\":440,\"x_max\":370,\"y_max\":632},\"uncertain\":false},{\"number\":6,\"bbox\":{\"x_min\":370,\"y_min\":440,\"x_max\":597,\"y_max\":632},\"uncertain\":false},{\"number\":7,\"bbox\":{\"x_min\":597,\"y_min\":440,\"x_max\":810,\"y_max\":632},\"uncertain\":false},{\"number\":8,\"bbox\":{\"x_min\":810,\"y_min\":440,\"x_max\":951,\"y_max\":632},\"uncertain\":false}]},{\"index\":3,\"bbox\":{\"x_min\":64,\"y_min\":690,\"x_max\":956,\"y_max\":942},\"staves\":4,\"measures\":[{\"number\":9,\"bbox\":{\"x_min\":64,\"y_min\":690,\"x_max\":230,\"y_max\":942},\"uncertain\":false},{\"number\":10,\"bbox\":{\"x_min\":230,\"y_min\":690,\"x_max\":312,\"y_max\":942},\"uncertain\":false},{\"number\":11,\"bbox\":{\"x_min\":312,\"y_min\":690,\"x_max\":445,\"y_max\":942},\"uncertain\":false},{\"number\":12,\"bbox\":{\"x_min\":445,\"y_min\":690,\"x_max\":956,\"y_max\":942},\"uncertain\":false}]}],\"uncertain_regions\":[{\"bbox\":{\"x_min\":360,\"y_min\":200,\"x_max\":950,\"y_max\":335},\"why\":\"Dense beamed triplets and 8va dotted line in Piano I cadenza; vertical beam edges could be mistaken for barlines, barlines inferred from Piano II\"},{\"bbox\":{\"x_min\":445,\"y_min\":690,\"x_max\":956,\"y_max\":835},\"why\":\"Long unbarred cadenza run in Piano I; no clear internal barline, thick beams could look like barlines\"}],\"total_measures_on_page\":12}",
+  "status": "completed",
+  "incomplete": null,
+  "systems": [
+    {
+      "index": 1,
+      "box": {
+        "x0": 191,
+        "y0": 379,
+        "x1": 1345,
+        "y1": 799
+      },
+      "staves": 4,
+      "n_measures": 4
+    },
+    {
+      "index": 2,
+      "box": {
+        "x0": 88,
+        "y0": 839,
+        "x1": 1347,
+        "y1": 1205
+      },
+      "staves": 4,
+      "n_measures": 4
+    },
+    {
+      "index": 3,
+      "box": {
+        "x0": 91,
+        "y0": 1316,
+        "x1": 1354,
+        "y1": 1796
+      },
+      "staves": 4,
+      "n_measures": 4
+    }
+  ],
+  "measures": [
+    {
+      "number": 1,
+      "system": 1,
+      "box": {
+        "x0": 191,
+        "y0": 379,
+        "x1": 507,
+        "y1": 799
+      },
+      "grid": {
+        "x_min": 135,
+        "y_min": 199,
+        "x_max": 358,
+        "y_max": 419
+      },
+      "uncertain": false
+    },
+    {
+      "number": 2,
+      "system": 1,
+      "box": {
+        "x0": 507,
+        "y0": 379,
+        "x1": 755,
+        "y1": 799
+      },
+      "grid": {
+        "x_min": 358,
+        "y_min": 199,
+        "x_max": 533,
+        "y_max": 419
+      },
+      "uncertain": false
+    },
+    {
+      "number": 3,
+      "system": 1,
+      "box": {
+        "x0": 755,
+        "y0": 379,
+        "x1": 1052,
+        "y1": 799
+      },
+      "grid": {
+        "x_min": 533,
+        "y_min": 199,
+        "x_max": 743,
+        "y_max": 419
+      },
+      "uncertain": false
+    },
+    {
+      "number": 4,
+      "system": 1,
+      "box": {
+        "x0": 1052,
+        "y0": 379,
+        "x1": 1345,
+        "y1": 799
+      },
+      "grid": {
+        "x_min": 743,
+        "y_min": 199,
+        "x_max": 950,
+        "y_max": 419
+      },
+      "uncertain": false
+    },
+    {
+      "number": 5,
+      "system": 2,
+      "box": {
+        "x0": 88,
+        "y0": 839,
+        "x1": 524,
+        "y1": 1205
+      },
+      "grid": {
+        "x_min": 62,
+        "y_min": 440,
+        "x_max": 370,
+        "y_max": 632
+      },
+      "uncertain": false
+    },
+    {
+      "number": 6,
+      "system": 2,
+      "box": {
+        "x0": 524,
+        "y0": 839,
+        "x1": 845,
+        "y1": 1205
+      },
+      "grid": {
+        "x_min": 370,
+        "y_min": 440,
+        "x_max": 597,
+        "y_max": 632
+      },
+      "uncertain": false
+    },
+    {
+      "number": 7,
+      "system": 2,
+      "box": {
+        "x0": 845,
+        "y0": 839,
+        "x1": 1147,
+        "y1": 1205
+      },
+      "grid": {
+        "x_min": 597,
+        "y_min": 440,
+        "x_max": 810,
+        "y_max": 632
+      },
+      "uncertain": false
+    },
+    {
+      "number": 8,
+      "system": 2,
+      "box": {
+        "x0": 1147,
+        "y0": 839,
+        "x1": 1347,
+        "y1": 1205
+      },
+      "grid": {
+        "x_min": 810,
+        "y_min": 440,
+        "x_max": 951,
+        "y_max": 632
+      },
+      "uncertain": false
+    },
+    {
+      "number": 9,
+      "system": 3,
+      "box": {
+        "x0": 91,
+        "y0": 1316,
+        "x1": 326,
+        "y1": 1796
+      },
+      "grid": {
+        "x_min": 64,
+        "y_min": 690,
+        "x_max": 230,
+        "y_max": 942
+      },
+      "uncertain": false
+    },
+    {
+      "number": 10,
+      "system": 3,
+      "box": {
+        "x0": 326,
+        "y0": 1316,
+        "x1": 442,
+        "y1": 1796
+      },
+      "grid": {
+        "x_min": 230,
+        "y_min": 690,
+        "x_max": 312,
+        "y_max": 942
+      },
+      "uncertain": false
+    },
+    {
+      "number": 11,
+      "system": 3,
+      "box": {
+        "x0": 442,
+        "y0": 1316,
+        "x1": 630,
+        "y1": 1796
+      },
+      "grid": {
+        "x_min": 312,
+        "y_min": 690,
+        "x_max": 445,
+        "y_max": 942
+      },
+      "uncertain": false
+    },
+    {
+      "number": 12,
+      "system": 3,
+      "box": {
+        "x0": 630,
+        "y0": 1316,
+        "x1": 1354,
+        "y1": 1796
+      },
+      "grid": {
+        "x_min": 445,
+        "y_min": 690,
+        "x_max": 956,
+        "y_max": 942
+      },
+      "uncertain": false
+    }
+  ],
+  "uncertain_regions": [
+    {
+      "box": {
+        "x0": 510,
+        "y0": 381,
+        "x1": 1345,
+        "y1": 639
+      },
+      "why": "Dense beamed triplets and 8va dotted line in Piano I cadenza; vertical beam edges could be mistaken for barlines, barlines inferred from Piano II"
+    },
+    {
+      "box": {
+        "x0": 630,
+        "y0": 1316,
+        "x1": 1354,
+        "y1": 1592
+      },
+      "why": "Long unbarred cadenza run in Piano I; no clear internal barline, thick beams could look like barlines"
+    }
+  ],
+  "total_measures_on_page": 12
+}

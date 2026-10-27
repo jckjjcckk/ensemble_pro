@@ -1,0 +1,30 @@
+{
+  "page": "rach1-2pf-gutheil-p03",
+  "prompt": "sheet music",
+  "latency_s": 2.19,
+  "usage": {
+    "input_tokens": 0,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 0,
+    "output_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "total_tokens": 0,
+    "images_processed": 1
+  },
+  "boxes": [
+    {
+      "x1": 6,
+      "y1": 0,
+      "x2": 1411,
+      "y2": 1906,
+      "img_w": 1416,
+      "img_h": 1907,
+      "confidence": 0.8632478713989258
+    }
+  ],
+  "raw_text_head": "<0f>0<|box;x1=6;y1=0;x2=1411;y2=1906;w=1416;h=1907;c=0.8632478713989258|><|mask;x=0;y=0;c=0.8632478713989258;data=1024,755,~!!9?+#Pe!rVfnLV6Z#QR@wUxu_XS]R'Dwo(KITvI`uXXM=oeOWJ'FFY_*TOfp#DcZ(d44v#s@Bzmd]AVgT&#a^#TXQ'cEXZm5[DhOLC{#(c^=8fYN:986t-dij:S%Yvlk`3xlZQ7.c3$P/kA&O`f?9v9:Ql`P0m+Va0ynvbvmshz^.9gk0CA107y1lU87MMmO5BB@Tsolkr_ACA=+s^%^bPjZ-ZASktCl8EzEu1&wBN7/XsNEpxUbf6d[v(sbqg1tqB(p%i4DE1SAk-{xFb+",
+  "mask_count": 1
+}

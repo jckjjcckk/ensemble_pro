@@ -1,0 +1,211 @@
+[
+  {
+    "page": "goldberg-bga-p01",
+    "prompt": "grand staff",
+    "n_boxes": 6,
+    "n_masks": 6,
+    "latency_s": 2.74,
+    "boxes": [
+      [
+        62,
+        1104,
+        1201,
+        1312,
+        0.7299578189849854
+      ],
+      [
+        148,
+        172,
+        1198,
+        358,
+        0.7500000596046448
+      ],
+      [
+        62,
+        858,
+        1200,
+        1047,
+        0.7655677795410156
+      ],
+      [
+        63,
+        412,
+        1200,
+        594,
+        0.7620818018913269
+      ],
+      [
+        62,
+        1350,
+        1203,
+        1544,
+        0.7419355511665344
+      ],
+      [
+        63,
+        644,
+        1200,
+        813,
+        0.7697842121124268
+      ]
+    ]
+  },
+  {
+    "page": "goldberg-bga-p01",
+    "prompt": "music system",
+    "n_boxes": 0,
+    "n_masks": 0,
+    "latency_s": 2.0,
+    "boxes": []
+  },
+  {
+    "page": "goldberg-bga-p01",
+    "prompt": "line of music",
+    "n_boxes": 6,
+    "n_masks": 6,
+    "latency_s": 3.49,
+    "boxes": [
+      [
+        62,
+        1102,
+        1202,
+        1312,
+        0.8048780560493469
+      ],
+      [
+        147,
+        173,
+        1198,
+        357,
+        0.8048780560493469
+      ],
+      [
+        61,
+        857,
+        1201,
+        1050,
+        0.8128654956817627
+      ],
+      [
+        63,
+        412,
+        1200,
+        595,
+        0.8083832263946533
+      ],
+      [
+        62,
+        1348,
+        1203,
+        1545,
+        0.8012422323226929
+      ],
+      [
+        62,
+        644,
+        1200,
+        814,
+        0.8128654956817627
+      ]
+    ]
+  },
+  {
+    "page": "goldberg-bga-p01",
+    "prompt": "piano staff",
+    "n_boxes": 0,
+    "n_masks": 0,
+    "latency_s": 0.64,
+    "boxes": []
+  },
+  {
+    "page": "goldberg-bga-p01",
+    "prompt": "row of sheet music",
+    "n_boxes": 0,
+    "n_masks": 0,
+    "latency_s": 0.47,
+    "boxes": []
+  },
+  {
+    "page": "rach1-2pf-gutheil-p03",
+    "prompt": "grand staff",
+    "n_boxes": 0,
+    "n_masks": 0,
+    "latency_s": 1.15,
+    "boxes": []
+  },
+  {
+    "page": "rach1-2pf-gutheil-p03",
+    "prompt": "music system",
+    "n_boxes": 0,
+    "n_masks": 0,
+    "latency_s": 0.91,
+    "boxes": []
+  },
+  {
+    "page": "rach1-2pf-gutheil-p03",
+    "prompt": "line of music",
+    "n_boxes": 6,
+    "n_masks": 6,
+    "latency_s": 2.91,
+    "boxes": [
+      [
+        227,
+        642,
+        1342,
+        798,
+        0.6167664527893066
+      ],
+      [
+        223,
+        393,
+        1340,
+        629,
+        0.5816993117332458
+      ],
+      [
+        94,
+        856,
+        1343,
+        1104,
+        0.6289855241775513
+      ],
+      [
+        95,
+        1102,
+        1345,
+        1319,
+        0.6246334314346313
+      ],
+      [
+        96,
+        1314,
+        1347,
+        1601,
+        0.6246334314346313
+      ],
+      [
+        100,
+        1592,
+        1349,
+        1797,
+        0.6483516097068787
+      ]
+    ]
+  },
+  {
+    "page": "rach1-2pf-gutheil-p03",
+    "prompt": "piano staff",
+    "n_boxes": 0,
+    "n_masks": 0,
+    "latency_s": 0.97,
+    "boxes": []
+  },
+  {
+    "page": "rach1-2pf-gutheil-p03",
+    "prompt": "row of sheet music",
+    "n_boxes": 0,
+    "n_masks": 0,
+    "latency_s": 2.52,
+    "boxes": []
+  }
+]
