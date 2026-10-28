@@ -21,7 +21,10 @@ Steps:
   3. `omr_spark` asks the closed questions and re-reads the text per system, in parallel (6 at a time), within the
      job's Spark allowance (`max_cost_usd`, default $0.20 a page; measured $0.08); `omr_score.apply` writes the
      answers as deterministic edits; `flagged_bars` lists every doubtful bar with its page, box and reasons.
-  4. The file goes to `{score_id}/digital/score.musicxml`; a `sources` row of kind `musicxml` records it with
+  4. The file is written through music21, then `musicxml_fix`: voices numbered per staff (staff 1 voices 1-4, staff 2
+     5-8; MuseScore drops notes otherwise) and the first movement's `<defaults>` (page size, margins, scaling) and
+     title and composer credits put back, the book's title and composer written into them.
+     It goes to `{score_id}/digital/score.musicxml`; a `sources` row of kind `musicxml` records it with
      `meta = {transcribed_from, engine, flags: {bars_doubtful, pages_unreadable}, flagged_bars, pages, parts}`
      (a re-run replaces the file and updates the same row). The file is read back through the import's own
      `book_facts`: `measures` rows (upsert, never delete); `parts` rows as the import writes them when the book has
@@ -54,6 +57,7 @@ from PIL import Image
 from ..llm import _client as default_client, model_name as default_model
 from . import Job, JobContext, handler
 from .import_musicxml import book_facts, part_groups, write_measures, write_parts
+from .musicxml_fix import PageLayout, fix_musicxml
 from .omr_book import load_run
 from .omr_score import BarsDoNotLineUp, apply, flagged_bars, merge, movement_files
 from .omr_spark import Budget, reread, verify
@@ -206,11 +210,14 @@ def name_parts(sc: stream.Score, existing: list[str]) -> tuple[list[tuple[str, l
     return groups, keep
 
 
-def write_musicxml(sc: stream.Score) -> bytes:
+def write_musicxml(sc: stream.Score, page: PageLayout | None = None) -> bytes:
+    """The file as written, then `musicxml_fix`: voices numbered per staff (MuseScore drops notes otherwise) and
+    Audiveris's page layout and title and composer credits put back (`page`, from the first movement file)."""
     with tempfile.TemporaryDirectory() as tmp:
         fp = Path(tmp) / "score.musicxml"
         sc.write("musicxml", fp=str(fp), makeNotation=False)   # Audiveris bars can overflow; makeNotation would re-bar them
-        return fp.read_bytes()
+        md = sc.metadata
+        return fix_musicxml(fp.read_bytes(), page, title=md.title if md else None, composer=md.composer if md else None)
 
 
 HEARTBEAT_S = 60
@@ -269,6 +276,7 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
             sc, filled = await asyncio.to_thread(merge, doc, movement_files(run))
         except BarsDoNotLineUp as e:
             await _fail(ctx, EngineFailed(f"The transcription's bars do not line up with its pages ({e})"))
+        page = PageLayout.read(movement_files(run)[0])
 
         await ctx.progress(0.6, f"Checking {len(doc['doubtful'])} doubtful symbols and the text of {len(doc['systems'])} systems")
         index = {pg: i for i, pg in enumerate(book_run["pdf_pages"], start=1)}
@@ -291,10 +299,10 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
     existing = [r["name"] for r in (ctx.db.table("parts").select("name,position").eq("score_id", score_id).order("position").execute().data or [])]
     groups, kept_names = name_parts(sc, existing)
     score_row = (ctx.db.table("scores").select("*").eq("id", score_id).limit(1).execute().data or [{}])[0]
-    sc.metadata = metadata.Metadata()
-    sc.metadata.title = score_row.get("title") or ""
-    sc.metadata.composer = score_row.get("composer") or ""
-    data = await asyncio.to_thread(write_musicxml, sc)
+    sc.metadata = metadata.Metadata()      # the book's facts, else the scan's title and composer credits; never "Music21"
+    sc.metadata.title = score_row.get("title") or page.text("title")
+    sc.metadata.composer = score_row.get("composer") or page.text("composer")
+    data = await asyncio.to_thread(write_musicxml, sc, page)
     path = digital_path(score_id)
     ctx.storage_upload(path, data, CONTENT_TYPE)
 

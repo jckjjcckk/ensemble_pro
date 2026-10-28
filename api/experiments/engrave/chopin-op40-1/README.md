@@ -83,6 +83,12 @@ The Goldberg set has the same defect: `../goldberg/same-file/D-input.musicxml` l
 (bars 1, 4, 5, 6, 7, 9, 19, 29, 30, 32; bars 29 and 30 lose their whole bass line, which the Goldberg README had
 put down to content), and keeps 414 of 414 after `renumber_voices.py`.
 
+**F, the fix in the merge (2026-10-28):** `F-input.musicxml` = A-input through the app's `musicxml_fix`
+(`../fix_inputs.py`: voices per staff, Audiveris's `<defaults>`, title "Polonaise Op. 40 No. 1" and composer
+"F. Chopin" written into the credits). MuseScore keeps **628 of 628**, systems **1-3, 4-6, 7-10, 11-13, 14-16** on
+one 240.2 x 318.9 mm page, as D and the scan; no "Music21". `G-input.musicxml` (music21 re-write, then the pass):
+the same, 628 of 628, same systems.
+
 ## What the transcription gets wrong (all four files, it is the content)
 
 - **"Allegro con brio" is missing.** Audiveris did not OCR it at all (no word inter on the page reads it; its words

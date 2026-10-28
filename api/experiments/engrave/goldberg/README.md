@@ -244,6 +244,11 @@ voice number to one staff for the whole part and drops or misfiles the minority 
 `../renumber_voices.py` (staff 1 voices 1-4, staff 2 voices 5-8) MuseScore keeps 414 of 414. CK's D rating below
 was given on the version with these gaps. Details and the fix: `../chopin-op40-1/README.md`.
 
+**F, the fix in the merge (2026-10-28):** `same-file/F-input.musicxml` = A-input through the app's `musicxml_fix`
+(`../fix_inputs.py`, title "Aria", composer "J. S. Bach"). MuseScore keeps **414 of 414**, page 1 1-6, 7-12, 13-16,
+17-20, 21-24, 25-28, page 2 29-32 on a 242.7 x 302.0 mm page, as D and the scan. `G-input.musicxml` (music21
+re-write, then the pass): the same.
+
 ## CK's ratings, 2026-10-28
 
 - A: page 1 90/100, pages 2-3 60/100 (page 1 smooth even with line 2 split in two; page 2 has only 2 lines and page 3 one line; cresc./poco look typed, not Italian).
