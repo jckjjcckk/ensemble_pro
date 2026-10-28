@@ -43,6 +43,7 @@
   display: flex; flex-direction: column;
   background: var(--sheet); color: var(--ink); border: 1px solid var(--rule-2); border-radius: 12px; box-shadow: var(--shadow);
 }
+.fo .menu.is-left { right: auto; left: 0; }
 .fo .menu-item {
   display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 0 12px;
   border: 0; border-radius: 8px; background: transparent; color: var(--ink); font-size: 15px; font-weight: 550; text-align: left;
@@ -57,7 +58,20 @@
 .fo .menu-item.is-status:last-child { margin-bottom: 0; }
 .fo .menu-item.is-status:last-child::after { display: none; }
 .fo .menu-item.is-busy { color: var(--ink-2); cursor: default; }
+/* A setting in the menu: the choice named, its state under it, a check at the end when it is on. */
+.fo .menu-item.is-check { min-height: 56px; }
+.fo .menu-item.is-check .menu-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; gap: 2px; }
+.fo .menu-item.is-check .menu-text small { font-size: 12.5px; font-weight: 500; color: var(--ink-3); }
+.fo .menu-item.is-check .check { flex: none; margin-left: auto; width: 20px; display: flex; justify-content: flex-end; color: var(--ink); }
+.fo .menu-item.is-check:disabled { opacity: 0.6; }
 .fo .menu-item.is-busy .busy-ring { margin: 0 0 0 -1px; }
+
+/* ---------------------------------------------------------------- the engraved page stage (005): pages as images */
+.fo .stage.is-engraved .engraved-host { inset: 0; }
+.fo .engraved-page { position: absolute; margin: 0; overflow: hidden; border-radius: 3px; }
+.fo .engraved-page img { display: block; width: 100%; height: 100%; opacity: 0; transition: opacity 200ms var(--ease); -webkit-user-select: none; user-select: none; }
+.fo .engraved-page.is-in img { opacity: 1; }
+.fo .engraved-page .skeleton-page { position: absolute; inset: 0; box-shadow: none; }
 
 /* ---------------------------------------------------------------- the book page: two ways in */
 
@@ -226,9 +240,9 @@
 .fo .leaf-wait { display: block; height: 100%; aspect-ratio: 1 / 1.414; max-width: 100%; border-radius: 2px; background: var(--sheet); box-shadow: var(--shadow); animation: fo-breathe 1.6s ease-in-out infinite alternate; }
 .fo .leaf figcaption { position: absolute; bottom: -22px; left: 0; right: 0; text-align: center; font-size: 12px; color: var(--ink-3); pointer-events: none; }
 @media (prefers-color-scheme: dark) {
-  .fo:not([data-theme='light']) .leaf img, .fo:not([data-theme='light']) .sq-page img { filter: invert(0.93) hue-rotate(180deg); }
+  .fo:not([data-theme='light']) .leaf img, .fo:not([data-theme='light']) .sq-page img, .fo:not([data-theme='light']) .engraved-page img { filter: invert(0.93) hue-rotate(180deg); }
 }
-.fo[data-theme='dark'] .leaf img, .fo[data-theme='dark'] .sq-page img { filter: invert(0.93) hue-rotate(180deg); }
+.fo[data-theme='dark'] .leaf img, .fo[data-theme='dark'] .sq-page img, .fo[data-theme='dark'] .engraved-page img { filter: invert(0.93) hue-rotate(180deg); }
 
 /* The reader's page question: the page as the librarian saw it. */
 .fo .sq-page { max-height: 42vh; overflow-y: auto; border-radius: 6px; background: var(--sheet); border: 1px solid var(--sheet-edge); flex: none; }

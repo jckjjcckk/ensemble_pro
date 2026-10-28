@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import type { Annotation, AnnotationKind, Member } from '../mock'
 import { Screen, useReducedMotion, useViewport } from './layout'
 import { ScoreStage, type StageView } from './ScoreStage'
+import { EngravedStage } from './EngravedStage'
 import { Ruler, type RulerMark } from './Ruler'
 import { Fade, Sheet } from './Sheet'
 import Strips from './Strips'
@@ -456,26 +457,46 @@ function Doc({ scoreId }: { scoreId: string }) {
 
   const scale = isFull || (isSplit && splitIdx.length > 2) ? (vp.wide ? 0.6 : 0.64) : (vp.wide ? 0.78 : 0.84)
   const scoreParts = isFull ? 'Full score' : isSplit ? split!.label : partsById[partSel]?.name
+  // The full score reads from the pages MuseScore drew (005), in the book's chosen layout; a single part or a split has
+  // no engraved pages yet and is engraved on the device by OSMD, as every book was before.
+  const engraving = isFull ? score.engravings?.find(e => e.layout === (score.digitalLayout ?? 'display')) ?? score.engravings?.[0] : undefined
 
   return (
     <Screen header={header} ruler={ruler} dock={dock} className="is-doc">
       <div className={`work ${listOpen ? 'has-side' : ''}`}>
-        <ScoreStage
-          src={score.fixture}
-          instruments={instruments}
-          scale={scale}
-          focus={focus}
-          follow={followBar}
-          onUserTurn={() => setFollowing(false)}
-          underlay={underlay}
-          overlay={overlay}
-          onBarTap={onBarTap}
-          onBarHold={onBarHold}
-          onView={setView}
-          margin={marginW || undefined}
-          onEmptyTap={() => setPin(null)}
-          label={`${scoreParts}, ${score.title}`}
-        />
+        {engraving ? (
+          <EngravedStage
+            engraving={engraving}
+            focus={focus}
+            follow={followBar}
+            onUserTurn={() => setFollowing(false)}
+            underlay={underlay}
+            overlay={overlay}
+            onBarTap={onBarTap}
+            onBarHold={onBarHold}
+            onView={setView}
+            margin={marginW || undefined}
+            onEmptyTap={() => setPin(null)}
+            label={`${scoreParts}, ${score.title}, ${engraving.layout === 'original' ? 'original formatting' : 'optimised for digital display'}`}
+          />
+        ) : (
+          <ScoreStage
+            src={score.fixture}
+            instruments={instruments}
+            scale={scale}
+            focus={focus}
+            follow={followBar}
+            onUserTurn={() => setFollowing(false)}
+            underlay={underlay}
+            overlay={overlay}
+            onBarTap={onBarTap}
+            onBarHold={onBarHold}
+            onView={setView}
+            margin={marginW || undefined}
+            onEmptyTap={() => setPin(null)}
+            label={`${scoreParts}, ${score.title}`}
+          />
+        )}
         <InkBar
           open={scribble} tool={inkTool} color={inkColor} status={ink.synced ? ink.state : 'local'}
           onTool={setInkTool} onColor={setInkColor} onDone={endScribble}

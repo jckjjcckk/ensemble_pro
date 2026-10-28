@@ -25,6 +25,7 @@ FAILURE_WORDS = {
     "import_pdf": "Folio could not open this PDF. Try the import again.",
     "process_pages": "Folio could not finish reading the pages. Try the import again.",
     "import_musicxml": "Folio could not read this MusicXML file. Export it again and import the new copy.",
+    "engrave": "Folio could not draw the pages of this book. The notation still opens on the device.",
 }
 GENERIC_FAILURE = "Something went wrong while Folio was working on this score. Try again."
 

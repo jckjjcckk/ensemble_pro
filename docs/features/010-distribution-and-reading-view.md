@@ -1,6 +1,6 @@
 # 010 Distribution: parts to players, iPad reading view
 
-Status: prototype (MusicXML scores render on the iPad-first score screen from signed URLs; parts match players by seat name; distributing cut images or highlighted page bands is not built) | Meta model: none (the parts come from 002, 004 and 008).
+Status: prototype (a digital book's full score reads from the pages MuseScore engraved on the box, in the book's chosen layout, 2026-10-28; a single part still renders on the device with OSMD; parts match players by seat name; distributing cut images or highlighted page bands is not built) | Meta model: none (the parts come from 002, 004 and 008).
 
 ## Purpose
 
@@ -48,6 +48,20 @@ window.
   reads the transcription on the stage (the score's file falls back to the transcription when no part has a
   file of its own) and Export MusicXML exports it. A book imported from MusicXML shows only Open Digital.
   Split by instrument and Export stay where they were.
+- **Open Digital reads engraved pages (2026-10-28 night, CK: rendered server-side by MuseScore, not on the device;
+  005).** When a book has `engraving` sources, the full score on `/score/{id}` is drawn by `EngravedStage.tsx` instead
+  of OSMD: the chosen layout's SVG pages as images (signed URLs, one batch per page set), fitted like the PDF reader
+  (one page per screen in portrait, two facing in landscape, dark themes invert the paper), and the stage `Geo` built
+  from the `.mpos` bar boxes (fractions of the page scaled onto the page's rectangle; a system is one page and one y).
+  Because the geometry has the same shape OSMD's had, highlights, notes, cuts, scribbles, presence faces and Follow work
+  on the pages unchanged; the pointer gestures (tap, 500 ms hold, swipe) moved to `stageGestures.ts`, shared with
+  `ScoreStage`. OSMD stays the fallback: a single part, a split, or a book without pages. Verified in the browser pane
+  on the Beethoven quartet imported into the local stack: 22 pages optimised for digital display, 21 as the file prints
+  them, a tap on bar 4 opens its quick menu, Violin I falls back to OSMD; screenshots in the session notes.
+- **Layout toggle.** The book's "…" menu carries "Preserve original formatting" (a `menuitemcheckbox`; off means
+  "Optimised for digital display", said under it), for whoever may edit the book; it writes `scores.digital_layout`
+  and the world reloads. A cover at the shelf's left edge now hangs its menu from the button's left edge (before, the
+  menu left the viewport).
 - **Open PDF** is `/score/{id}/pages` (`web/src/app/Pages.tsx`): the rendered pages `{score_id}/pages/{n}.png`
   (listed from the bucket, so pages appear as the import renders them) or a camera intake's photographs in
   `page_order`; one page per screen in portrait, facing pages in landscape with page 1 alone as a right-hand
@@ -92,11 +106,14 @@ window.
 
 - The page reader shows pages only: no bar overlays, no markings, no swipe turn beyond native scroll-snap.
 - Highlighted staff band on the original page.
-- Pages take long to engrave; consider caching OSMD output per part.
+- Pages take long to engrave on the device for a single part (the full score now comes engraved from the box; a
+  part's own pages are the next step, 005).
+- The composer line under the reader's title shows the last word of the composer ("van" for "Beethoven, Ludwig van").
 - Chrome hide/show on tap in document mode not built.
 
 ## Next steps
 
 1. `measure_placements` overlays on the page reader (tap a bar = select a bar, as in the tap test).
-2. Open Digital on a converted book once `omr_convert` lands (005); check the transcription engraves.
+2. Open Digital on a converted book end to end through the UI (the engraving step runs at the end of `omr_convert`;
+   seen only on an imported MusicXML so far).
 3. Real iPad pass of `touch.md`, including line 8 (tap a face) and Follow between two iPads.

@@ -1,0 +1,15 @@
+# Rendered and derived artefacts: reproducible with the scripts here in under a minute (README.md lists the commands).
+# Keep in git only the scripts, READMEs, CK's ratings and the small JSON probe answers.
+*.pdf
+*.svg
+*.png
+*.mp3
+*.mscx
+*.mscz
+*.mpos
+*.spos
+*.musicxml
+*.mxl
+*.log
+run/
+inputs/

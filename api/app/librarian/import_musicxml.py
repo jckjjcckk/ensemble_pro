@@ -6,6 +6,7 @@ number, and the score's facts (key and meter in the canonical forms of `signatur
 tempo, duration, pages estimate). Parts are named by `part_groups`, which `part_split` uses too. Difficulty is a rough
 density heuristic until the `brief` job (Spark) replaces it. `book_facts`, `write_parts` and `write_measures` are
 shared with Convert to Digital (`omr_convert`, feature 005), so a transcribed book is read the way an imported one is.
+The pages are then engraved by MuseScore on the box (`engrave_step`, both layouts, best effort) before the book is ready.
 """
 from __future__ import annotations
 
@@ -16,6 +17,7 @@ from typing import Any
 from music21 import converter, key as m21key, meter as m21meter, stream, tempo as m21tempo
 
 from . import Job, JobContext, handler
+from .engrave import engrave_step
 from .signature import canonical_key, canonical_meter
 
 CANON = {"Violoncello": "Cello", "Contrabass": "Double bass", "Pianoforte": "Piano"}
@@ -114,7 +116,7 @@ def write_measures(db, score_id: str, numbers: list[int]) -> None:
 
 
 @handler("import_musicxml")
-async def import_musicxml(job: Job, ctx: JobContext) -> dict:
+async def import_musicxml(job: Job, ctx: JobContext, *, engraver: Any = None) -> dict:
     t0 = time.time()
     score_id = job.payload["score_id"]
     source_id = job.payload["source_id"]
@@ -152,6 +154,10 @@ async def import_musicxml(job: Job, ctx: JobContext) -> dict:
         "status": "done", "summary": summary, "latency_ms": int((time.time() - t0) * 1000), "finished_at": ctx.now(),
     }).eq("id", interp["id"]).execute()
 
+    # The pages the reader shows: MuseScore on the box, both layouts (engrave.py). Best effort, before the book is
+    # ready so it opens engraved; without the box the reader engraves on the device.
+    engraving = await engrave_step(ctx, score_id, source_id, box=engraver, progress=0.85)
+
     facts = {
         "status": "ready", "progress": 1.0, "failure_reason": None,
         "bars": len(numbers), "key_sig": f["key_sig"], "meter": f["meter"],
@@ -168,4 +174,4 @@ async def import_musicxml(job: Job, ctx: JobContext) -> dict:
         facts["work"] = movement or title
     ctx.db.table("scores").update(facts).eq("id", score_id).execute()
     await ctx.progress(1.0, "Ready")
-    return {"interpretation_id": interp["id"], "parts": names, "measures": len(numbers), "seconds": round(time.time() - t0, 1)}
+    return {"interpretation_id": interp["id"], "parts": names, "measures": len(numbers), "seconds": round(time.time() - t0, 1), "engraving": engraving}

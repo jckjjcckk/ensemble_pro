@@ -67,6 +67,7 @@ from PIL import Image
 
 from ..llm import _client as default_client, model_name as default_model
 from . import Job, JobContext, handler
+from .engrave import engrave_step
 from .import_musicxml import book_facts, part_groups, write_measures, write_parts
 from .musicxml_fix import PageLayout, fix_musicxml
 from .omr_agent import USD_PER_PAGE, Budget, PdfPages, enrich, front_matter, page_kinds, verify
@@ -251,15 +252,16 @@ async def _heartbeat(ctx: JobContext) -> None:
 
 @handler("omr_convert")
 async def omr_convert(job: Job, ctx: JobContext, *, box: Any = None, client: AsyncAnthropic | None = None, model: str | None = None,
-                      pdf_pages: Any = None) -> dict:
+                      pdf_pages: Any = None, engraver: Any = None) -> dict:
     beat = asyncio.create_task(_heartbeat(ctx))
     try:
-        return await _convert(job, ctx, box, client, model, pdf_pages)
+        return await _convert(job, ctx, box, client, model, pdf_pages, engraver)
     finally:
         beat.cancel()
 
 
-async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic | None, model: str | None, pdf_pages: Any) -> dict:
+async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic | None, model: str | None, pdf_pages: Any,
+                   engraver: Any) -> dict:
     t0 = time.time()
     p = job.payload
     score_id = p["score_id"]
@@ -388,9 +390,13 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
         ctx.db.table("scores").update(fill).eq("id", score_id).execute()
     write_s = time.time() - t_write
 
-    ctx.result["note"] = f"Digital: {len(f['numbers'])} bars, {len(flagged)} to check"
+    # The pages: MuseScore on the box, both layouts (engrave.py). Best effort: the digital version is written and read
+    # back already; without pages the reader engraves on the device.
+    engraving = await engrave_step(ctx, score_id, row["id"], box=engraver, progress=0.92)
+
+    ctx.result["note"] = f"Digital: {len(f['numbers'])} bars, {len(flagged)} to check" + ("" if engraving.get("ok") else f". {engraving.get('reason')}")
     return {
-        "source_id": row["id"], "instruments": names, "bars": len(f["numbers"]), "flagged_bars": flagged,
+        "source_id": row["id"], "instruments": names, "bars": len(f["numbers"]), "flagged_bars": flagged, "engraving": engraving,
         "seconds": round(time.time() - t0, 1), "cost_usd": cost["total_usd"], "cost_per_page": cost["per_page"],
         "pages": book_run["pdf_pages"], "page_kinds": [(k["pdf_page"], k["kind"]) for k in kinds], "cover": cover_key,
         "pages_unreadable": doc["unreadable"], "spark_calls": budget.calls, "spark_skipped": budget.skipped,
@@ -398,5 +404,5 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
         "edits": {k: sum(1 for e in log if e["layer"] == k) for k in ("front", "words", "dynamic", "fingering", "pedal", "ornament", "dup", "A", "flag")},
         "timings": {"kinds_s": round(kinds_s, 1), "box_s": book_run.get("box_s"), "audiveris_s": book_run.get("audiveris_s"),
                     "render_s": book_run.get("render_s"), "upload_s": book_run.get("upload_s"), "pull_s": book_run.get("pull_s"),
-                    "spark_s": round(spark_s, 1), "write_s": round(write_s, 1)},
+                    "spark_s": round(spark_s, 1), "write_s": round(write_s, 1), "engrave_s": engraving.get("seconds")},
     }

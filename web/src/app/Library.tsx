@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react'
-import { practice, type BookKind, type Part, type Score } from '../mock'
+import { LAYOUT_WORDS, practice, type BookKind, type Part, type Score } from '../mock'
 import { apiFailure, convertToDigital } from '../lib/api'
 import { useAuth } from './auth'
-import { MY_LIBRARY, exportName, exportStored, importMusicXml, importPdf, isPdf, type AskJob } from './data'
+import { MY_LIBRARY, exportName, exportStored, importMusicXml, importPdf, isPdf, type AskJob, setDigitalLayout } from './data'
 import { Screen, useViewport } from './layout'
 import { DisplayButton } from './Display'
 import { Pop, SPRING_LAYOUT, Scrim, Sheet } from './Sheet'
@@ -14,7 +14,7 @@ import { StaffQuestion } from './StaffQuestion'
 import { GroupSheet, ShareSheet, type GroupFace } from './Groups'
 import { bookShare, bookState, dotOf, type BookShare, type BookState } from './book'
 import { barRange, difficultyWord, fmtDateTime, partShort, useStore } from './store'
-import { ICamera, IChevronRight, IClose, IExport, IImport, IInfo, IKeypad, IMore, INote, IPeople, IPlusCircle, IRepeat, IScore, IWarning } from './icons'
+import { ICamera, IChevronRight, IClose, IExport, IImport, IInfo, IKeypad, IMore, INote, IPeople, IPlusCircle, IRepeat, IScore, IWarning, ICheck } from './icons'
 import './groups.css'
 
 const bookWord: Record<BookKind, string> = { pdf: 'PDF', digital: 'Digital' }
@@ -310,10 +310,29 @@ function Cover({ score: s, state, share, selected, onSelect, onInfo, onAsk, onCo
 function BookMenu({ score: s, state, onInfo, onAsk, onConvert, className = '' }: {
   score: Score; state: BookState; onInfo?: () => void; onAsk: (j: AskJob) => void; onConvert: () => void; className?: string
 }) {
-  const { canEditBook } = useStore()
+  const { canEditBook, world } = useStore()
   const [open, setOpen] = useState(false)
+  // The menu hangs from the button's right edge; a cover at the left of the shelf has no room there, so it hangs from
+  // the left edge instead (decided when it opens, from where the button is).
+  const moreRef = useRef<HTMLButtonElement>(null)
+  const [side, setSide] = useState<'right' | 'left'>('right')
+  const toggle = () => {
+    const r = moreRef.current?.getBoundingClientRect()
+    if (r) setSide(r.right < 320 ? 'left' : 'right')
+    setOpen(v => !v)
+  }
   // Someone else's book read through a share opens and nothing more, whatever the reader's role in the group.
   const canEdit = canEditBook(s)
+  // The layout a digital book's pages open in (005): the engraved page sets exist, and the choice is the book's.
+  const layout = s.digitalLayout ?? 'display'
+  const canLayout = canEdit && !!s.engravings?.length
+  const [switching, setSwitching] = useState(false)
+  const switchLayout = async () => {
+    setSwitching(true)
+    try { await setDigitalLayout(s.id, layout === 'original' ? 'display' : 'original'); world.reload() } catch { /* the menu simply keeps the old state */ }
+    setSwitching(false)
+    close()
+  }
   useEffect(() => {
     if (!open) return
     // Capture phase, so Escape closes this menu and leaves a sheet under it open.
@@ -325,11 +344,11 @@ function BookMenu({ score: s, state, onInfo, onAsk, onConvert, className = '' }:
   const canConvert = canEdit && state.hasPdf && !state.hasDigital && s.status === 'ready' && !state.busy && !state.asking
   return (
     <div className={`book-menu ${className}`}>
-      <button type="button" className="btn-icon" aria-label={`${s.title}, more`} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(v => !v)}>
+      <button type="button" ref={moreRef} className="btn-icon" aria-label={`${s.title}, more`} aria-haspopup="menu" aria-expanded={open} onClick={toggle}>
         <IMore size={22} />
       </button>
       <AnimatePresence>{open && <Scrim key="scrim" clear fixed onClose={close} />}</AnimatePresence>
-      <Pop open={open} origin="top right" className="menu" role="menu" aria-label={`${s.title}`}>
+      <Pop open={open} origin={side === 'left' ? 'top left' : 'top right'} className={`menu ${side === 'left' ? 'is-left' : ''}`} role="menu" aria-label={`${s.title}`}>
         {state.asking && (
           state.ask && canEdit
             ? <button type="button" role="menuitem" className="menu-item is-status" onClick={() => { close(); onAsk(state.ask!) }}><span className="dot is-ask" aria-hidden="true" />The librarian has a question<IChevronRight size={18} /></button>
@@ -344,6 +363,13 @@ function BookMenu({ score: s, state, onInfo, onAsk, onConvert, className = '' }:
         {state.hasPdf && <Link role="menuitem" className="menu-item" to={`/score/${s.id}/pages`} onClick={close}><IScore size={20} />Open PDF</Link>}
         {state.digitalReady && <Link role="menuitem" className="menu-item" to={`/score/${s.id}`} onClick={close}><INote size={20} />Open Digital</Link>}
         {canConvert && <button type="button" role="menuitem" className="menu-item" onClick={() => { close(); onConvert() }}><INote size={20} />Convert to Digital</button>}
+        {canLayout && (
+          <button type="button" role="menuitemcheckbox" aria-checked={layout === 'original'} className={`menu-item is-check ${switching ? 'is-busy' : ''}`} disabled={switching} onClick={() => void switchLayout()}>
+            <IScore size={20} />
+            <span className="menu-text"><span>{LAYOUT_WORDS.original}</span><small>{layout === 'original' ? 'On: the pages as the file prints them' : `Off: ${LAYOUT_WORDS.display.toLowerCase()}`}</small></span>
+            <span className="check" aria-hidden="true">{layout === 'original' && <ICheck size={18} />}</span>
+          </button>
+        )}
         {onInfo && <button type="button" role="menuitem" className="menu-item" onClick={() => { close(); onInfo() }}><IInfo size={20} />Book page</button>}
       </Pop>
     </div>

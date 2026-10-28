@@ -89,10 +89,29 @@ export interface Score {
   transcriptionPath?: string
   /** The reading run is parked on a question (the latest interpretation is `needs_review`). */
   review?: { question?: string }
+  /** The engraved page sets of a digital book (one per layout) and the layout it opens in (`scores.digital_layout`). */
+  engravings?: Engraving[]
+  digitalLayout?: DigitalLayout
 }
 
 /** The one tag every book carries. "MusicXML" names the file format, on import and export only; the book is Digital. */
 export type BookKind = 'pdf' | 'digital'
+
+/** The two ways a digital book's pages are laid out (005): reflowed to the iPad page, or as the file prints them. */
+export type DigitalLayout = 'display' | 'original'
+export const LAYOUT_WORDS: Record<DigitalLayout, string> = { display: 'Optimised for digital display', original: 'Preserve original formatting' }
+
+/** A digital book's pages as MuseScore drew them on the box, one layout (an `engraving` source, 005). `bars` are
+ *  `[number, page (1-based), x, y, w, h]`, the box as fractions of its page. */
+export interface Engraving {
+  id: string
+  layout: DigitalLayout
+  /** Bucket-relative keys of the SVG pages, in order. */
+  paths: string[]
+  pageCount: number
+  pageMm?: [number, number]
+  bars: [number, number, number, number, number, number][]
+}
 
 export type AnnotationKind = 'marking' | 'cut' | 'voice' | 'text' | 'dynamic' | 'bowing' | 'breath' | 'highlight'
 
