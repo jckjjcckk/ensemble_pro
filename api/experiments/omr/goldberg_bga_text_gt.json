@@ -1,0 +1,19 @@
+{
+ "source": "goldberg-bga.pdf pages 1-5, dynamics and direction words per printed bar, read from the 300 dpi scans. Bar numbers are the global count over the five pages (feature 004 numbering, every printed bar +1, voltas included). Bars 1-28 are the p1-3 run's TEXT_GT; the rest was read for the p1-5 run (2026-10-28). PDF page 4 is a second scan of page 3 (Var. 1 bars 17-32 and Var. 2 bars 1-5), so bars 70-90 repeat bars 49-69. Tempo headings, movement titles and fingering are not text here.",
+ "bars": {
+  "1": ["p", "dolce"], "9": ["cresc."], "11": ["f"], "13": ["mf"], "16": ["p"], "18": ["cresc."], "21": ["mf"],
+  "23": ["f"], "25": ["p"], "27": ["cresc.", "poco"],
+  "29": ["mf", "cresc."], "31": ["f", "dim."], "32": ["p"],
+  "33": ["p", "cresc."], "35": ["dim."], "37": ["p", "poco", "cresc."], "41": ["f"], "44": ["dim."],
+  "45": ["p", "cresc."], "47": ["mf"],
+  "49": ["mf"], "51": ["cresc."], "53": ["rf"], "54": ["rf"], "55": ["cresc.", "poco"], "56": ["dim."], "57": ["p"],
+  "59": ["cresc.", "poco", "a", "poco"], "62": ["f"], "63": ["dim."],
+  "65": ["p"], "67": ["cresc."],
+  "70": ["mf"], "72": ["cresc."], "74": ["rf"], "75": ["rf"], "76": ["cresc.", "poco"], "77": ["dim."], "78": ["p"],
+  "80": ["cresc.", "poco", "a", "poco"], "83": ["f"], "84": ["dim."],
+  "86": ["p"], "88": ["cresc."],
+  "93": ["cresc."], "94": ["f"], "98": ["dim."], "101": ["p"], "103": ["mf"], "105": ["cresc."], "107": ["dim."],
+  "110": ["p"], "114": ["cresc."], "116": ["f"]
+ },
+ "range": [1, 119]
+}

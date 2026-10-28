@@ -80,11 +80,61 @@ Aria check (32 bars): Audiveris alone pitch F1 0.977, onset+pitch 0.892, full 0.
 the page-1 text ground truth stops at bar 28). Rendered with Verovio 6.3 on the Mac in a subprocess, SVG to
 PNG via resvg (`scripts/render.py`); `review.html`.
 
-Plumbing to fix before measuring more: run pages as one book (Audiveris exports every movement of a
-multi-movement book to the same `mvtnull.mxl`, captured through a FIFO, `scripts/fifo_reader.py`; Opus
-export crashes); multi-movement export collides; bar ids restart per Audiveris page (continuation pages get
-an offset, `omr_model.py --page-offsets`); text placed per bar, not by x; the 0.6 grade gate misses a
-fingering-as-tuplet.
+The p1-3 plumbing (exports caught through a FIFO, per-page bar offsets, text per bar, a fixed 0.6 gate) is
+replaced by the committed scripts in `api/experiments/omr/` (next section).
+
+### Plumbing fixed, Goldberg pages 1 to 5 (2026-10-28, `api/experiments/omr/`)
+
+- **One book, one file per movement, no collision.** The `mvtnull` name comes from the CLI: with `-sheets` it
+  hands `export` a fresh score list instead of the book's, so `Score.getId()` (the index in the book's list)
+  is null for every movement (read in the 5.11 bytecode, `CLI$ProcessingTask`; the opus export dies on the
+  same duplicate name). `book_box.py` cuts the page set into its own PDF (pdfseparate + pdfunite, same stem)
+  and never passes `-sheets`: one `-transcribe -export` writes `goldberg-bga.mvt1..4.mxl`, the time
+  signature and key carry across pages, and the 5-page cap is structural. Rewriting `book.xml` into a single
+  movement was tried and rejected (the export duplicated the first page of each sheet and lost Var. 2's 2/4).
+  Careful: `-export` on a saved book without `-sheets` transcribes every remaining sheet of the PDF.
+- **Continuous bar ids.** `measure_map.py` gives every stack the 004 shape: key `page.system.bar`, global
+  `number` (+1 per printed bar over the page set, voltas included), `box` as page fractions, plus `movement`
+  and `movement_bar` (= the ordinal in that movement's export). `score.py` merges the movement files onto
+  the global numbers (counts must match, spanners carried) into one `base.musicxml`; edits, flags, text and
+  crop labels all use those numbers.
+- **Text by position.** Spark returns each word's centre on its 0 to 1000 grid over the system crop.
+  `text_place.py` maps it to page pixels, snaps it to an Audiveris text glyph within 8 interlines (OCR words
+  that are not digits, dynamics symbols: Audiveris knows where the ink is, Spark knows what it says), anchors
+  a dynamic to the first notehead at or right of its ink (an *f* whose ink starts left of the barline belongs
+  to the next bar), else takes the bar whose x range holds the point; staff by the nearer staff band, ties
+  to the upper staff. Spark's bar label is only a cross-check; when it disagrees with an unconfirmed x the
+  bar is flagged for review.
+- **Gate knob.** `audiveris_model.py --gate 0.6 --gate-tag tuplet=0.9`; `model.json` records `gate_skipped`
+  (what the gate let through unasked). Answers are cached per inter, so moving the gate pays only for the
+  newly admitted symbols.
+
+The BGA PDF's page 4 is a second scan of page 3 (Var. 1 bars 17 to 32, Var. 2 bars 1 to 5); the run keeps it
+(five pages as given). Audiveris reads it as a continuation of Var. 2 in the carried 2/4, so 15 of its 21
+bars are abnormal: a real hazard of carrying the time signature, and a good review-flag test.
+
+| Page | Content (global bars) | Bars | Abnormal | Rhythm flags | Flagged | Text items | Ornaments written / skipped |
+|---|---|---|---|---|---|---|---|
+| 1 | Aria 1 to 28 (1-28) | 28 | 8 | 7 | 9 | 12 in 10 bars | 6 / 22 |
+| 2 | Aria 29 to 32, Var. 1 1 to 16 (29-48) | 20 | 2 | 4 | 4 | 16 in 10 bars | 4 / 0 |
+| 3 | Var. 1 17 to 32, Var. 2 1 to 5 (49-69) | 21 | 3 | 5 | 5 | 16 in 12 bars | 1 / 1 |
+| 4 | duplicate scan of page 3 (70-90) | 21 | 15 | 15 | 16 | 16 in 12 bars | 1 / 1 |
+| 5 | Var. 2 6 to 32 with voltas (91-119) | 29 | 4 | 1 | 4 | 10 in 10 bars | 0 / 4 |
+| total | 119 bars, 4 Audiveris movements | 119 | 32 | 32 | 38 | 70 | 12 / 28 |
+
+Against p1-3: pages 1 to 3 give the same 69 bars (28, 20, 21) and the same abnormal and rhythm counts.
+Audiveris 91 s for the 5-page book (77 s for 3). Spark 60 calls, **$0.389** ($0.078 a page, p1-3 $0.095),
+34 + 61 s wall with 6 calls in parallel (501 s summed), largest reply 3.3k output tokens, none truncated.
+Text, with a typed ground truth for all five pages (`goldberg_bga_text_gt.json`, 70 words) and dots
+ignored: Audiveris alone F1 0.44; final **0.986** strict (69/70; P = R), 1.00 within a bar. On bars 1 to 69,
+same metric: p1-3 (per-bar labels) 1.00, this run 0.977, the one miss a *cresc.* (bar 18) whose ink Spark
+put 100 px right and Audiveris never found, so nothing confirmed it (flagged). Placement methods on the same
+Spark answers: Spark's x alone 0.929, x refined by geometry 0.986, Spark's bar label 1.00. Aria notes
+unchanged (pitch 0.977, onset+pitch 0.892, full 0.859 → 0.864); ornaments 9/18 at precision 0.60 (p1-3
+11/18 at 0.69; Spark's ornament answers vary run to run). Gate at 0.6: 30 asked, 202 skipped, among them
+three tuplets at 0.65, 0.74, 0.76, all false (fingering, letters); the first two bars were un-tupleted anyway
+by a lower-graded tuplet in the same bar, bar 67 kept a false triplet. `--gate-tag tuplet=0.9`: 3 more calls
+($0.013), all three called letters or nothing, no tuplet left in the final file. Total spend $0.403.
 
 ## homr (0.7, studied and rejected for now)
 
@@ -120,6 +170,8 @@ the three-page book), `~/omr/exp-homr/` (homr 0.7 in `~/omr/homr/.venv`, eval to
 `run_judge2.sh`) are copied under `out/omr-judge/homr/`; every box artefact is copied to a `box/` folder
 next to its report. Rendering (Verovio, resvg) happens on the Mac. Spark is called from the box through
 `scripts/spark.py` (Anthropic SDK against Meta, like `app/llm.py`, with a spend cap in `spend.json`).
+The p1-5 run uses `~/omr/folio005/` (`scripts/book_box.py`, `p1-5/audiveris/`); everything after
+Audiveris, Spark included, runs on the Mac with `api/.env`.
 
 ## Files
 
@@ -132,9 +184,20 @@ final-mvt{1,2,3}.musicxml, final-p{1,2,3}.musicxml, merged.musicxml (69 bars), f
 events_to_xml, judge_bars, judge_score, eval_bars, ...), `box/`. The whole `out/omr-judge/` is gitignored.
 Landscape of engines: `api/experiments/grounding/OMR-RESEARCH.md` (feature 016).
 
+Committed plumbing, `api/experiments/omr/`: `book_box.py` (box: page set → one book → one export per
+movement), `audiveris_model.py` (bar map, inters, grade gate), `measure_map.py`, `text_place.py`,
+`spark_layers.py` (A verify, B reread, cached, parallel), `score.py`, `apply_edits.py`, `review.py` (flags,
+page slices), `render.py`, `compare.py`, `build_review.py`, `pipeline.py` (the Mac side end to end),
+`goldberg_bga_text_gt.json`; tests in `api/tests/test_omr_plumbing.py`. Runs land in
+`api/experiments/omr/out/` (gitignored): `goldberg-p1-5/` (model, verify, reread, edits, flags,
+compare-*.json, base/final.musicxml, slices, render, review.html) and `goldberg-p1-5-gate-tuplet09/`.
+
 ## Next steps
 
-1. Fix the plumbing list above, then measure Var. 1 to 3 (6 to 8 pages) against Open Goldberg.
+1. Plumbing fixed (p1-5 above). Next: notes ground truth for Var. 1 and 2 (Open Goldberg) so the note F1
+   covers more than the Aria; a page-level duplicate check (page 4 of the BGA PDF repeats page 3); decide
+   whether an unconfirmed Spark x that disagrees with Spark's label should fall back to the label (it would
+   have fixed the one text miss) or stay a review flag.
 2. Decide whether OMR runs as a job kind (`omr`, optional, fills the same `measures`) or stays an experiment
    until practice mode (014) needs notes.
 3. Keep Audiveris as a separate process (AGPL): Folio's code never imports it.
