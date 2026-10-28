@@ -1,0 +1,645 @@
+{
+ "source": "Audiveris 5.11 sheet#1 of goldberg-bga.pdf (out/omr-judge/audiveris/base/model.json, 2026-10-27)",
+ "frame_px": [
+  2547,
+  3246
+ ],
+ "frame_dpi": 300,
+ "interline": 20,
+ "systems": [
+  {
+   "id": 1,
+   "left": 318,
+   "right": 2395,
+   "top": 404.5,
+   "bottom": 676.8
+  },
+  {
+   "id": 2,
+   "left": 148,
+   "right": 2397,
+   "top": 866.9,
+   "bottom": 1147.0
+  },
+  {
+   "id": 3,
+   "left": 147,
+   "right": 2393,
+   "top": 1353.0,
+   "bottom": 1619.0
+  },
+  {
+   "id": 4,
+   "left": 145,
+   "right": 2400,
+   "top": 1819.5,
+   "bottom": 2092.4
+  },
+  {
+   "id": 5,
+   "left": 146,
+   "right": 2402,
+   "top": 2289.6,
+   "bottom": 2563.0
+  },
+  {
+   "id": 6,
+   "left": 150,
+   "right": 2404,
+   "top": 2754.7,
+   "bottom": 3032.4
+  }
+ ],
+ "measures": [
+  {
+   "id": 1,
+   "system": 1,
+   "left": 316,
+   "right": 712,
+   "top": 404.5,
+   "bottom": 676.8
+  },
+  {
+   "id": 2,
+   "system": 1,
+   "left": 711,
+   "right": 1023,
+   "top": 404.5,
+   "bottom": 676.8
+  },
+  {
+   "id": 3,
+   "system": 1,
+   "left": 1023,
+   "right": 1325,
+   "top": 404.5,
+   "bottom": 676.8
+  },
+  {
+   "id": 4,
+   "system": 1,
+   "left": 1324,
+   "right": 1759,
+   "top": 404.5,
+   "bottom": 676.8
+  },
+  {
+   "id": 5,
+   "system": 1,
+   "left": 1759,
+   "right": 2041,
+   "top": 404.5,
+   "bottom": 676.8
+  },
+  {
+   "id": 6,
+   "system": 1,
+   "left": 2040,
+   "right": 2395,
+   "top": 404.5,
+   "bottom": 676.8
+  },
+  {
+   "id": 7,
+   "system": 2,
+   "left": 146,
+   "right": 774,
+   "top": 866.9,
+   "bottom": 1147.0
+  },
+  {
+   "id": 8,
+   "system": 2,
+   "left": 774,
+   "right": 1124,
+   "top": 866.9,
+   "bottom": 1147.0
+  },
+  {
+   "id": 9,
+   "system": 2,
+   "left": 1123,
+   "right": 1372,
+   "top": 866.9,
+   "bottom": 1147.0
+  },
+  {
+   "id": 10,
+   "system": 2,
+   "left": 1371,
+   "right": 1737,
+   "top": 866.9,
+   "bottom": 1147.0
+  },
+  {
+   "id": 11,
+   "system": 2,
+   "left": 1736,
+   "right": 2055,
+   "top": 866.9,
+   "bottom": 1147.0
+  },
+  {
+   "id": 12,
+   "system": 2,
+   "left": 2054,
+   "right": 2398,
+   "top": 866.9,
+   "bottom": 1147.0
+  },
+  {
+   "id": 13,
+   "system": 3,
+   "left": 145,
+   "right": 789,
+   "top": 1353.0,
+   "bottom": 1619.0
+  },
+  {
+   "id": 14,
+   "system": 3,
+   "left": 788,
+   "right": 1302,
+   "top": 1353.0,
+   "bottom": 1619.0
+  },
+  {
+   "id": 15,
+   "system": 3,
+   "left": 1302,
+   "right": 1846,
+   "top": 1353.0,
+   "bottom": 1619.0
+  },
+  {
+   "id": 16,
+   "system": 3,
+   "left": 1845,
+   "right": 2394,
+   "top": 1353.0,
+   "bottom": 1619.0
+  },
+  {
+   "id": 17,
+   "system": 4,
+   "left": 144,
+   "right": 807,
+   "top": 1819.5,
+   "bottom": 2092.4
+  },
+  {
+   "id": 18,
+   "system": 4,
+   "left": 807,
+   "right": 1230,
+   "top": 1819.5,
+   "bottom": 2092.4
+  },
+  {
+   "id": 19,
+   "system": 4,
+   "left": 1230,
+   "right": 1907,
+   "top": 1819.5,
+   "bottom": 2092.4
+  },
+  {
+   "id": 20,
+   "system": 4,
+   "left": 1906,
+   "right": 2400,
+   "top": 1819.5,
+   "bottom": 2092.4
+  },
+  {
+   "id": 21,
+   "system": 5,
+   "left": 144,
+   "right": 800,
+   "top": 2289.6,
+   "bottom": 2563.0
+  },
+  {
+   "id": 22,
+   "system": 5,
+   "left": 800,
+   "right": 1370,
+   "top": 2289.6,
+   "bottom": 2563.0
+  },
+  {
+   "id": 23,
+   "system": 5,
+   "left": 1370,
+   "right": 1867,
+   "top": 2289.6,
+   "bottom": 2563.0
+  },
+  {
+   "id": 24,
+   "system": 5,
+   "left": 1866,
+   "right": 2402,
+   "top": 2289.6,
+   "bottom": 2563.0
+  },
+  {
+   "id": 25,
+   "system": 6,
+   "left": 148,
+   "right": 642,
+   "top": 2754.7,
+   "bottom": 3032.4
+  },
+  {
+   "id": 26,
+   "system": 6,
+   "left": 642,
+   "right": 1278,
+   "top": 2754.7,
+   "bottom": 3032.4
+  },
+  {
+   "id": 27,
+   "system": 6,
+   "left": 1278,
+   "right": 1833,
+   "top": 2754.7,
+   "bottom": 3032.4
+  },
+  {
+   "id": 28,
+   "system": 6,
+   "left": 1833,
+   "right": 2405,
+   "top": 2754.7,
+   "bottom": 3032.4
+  }
+ ],
+ "doubtful": [
+  {
+   "id": 11581,
+   "tag": "fermata",
+   "shape": "FERMATA_BELOW",
+   "grade": 0.233,
+   "bounds": [
+    442,
+    1165,
+    34,
+    23
+   ],
+   "measure": 7
+  },
+  {
+   "id": 12123,
+   "tag": "dynamics",
+   "shape": "DYNAMICS_P",
+   "grade": 0.346,
+   "bounds": [
+    1546,
+    2882,
+    41,
+    22
+   ],
+   "measure": 27
+  },
+  {
+   "id": 11401,
+   "tag": "tuplet",
+   "shape": "TUPLET_THREE",
+   "grade": 0.359,
+   "bounds": [
+    620,
+    498,
+    20,
+    23
+   ],
+   "measure": 1
+  },
+  {
+   "id": 11668,
+   "tag": "dynamics",
+   "shape": "DYNAMICS_SF",
+   "grade": 0.384,
+   "bounds": [
+    246,
+    1451,
+    71,
+    52
+   ],
+   "measure": 13
+  },
+  {
+   "id": 11533,
+   "tag": "dynamics",
+   "shape": "DYNAMICS_F",
+   "grade": 0.427,
+   "bounds": [
+    2155,
+    274,
+    24,
+    34
+   ],
+   "measure": 6
+  },
+  {
+   "id": 11400,
+   "tag": "dynamics",
+   "shape": "DYNAMICS_P",
+   "grade": 0.506,
+   "bounds": [
+    536,
+    486,
+    27,
+    36
+   ],
+   "measure": 1
+  },
+  {
+   "id": 12073,
+   "tag": "augmentation-dot",
+   "shape": "AUGMENTATION_DOT",
+   "grade": 0.508,
+   "bounds": [
+    2061,
+    2295,
+    4,
+    10
+   ],
+   "measure": 24
+  },
+  {
+   "id": 9595,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.515,
+   "bounds": [
+    1738,
+    2153,
+    20,
+    48
+   ],
+   "measure": 23
+  },
+  {
+   "id": 11940,
+   "tag": "rest",
+   "shape": "EIGHTH_REST",
+   "grade": 0.534,
+   "bounds": [
+    283,
+    2461,
+    24,
+    37
+   ],
+   "measure": 21
+  },
+  {
+   "id": 10621,
+   "tag": "wedge",
+   "shape": "DIMINUENDO",
+   "grade": 0.541,
+   "bounds": [
+    1648,
+    1481,
+    149,
+    23
+   ],
+   "measure": 15
+  },
+  {
+   "id": 9637,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.542,
+   "bounds": [
+    292,
+    3046,
+    23,
+    23
+   ],
+   "measure": 25
+  },
+  {
+   "id": 9634,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.552,
+   "bounds": [
+    1385,
+    2882,
+    111,
+    23
+   ],
+   "measure": 27
+  },
+  {
+   "id": 9559,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.553,
+   "bounds": [
+    1045,
+    1313,
+    16,
+    17
+   ],
+   "measure": 14
+  },
+  {
+   "id": 9501,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.554,
+   "bounds": [
+    1025,
+    268,
+    95,
+    38
+   ],
+   "measure": 3
+  },
+  {
+   "id": 9610,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.556,
+   "bounds": [
+    1401,
+    2611,
+    24,
+    23
+   ],
+   "measure": 23
+  },
+  {
+   "id": 9631,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.56,
+   "bounds": [
+    2176,
+    2709,
+    20,
+    24
+   ],
+   "measure": 28
+  },
+  {
+   "id": 9497,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.561,
+   "bounds": [
+    425,
+    264,
+    226,
+    41
+   ],
+   "measure": 1
+  },
+  {
+   "id": 9600,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.571,
+   "bounds": [
+    1397,
+    2242,
+    38,
+    25
+   ],
+   "measure": 23
+  },
+  {
+   "id": 9539,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.573,
+   "bounds": [
+    288,
+    961,
+    129,
+    20
+   ],
+   "measure": 7
+  },
+  {
+   "id": 9555,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.574,
+   "bounds": [
+    961,
+    1323,
+    21,
+    24
+   ],
+   "measure": 14
+  },
+  {
+   "id": 9533,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.579,
+   "bounds": [
+    2090,
+    817,
+    23,
+    22
+   ],
+   "measure": 12
+  },
+  {
+   "id": 9541,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.58,
+   "bounds": [
+    1239,
+    963,
+    114,
+    23
+   ],
+   "measure": 9
+  },
+  {
+   "id": 9606,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.589,
+   "bounds": [
+    2120,
+    2253,
+    15,
+    18
+   ],
+   "measure": 24
+  },
+  {
+   "id": 9535,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.593,
+   "bounds": [
+    2212,
+    835,
+    57,
+    26
+   ],
+   "measure": 12
+  },
+  {
+   "id": 11822,
+   "tag": "rest",
+   "shape": "EIGHTH_REST",
+   "grade": 0.593,
+   "bounds": [
+    849,
+    1884,
+    26,
+    39
+   ],
+   "measure": 18
+  },
+  {
+   "id": 9557,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.595,
+   "bounds": [
+    555,
+    1324,
+    21,
+    24
+   ],
+   "measure": 13
+  },
+  {
+   "id": 10615,
+   "tag": "wedge",
+   "shape": "CRESCENDO",
+   "grade": 0.598,
+   "bounds": [
+    1406,
+    2413,
+    204,
+    28
+   ],
+   "measure": 23
+  },
+  {
+   "id": 9632,
+   "tag": "word",
+   "shape": "TEXT",
+   "grade": 0.598,
+   "bounds": [
+    2219,
+    2688,
+    19,
+    23
+   ],
+   "measure": 28
+  }
+ ]
+}

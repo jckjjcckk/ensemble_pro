@@ -1,0 +1,14 @@
+{
+ "runs": {
+  "night-2026-10-28": {
+   "meta_usd": 1.455539,
+   "anthropic_usd": 0.88571,
+   "calls": 348,
+   "updated": "2026-10-28T02:54:34"
+  }
+ },
+ "total": {
+  "meta_usd": 1.455539,
+  "anthropic_usd": 0.88571
+ }
+}

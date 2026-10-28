@@ -1,0 +1,253 @@
+{
+ "source": "piano_cut_geometry.py, out/piano-cut/geom-p02.json (2026-10-27)",
+ "frame": "150 dpi greyscale render (PyMuPDF), deskewed by skew_deg about the page centre",
+ "image_px": [
+  1275,
+  1756
+ ],
+ "skew_deg": -0.4,
+ "staves": [
+  {
+   "index": 1,
+   "y_top": 140,
+   "y_bottom": 169,
+   "x0": 99,
+   "x1": 1204,
+   "spacing": 7.25
+  },
+  {
+   "index": 2,
+   "y_top": 209,
+   "y_bottom": 238,
+   "x0": 99,
+   "x1": 1203,
+   "spacing": 7.25
+  },
+  {
+   "index": 3,
+   "y_top": 282,
+   "y_bottom": 311,
+   "x0": 93,
+   "x1": 1202,
+   "spacing": 7.25
+  },
+  {
+   "index": 4,
+   "y_top": 331,
+   "y_bottom": 360,
+   "x0": 93,
+   "x1": 1202,
+   "spacing": 7.25
+  },
+  {
+   "index": 5,
+   "y_top": 380,
+   "y_bottom": 409,
+   "x0": 91,
+   "x1": 1201,
+   "spacing": 7.25
+  },
+  {
+   "index": 6,
+   "y_top": 429,
+   "y_bottom": 458,
+   "x0": 92,
+   "x1": 1202,
+   "spacing": 7.25
+  },
+  {
+   "index": 7,
+   "y_top": 478,
+   "y_bottom": 507,
+   "x0": 91,
+   "x1": 1201,
+   "spacing": 7.25
+  },
+  {
+   "index": 8,
+   "y_top": 564,
+   "y_bottom": 593,
+   "x0": 96,
+   "x1": 1202,
+   "spacing": 7.25
+  },
+  {
+   "index": 9,
+   "y_top": 617,
+   "y_bottom": 646,
+   "x0": 90,
+   "x1": 1202,
+   "spacing": 7.25
+  },
+  {
+   "index": 10,
+   "y_top": 674,
+   "y_bottom": 703,
+   "x0": 88,
+   "x1": 1201,
+   "spacing": 7.25
+  },
+  {
+   "index": 11,
+   "y_top": 738,
+   "y_bottom": 767,
+   "x0": 88,
+   "x1": 1201,
+   "spacing": 7.25
+  },
+  {
+   "index": 12,
+   "y_top": 795,
+   "y_bottom": 824,
+   "x0": 87,
+   "x1": 1201,
+   "spacing": 7.25
+  },
+  {
+   "index": 13,
+   "y_top": 856,
+   "y_bottom": 885,
+   "x0": 84,
+   "x1": 1201,
+   "spacing": 7.25
+  },
+  {
+   "index": 14,
+   "y_top": 925,
+   "y_bottom": 954,
+   "x0": 87,
+   "x1": 1201,
+   "spacing": 7.25
+  },
+  {
+   "index": 15,
+   "y_top": 988,
+   "y_bottom": 1017,
+   "x0": 86,
+   "x1": 1200,
+   "spacing": 7.25
+  },
+  {
+   "index": 16,
+   "y_top": 1042,
+   "y_bottom": 1071,
+   "x0": 87,
+   "x1": 1200,
+   "spacing": 7.25
+  },
+  {
+   "index": 17,
+   "y_top": 1097,
+   "y_bottom": 1126,
+   "x0": 86,
+   "x1": 1200,
+   "spacing": 7.25
+  },
+  {
+   "index": 18,
+   "y_top": 1184,
+   "y_bottom": 1213,
+   "x0": 90,
+   "x1": 1200,
+   "spacing": 7.25
+  },
+  {
+   "index": 19,
+   "y_top": 1266,
+   "y_bottom": 1295,
+   "x0": 89,
+   "x1": 1199,
+   "spacing": 7.25
+  },
+  {
+   "index": 20,
+   "y_top": 1350,
+   "y_bottom": 1379,
+   "x0": 85,
+   "x1": 1199,
+   "spacing": 7.25
+  },
+  {
+   "index": 21,
+   "y_top": 1413,
+   "y_bottom": 1442,
+   "x0": 84,
+   "x1": 1199,
+   "spacing": 7.25
+  },
+  {
+   "index": 22,
+   "y_top": 1477,
+   "y_bottom": 1506,
+   "x0": 84,
+   "x1": 1199,
+   "spacing": 7.25
+  },
+  {
+   "index": 23,
+   "y_top": 1535,
+   "y_bottom": 1564,
+   "x0": 84,
+   "x1": 1197,
+   "spacing": 7.25
+  },
+  {
+   "index": 24,
+   "y_top": 1597,
+   "y_bottom": 1626,
+   "x0": 84,
+   "x1": 1198,
+   "spacing": 7.25
+  }
+ ],
+ "systems": [
+  {
+   "index": 1,
+   "staff_indices": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "box": {
+    "x0": 93,
+    "y0": 130,
+    "x1": 1202,
+    "y1": 517
+   },
+   "n_measures": 4
+  },
+  {
+   "index": 2,
+   "staff_indices": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+   ],
+   "box": {
+    "x0": 87,
+    "y0": 554,
+    "x1": 1200,
+    "y1": 1636
+   },
+   "n_measures": 5
+  }
+ ]
+}

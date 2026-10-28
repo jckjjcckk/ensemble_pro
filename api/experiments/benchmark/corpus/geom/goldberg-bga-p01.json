@@ -1,0 +1,193 @@
+{
+ "source": "app.librarian.cut.page_geometry on the 150 dpi render (2026-10-28); system 1 merged by hand from [1] and [2]: group_systems split the indented first grand staff",
+ "frame": "150 dpi greyscale render (PyMuPDF), deskewed by skew_deg about the page centre",
+ "image_px": [
+  1274,
+  1624
+ ],
+ "skew_deg": 0.0,
+ "staves": [
+  {
+   "index": 1,
+   "y_top": 202,
+   "y_bottom": 241,
+   "x0": 157,
+   "x1": 1198,
+   "spacing": 9.75
+  },
+  {
+   "index": 2,
+   "y_top": 297,
+   "y_bottom": 336,
+   "x0": 157,
+   "x1": 1199,
+   "spacing": 9.75
+  },
+  {
+   "index": 3,
+   "y_top": 433,
+   "y_bottom": 473,
+   "x0": 73,
+   "x1": 1200,
+   "spacing": 10.0
+  },
+  {
+   "index": 4,
+   "y_top": 532,
+   "y_bottom": 572,
+   "x0": 72,
+   "x1": 1200,
+   "spacing": 10.0
+  },
+  {
+   "index": 5,
+   "y_top": 677,
+   "y_bottom": 717,
+   "x0": 71,
+   "x1": 1199,
+   "spacing": 10.0
+  },
+  {
+   "index": 6,
+   "y_top": 768,
+   "y_bottom": 808,
+   "x0": 71,
+   "x1": 1200,
+   "spacing": 10.0
+  },
+  {
+   "index": 7,
+   "y_top": 910,
+   "y_bottom": 950,
+   "x0": 71,
+   "x1": 1201,
+   "spacing": 10.0
+  },
+  {
+   "index": 8,
+   "y_top": 1006,
+   "y_bottom": 1045,
+   "x0": 70,
+   "x1": 1201,
+   "spacing": 9.75
+  },
+  {
+   "index": 9,
+   "y_top": 1147,
+   "y_bottom": 1187,
+   "x0": 70,
+   "x1": 1202,
+   "spacing": 10.0
+  },
+  {
+   "index": 10,
+   "y_top": 1241,
+   "y_bottom": 1281,
+   "x0": 72,
+   "x1": 1202,
+   "spacing": 10.0
+  },
+  {
+   "index": 11,
+   "y_top": 1379,
+   "y_bottom": 1419,
+   "x0": 73,
+   "x1": 1203,
+   "spacing": 10.0
+  },
+  {
+   "index": 12,
+   "y_top": 1464,
+   "y_bottom": 1505,
+   "x0": 73,
+   "x1": 1203,
+   "spacing": 10.25
+  }
+ ],
+ "systems": [
+  {
+   "index": 1,
+   "staff_indices": [
+    1,
+    2
+   ],
+   "box": {
+    "x0": 157,
+    "y0": 188,
+    "x1": 1199,
+    "y1": 350
+   },
+   "n_measures": 6
+  },
+  {
+   "index": 2,
+   "staff_indices": [
+    3,
+    4
+   ],
+   "box": {
+    "x0": 72,
+    "y0": 418,
+    "x1": 1200,
+    "y1": 587
+   },
+   "n_measures": 6
+  },
+  {
+   "index": 3,
+   "staff_indices": [
+    5,
+    6
+   ],
+   "box": {
+    "x0": 71,
+    "y0": 662,
+    "x1": 1199,
+    "y1": 823
+   },
+   "n_measures": 4
+  },
+  {
+   "index": 4,
+   "staff_indices": [
+    7,
+    8
+   ],
+   "box": {
+    "x0": 70,
+    "y0": 896,
+    "x1": 1201,
+    "y1": 1059
+   },
+   "n_measures": 4
+  },
+  {
+   "index": 5,
+   "staff_indices": [
+    9,
+    10
+   ],
+   "box": {
+    "x0": 71,
+    "y0": 1132,
+    "x1": 1202,
+    "y1": 1296
+   },
+   "n_measures": 4
+  },
+  {
+   "index": 6,
+   "staff_indices": [
+    11,
+    12
+   ],
+   "box": {
+    "x0": 73,
+    "y0": 1364,
+    "x1": 1203,
+    "y1": 1520
+   },
+   "n_measures": 4
+  }
+ ]
+}

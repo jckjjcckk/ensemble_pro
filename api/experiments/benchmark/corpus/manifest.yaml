@@ -1,0 +1,128 @@
+# Folio benchmark corpus (feature 016), version 1, frozen 2026-10-28.
+# Ten pages from three fixtures in api/fixtures/pdf (gitignored PDFs; at most 5 pages per file).
+# Geometry is frozen per page (corpus/geom/, 150 dpi frame) so staff numbers never move between runs; every
+# ground-truth staff number below refers to those files. Pages whose `gt` lacks a task have no ground truth for it.
+version: 1
+scores:
+  goldberg-bga:
+    pdf: goldberg-bga.pdf
+    title: "Bach, Goldberg Variations, BGA"
+  rach1-gutheil:
+    pdf: rach1-fullscore-gutheil-1919.pdf
+    title: "Rachmaninoff, Piano Concerto No. 1, 1919 Gutheil edition"
+    header: headers/rach1-fullscore-gutheil-1919.json
+  beethoven9:
+    pdf: beethoven-sym9-fullscore-imslp46254.pdf
+    title: "Beethoven, Symphony No. 9, finale (Breitkopf)"
+    header: headers/beethoven-sym9-fullscore-imslp46254.json
+
+pages:
+  # --- Goldberg BGA: clean engraving, keyboard, 2 staves per system --------------------------------------
+  - id: goldberg-bga-p01
+    score: goldberg-bga
+    page: 1
+    content: "Aria bars 1-28, 6 systems"
+    geom: geom/goldberg-bga-p01.json
+    layout: gt/goldberg-bga-p01-layout.json      # Audiveris measure/system bounds, 300 dpi frame
+    gt:
+      header:
+        staves: 2
+        instruments: [1]
+        boxes: {1: [piano], 2: [piano]}           # harpsichord / keyboard counts as piano
+      omr:
+        file: gt/goldberg-aria.json               # Open Goldberg (CC0) via ly_gt.py, Aria bars 1-32
+        bars: [1, 28]
+      text:
+        # dynamics and direction words per bar, read from the scan (005, compare.py TEXT_GT); placement +-1 bar
+        bars: {1: [p, dolce], 9: [cresc.], 11: [f], 13: [mf], 16: [p], 18: [cresc.], 21: [mf], 23: [f], 25: [p], 27: [cresc., poco]}
+      closed:
+        # the 11 Audiveris symbols graded < 0.6 in the verifier's classes (005, verify_symbols.py), answers checked
+        # by eye on the 300 dpi crops 2026-10-28. Differs from 005's scoring on id 11400: the box holds the "d" of
+        # "dolce" (005 counted the verdict wrong because Audiveris's p was dropped with it).
+        - {id: 11581, accept: [fingering_or_bracket], note: "fingering 45 read as a fermata"}
+        - {id: 12123, accept: [letters_of_word], note: "'oc' of poco"}
+        - {id: 11401, accept: [letter_of_word], note: "'e' of dolce read as a tuplet 3"}
+        - {id: 11668, accept: [dynamic_marking], value: mf, note: "real mf, Audiveris said sf"}
+        - {id: 11533, accept: [letters_of_word], note: "'J' of J. S. Bach"}
+        - {id: 11400, accept: [letters_of_word], note: "'d' of dolce"}
+        - {id: 12073, accept: [noise_or_nothing], note: "speck by a sharp (005's answer)"}
+        - {id: 11940, accept: [rest], note: "real eighth rest (Spark said fingering 1 in 005)"}
+        - {id: 10621, accept: [hairpin_wedge]}
+        - {id: 11822, accept: [rest]}
+        - {id: 10615, accept: [hairpin_wedge]}
+  - id: goldberg-bga-p02
+    score: goldberg-bga
+    page: 2
+    content: "Aria bars 29-32, Var. 1 bars 1-16"
+    gt: {}        # none: the Aria GT covers bars 29-32 but single-sheet Audiveris splits the page into two movements; not wired
+  - id: goldberg-bga-p03
+    score: goldberg-bga
+    page: 3
+    content: "Var. 1 bars 17-32, Var. 2 bars 1-5"
+    gt: {}        # none
+
+  # --- Rachmaninoff 1, Gutheil 1919: 17-24 staves, labels on p1, abbreviations later ------------------------
+  - id: rach1-gutheil-p01
+    score: rach1-gutheil
+    page: 1
+    content: "first page, full names, 1 system of 17 staves"
+    geom: geom/rach1-gutheil-p01.json
+    gt:
+      header:
+        staves: 17
+        instruments: [15, 16]                    # horns I.II / III.IV as one or two entries
+        boxes: {1: [flute], 2: [oboe], 3: [clarinet], 4: [bassoon], 5: [horn], 6: [horn], 7: [trumpet],
+                8: [trombone], 9: [trombone], 10: [timpani], 11: [piano], 12: [piano], 13: [violin], 14: [violin],
+                15: [viola], 16: [cello], 17: [double bass, bass]}
+      labels: {instrument: Piano, systems: {1: [11, 12]}}
+  - id: rach1-gutheil-p02
+    score: rach1-gutheil
+    page: 2
+    content: "abbreviations, piano top of system 1"
+    geom: geom/rach1-gutheil-p02.json
+    gt:
+      labels: {instrument: Piano, systems: {1: [1, 2], 2: [18, 19]}}
+  - id: rach1-gutheil-p03
+    score: rach1-gutheil
+    page: 3
+    content: "cut-away system 2 without the piano"
+    geom: geom/rach1-gutheil-p03.json
+    gt:
+      labels: {instrument: Piano, systems: {1: [6, 7], 2: absent}}
+
+  # --- Beethoven 9 finale, chorus pages: 72 dpi scan, page-edge fake staves, unlabelled later pages ---------
+  - id: beethoven9-p172
+    score: beethoven9
+    page: 172
+    content: "book p. 168, first chorus page, 16 staves + 2 page-edge fakes (boxes 1 and 18)"
+    geom: geom/beethoven9-p172.json
+    gt:
+      header:
+        staves: 16
+        fake_boxes: [1, 18]
+        instruments: [11, 12, 13, 14, 15, 16]     # Tromboni, Violini and Coro may each be one entry or several
+        boxes: {2: [flute], 3: [oboe], 4: [clarinet], 5: [bassoon], 6: [horn], 7: [timpani], 8: [trombone],
+                9: [trombone], 10: [violin], 11: [violin], 12: [viola], 13: [soprano, chorus], 14: [alto, chorus],
+                15: [tenor, chorus], 16: [bass, chorus], 17: [cello, double bass, bass]}
+      labels: {instrument: Soprano, systems: {1: [13]}}
+  - id: beethoven9-p173
+    score: beethoven9
+    page: 173
+    content: "3 systems by geometry (fake, 12 staves, 2 staves)"
+    geom: geom/beethoven9-p173.json
+    gt:
+      labels: {instrument: Soprano, systems: {1: absent, 2: [11], 3: absent}}
+  - id: beethoven9-p174
+    score: beethoven9
+    page: 174
+    content: "6 staves recovered by the strip search"
+    geom: geom/beethoven9-p174.json
+    gt:
+      labels: {instrument: Soprano, systems: {1: [13]}}
+  - id: beethoven9-p175
+    score: beethoven9
+    page: 175
+    content: "16 staves + a 1-staff fake system"
+    geom: geom/beethoven9-p175.json
+    gt:
+      labels: {instrument: Soprano, systems: {1: [12], 2: absent}}
