@@ -30,6 +30,15 @@ Changes from fallback_cv.py for orchestral pages
     the staff spacing, but within a ~110 px strip the lines are straight. Each strip votes for 5 (or 4 of 5)
     peaks at the known spacing; a staff is accepted when enough strips agree, its lines are the medians, and
     it is forced into the short system. Recovered staves are marked "recovered" in the json and drawn orange.
+    Hole filling (2026-10-28): two consecutive staves about two pitches apart are a hole; the hole alone is
+    searched at 3 votes and a staff accepted where the pitch predicts one, header count or not (B9 p176 has
+    17 staves against the header's 16).
+  - Page preparation (2026-10-28, the Beethoven 9 choir defects): the render is at the scan's native resolution
+    when the page is one embedded raster below 150 dpi (render_dpi); the dark page-edge shadows of the book
+    scan are masked before anything else (mask_page_edges: left in, they lock the skew estimate to 0.0 and fit
+    five "lines" each, a fake first and last staff); the page is upscaled when the staff spacing is under
+    SPACING_MIN (working_scale). pages/p<NN>.png is rewritten as the working page when either applies, so every
+    later step reads the same frame; the geom json carries "prepare".
 """
 
 from __future__ import annotations
@@ -51,6 +60,23 @@ PAGES_DIR = PC / "pages"
 DEFAULT_PAGES = [1, 2, 7, 15, 16, 43]
 
 
+RENDER_DPI = 150
+
+
+def render_dpi(page) -> int:
+    """150 dpi, unless the page is one embedded raster scan smaller than that: then its own resolution (rounded,
+    pymupdf takes an int), so the render invents no pixels (Beethoven 9: a 1513x1920 scan on a 1513x1920 pt page
+    renders 3153x4000 at 150 dpi, every pixel interpolated). The geometry decides afterwards whether to work at a
+    larger scale (working_scale)."""
+    images = page.get_images()
+    if len(images) == 1:
+        iw, ih = images[0][2], images[0][3]
+        native = 72.0 * max(iw / page.rect.width, ih / page.rect.height)
+        if native < RENDER_DPI:
+            return int(round(native))
+    return RENDER_DPI
+
+
 def rasterise(n: int) -> Path:
     out = PAGES_DIR / f"p{n:02d}.png"
     if out.exists():
@@ -59,9 +85,113 @@ def rasterise(n: int) -> Path:
 
     PAGES_DIR.mkdir(parents=True, exist_ok=True)
     doc = pymupdf.open(PDF)
-    pix = doc[n - 1].get_pixmap(dpi=150, colorspace=pymupdf.csGRAY)
+    pix = doc[n - 1].get_pixmap(dpi=render_dpi(doc[n - 1]), colorspace=pymupdf.csGRAY)
     Image.frombytes("L", (pix.width, pix.height), pix.samples).save(out)
     return out
+
+
+# ---------------------------------------------------------------- page-edge shadows and the working scale
+
+SHADOW_CORE = 100   # a shadow pixel is darker than the paper by at least this much (B9 scan: paper ~230, band ~55)
+SHADOW_FADE = 40    # the band's blurred rim: darker than the paper by this much (B9: 95-155 over ~12 rows at native)
+SHADOW_MIN = 8      # px: thinner dark runs at an edge are rules, frames or a staff line, not a scan shadow
+SHADOW_COVER = 0.9  # fraction of the edge's columns (rows) that must carry the band: "nearly uniform"
+SHADOW_FADE_MAX = 40  # px: the rim never extends further than this past the solid core
+SPACING_MIN = 6.0   # px: under this staff spacing the row profile cannot hold five peaks apart (3-row smoothing, 3-px NMS)
+
+
+def mask_page_edges(gray: np.ndarray) -> tuple[np.ndarray, dict]:
+    """Boolean mask of the dark scan shadows that touch a page edge (the book's edge and gutter in a 19th-century
+    scan photographed on a dark table), plus a report per side.
+
+    A side has a shadow when, from that edge inwards, the run of pixels darker than paper - SHADOW_CORE is at
+    least SHADOW_MIN px in at least SHADOW_COVER of the columns (rows for the left and right sides): a wide,
+    nearly uniform dark region touching the edge is not notation. The masked run follows each column (the band's
+    inner edge is slanted on a skewed page) and extends through the blurred rim (darker than paper - SHADOW_FADE,
+    at most SHADOW_FADE_MAX px past the core) plus 2 px, so the gradient leaves no row-profile peaks behind. A
+    printed rule or frame is thinner than SHADOW_MIN; a staff never reaches the edge in SHADOW_COVER of the
+    columns."""
+    h, w = gray.shape
+    paper = float(np.median(gray))
+    core = gray < paper - SHADOW_CORE
+    fade = gray < paper - SHADOW_FADE
+    mask = np.zeros((h, w), dtype=bool)
+    report: dict[str, dict] = {}
+
+    def run_from_edge(a: np.ndarray) -> np.ndarray:
+        """Per column of a (rows from the edge inwards): length of the True run starting at row 0."""
+        first_false = np.argmin(a, axis=0)  # 0 when a[0] is False or the whole column is True
+        return np.where(a.all(axis=0), a.shape[0], np.where(a[0], first_false, 0))
+
+    for side in ("top", "bottom", "left", "right"):
+        c, f = (core, fade) if side in ("top", "bottom") else (core.T, fade.T)
+        if side in ("bottom", "right"):
+            c, f = c[::-1], f[::-1]
+        run = run_from_edge(c)
+        cover = float((run >= SHADOW_MIN).mean())
+        median = float(np.median(run))
+        hit = median >= SHADOW_MIN and cover >= SHADOW_COVER
+        report[side] = {"median_px": round(median), "cover": round(cover, 3), "shadow": hit}
+        if not hit:
+            continue
+        # the band is nearly uniform: a column whose dark run goes on much further is a rule or a systemic line
+        # that touches the band, not the band itself
+        run = np.minimum(run, int(median + SHADOW_FADE_MAX))
+        ext = np.minimum(run_from_edge(f), run + SHADOW_FADE_MAX)
+        ext = np.minimum(c.shape[0], np.maximum(run, ext) + 2)
+        m = np.arange(c.shape[0])[:, None] < ext[None, :]
+        if side in ("bottom", "right"):
+            m = m[::-1]
+        if side in ("left", "right"):
+            m = m.T
+        mask |= m
+        report[side]["masked_px"] = round(float(np.median(ext)))
+    return mask, report
+
+
+def staff_spacing(bw: np.ndarray) -> float | None:
+    """Median gap between neighbouring staff-line candidates of the row profile (find_staves' first step), or None."""
+    h, w = bw.shape
+    opened = cv2.morphologyEx(bw, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (max(20, w // 40), 1)))
+    sm = np.convolve(opened.sum(axis=1) / w, np.ones(3) / 3, mode="same")
+    centres: list[int] = []
+    for r in np.where(sm > 0.2)[0]:
+        if sm[r] >= sm[max(0, r - 3) : min(h, r + 4)].max() and (not centres or r - centres[-1] > 3):
+            centres.append(int(r))
+    small = [b - a for a, b in zip(centres, centres[1:]) if 4 <= b - a <= 20]
+    return float(np.median(small)) if small else None
+
+
+def working_scale(bw: np.ndarray) -> tuple[int, float | None]:
+    """Integer upscale that brings the staff spacing to at least SPACING_MIN px (1 when it already is, or when no
+    spacing can be read). The detector's row profile (3-row smoothing, 3-px non-maximum suppression, gaps 4..20)
+    holds five peaks apart down to ~6 px; the tuned scans run at 6.25-7.75 px (150 dpi), Beethoven 9 at its native
+    resolution at 7.0-7.5, so none of them is scaled. A 100-dpi render of a large-format score or a low-resolution
+    photograph would be."""
+    sp = staff_spacing(bw)
+    if sp is None or sp >= SPACING_MIN:
+        return 1, sp
+    return int(np.ceil(SPACING_MIN / sp)), sp
+
+
+def prepare_page(gray: np.ndarray) -> tuple[np.ndarray, np.ndarray, dict]:
+    """Mask the page-edge shadows, pick the working scale, return (gray, bw, info) at the working scale. The
+    shadows are masked before anything else: left in, their row-projection energy locks the skew estimate to 0.0
+    (B9 p172 native: 10 of 16 staves) and their rows fit five 'lines' at the page's spacing (a fake first and
+    last staff on every B9 page, header 18 instead of 16)."""
+    mask, edges = mask_page_edges(gray)
+    if mask.any():
+        gray = gray.copy()
+        gray[mask] = int(np.median(gray[~mask])) if (~mask).any() else 255
+    bw = binarise(gray)
+    bw[mask] = 0
+    scale, sp = working_scale(bw)
+    if scale > 1:
+        gray = cv2.resize(gray, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+        bw = binarise(gray)
+        bw[cv2.resize(mask.astype(np.uint8), None, fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST) > 0] = 0
+    info = {"edge_shadows": edges, "spacing_native": sp, "scale": scale, "spacing_min": SPACING_MIN}
+    return gray, bw, info
 
 
 def find_staves(bw: np.ndarray) -> list[dict]:
@@ -220,6 +350,34 @@ def recover_staves(bw: np.ndarray, staves: list[dict], systems: list[list[int]],
             ss.append(f)
             recovered.append(f)
         ss.sort(key=lambda s: s["y_top"])
+    # hole filling, every system of 3 or more staves: two consecutive staves about two staff pitches apart (the
+    # staves of a system are evenly spaced; a cut-away system is simply shorter, with no hole). The hole alone is
+    # searched with a lower vote threshold and a staff accepted only where the pitch predicts one (+-0.5 pitch).
+    # The header count does not cap this: a hole with strip evidence is a staff, header or not (Beethoven 9 p176
+    # has 17 staves, Violoncello and Contrabbasso apart, against the 16 of p172; p173 at native resolution: 1-px
+    # lines, 3 of 12 strips see the Viola staff).
+    for ss in members:
+        if len(ss) < 3:
+            continue
+        x0, x1 = int(np.median([s["x0"] for s in ss])), int(np.median([s["x1"] for s in ss]))
+        pitches = sorted(b["y_top"] - a["y_top"] for a, b in zip(ss, ss[1:]))
+        pitch = float(np.median(pitches[: max(1, len(pitches) // 2 + 1)]))  # the typical (small) step
+        for a, b in list(zip(ss, ss[1:])):
+            gap = b["y_top"] - a["y_top"]
+            n_missing = int(round(gap / pitch)) - 1
+            if n_missing < 1:
+                continue
+            found = find_staves_strips(bw, int(a["y_bottom"] + sp), int(b["y_top"] - sp), x0, x1, sp, min_votes=3)
+            for k in range(1, n_missing + 1):
+                want = a["y_top"] + k * pitch
+                cand = [f for f in found if abs(f["y_top"] - want) <= 0.5 * pitch
+                        and not any(abs(f["y_top"] - s["y_top"]) < 2 * sp for s in ss)]
+                if cand:
+                    f = min(cand, key=lambda f: abs(f["y_top"] - want))
+                    f["fit"] += " (hole)"
+                    ss.append(f)
+                    recovered.append(f)
+        ss.sort(key=lambda s: s["y_top"])
     all_staves = sorted((s for ss in members for s in ss), key=lambda s: s["y_top"])
     for i, s in enumerate(all_staves, start=1):
         s["index"] = i
@@ -320,9 +478,14 @@ def overlay(page_png: Path, geom: dict, out_png: Path) -> None:
 
 def run_page(n: int) -> dict:
     png = rasterise(n)
-    gray = cv2.imread(str(png), cv2.IMREAD_GRAYSCALE)
+    raw = cv2.imread(str(png), cv2.IMREAD_GRAYSCALE)
+    gray, bw, prep = prepare_page(raw)
+    if gray.shape != raw.shape or any(e.get("shadow") for e in prep["edge_shadows"].values()):
+        # every later step (labels, build, clean) reads pages/p<NN>.png: it must be the working page, shadows
+        # masked and at the working scale. Re-running on it is a no-op (no shadow left, spacing in range).
+        prep["native_px"] = [raw.shape[1], raw.shape[0]]
+        Image.fromarray(gray).save(png)
     h, w = gray.shape
-    bw = binarise(gray)
     skew = estimate_skew(bw)
     if abs(skew) >= 0.1:
         bw = rotate(bw, skew, 0)
@@ -348,7 +511,7 @@ def run_page(n: int) -> dict:
             "box": {"x0": x0, "y0": max(0, y_top - pad), "x1": x1, "y1": min(h - 1, y_bot + pad)},
             "barlines": bars, "n_measures": count_measures(bars, x0, x1, sp),
         })
-    geom = {"page": n, "image": png.name, "image_px": [w, h], "skew_deg": skew, "grouping": method,
+    geom = {"page": n, "image": png.name, "image_px": [w, h], "skew_deg": skew, "grouping": method, "prepare": prep,
             "expected_staves": expected, "staves_before_recovery": before,
             "recovered": [{"index": r["index"], "y_top": r["y_top"], "y_bottom": r["y_bottom"], "fit": r["fit"]} for r in recovered],
             "staves": [{k: (round(v, 2) if isinstance(v, float) else v) for k, v in s.items()} for s in staves],
@@ -362,7 +525,10 @@ def run_page(n: int) -> dict:
             hj["validation"] = {**hj.get("validation", {}), "geometry_staves_system1": len(out_systems[0]["staff_indices"]),
                                 "header_staves": expected, "match": len(out_systems[0]["staff_indices"]) == expected}
             dump(hdr, hj)
-    print(f"p{n:02d}: skew {skew:+.1f} staves {len(staves)} grouping {method} systems "
+    shadows = [k for k, e in prep["edge_shadows"].items() if e.get("shadow")]
+    print(f"p{n:02d}: {w}x{h}" + (f" (scale x{prep['scale']}, spacing {prep['spacing_native']})" if prep["scale"] > 1 else "")
+          + (f" shadows masked {shadows}" if shadows else "")
+          + f" skew {skew:+.1f} staves {len(staves)} grouping {method} systems "
           f"{[(len(s['staff_indices']), s['n_measures']) for s in out_systems]}"
           + (f" expected {expected} before {before} recovered {[(r['index'], r['fit']) for r in recovered]}" if expected else " (no header)"))
     return geom

@@ -8,7 +8,7 @@ tempo text and any movement/section start. The staff total is validated against 
 page's first system and stored in out/piano-cut/<stem>/header.json. Geometry then knows how many staves a full
 system should have (and searches for the missing ones), and the labeller gets staff -> instrument by order.
 
-Usage (from api/):  uv run experiments/grounding/score_header.py [--score <pdf stem>] [page]
+Usage (from api/):  uv run experiments/grounding/score_header.py [--score <pdf stem>] [page | --reconcile]
 Needs geom-p<NN>.json / overlay-p<NN>.png from piano_cut_geometry.py for that page (default page 1).
 """
 
@@ -39,6 +39,51 @@ Return only JSON of this shape:
  "notes": "one sentence if anything is odd"}}"""
 
 
+def reconcile(header: dict, first_sys: list[int]) -> dict:
+    """Spark's answer with the staff counts anchored to the page.
+
+    The box numbers anchor the count to what is on the page: when every instrument's boxes form the sequence
+    first..last exactly once, staves = len(boxes) (Spark said "2 staves" for the Rach 1 wind pairs that share one
+    staff; their boxes say 1). Otherwise Spark's staff counts stay and the mismatch is flagged. An instrument
+    listed twice in a row with no boxes on the second entry is one instrument (Beethoven 9 p172 at native
+    resolution: three unboxed staves, "Violoncello e Bassi." listed twice while Spark's own staff_total said 16)."""
+    inst = list(header.get("instruments") or [])
+    deduped = []
+    for i in inst:
+        if deduped and not i.get("boxes") and (i.get("label") or "").strip().lower() == (deduped[-1].get("label") or "").strip().lower():
+            deduped[-1]["duplicate_dropped"] = True
+            continue
+        deduped.append(i)
+    inst = deduped
+    boxes = [b for i in inst for b in (i.get("boxes") or [])]
+    boxes_ok = bool(first_sys) and boxes == list(first_sys)
+    if boxes_ok:
+        for i in inst:
+            if i.get("boxes"):
+                i["staves_said"], i["staves"] = i.get("staves"), len(i["boxes"])
+    header_total = sum(int(i.get("staves") or 0) for i in inst) or header.get("staff_total")
+    out = {**header, "instruments": inst,
+           "validation": {"geometry_staves_system1": len(first_sys), "header_staves": header_total,
+                          "boxes_in_order": boxes_ok, "match": header_total == len(first_sys)},
+           "expected_staves": header_total}
+    return out
+
+
+def reconcile_saved() -> None:
+    """Re-run only the reconciliation on the saved header.json (no model call)."""
+    path = PC / "header.json"
+    saved = json.loads(path.read_text())
+    page = int(saved["page"])
+    geom = json.loads((PC / f"geom-p{page:02d}.json").read_text())
+    first_sys = geom["systems"][0]["staff_indices"] if geom["systems"] else []
+    meta = {k: saved[k] for k in ("page", "model", "latency_s", "cost_usd", "retries", "parse_error", "raw_text") if k in saved}
+    header = {k: v for k, v in saved.items() if k not in meta and k not in ("validation", "expected_staves")}
+    out = {**meta, **reconcile(header, first_sys)}
+    path.write_text(json.dumps(out, indent=2, ensure_ascii=False))
+    print(json.dumps({"page": page, "reconciled": True, "instruments": [(i.get("label"), i.get("staves")) for i in out["instruments"]],
+                      "validation": out["validation"], "expected_staves": out["expected_staves"]}))
+
+
 async def run(page: int) -> dict:
     spend_check(f"header page {page}")
     geom = json.loads((PC / f"geom-p{page:02d}.json").read_text())
@@ -51,23 +96,9 @@ async def run(page: int) -> dict:
         prompt, system=SYSTEM, effort="low", max_tokens=8000, image_png_b64=base64.b64encode(png).decode())
     dt = time.perf_counter() - t0
     header = parsed or {}
-    inst = header.get("instruments") or []
-    # reconcile: the box numbers anchor the count to what is on the page. When every instrument's boxes form the
-    # sequence first..last exactly once, staves = len(boxes) (Spark said "2 staves" for the Rach 1 wind pairs that
-    # share one staff; their boxes say 1). Otherwise keep Spark's staff counts and flag the mismatch.
-    boxes = [b for i in inst for b in (i.get("boxes") or [])]
-    boxes_ok = bool(first_sys) and boxes == list(first_sys)
-    if boxes_ok:
-        for i in inst:
-            if i.get("boxes"):
-                i["staves_said"], i["staves"] = i.get("staves"), len(i["boxes"])
-    header_total = sum(int(i.get("staves") or 0) for i in inst) or header.get("staff_total")
     out = {"page": page, "model": model_name(), "latency_s": round(dt, 1), "cost_usd": charge["cost_usd"],
            "retries": retries, "parse_error": parse_error, "raw_text": text,
-           **{k: v for k, v in header.items()},
-           "validation": {"geometry_staves_system1": len(first_sys), "header_staves": header_total,
-                          "boxes_in_order": boxes_ok, "match": header_total == len(first_sys)}}
-    out["expected_staves"] = header_total
+           **reconcile(header, first_sys)}
     (PC / "header.json").write_text(json.dumps(out, indent=2, ensure_ascii=False))
     spend_add({"page": page, "kind": "header", "cost_usd": charge["cost_usd"], "latency_s": round(dt, 1),
                "model": model_name(), "retries": retries})
@@ -78,4 +109,7 @@ async def run(page: int) -> dict:
 
 
 if __name__ == "__main__":
-    asyncio.run(run(int(sys.argv[1]) if len(sys.argv) > 1 else 1))
+    if "--reconcile" in sys.argv:
+        reconcile_saved()
+    else:
+        asyncio.run(run(int(sys.argv[1]) if len(sys.argv) > 1 else 1))

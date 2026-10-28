@@ -38,6 +38,14 @@ system:
      text line), and a floating piece of a kept component (joined to the staff only through a barline) over
      resting bars only is erased too. "piano" in the code means the target instrument, whatever --instrument
      asked for.
+  8. Lyrics (2026-10-28, the Beethoven 9 choir defect; `voice` / `voice_above` come from the header's families
+     through piano_cut_build.voice_flags): text lines (text_lines: word-sized components sharing a row band,
+     chained left to right, with their hyphens and extenders) are decided by the band they sit in. Under a
+     vocal target the band from its bottom line to the midpoint of the gap below is its own: a text line with
+     a word there is kept whole ("lyric"), a text line under the staff with no word there is the staff below's
+     ("lyric-neighbour", erased whole); a text line with a word in the upper half of the gap above a vocal
+     neighbour is that neighbour's lyrics (erased whole). A word of a kept line glued to neighbour ink by a
+     scratch (B9 p175 "Brü") is carved out on the line's rows. Words on text lines never go to the rest rule.
 
 Usage (standalone, from api/):  uv run experiments/grounding/piano_cut_clean.py [--score <pdf stem>] [page ...]
 Writes clean-debug-p<NN>-s<k>.png (band with every component tinted by class) and prints the stats.
@@ -150,11 +158,89 @@ def _first_ink_above(mask: np.ndarray, y: int, x0: int, x1: int) -> int | None:
     return int(rows[-1]) if len(rows) else None
 
 
+LYRIC, LYRIC_NEIGHBOUR = "lyric", "lyric-neighbour"
+TINT[LYRIC] = (0, 120, 60)
+TINT[LYRIC_NEIGHBOUR] = (200, 0, 120)
+TEXT_H = (0.5, 2.6)   # component height in staff spaces for a word: x-height ~1 sp, with ascenders and descenders up to ~2.5
+TEXT_W_MAX = 20.0     # spaces: "umschlungen" is ~12 at 7.4 px per space; a hairpin or slur can be longer but fails the fill test
+TEXT_FILL_MIN = 0.15  # ink / bbox: letters ~0.3-0.5, a hairpin or slur under 0.1
+TEXT_GAP_MAX = 30.0   # spaces between two words of one line: lyric syllables sit a bar or more apart ("der ... ü_bern", 18)
+TEXT_MIN_MEMBERS = 2
+TEXT_PIECE_W_MIN = 1.0  # spaces: a piece carved out of a neighbour component on the lyric rows must be at least a short word wide
+
+
+def text_lines(comps: list["Comp"], sp: float, mode: str = "overlap") -> list[list["Comp"]]:
+    """Group components into text lines: word-sized components (height TEXT_H, width <= TEXT_W_MAX, fill >=
+    TEXT_FILL_MIN, all in staff spaces) that share a row band and follow each other horizontally within
+    TEXT_GAP_MAX; a line needs TEXT_MIN_MEMBERS words. Then the small marks on the line (hyphens, extender
+    lines, dots, commas: too flat for a word) between its first and last word are added to it.
+
+    mode "overlap": sorted by x, a word joins the current line when its rows overlap the line's rows by at least
+    half the smaller height ("Seyd" with its descender and "um" without still overlap on the x-height).
+    mode "baseline": words are clustered by their bottom row (+-1 space, descenders allowed) and a cluster is a
+    line; no horizontal condition beyond TEXT_GAP_MAX between neighbours."""
+    words = [c for c in comps if TEXT_H[0] * sp <= c.y1 - c.y0 + 1 <= TEXT_H[1] * sp and c.x1 - c.x0 + 1 <= TEXT_W_MAX * sp
+             and c.area / float((c.x1 - c.x0 + 1) * (c.y1 - c.y0 + 1)) >= TEXT_FILL_MIN]
+    lines: list[list[Comp]] = []
+    if mode == "overlap":
+        for c in sorted(words, key=lambda c: c.x0):
+            for line in lines:
+                last = line[-1]
+                ly0, ly1 = min(m.y0 for m in line), max(m.y1 for m in line)
+                overlap = min(c.y1, ly1) - max(c.y0, ly0) + 1
+                if overlap >= 0.5 * min(c.y1 - c.y0 + 1, ly1 - ly0 + 1) and c.x0 - last.x1 <= TEXT_GAP_MAX * sp and c.x0 > last.x0:
+                    line.append(c)
+                    break
+            else:
+                lines.append([c])
+    else:
+        for c in sorted(words, key=lambda c: c.y1):
+            for line in lines:
+                if abs(c.y1 - float(np.median([m.y1 for m in line]))) <= 1.0 * sp:
+                    line.append(c)
+                    break
+            else:
+                lines.append([c])
+        for line in lines:
+            line.sort(key=lambda c: c.x0)
+        lines = [seg for line in lines for seg in _split_gaps(line, TEXT_GAP_MAX * sp)]
+    lines = [line for line in lines if len(line) >= TEXT_MIN_MEMBERS]
+    taken = {c.label for line in lines for c in line}
+    for line in lines:
+        ly0, ly1 = min(m.y0 for m in line) - 0.3 * sp, max(m.y1 for m in line) + 0.3 * sp
+        lx0, lx1 = line[0].x0, line[-1].x1
+        for c in comps:
+            if c.label in taken or c.y1 - c.y0 + 1 >= TEXT_H[0] * sp:
+                continue
+            if c.y0 >= ly0 and c.y1 <= ly1 and c.x0 >= lx0 and c.x1 <= lx1:
+                line.append(c)
+                taken.add(c.label)
+    return lines
+
+
+def _split_gaps(line: list["Comp"], gap_max: float) -> list[list["Comp"]]:
+    out: list[list[Comp]] = [[line[0]]]
+    for c in line[1:]:
+        if c.x0 - out[-1][-1].x1 <= gap_max:
+            out[-1].append(c)
+        else:
+            out.append([c])
+    return out
+
+
 def clean_crop(bw: np.ndarray, page: Image.Image, geom: dict, system: dict, wanted: list[int], *,
-               kernel: tuple[int, int] = KERNEL, debug: bool = False) -> tuple[Image.Image, dict, dict, Image.Image | None]:
+               kernel: tuple[int, int] = KERNEL, debug: bool = False, voice: bool = False, voice_above: bool = False,
+               text_mode: str = "overlap") -> tuple[Image.Image, dict, dict, Image.Image | None]:
     """Cut the wanted staves out of the deskewed page with the neighbours' ink erased.
 
-    bw: deskewed binary page (1 = ink), page: deskewed RGB page. Returns (crop, box, stats, debug_image)."""
+    bw: deskewed binary page (1 = ink), page: deskewed RGB page. Returns (crop, box, stats, debug_image).
+
+    voice: the target is a vocal staff (header family voice): the band under its bottom line down to the midpoint
+    of the gap to the staff below is its own, and a text line (text_lines) with any word in that band is kept
+    whole (class "lyric"), while a text line under the staff with no word in that band lies in the lower half of
+    the gap, which belongs to the staff below, and is erased whole ("lyric-neighbour"). voice_above: the staff
+    above the target is vocal: a text line with any word in the upper half of the gap above is that staff's
+    lyrics and is erased whole. Text-line words are never subject to the bar-aware rest rule."""
     staves = {s["index"]: s for s in geom["staves"]}
     h, w = bw.shape
     ss = [staves[i] for i in sorted(wanted)]
@@ -267,6 +353,78 @@ def clean_crop(bw: np.ndarray, page: Image.Image, geom: dict, system: dict, want
             c.cls, c.how = "speck", f"< {SPECK} ink px outside the piano region"
         comps.append(c)
 
+    # lyrics (feature 008, the choir defect): text lines under a vocal staff. The band from the target's bottom
+    # line to the midpoint of the gap below is the target's own; a text line with a word there is kept whole,
+    # a text line under the staff with no word there is the staff below's (erased whole); a text line with a
+    # word in the upper half of the gap above a vocal neighbour is that neighbour's lyrics (erased whole). A word
+    # on a text line is never decided by the rest rule or by nearest ink. Components touching the band's far edge
+    # stay what they are.
+    lyric_lines: list[dict] = []
+    if voice or voice_above:
+        nxt_top = (nxt["y_top"] - band_top) if nxt else H - 1
+        own_lo, own_hi = bot_line + 0.3 * sp, (bot_line + nxt_top) / 2.0
+        prev_bot = (prev["y_bottom"] - band_top) if prev else 0
+        above_lo, above_hi = prev_bot + 0.3 * sp, (prev_bot + top_line) / 2.0
+        for line in text_lines(comps, sp, text_mode):
+            words = [c for c in line if c.y1 - c.y0 + 1 >= TEXT_H[0] * sp]
+            centres = [(c.y0 + c.y1) / 2.0 for c in words]
+            below = all(c.y0 > bot_line for c in words)
+            above = all(c.y1 < top_line for c in words)
+            if voice and below and any(own_lo <= y <= own_hi for y in centres):
+                cls, why = LYRIC, "text line under the vocal staff with a word in its own band (down to the midpoint of the gap)"
+            elif voice and below and nxt is not None and all(y > own_hi for y in centres):
+                cls, why = LYRIC_NEIGHBOUR, "text line in the lower half of the gap below: the staff below's"
+            elif voice_above and above and any(above_lo <= y <= above_hi for y in centres):
+                cls, why = LYRIC_NEIGHBOUR, "text line in the upper half of the gap above a vocal staff: its lyrics"
+            else:
+                for c in line:
+                    c.rest = None  # a word on a text line is resolved by nearest ink, never by the rest rule
+                continue
+            n = 0
+            for c in line:
+                if c.cls in (PIANO, BOTH) and cls == LYRIC_NEIGHBOUR:
+                    continue  # ink joined to the target's staff is never erased by a line rule
+                if (c.y1 >= H - 2 and nxt is not None) or (c.y0 <= 1 and prev is not None):
+                    continue  # touches the band's far edge: the neighbour's
+                c.cls, c.how, c.rest = cls, why, None
+                n += 1
+            lyric_lines.append({"class": cls, "words": len(words), "members": n, "x": [int(line[0].x0), int(max(c.x1 for c in line))],
+                                "rows": [int(min(c.y0 for c in line)), int(max(c.y1 for c in line))],
+                                "baseline": int(np.median([c.y1 for c in words])), "how": why})
+    # a word of a kept lyric line glued to the neighbour's ink (B9 p175 "Brü": a thin stroke runs from the word
+    # down to the alto's region, the joined component is classed neighbour and erased): the component's ink on the
+    # line's rows is re-labelled, and a word-sized piece there (TEXT_H, TEXT_PIECE_W_MIN, TEXT_FILL_MIN) is the
+    # line's, kept; the rest of the component stays the neighbour's.
+    lyric_keep = np.zeros_like(work, dtype=bool)
+    lyric_pieces: list[dict] = []
+    for ll in [l for l in lyric_lines if l["class"] == LYRIC]:
+        # the line's rows from its tallest ascender to its baseline (the median bottom of its words): the glue
+        # (a scratch, a hairline, a slur) is cut off where it leaves the letters' rows
+        ly0, ly1 = int(ll["rows"][0] - 0.3 * sp), int(ll["baseline"] + 0.15 * sp)
+        for c in comps:
+            if c.cls not in (NEIGHBOUR, GAP) or c.y1 < ly0 or c.y0 > ly1 or (c.y0 >= ly0 and c.y1 <= ly1):
+                continue
+            m = (labels == c.label) & (work > 0)
+            band_m = np.zeros_like(m)
+            band_m[max(0, ly0) : ly1 + 1] = m[max(0, ly0) : ly1 + 1]
+            # pieces joined with a 3x3 kernel (letters of a word touch or sit 1-2 px apart), not the 7x3
+            core = band_m.astype(np.uint8)
+            pd = cv2.dilate(core, np.ones((3, 3), np.uint8))
+            pn, pl, _, _ = cv2.connectedComponentsWithStats(pd, connectivity=8)
+            for q in range(1, pn):
+                pm = (pl == q) & (core > 0)
+                ys_, xs_ = np.where(pm)
+                if len(ys_) < SPECK:
+                    continue
+                ph, pw = int(ys_.max() - ys_.min() + 1), int(xs_.max() - xs_.min() + 1)
+                if TEXT_H[0] * sp <= ph <= TEXT_H[1] * sp and TEXT_PIECE_W_MIN * sp <= pw <= TEXT_W_MAX * sp and len(ys_) / float(ph * pw) >= TEXT_FILL_MIN:
+                    py0, py1, px0, px1 = int(ys_.min()), int(ys_.max()), int(xs_.min()), int(xs_.max())
+                    keep = np.zeros_like(band_m)
+                    keep[max(0, py0 - 1) : py1 + 2, max(0, px0 - 1) : px1 + 2] = band_m[max(0, py0 - 1) : py1 + 2, max(0, px0 - 1) : px1 + 2]
+                    lyric_keep |= keep
+                    lyric_pieces.append({"bbox": [px0, py0, px1, py1], "area": int(keep.sum()),
+                                         "of": c.cls, "how": "word-sized piece of a neighbour component on a kept lyric line's rows"})
+
     # kept components that touch the staff lines (PIANO, BOTH) may still carry the neighbour's ink joined to
     # them: Horn II's ledger notes with their "sf" hanging into the gap above a resting piano bar, joined to the
     # piano's staff through the barline. Split each such component: its ink minus the vertical barline runs
@@ -309,11 +467,13 @@ def clean_crop(bw: np.ndarray, page: Image.Image, geom: dict, system: dict, want
     neigh_ink = np.zeros_like(work, dtype=bool)
     for c in comps:
         m = (labels == c.label) & ink
-        if c.cls in (PIANO, BOTH):
+        if c.cls in (PIANO, BOTH, LYRIC):
             piano_ink |= m & ~piece_erase
-        elif c.cls in (NEIGHBOUR, REST_BAR):
+        elif c.cls in (NEIGHBOUR, REST_BAR, LYRIC_NEIGHBOUR):
             neigh_ink |= m
     neigh_ink |= piece_erase
+    piano_ink |= lyric_keep
+    neigh_ink &= ~lyric_keep
     margin = int(round(sp))
     reach = int(round(1.5 * sp))
 
@@ -393,10 +553,12 @@ def clean_crop(bw: np.ndarray, page: Image.Image, geom: dict, system: dict, want
     # erase: paint white over the dilated mask (+1 px) of every neighbour component and speck
     erase = np.zeros_like(work, dtype=bool)
     for c in comps:
-        if c.cls in (NEIGHBOUR, REST_BAR, "gap->neighbour", "speck"):
+        if c.cls in (NEIGHBOUR, REST_BAR, LYRIC_NEIGHBOUR, "gap->neighbour", "speck"):
             erase |= labels == c.label
     erase |= piece_erase
+    erase &= ~lyric_keep
     erase = cv2.dilate(erase.astype(np.uint8), np.ones((3, 3), np.uint8)).astype(bool)
+    erase &= ~lyric_keep
     erase[col_mask] = False
     band_rgb = np.array(page.crop((bx0, band_top, bx1 + 1, band_bot + 1)).convert("RGB"))
     out = band_rgb.copy()
@@ -419,8 +581,9 @@ def clean_crop(bw: np.ndarray, page: Image.Image, geom: dict, system: dict, want
         "gap_line_columns": line_cols,
         "kernel": list(kernel),
         "components": len(comps),
-        "erased": counts.get(NEIGHBOUR, 0) + counts.get("gap->neighbour", 0) + counts.get("speck", 0) + counts.get(REST_BAR, 0),
-        "kept": counts.get(PIANO, 0) + counts.get(BOTH, 0) + counts.get("gap->piano", 0),
+        "erased": counts.get(NEIGHBOUR, 0) + counts.get("gap->neighbour", 0) + counts.get("speck", 0) + counts.get(REST_BAR, 0) + counts.get(LYRIC_NEIGHBOUR, 0),
+        "kept": counts.get(PIANO, 0) + counts.get(BOTH, 0) + counts.get("gap->piano", 0) + counts.get(LYRIC, 0),
+        "voice": voice, "voice_above": voice_above, "text_mode": text_mode, "lyric_lines": lyric_lines,
         "by_class": counts,
         "bars": [{"x": [int(xa), int(xb)], "ink_sp2": round(v, 1), "resting": r} for (xa, xb), v, r in zip(bars, bar_ink, resting)],
         "rest_floor_sp2": round(floor, 2),
@@ -428,6 +591,7 @@ def clean_crop(bw: np.ndarray, page: Image.Image, geom: dict, system: dict, want
         "erased_rest_bar": counts.get(REST_BAR, 0),
         "erased_pieces": len(pieces),
         "pieces": pieces,
+        "lyric_pieces": lyric_pieces,
         "both": [c.as_dict() for c in comps if c.cls == BOTH],
         "gap_resolved": [c.as_dict() for c in comps if c.cls.startswith("gap->")],
         "edge_ink_top": bool(kept[y0].any()),
@@ -447,6 +611,8 @@ def clean_crop(bw: np.ndarray, page: Image.Image, geom: dict, system: dict, want
             tint[m] = (0.25 * tint[m] + 0.75 * col).astype(np.uint8)
         col = np.array(TINT["piece"], dtype=np.uint8)
         tint[piece_erase] = (0.25 * tint[piece_erase] + 0.75 * col).astype(np.uint8)
+        col = np.array(TINT[LYRIC], dtype=np.uint8)
+        tint[lyric_keep] = (0.25 * tint[lyric_keep] + 0.75 * col).astype(np.uint8)
         # final crop edges in blue, regions in faint lines
         tint[y0, :, :] = (30, 60, 230)
         tint[y1, :, :] = (30, 60, 230)

@@ -4,7 +4,10 @@ Ported from the piano-cut experiment (`api/experiments/grounding/piano_cut_{geom
 `out/piano-cut/REPORT.md` and `CLEAN.md`): staves as row-profile peaks, systems by the left systemic line,
 system barlines by two votes (staff cover and gap crossing), a numbered overlay for the model to label, a
 cleaned crop of the wanted staves (band between the neighbours, their ink erased), and the geometric verify.
-Pixel thresholds assume ~150 dpi (page about 1200-1450 px wide).
+Pixel thresholds assume a staff spacing of about 6-8 px (150 dpi renders of the tuned scans, or a 19th-century
+scan at its native resolution); `prepare_page` masks the dark page-edge shadows of a book scan before anything
+else and upscales a page whose staff spacing is under SPACING_MIN. Lyrics under a vocal staff are kept or erased
+as whole text lines (`text_lines`, the `voice` / `voice_above` flags of `clean_crop`).
 """
 from __future__ import annotations
 
@@ -125,13 +128,106 @@ def count_measures(bars: list[tuple[int, int]], x0: int, x1: int, spacing: float
     return sum(1 for a, b in zip(edges, edges[1:]) if b[0] - a[1] >= 1.5 * spacing)
 
 
-def page_geometry(png: bytes) -> tuple[dict[str, Any], np.ndarray, Image.Image]:
-    """Geometry dict (staves, systems with barlines and bar counts), the deskewed binary page, the deskewed RGB page."""
-    gray = cv2.imdecode(np.frombuffer(png, np.uint8), cv2.IMREAD_GRAYSCALE)
-    if gray is None:
-        raise ValueError("page image could not be decoded")
+# ---------------------------------------------------------------- page-edge shadows and the working scale
+
+SHADOW_CORE = 100     # a shadow pixel is darker than the paper by at least this much (B9 scan: paper ~230, band ~55)
+SHADOW_FADE = 40      # the band's blurred rim: darker than the paper by this much
+SHADOW_MIN = 8        # px: thinner dark runs at an edge are rules, frames or a staff line, not a scan shadow
+SHADOW_COVER = 0.9    # fraction of the edge's columns (rows) that must carry the band: "nearly uniform"
+SHADOW_FADE_MAX = 40  # px: the rim never extends further than this past the solid core
+SPACING_MIN = 6.0     # px: under this staff spacing the row profile cannot hold five peaks apart (3-row smoothing, 3-px NMS)
+
+
+def mask_page_edges(gray: np.ndarray) -> tuple[np.ndarray, dict]:
+    """Mask of the dark scan shadows touching a page edge (a book photographed on a dark table), plus a report per
+    side. A side has a shadow when the run of pixels darker than paper - SHADOW_CORE from that edge is at least
+    SHADOW_MIN px in SHADOW_COVER of its columns (rows): a wide, nearly uniform dark region touching the edge is not
+    notation. The masked run follows each column (slanted on a skewed page) and extends through the blurred rim
+    (darker than paper - SHADOW_FADE, at most SHADOW_FADE_MAX px past the core) plus 2 px. Left in, the bands lock
+    the skew estimate to 0.0 and fit five "lines" at the page's spacing: a fake first and last staff."""
     h, w = gray.shape
+    paper = float(np.median(gray))
+    core, fade = gray < paper - SHADOW_CORE, gray < paper - SHADOW_FADE
+    mask = np.zeros((h, w), dtype=bool)
+    report: dict[str, dict] = {}
+
+    def run_from_edge(a: np.ndarray) -> np.ndarray:
+        first_false = np.argmin(a, axis=0)
+        return np.where(a.all(axis=0), a.shape[0], np.where(a[0], first_false, 0))
+
+    for side in ("top", "bottom", "left", "right"):
+        c, f = (core, fade) if side in ("top", "bottom") else (core.T, fade.T)
+        if side in ("bottom", "right"):
+            c, f = c[::-1], f[::-1]
+        run = run_from_edge(c)
+        cover, median = float((run >= SHADOW_MIN).mean()), float(np.median(run))
+        hit = median >= SHADOW_MIN and cover >= SHADOW_COVER
+        report[side] = {"median_px": round(median), "cover": round(cover, 3), "shadow": hit}
+        if not hit:
+            continue
+        # the band is nearly uniform: a column whose dark run goes on much further is a rule or a systemic line
+        # that touches the band, not the band itself
+        run = np.minimum(run, int(median + SHADOW_FADE_MAX))
+        ext = np.minimum(c.shape[0], np.maximum(run, np.minimum(run_from_edge(f), run + SHADOW_FADE_MAX)) + 2)
+        m = np.arange(c.shape[0])[:, None] < ext[None, :]
+        if side in ("bottom", "right"):
+            m = m[::-1]
+        if side in ("left", "right"):
+            m = m.T
+        mask |= m
+        report[side]["masked_px"] = round(float(np.median(ext)))
+    return mask, report
+
+
+def staff_spacing(bw: np.ndarray) -> float | None:
+    """Median gap between neighbouring staff-line candidates of the row profile (find_staves' first step)."""
+    h, w = bw.shape
+    opened = cv2.morphologyEx(bw, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (max(20, w // 40), 1)))
+    sm = np.convolve(opened.sum(axis=1) / w, np.ones(3) / 3, mode="same")
+    centres: list[int] = []
+    for r in np.where(sm > 0.2)[0]:
+        if sm[r] >= sm[max(0, r - 3): min(h, r + 4)].max() and (not centres or r - centres[-1] > 3):
+            centres.append(int(r))
+    small = [b - a for a, b in zip(centres, centres[1:]) if 4 <= b - a <= 20]
+    return float(np.median(small)) if small else None
+
+
+def working_scale(bw: np.ndarray) -> tuple[int, float | None]:
+    """Integer upscale that brings the staff spacing to at least SPACING_MIN px (1 when it already is, or when no
+    spacing can be read). The tuned scans run at 6.25-7.75 px at 150 dpi and Beethoven 9 at its native resolution
+    at 7.0-7.5, so none is scaled; a 100-dpi render or a low-resolution photograph would be."""
+    sp = staff_spacing(bw)
+    if sp is None or sp >= SPACING_MIN:
+        return 1, sp
+    return int(np.ceil(SPACING_MIN / sp)), sp
+
+
+def prepare_page(gray: np.ndarray) -> tuple[np.ndarray, np.ndarray, dict]:
+    """Mask the page-edge shadows, pick the working scale; (gray, bw, info) at the working scale, not deskewed."""
+    mask, edges = mask_page_edges(gray)
+    if mask.any():
+        gray = gray.copy()
+        gray[mask] = int(np.median(gray[~mask])) if (~mask).any() else 255
     bw = binarise(gray)
+    bw[mask] = 0
+    scale, sp = working_scale(bw)
+    if scale > 1:
+        gray = cv2.resize(gray, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+        bw = binarise(gray)
+        bw[cv2.resize(mask.astype(np.uint8), None, fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST) > 0] = 0
+    return gray, bw, {"edge_shadows": edges, "spacing_native": sp, "scale": scale}
+
+
+def page_geometry(png: bytes) -> tuple[dict[str, Any], np.ndarray, Image.Image]:
+    """Geometry dict (staves, systems with barlines and bar counts), the deskewed binary page, the deskewed RGB page.
+    Both pages are the working page: page-edge shadows masked, upscaled when the staff spacing is under SPACING_MIN
+    (geom["prepare"] says what was done; geom["image_px"] is the working size)."""
+    raw = cv2.imdecode(np.frombuffer(png, np.uint8), cv2.IMREAD_GRAYSCALE)
+    if raw is None:
+        raise ValueError("page image could not be decoded")
+    gray, bw, prep = prepare_page(raw)
+    prep["native_px"] = [raw.shape[1], raw.shape[0]]
+    h, w = gray.shape
     skew = estimate_skew(bw)
     if abs(skew) >= 0.1:
         bw, gray = rotate(bw, skew, 0), rotate(gray, skew, 255)
@@ -147,7 +243,7 @@ def page_geometry(png: bytes) -> tuple[dict[str, Any], np.ndarray, Image.Image]:
         systems.append({"index": si, "staff_indices": [s["index"] for s in ss],
                         "box": {"x0": x0, "y0": max(0, ss[0]["y_top"] - pad), "x1": x1, "y1": min(h - 1, ss[-1]["y_bottom"] + pad)},
                         "barlines": bars, "n_measures": count_measures(bars, x0, x1, sp)})
-    geom = {"image_px": [w, h], "skew_deg": round(float(skew), 2), "grouping": method,
+    geom = {"image_px": [w, h], "skew_deg": round(float(skew), 2), "grouping": method, "prepare": prep,
             "staves": [{k: (round(v, 2) if isinstance(v, float) else v) for k, v in s.items()} for s in staves], "systems": systems}
     return geom, bw, Image.fromarray(gray).convert("RGB")
 
@@ -221,9 +317,55 @@ def _first_ink(mask: np.ndarray, y: int, x0: int, x1: int, below: bool) -> int |
     return y + 1 + int(rows[0]) if below else int(rows[-1])
 
 
-def clean_crop(bw: np.ndarray, page: Image.Image, geom: dict, system: dict, wanted: list[int]) -> tuple[Image.Image, dict, dict]:
+TEXT_H = (0.5, 2.6)   # word height in staff spaces (x-height ~1, ascenders and descenders to ~2.5)
+TEXT_W_MAX = 20.0     # spaces; a longer component is a hairpin or a slur
+TEXT_FILL_MIN = 0.15  # ink / bbox: letters 0.3-0.5, a hairpin or slur under 0.1
+TEXT_GAP_MAX = 30.0   # spaces between two words of one line: lyric syllables sit a bar or more apart
+TEXT_MIN_MEMBERS = 2
+TEXT_PIECE_W_MIN = 1.0  # spaces: a piece carved out of a neighbour component on the lyric rows is at least a short word wide
+
+
+def text_lines(comps: list[dict], sp: float) -> list[list[dict]]:
+    """Text lines among the components: word-sized ones (TEXT_H, TEXT_W_MAX, TEXT_FILL_MIN) chained left to right
+    when their rows overlap the line's rows by half the smaller height and the gap is under TEXT_GAP_MAX; a line
+    needs TEXT_MIN_MEMBERS words; the flat marks between its first and last word (hyphens, extender lines, dots)
+    join it."""
+    words = [c for c in comps if TEXT_H[0] * sp <= c["y1"] - c["y0"] + 1 <= TEXT_H[1] * sp and c["x1"] - c["x0"] + 1 <= TEXT_W_MAX * sp
+             and c["area"] / float((c["x1"] - c["x0"] + 1) * (c["y1"] - c["y0"] + 1)) >= TEXT_FILL_MIN]
+    lines: list[list[dict]] = []
+    for c in sorted(words, key=lambda c: c["x0"]):
+        for line in lines:
+            last = line[-1]
+            ly0, ly1 = min(m["y0"] for m in line), max(m["y1"] for m in line)
+            overlap = min(c["y1"], ly1) - max(c["y0"], ly0) + 1
+            if overlap >= 0.5 * min(c["y1"] - c["y0"] + 1, ly1 - ly0 + 1) and c["x0"] - last["x1"] <= TEXT_GAP_MAX * sp and c["x0"] > last["x0"]:
+                line.append(c)
+                break
+        else:
+            lines.append([c])
+    lines = [line for line in lines if len(line) >= TEXT_MIN_MEMBERS]
+    taken = {c["label"] for line in lines for c in line}
+    for line in lines:
+        ly0, ly1 = min(m["y0"] for m in line) - 0.3 * sp, max(m["y1"] for m in line) + 0.3 * sp
+        lx0, lx1 = line[0]["x0"], line[-1]["x1"]
+        for c in comps:
+            if c["label"] in taken or c["y1"] - c["y0"] + 1 >= TEXT_H[0] * sp:
+                continue
+            if c["y0"] >= ly0 and c["y1"] <= ly1 and c["x0"] >= lx0 and c["x1"] <= lx1:
+                line.append(c)
+                taken.add(c["label"])
+    return lines
+
+
+def clean_crop(bw: np.ndarray, page: Image.Image, geom: dict, system: dict, wanted: list[int], *,
+               voice: bool = False, voice_above: bool = False) -> tuple[Image.Image, dict, dict]:
     """The wanted staves cut from the band between their neighbours, the neighbours' ink erased, fitted to the kept ink.
-    Returns (crop, box in page px, stats). See CLEAN.md for the classes and the nearest-ink rule."""
+    Returns (crop, box in page px, stats). See CLEAN.md for the classes and the nearest-ink rule.
+
+    voice: the target is a vocal staff: the band from its bottom line to the midpoint of the gap below is its own,
+    a text line (text_lines) with a word there is kept whole ("lyric"), a text line under the staff with no word
+    there lies in the lower half, the staff below's, and is erased whole ("lyric-neighbour"). voice_above: the
+    staff above is vocal: a text line with a word in the upper half of the gap above is its lyrics, erased whole."""
     staves = {s["index"]: s for s in geom["staves"]}
     h, w = bw.shape
     ss = [staves[i] for i in sorted(wanted)]
@@ -273,14 +415,75 @@ def clean_crop(bw: np.ndarray, page: Image.Image, geom: dict, system: dict, want
         c["cls"] = "both" if over and touch else "piano" if over else "neighbour" if touch else "speck" if c["area"] < SPECK else "gap"
         comps.append(c)
 
+    # lyrics under a vocal staff (feature 008): text lines decided by the band they sit in, never by nearest ink
+    lyric_lines: list[dict] = []
+    if voice or voice_above:
+        nxt_top = (nxt["y_top"] - band_top) if nxt else H - 1
+        own_lo, own_hi = bot_line + 0.3 * sp, (bot_line + nxt_top) / 2.0
+        prev_bot = (prev["y_bottom"] - band_top) if prev else 0
+        above_lo, above_hi = prev_bot + 0.3 * sp, (prev_bot + top_line) / 2.0
+        for line in text_lines(comps, sp):
+            words = [c for c in line if c["y1"] - c["y0"] + 1 >= TEXT_H[0] * sp]
+            centres = [(c["y0"] + c["y1"]) / 2.0 for c in words]
+            below = all(c["y0"] > bot_line for c in words)
+            above = all(c["y1"] < top_line for c in words)
+            if voice and below and any(own_lo <= y <= own_hi for y in centres):
+                cls = "lyric"
+            elif voice and below and nxt is not None and all(y > own_hi for y in centres):
+                cls = "lyric-neighbour"
+            elif voice_above and above and any(above_lo <= y <= above_hi for y in centres):
+                cls = "lyric-neighbour"
+            else:
+                continue
+            n = 0
+            for c in line:
+                if c["cls"] in ("piano", "both") and cls == "lyric-neighbour":
+                    continue
+                if (c["y1"] >= H - 2 and nxt is not None) or (c["y0"] <= 1 and prev is not None):
+                    continue
+                c["cls"] = cls
+                n += 1
+            lyric_lines.append({"class": cls, "words": len(words), "members": n,
+                                "x": [int(line[0]["x0"]), int(max(c["x1"] for c in line))],
+                                "rows": [int(min(c["y0"] for c in line)), int(max(c["y1"] for c in line))],
+                                "baseline": int(np.median([c["y1"] for c in words]))})
+    # a word of a kept lyric line glued to the neighbour's ink (a scratch or hairline running from the word down
+    # to the staff below makes the joined component "neighbour"): the component's ink on the line's rows, from its
+    # tallest ascender to its baseline, is re-labelled with a 3x3 kernel and a word-sized piece there is kept
+    lyric_keep = np.zeros_like(ink)
+    lyric_pieces: list[dict] = []
+    for ll in [l for l in lyric_lines if l["class"] == "lyric"]:
+        ly0, ly1 = int(ll["rows"][0] - 0.3 * sp), int(ll["baseline"] + 0.15 * sp)
+        for c in comps:
+            if c["cls"] not in ("neighbour", "gap") or c["y1"] < ly0 or c["y0"] > ly1 or (c["y0"] >= ly0 and c["y1"] <= ly1):
+                continue
+            m = (labels == c["label"]) & ink
+            band_m = np.zeros_like(m)
+            band_m[max(0, ly0): ly1 + 1] = m[max(0, ly0): ly1 + 1]
+            core = band_m.astype(np.uint8)
+            pn, pl, _, _ = cv2.connectedComponentsWithStats(cv2.dilate(core, np.ones((3, 3), np.uint8)), connectivity=8)
+            for q in range(1, pn):
+                ys_, xs_ = np.where((pl == q) & (core > 0))
+                if len(ys_) < SPECK:
+                    continue
+                ph, pw = int(ys_.max() - ys_.min() + 1), int(xs_.max() - xs_.min() + 1)
+                if TEXT_H[0] * sp <= ph <= TEXT_H[1] * sp and TEXT_PIECE_W_MIN * sp <= pw <= TEXT_W_MAX * sp and len(ys_) / float(ph * pw) >= TEXT_FILL_MIN:
+                    py0, py1, px0, px1 = int(ys_.min()), int(ys_.max()), int(xs_.min()), int(xs_.max())
+                    keep = np.zeros_like(band_m)
+                    keep[max(0, py0 - 1): py1 + 2, max(0, px0 - 1): px1 + 2] = band_m[max(0, py0 - 1): py1 + 2, max(0, px0 - 1): px1 + 2]
+                    lyric_keep |= keep
+                    lyric_pieces.append({"bbox": [px0, py0, px1, py1], "area": int(keep.sum()), "of": c["cls"]})
+
     piano_ink = np.zeros_like(ink)
     neigh_ink = np.zeros_like(ink)
     for c in comps:
         m = (labels == c["label"]) & ink
-        if c["cls"] in ("piano", "both"):
+        if c["cls"] in ("piano", "both", "lyric"):
             piano_ink |= m
-        elif c["cls"] == "neighbour":
+        elif c["cls"] in ("neighbour", "lyric-neighbour"):
             neigh_ink |= m
+    piano_ink |= lyric_keep
+    neigh_ink &= ~lyric_keep
     margin, reach = int(round(sp)), int(round(1.5 * sp))
 
     def beside(mask: np.ndarray, c: dict) -> float:
@@ -324,9 +527,11 @@ def clean_crop(bw: np.ndarray, page: Image.Image, geom: dict, system: dict, want
 
     erase = np.zeros_like(ink)
     for c in comps:
-        if c["cls"] in ("neighbour", "gap->neighbour", "speck"):
+        if c["cls"] in ("neighbour", "lyric-neighbour", "gap->neighbour", "speck"):
             erase |= labels == c["label"]
+    erase &= ~lyric_keep
     erase = cv2.dilate(erase.astype(np.uint8), np.ones((3, 3), np.uint8)).astype(bool)
+    erase &= ~lyric_keep
     erase[col_mask] = False
     out = np.array(page.crop((bx0, band_top, bx1 + 1, band_bot + 1)).convert("RGB")).copy()
     out[erase] = 255
@@ -338,8 +543,9 @@ def clean_crop(bw: np.ndarray, page: Image.Image, geom: dict, system: dict, want
     for c in comps:
         counts[c["cls"]] = counts.get(c["cls"], 0) + 1
     stats_out = {"components": len(comps), "by_class": counts,
-                 "erased": counts.get("neighbour", 0) + counts.get("gap->neighbour", 0) + counts.get("speck", 0),
-                 "kept": counts.get("piano", 0) + counts.get("both", 0) + counts.get("gap->piano", 0),
+                 "erased": counts.get("neighbour", 0) + counts.get("lyric-neighbour", 0) + counts.get("gap->neighbour", 0) + counts.get("speck", 0),
+                 "kept": counts.get("piano", 0) + counts.get("both", 0) + counts.get("gap->piano", 0) + counts.get("lyric", 0),
+                 "voice": voice, "voice_above": voice_above, "lyric_lines": lyric_lines, "lyric_pieces": lyric_pieces,
                  "edge_ink_top": bool(piano_ink[y0].any()), "edge_ink_bottom": bool(piano_ink[y1].any())}
     return Image.fromarray(out[y0: y1 + 1]), {"x0": bx0, "y0": band_top + y0, "x1": bx1, "y1": band_top + y1}, stats_out
 
@@ -367,10 +573,12 @@ def verify(crop: Image.Image, geom: dict, system: dict, wanted: list[int], box: 
             "bar_count": {"value": system["n_measures"], "pass": True, "informational": True}}
 
 
-def cut_system(bw: np.ndarray, page: Image.Image, geom: dict, system: dict, wanted: list[int]) -> tuple[Image.Image, dict, dict]:
-    """Clean crop, or the plain crop when the clean pass cannot run on this page. Returns (crop, box, verify+stats)."""
+def cut_system(bw: np.ndarray, page: Image.Image, geom: dict, system: dict, wanted: list[int], *,
+               voice: bool = False, voice_above: bool = False) -> tuple[Image.Image, dict, dict]:
+    """Clean crop, or the plain crop when the clean pass cannot run on this page. Returns (crop, box, verify+stats).
+    voice / voice_above: the target / the staff above it is a vocal staff (header family voice), for the lyric rule."""
     try:
-        crop, box, stats = clean_crop(bw, page, geom, system, wanted)
+        crop, box, stats = clean_crop(bw, page, geom, system, wanted, voice=voice, voice_above=voice_above)
         mode = "clean"
     except Exception as e:  # noqa: BLE001  (the clean pass is tuned on one scan; never lose the cut over it)
         box = plain_box(geom, system, wanted)

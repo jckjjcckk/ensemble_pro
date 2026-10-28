@@ -292,6 +292,30 @@ def instrument_staves(instrument: str) -> int | None:
     return int(inst.get("staves") or 1) if inst else None
 
 
+def header_by_position() -> list[dict]:
+    """The header's instrument for each staff position 1..N of a full system."""
+    out: list[dict] = []
+    for i in header_instruments():
+        out.extend([i] * int(i.get("staves") or 1))
+    return out
+
+
+def staff_family(name: str | None, position: int | None = None, system_size: int | None = None) -> str | None:
+    """Family ("voice", "strings", ...) of a staff from the name Spark gave it on the page, matched through the
+    header (so "Alto" is the choir's alto when the header lists one, the viola otherwise), else by score order
+    when the system is full. None when unknown."""
+    inst = match_instrument(header_instruments(), name) if name else None
+    if inst is None and position is not None and system_size is not None:
+        order = header_by_position()
+        if system_size == len(order) and 1 <= position <= len(order):
+            inst = order[position - 1]
+    return (inst or {}).get("family")
+
+
+def is_voice(name: str | None, position: int | None = None, system_size: int | None = None) -> bool:
+    return (staff_family(name, position, system_size) or "").lower() in ("voice", "vocal", "choir", "chorus")
+
+
 def header_context(geom: dict, instrument: str) -> str:
     """Score order from header.json (score_header.py) as prompt context, plus the by-order guess per system:
     when a system has exactly the header's staff count, staff k is the k-th staff of the list; when it has fewer,
