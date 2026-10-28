@@ -138,7 +138,7 @@ def deskewed(page: Page, res: str, skew_deg: float):
     import numpy as np
     from PIL import Image
 
-    from app.librarian.geometry import rotate
+    from app.librarian.cut import rotate
 
     im = load_page(page, res)
     if abs(skew_deg) >= 0.1:

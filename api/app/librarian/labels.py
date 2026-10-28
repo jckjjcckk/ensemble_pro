@@ -1,4 +1,5 @@
-"""Muse Spark 1.3 labels what the geometry found. One call per page, effort low, about $0.008 a page.
+"""Muse Spark 1.3 labels what the geometry found. One call per page, effort low, about $0.008 a page; plus the score
+header once per book.
 
 Spark sees the page with the geometry's measure boxes drawn and provisionally numbered, and is asked only
 for what geometry cannot know: the real number of the first measure, the part names of each system's staves,
@@ -8,6 +9,11 @@ job's user with the job id (model from settings: `muse-spark-1.3` when LLM_PROVI
 
 Prompt lifted from `api/experiments/grounding/label_with_spark.py` (experiment README, "Exact prompts"), plus
 items 6 and 7.
+
+`read_header` is the part cut's header read (`header.py`: the instruments in score order on the numbered staff
+overlay of the first page with music, one Spark call) for page reading: its staff count per full system drives the
+staff recovery on every page (`cut.page_measures(expected_staves=)`), and its instruments tell a cut-away system
+(resting parts not printed) from a page that brings parts the book does not have (`match_part`).
 """
 from __future__ import annotations
 
@@ -18,13 +24,16 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Any
 
+from anthropic import AsyncAnthropic
 from PIL import Image, ImageDraw, ImageFont
 
 from . import JobContext
-from .geometry import PageGeometry
+from . import header as hdr
+from .ask import NoJSON, ask_model
+from .cut import overlay_png, page_geometry
 
 PROMPT = """This is a scanned page of printed sheet music. Blue boxes with provisional numbers (1..{n}, reading left to right, top to bottom) mark the measures that a geometry detector found. Dashed grey boxes mark staff systems; system {systems_desc}.
-
+{parts_context}
 Answer these questions about the page. Do not re-locate anything; only label what is drawn.
 1. first_measure_number: the real measure number of provisional measure 1, using printed measure numbers, rehearsal letters or the musical context if visible; if the page starts with an incomplete pickup bar say so (is_pickup true). If nothing on the page tells you, answer 1 with confidence "low".
 2. systems: for each system, the part names of its staves top to bottom (e.g. ["Piano I", "Piano II"] for a two-piano score where each part has two staves; ["Piano"] for a piano grand staff; ["Violin I", "Violin II", "Viola", "Cello"] for a quartet). Give staves_per_part so the counts add up to the staves in that system. Use the names as printed, in English, with Roman numerals for numbered parts.
@@ -98,8 +107,9 @@ def canon_part(name: str) -> str:
     return CANON.get(n, n)
 
 
-def annotated_png(page_png: bytes, geo: PageGeometry) -> bytes:
-    """The page with system boxes (grey) and numbered measure boxes (blue) drawn on it."""
+def annotated_png(page_png: bytes, geo: dict[str, Any]) -> bytes:
+    """The page with system boxes (grey) and numbered measure boxes (blue) drawn on it; `geo` is the page record of
+    `cut.page_measures` (boxes as fractions of the page)."""
     im = Image.open(io.BytesIO(page_png)).convert("RGB")
     W, H = im.size
     d = ImageDraw.Draw(im)
@@ -108,16 +118,19 @@ def annotated_png(page_png: bytes, geo: PageGeometry) -> bytes:
         font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", size)
     except Exception:  # noqa: BLE001
         font = ImageFont.load_default()
-    for s in geo.systems:
-        b = s.box.to_px(W, H)
-        d.rectangle([b["x0"], b["y0"], b["x1"], b["y1"]], outline=(90, 90, 90), width=2)
-    for m in geo.measures:
-        b = m.box.to_px(W, H)
-        d.rectangle([b["x0"], b["y0"], b["x1"], b["y1"]], outline=(0, 110, 220), width=3)
-        label = str(m.provisional)
+
+    def px(b: dict[str, float]) -> list[int]:
+        return [int(round(b["x0"] * W)), int(round(b["y0"] * H)), int(round(b["x1"] * W)), int(round(b["y1"] * H))]
+
+    for s in geo["systems"]:
+        d.rectangle(px(s["box"]), outline=(90, 90, 90), width=2)
+    for m in geo["measures"]:
+        b = px(m["box"])
+        d.rectangle(b, outline=(0, 110, 220), width=3)
+        label = str(m["provisional"])
         tw = int(d.textlength(label, font=font)) + 8
-        d.rectangle([b["x0"] + 3, b["y0"] + 3, b["x0"] + 3 + tw, b["y0"] + size + 8], fill=(255, 255, 255))
-        d.text((b["x0"] + 7, b["y0"] + 2), label, fill=(0, 110, 220), font=font)
+        d.rectangle([b[0] + 3, b[1] + 3, b[0] + 3 + tw, b[1] + size + 8], fill=(255, 255, 255))
+        d.text((b[0] + 7, b[1] + 2), label, fill=(0, 110, 220), font=font)
     buf = io.BytesIO()
     im.save(buf, format="PNG", optimize=True)
     return buf.getvalue()
@@ -141,11 +154,23 @@ def _int(v: Any, default: int) -> int:
         return default
 
 
-async def label_page(ctx: JobContext, page_png: bytes, geo: PageGeometry, *, effort: str = "low") -> PageLabels:
-    """One Spark call for the page. Raises on a malformed answer so the worker retries the job."""
+def parts_context(known: list[str]) -> str:
+    """The parts read on earlier pages, for the label prompt, so a later page with abbreviated or no margin labels is
+    named with the names already in use. Not the score header's instruments: on a keyboard page with no margin label
+    the header read takes the heading ("Aria.") for the instrument, and the first page then named its part "Aria"."""
+    if not known:
+        return ""
+    return ("Parts already read on earlier pages of this book, in score order: " + "; ".join(known) + ". When a staff belongs to one of these "
+            "parts (later pages print abbreviations such as \"Fl.\" or no labels at all), use exactly that name. A part printed with another "
+            "name or number (\"Piano II\" where the list has \"Piano\") is a new part: give its printed name.\n")
+
+
+async def label_page(ctx: JobContext, page_png: bytes, geo: dict[str, Any], *, effort: str = "low", known: list[str] | None = None) -> PageLabels:
+    """One Spark call for the page (`geo`: the page record of `cut.page_measures`; `known`: the parts read on earlier
+    pages, for naming). Raises on a malformed answer so the worker retries the job."""
     png = annotated_png(page_png, geo)
-    systems_desc = ", ".join(f"{s.index} has {s.staves} staves" for s in geo.systems) or "none"
-    prompt = PROMPT.format(n=len(geo.measures), systems_desc=systems_desc)
+    systems_desc = ", ".join(f"{s['index']} has {s['staves']} staves" for s in geo["systems"]) or "none"
+    prompt = PROMPT.format(n=len(geo["measures"]), systems_desc=systems_desc, parts_context=parts_context(known or []))
     c = await ctx.complete(prompt, effort=effort, max_tokens=8000, image_png_b64=ctx.png_b64(png))
     data = extract_json(c.text)
     out = PageLabels(
@@ -168,3 +193,69 @@ async def label_page(ctx: JobContext, page_png: bytes, geo: PageGeometry, *, eff
         raw=data,
     )
     return out
+
+
+# ---------------------------------------------------------------- the book's parts: the header and the name matcher
+
+async def read_header(ctx: JobContext, png: bytes, client: AsyncAnthropic, model: str, *, page: int, title: str = "") -> dict[str, Any]:
+    """The score header of the first page with music (the part cut's read, `header.py`): one Spark call on the staff
+    overlay. Returns the reconciled header (instruments, expected_staves, validation) plus page, cost_usd and the
+    overlay PNG; on a page with no system or an answer with no JSON, `expected_staves` None and the reason in `error`
+    (the book is then read without the staff recovery, never failed over it)."""
+    out: dict[str, Any] = {"page": page, "instruments": [], "expected_staves": None, "cost_usd": 0.0}
+    try:
+        geom, _, im = page_geometry(png)
+    except Exception as e:  # noqa: BLE001
+        out["error"] = f"geometry: {type(e).__name__}: {e}"
+        return out
+    if not geom["systems"]:
+        out["error"] = f"no system found on page {page}"
+        return out
+    ov = overlay_png(im, geom)
+    try:
+        data = await ask_model(ctx, client, model, hdr.prompt(page, geom, title), ov, max_tokens=hdr.HEADER_MAX_TOKENS, effort="low", require="instruments")
+    except NoJSON as e:
+        out.update(cost_usd=e.cost_usd, error=str(e))
+        return out
+    out["cost_usd"] = data.pop("_cost_usd", 0.0)
+    out["retries"] = data.pop("_retries", [])
+    out["json_repaired"] = data.pop("_repaired", False)
+    out.update(hdr.reconcile(data, geom))
+    out["expected_staves"] = int(out.get("expected_staves") or 0) or None
+    out["overlay_png"] = ov
+    return out
+
+
+def _plain(name: str) -> tuple[str, ...]:
+    """Lower-case words without punctuation, each made singular ("Double Basses" -> ("double", "bass"))."""
+    out = []
+    for t in re.findall(r"[a-zäöüß]+|\d+", str(name).lower()):
+        if t.endswith("sses"):
+            t = t[:-2]
+        elif t.endswith("s") and not t.endswith("ss") and len(t) > 3:
+            t = t[:-1]
+        out.append(t)
+    return tuple(out)
+
+
+def match_part(name: str, pool: list[str]) -> str | None:
+    """The one entry of `pool` that is the same part as `name`, else None. Exact (canonical) names first; then the
+    header's synonym families: a numbered name ("Violin I") matches an entry of its family that shares a numeral
+    ("Violini I.", or "Flauti I. II." for "Flute I") and never an unnumbered one ("Piano I" is not "Piano": a second
+    piano is a new part); an unnumbered name ("Fl.", "Pno.") matches only when its family has exactly one entry.
+    Names outside the synonym table match by `header.same_instrument` when exactly one entry does. The exact step
+    ignores case, punctuation and plurals ("Double Bass" is "Double Basses", "Flutes I, II" is "Flutes I. II"):
+    the synonym table reads "basses" as the voice."""
+    c = canon_part(name)
+    for k in pool:
+        if canon_part(k).lower() == c.lower() or _plain(k) == _plain(c):
+            return k
+    fam = hdr.family(c)
+    if fam is None:
+        hits = [k for k in pool if hdr.family(k) is None and hdr.same_instrument(c, k)]
+        return hits[0] if len(hits) == 1 else None
+    same = [k for k in pool if hdr.family(k) == fam]
+    nums = set(hdr.numerals(c))
+    if nums:
+        same = [k for k in same if set(hdr.numerals(k)) & nums]
+    return same[0] if len(same) == 1 else None

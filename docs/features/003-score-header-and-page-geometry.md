@@ -1,6 +1,6 @@
 # 003 Score header and page geometry
 
-Status: working (experiment scripts on 6 scores; ported to `api/app/librarian/geometry.py` and `cut.py`) | Meta model: Muse Spark 1.3 reads the score header; the geometry itself uses none.
+Status: working (experiment scripts on 6 scores; ported to `api/app/librarian/cut.py`, one geometry for page reading (004) and the part cut (008) since 2026-10-28; `geometry.py` deleted) | Meta model: Muse Spark 1.3 reads the score header (part cut and page reading); the geometry itself uses none.
 
 ## Purpose
 
@@ -31,7 +31,8 @@ $0.35. SAM is optional (system crops) and stays in the demo only as a named Meta
 
 ## What the geometry does
 
-`fallback_cv.py` (piano pages, 2 to 4 staves) and `api/app/librarian/geometry.py` (`measures_on_page`):
+`fallback_cv.py` (piano pages, 2 to 4 staves; it was the app's `geometry.py` / `measures_on_page` for page
+reading until 2026-10-28, see "One geometry" below):
 binarise (Otsu OR adaptive mean, because grey scans print staff lines lighter than Otsu's threshold), estimate
 skew by maximising row-projection energy (-0.5° on the Rachmaninoff page), staff lines as rows with long
 runs, group in fives, grand staves when a vertical line crosses the gap away from the left edge, systems by
@@ -61,6 +62,40 @@ Bar counts matched the page on every Rach 1 system (p. 1: 4; p. 2: 4, 5; p. 7: 4
 p. 43: 4). Geometry is under a second per page, free. Pixel thresholds assume ~150 dpi (page 1200 to 1450 px
 wide). Systems were never mis-grouped on 15 pages of Rach 2, PC3, PC5, including 2-staff cadenza systems and
 24 to 25 staff pages.
+
+### One geometry for page reading and the part cut (2026-10-28)
+
+004 read pages with `geometry.py` (the `fallback_cv.py` port) and parked on geometry the part cut had already
+solved: Rach 1 full score p1 split at the dotted line into 10 + 7 staves, the two-piano p4 lost two staves and
+split its first system, Beethoven 9 p172 counted 2 bars. `process_pages` now calls `cut.page_measures(png,
+expected_staves)`, which turns `page_geometry` into 004's page record (measures with boxes as page fractions,
+confidence from the barlines: closing barline crossing every staff, open end, header-zone merge, narrow, wide).
+`geometry.py` is deleted; `binarise`, `estimate_skew`, `rotate` and `vertical_cover` moved into `cut.py`. The
+page reading run reads the score header once (the part cut's prompt and `reconcile`, `labels.read_header`) and
+passes its count to every page.
+
+Two fixes the 004 files needed, both in `cut.py` and shared with the part cut:
+
+- `group_systems` looks for the systemic line at the pair's own staff start as well as the page median, in a
+  window of max(8, sp) left and max(15, 2 sp) right. An indented first system (Goldberg p1-2 "Aria" and "Var. 1",
+  the two-piano p3 title page) starts far right of the median and fell apart into single staves, each counting
+  its stems as barlines (14 "bars" on one staff).
+- `barline_tol(sp)`: the barline votes' column window is 4 px up to an 11 px spacing and 0.4 space above. At the
+  150-dpi render Beethoven 9 has 15-16 px spacing and its barlines drift; at 4 px one barline in nine on p172
+  lost its staff votes (9 of 16, under the 60 %), at 6 px it is found. 5 px on Goldberg (9.75 px) made two stems
+  meeting across a grand staff's gap a barline, hence the 0.4.
+
+Geometry against the truth counted by eye, 18 pages at the import route's 150 dpi (bars per page):
+
+| Pages | Truth | `geometry.py` | `cut.py` before the fixes | `cut.py` now |
+|---|---|---|---|---|
+| Rach 1 full p1-5 (17 staves, 7.2 px) | 4, 9, 9, 6, 7 | 9, 9, 6, 5, 7 | 4, 9, 9, 6, 7 | 4, 9, 9, 6, 7 |
+| Rach 1 two-piano p3-5 (4 staves, 10-11 px) | 13, 15, 12 | 13, 23, 12 | 55, 11, 12 (p3 indent; p4 2 staves short) | 13, 15, 12 (p4 with the header's 4) |
+| Goldberg BGA p1-5 (2 staves, 10 px) | 28, 20, 21, 21, 29 | 28, 20, 21, 21, 29 | 42, 51, 41, 43, 29 (indents) | 28, 20, 21, 21, 29 |
+| Beethoven 9 p172-176 (16-17 staves, 15.5 px) | 9, 5, 9, 6, 5 | 2, 7, 2, 1, 2 | 8, 5, 9, 6, 5 (with the header's 16) | 9, 5, 9, 6, 5 |
+
+Staves: 16/16 on every Beethoven 9 page with the header's count (17 on p176, cellos and basses on two staves),
+17/17 on Rach 1 p1 in one system, 4 per system on two-piano p4 after recovery. 0.03 to 0.3 s a page.
 
 ## Score header (`score_header.py`, 2026-10-27 evening)
 
@@ -158,7 +193,8 @@ a glyph-level reader (components right of the bracket, the curls' centroid) is t
   on p172 to 176. Spark's header called them "False detection - top/bottom page edge, no staff" but counted
   them, so `expected_staves` = 18 and recovery on p173 pulled 7 extra staves into a 12-staff system. Fix: drop
   a staff whose lines are darker or wider than the page's music or whose x range is the whole page. Not done.
-- Fl and Ob staves split off as 1-staff systems on Beethoven 9 p176 (systemic line broken at the top).
+- Fl and Ob staves split off as 1-staff systems on Beethoven 9 p176 (systemic line broken at the top). Not seen
+  at the import route's 150-dpi render on 2026-10-28: one 17-staff system.
 - Brace detection (informational) missed the thin Breitkopf brace once (PC3 p2 s2); skipped for single staves.
 
 ## Files and outputs
@@ -168,7 +204,8 @@ PEP 723 inline deps): `fallback_cv.py`, `piano_cut_geometry.py`, `score_header.p
 `grade.py`, `ground_truth.json`, `common.py` (`--score <pdf stem>` / `PIANO_CUT_SCORE=`, `--instrument`).
 Outputs (gitignored except the item-0 JSON/HTML): `out/cv-*.json`, `out/final-*.{json,html,png}`,
 `out/piano-cut[/<stem>]/pages/p<NN>.png` (150 dpi), `geom-p<NN>.json`, `overlay-p<NN>.png` (what Spark
-sees), `header.json`. In the app: `api/app/librarian/geometry.py`, `cut.py` (`page_geometry(expected_staves=)`,
+sees), `header.json`. In the app: `cut.py` (`page_geometry(expected_staves=)`, `page_measures` for 004,
+`barline_tol`,
 `recover_staves`, `staff_extent`, `overlay_png`, `cut_system`). Unmerged branch `claude/grounding-experiment-e8ae10` (commit 0700c49): 14 more
 pages through geometry + Spark labels and `build_gallery.py` → `out/gallery.html`.
 
@@ -177,4 +214,6 @@ pages through geometry + Spark labels and `build_gallery.py` → `out/gallery.ht
 1. Drop page-edge "staves"; tune staff detection for thin bowed scans (PC5 p4) and 1-px lines.
 2. Per-page header call when instrumentation changes between movements.
 3. Keep every threshold documented against the 150 dpi assumption; a resolution normalisation step
-   (target staff spacing ~7 px) would remove the Beethoven 9 special case.
+   (target staff spacing ~7 px) would remove the Beethoven 9 special case. `barline_tol` and the spacing-scaled
+   systemic-line window are the two places 004's files needed so far (10-11 px keyboard pages, 15-16 px
+   Beethoven 9); a downscale was not chosen because the part cut's crops come from the working page.
