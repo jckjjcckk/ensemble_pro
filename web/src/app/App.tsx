@@ -8,6 +8,7 @@ import Scan from './Scan'
 import ScoreDoc from './ScoreDoc'
 import Practice from './Practice'
 import Pages from './Pages'
+import { syncStatusBar } from '../lib/native'
 import './styles.css'
 
 /** Each token set brings its own faces. A set's fonts load the first time it is shown and stay for the session. */
@@ -47,6 +48,12 @@ function Shell() {
       return m
     })()
     meta.content = display.theme === 'system' ? 'light dark' : display.theme
+    // In the iPad app the status bar's text follows the same theme.
+    const m = window.matchMedia('(prefers-color-scheme: dark)')
+    const apply = () => { void syncStatusBar(display.theme === 'dark' || (display.theme === 'system' && m.matches)) }
+    apply()
+    m.addEventListener('change', apply)
+    return () => m.removeEventListener('change', apply)
   }, [display.theme])
   return (
     <div className="fo" data-tokens={display.tokens} data-theme={display.theme === 'system' ? undefined : display.theme}>

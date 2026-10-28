@@ -1,21 +1,27 @@
 # 015 iOS wrapper around the React PWA
 
-Status: idea | Meta model: none.
+Status: built, not yet on TestFlight (2026-10-28) | Meta model: none.
 
 ## Purpose
 
-An App Store presence for the same React app, if a store link ever matters. Not for the hackathon.
+An App Store presence for the same React app: a reviewer and a TestFlight tester get Folio on an iPad the
+way musicians will. The web app at `https://folio.jckjjcckk.com` stays the primary surface.
 
 ## Decisions
 
-- PWA now: the web app is opened in Safari on iPad and installed from the deployed HTTPS URL
-  (`https://folio.jckjjcckk.com`, feature 017). Capacitor later only if an App Store link matters (000).
-- What a wrapper would add: a true in-app IMSLP browser with download interception (impossible in a Safari
-  PWA, 002), share-to-app from Files, background audio for practice mode, MIDI over USB without the Mac.
-- A native iOS developer joining the team could own a Capacitor shell; nobody has answered the recruiting
-  post yet.
-- Xcode is installed on the Mac.
+- Capacitor shell under `web/ios/`, app id `com.jckjjcckk.folio`, name Folio, iPad only, iOS 16+, all four
+  orientations, bundled assets (`webDir: dist`, never `server.url`) so App Store guideline 4.2 and offline hold.
+  Swift Package Manager, not CocoaPods. How to build, sync, sign and submit: `docs/ios.md`.
+- One bridge file, `web/src/lib/native.ts`: camera into the scan screen, the share sheet for Export, the
+  status bar's text following the theme, a light haptic on a new page. Every function is a no-op or the web
+  path in Safari, and the plugins load with `import()` only inside the shell.
+- The shell talks to the hosted API (`https://api.folio.jckjjcckk.com`, `deploy/README.md`) and the hosted
+  Supabase project; its origin `capacitor://localhost` is in the API's `CORS_ORIGINS`.
+- Still only possible in a wrapper, still not built: a true in-app IMSLP browser with download interception
+  (002), share-to-Folio from Files, background audio for practice mode, MIDI over USB without the Mac.
 
 ## Next steps
 
-None until after Nov 4.
+- CK: Xcode signing team, a run on the iPad, Archive → TestFlight (`docs/ios.md`).
+- The bar-numbered PDF export through the share sheet (today it opens in the webview).
+- A privacy page and a support page on the hosted site before the store listing.

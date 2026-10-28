@@ -4,14 +4,17 @@ import { ensembles, scanDraft, scoresById, type ScanPage } from '../mock'
 import { Screen, useViewport } from './layout'
 import { useStore } from './store'
 import { ICamera, ICheck, ILock, ITrash, IUndo, IWarning } from './icons'
+import { capturePages, isNative, tap } from '../lib/native'
 
 const score = scoresById['s-faure']
 const ensemble = ensembles.find(e => e.id === score.ensembleId)
 
 const sourceLabel = (p: ScanPage) => (p.source === 'camera' ? `Photo ${p.index + 1}` : `PDF page ${p.index - 5}`)
 
-/** A schematic of the captured page: systems of SATB and keyboard staves. Not the photo itself; the mock has none. */
+/** The page: its photo when there is one (camera or file chooser), otherwise a schematic of systems of SATB and
+ *  keyboard staves (the mock pages have no photo). */
 function PageArt({ page }: { page: ScanPage }) {
+  if (page.thumb) return <img className="art is-photo" src={page.thumb} alt="" draggable={false} />
   const systems = page.index === 0 ? 3 : 4
   const top = page.index === 0 ? 30 : 12
   const sysH = (130 - top) / systems
@@ -87,6 +90,25 @@ export default function Scan() {
     setRemoved(null)
   }
   const toggleRetake = (id: string) => setScan(s => ({ ...s, retaking: s.retaking.includes(id) ? s.retaking.filter(r => r !== id) : [...s.retaking, id] }))
+
+  // New pages: the camera in the iPad app, the image chooser in Safari (which offers the camera too). A retake that is
+  // waiting takes the first new photo's place; the rest go to the end in the order they were taken.
+  const addPages = async () => {
+    const shots = await capturePages()
+    if (shots.length === 0) return
+    void tap()
+    setRemoved(null)
+    setScan(s => {
+      const list = [...s.pages]
+      let retaking = s.retaking
+      const fresh = shots.map((shot, k) => ({ id: `shot-${Date.now()}-${k}`, index: list.length + k, source: 'camera' as const, thumb: shot.url }))
+      for (const page of fresh) {
+        const slot = retaking.length ? list.findIndex(p => p.id === retaking[0]) : -1
+        if (slot >= 0) { list[slot] = { ...page, index: list[slot].index }; retaking = retaking.slice(1) } else list.push(page)
+      }
+      return { ...s, pages: list, retaking }
+    })
+  }
 
   const nearestSlot = (x: number, y: number) => {
     let best = 0
@@ -183,6 +205,7 @@ export default function Scan() {
         </p>
       )}
       <div className="grow" />
+      <button type="button" className="dbtn" onClick={addPages}><ICamera size={20} /><span>{isNative ? 'Photograph a page' : 'Add pages'}</span></button>
       <button type="button" className="dbtn is-primary is-big" disabled={pages.length === 0} onClick={() => { setRemoved(null); setScan(s => ({ ...s, committed: true, retaking: [] })) }}>
         Read {pages.length} pages in this order
       </button>
@@ -197,7 +220,7 @@ export default function Scan() {
             {committed ? (
               <p className="scan-instr"><ILock size={18} />Order confirmed. The parts appear in the library when reading finishes.</p>
             ) : (
-              <p className="scan-instr">Drag pages into reading order, or focus a page and press Option with an arrow key. Nothing is read until you confirm the order.</p>
+              <p className="scan-instr">Photograph each page, then drag the pages into reading order (or focus a page and press Option with an arrow key). Nothing is read until you confirm the order.</p>
             )}
             {!committed && warned.length > 0 && (
               <ul className="warnings" aria-label="Warnings">

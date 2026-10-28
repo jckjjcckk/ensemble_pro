@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
+import { deliverFile } from '../lib/native'
 import type { Ensemble, Member, Membership, Part, Score } from '../mock'
 
 export interface Account { id: string; name: string; email: string; memberships: Membership[] }
@@ -382,22 +383,15 @@ export async function importMusicXml(file: File, where: { ensembleId: string | n
   if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail ?? 'The file is stored, but the librarian could not start reading it. Try the import again.')
 }
 
-/** Hand a stored notation file to the device: Safari on the iPad offers to save it to Files. The bytes come through the
- *  storage API (RLS decides) and leave as a same-origin blob, so the file name holds on every browser. */
+/** Hand a stored notation file to the musician: the share sheet in the iPad app, a download in Safari (which offers to
+ *  save it to Files). The bytes come through the storage API (RLS decides) and leave as a same-origin blob, so the file
+ *  name holds on every browser. */
 export async function exportStored(path: string, filename: string): Promise<void> {
   const { data, error } = await supabase.storage.from('scores').download(path)
   if (error || !data) throw new Error('The file could not be fetched. Check the connection and try again.')
   const compressed = /\.mxl$/i.test(filename)
   const blob = new Blob([data], { type: compressed ? 'application/vnd.recordare.musicxml' : 'application/vnd.recordare.musicxml+xml' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  a.rel = 'noopener'
-  document.body.append(a)
-  a.click()
-  a.remove()
-  window.setTimeout(() => URL.revokeObjectURL(url), 30_000)
+  await deliverFile(blob, filename)
 }
 
 /** A name a musician recognises in Files: the imported file's own name, or the title (and the instruments of a split). */

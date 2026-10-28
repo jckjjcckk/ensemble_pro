@@ -787,6 +787,7 @@
 .fo .pages.is-locked .page { cursor: default; touch-action: auto; }
 .fo .page-sheet { position: relative; border-radius: 4px; overflow: hidden; background: var(--sheet); box-shadow: var(--shadow); }
 .fo .art { display: block; width: 100%; height: auto; }
+.fo .art.is-photo { aspect-ratio: 100 / 141; object-fit: cover; background: var(--sheet); }
 .fo .art-paper { fill: var(--sheet); }
 .fo .art-line { stroke: var(--ink-3); stroke-width: 0.35; }
 .fo .art-title { fill: var(--ink-2); }

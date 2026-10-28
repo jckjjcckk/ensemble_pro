@@ -1,0 +1,16 @@
+# cloudflared config for the API tunnel (template). `./install.sh --serve` copies it to ~/.cloudflared/folio.yml with
+# `tunnel:` set to the tunnel's UUID and `credentials-file:` to its JSON, both from `cloudflared tunnel list` on this
+# Mac. Run by hand with:  cloudflared tunnel --config ~/.cloudflared/folio.yml run
+tunnel: macbook_pro_m4
+credentials-file: ~/.cloudflared/macbook_pro_m4.json
+no-autoupdate: true
+loglevel: info
+
+ingress:
+  - hostname: api.folio.jckjjcckk.com
+    service: http://localhost:8000
+    originRequest:
+      # OMR and PDF reads can take a while; the default 30 s cuts them off.
+      connectTimeout: 30s
+      noTLSVerify: false
+  - service: http_status:404
