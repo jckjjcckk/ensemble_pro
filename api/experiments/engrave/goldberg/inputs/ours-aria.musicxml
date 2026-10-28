@@ -10,12 +10,6 @@
       <supports element="accidental" type="yes" />
     </encoding>
   </identification>
-  <defaults>
-    <scaling>
-      <millimeters>7</millimeters>
-      <tenths>40</tenths>
-    </scaling>
-  </defaults>
   <part-list>
     <score-part id="P8eb48330767e36050f7e6f256064f5b1">
       <part-name>Piano</part-name>

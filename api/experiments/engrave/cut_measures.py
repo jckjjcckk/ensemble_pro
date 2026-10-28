@@ -3,8 +3,9 @@
 Usage: python cut_measures.py in.(musicxml|mxl) out.musicxml N [--title "Aria"] [--strip-layout]
 
 Plain ElementTree, no music21: notes, ornaments, words and spanners are left exactly as written.
---strip-layout removes <print> (system and page breaks, margins), measure widths, <credit>s and
-<defaults> page layout, so each engraver lays the music out on its own.
+--strip-layout removes <print> (system and page breaks, margins), measure widths, <credit>s and the
+whole <defaults> block (scaling, page/system/staff layout, fonts), so each engraver lays the music out
+on its own at its own default staff size.
 """
 import sys
 import zipfile
@@ -38,11 +39,8 @@ def main():
     if strip:
         for c in root.findall("credit"):
             root.remove(c)
-        d = root.find("defaults")
-        if d is not None:
-            for tag in ("page-layout", "system-layout", "staff-layout"):
-                for e in d.findall(tag):
-                    d.remove(e)
+        for d in root.findall("defaults"):
+            root.remove(d)
     if title is not None:
         for tag in ("work", "movement-number", "movement-title"):
             for e in root.findall(tag):

@@ -16,39 +16,6 @@
       <miscellaneous-field name="platform">Linux</miscellaneous-field>
       </miscellaneous>
     </identification>
-  <defaults>
-    <scaling>
-      <millimeters>6.4</millimeters>
-      <tenths>40</tenths>
-      </scaling>
-    <appearance>
-      <line-width type="light barline">1.6</line-width>
-      <line-width type="heavy barline">5</line-width>
-      <line-width type="beam">5</line-width>
-      <line-width type="bracket">3</line-width>
-      <line-width type="dashes">1.5</line-width>
-      <line-width type="enclosure">2</line-width>
-      <line-width type="ending">1</line-width>
-      <line-width type="extend">1</line-width>
-      <line-width type="leger">1.6</line-width>
-      <line-width type="pedal">1.5</line-width>
-      <line-width type="octave shift">1</line-width>
-      <line-width type="slur middle">1.5</line-width>
-      <line-width type="slur tip">0.7</line-width>
-      <line-width type="staff">0.8</line-width>
-      <line-width type="stem">1.3</line-width>
-      <line-width type="tie middle">1.5</line-width>
-      <line-width type="tie tip">0.7</line-width>
-      <line-width type="tuplet bracket">1</line-width>
-      <line-width type="wedge">1.3</line-width>
-      <note-size type="cue">70</note-size>
-      <note-size type="grace">70</note-size>
-      <note-size type="grace-cue">49</note-size>
-      </appearance>
-    <music-font font-family="Emmentaler" />
-    <word-font font-family="FreeSerif" font-size="10" />
-    <lyric-font font-family="FreeSerif" font-size="11" />
-    </defaults>
   <part-list>
     <score-part id="P1">
       <part-name print-object="no" />
