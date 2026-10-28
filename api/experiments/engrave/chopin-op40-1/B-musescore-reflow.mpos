@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score>
+  <elements>
+    <element id="0" x="15973.4" y="25370.1" sx="32698.2" sy="14775.4" page="0">
+      </element>
+    <element id="1" x="48671.5" y="25370.1" sx="19254.9" sy="14775.4" page="0">
+      </element>
+    <element id="2" x="67926.4" y="25370.1" sx="24303.7" sy="14775.4" page="0">
+      </element>
+    <element id="3" x="92230.1" y="25370.1" sx="21665.9" sy="14775.4" page="0">
+      </element>
+    <element id="4" x="8503.94" y="49902.6" sx="39988" sy="16437" page="0">
+      </element>
+    <element id="5" x="48491.9" y="49902.6" sx="23796.8" sy="16437" page="0">
+      </element>
+    <element id="6" x="72288.7" y="49902.6" sx="21225.2" sy="16437" page="0">
+      </element>
+    <element id="7" x="93513.9" y="49902.6" sx="20382.2" sy="16437" page="0">
+      </element>
+    <element id="8" x="8503.94" y="76096.7" sx="42954.1" sy="16245.9" page="0">
+      </element>
+    <element id="9" x="51458.1" y="76096.7" sx="35513.4" sy="16245.9" page="0">
+      </element>
+    <element id="10" x="86971.4" y="76096.7" sx="26924.6" sy="16245.9" page="0">
+      </element>
+    <element id="11" x="8503.94" y="102100" sx="36287" sy="14437.5" page="0">
+      </element>
+    <element id="12" x="44790.9" y="102100" sx="31779.3" sy="14437.5" page="0">
+      </element>
+    <element id="13" x="76570.2" y="102100" sx="37325.8" sy="14437.5" page="0">
+      </element>
+    <element id="14" x="8503.94" y="126294" sx="58181" sy="16657" page="0">
+      </element>
+    <element id="15" x="66684.9" y="126294" sx="47211.2" sy="16657" page="0">
+      </element>
+    </elements>
+  <events>
+    <event elid="0" position="0">
+      </event>
+    <event elid="1" position="1500">
+      </event>
+    <event elid="2" position="3000">
+      </event>
+    <event elid="3" position="4500">
+      </event>
+    <event elid="4" position="6000">
+      </event>
+    <event elid="5" position="7500">
+      </event>
+    <event elid="6" position="9000">
+      </event>
+    <event elid="7" position="10500">
+      </event>
+    <event elid="0" position="12000">
+      </event>
+    <event elid="1" position="13500">
+      </event>
+    <event elid="2" position="15000">
+      </event>
+    <event elid="3" position="16500">
+      </event>
+    <event elid="4" position="18000">
+      </event>
+    <event elid="5" position="19500">
+      </event>
+    <event elid="6" position="21000">
+      </event>
+    <event elid="7" position="22500">
+      </event>
+    <event elid="8" position="24000">
+      </event>
+    <event elid="9" position="25500">
+      </event>
+    <event elid="10" position="27000">
+      </event>
+    <event elid="11" position="28500">
+      </event>
+    <event elid="12" position="30000">
+      </event>
+    <event elid="13" position="31125">
+      </event>
+    <event elid="14" position="32375">
+      </event>
+    <event elid="15" position="33875">
+      </event>
+    </events>
+  </score>

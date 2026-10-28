@@ -1,0 +1,51 @@
+$ python audiveris_model.py book movements.json model.json --gate 0.6 --gate-tag tuplet=0.9
+1 pages, 5 systems, 16 bars (1..16), 1 abnormal, 2067 inters
+  movement 1 None: bars 1..16 (16)
+gate 0.6 {'tuplet': 0.9}: 11 doubtful -> Spark, 56 skipped {'wedge': 13, 'augmentation-dot': 29, 'dynamics': 1, 'rest': 13}
+
+$ python spark_layers.py chopin-op40-1-p25 --place-only
+p1 sys1 bars 1..3 ok=True: f@1
+  p1 sys2 bars 4..6 ok=True: >@4, <@5, >@6
+  p1 sys3 bars 7..10 ok=True: 
+  p1 sys4 bars 11..13 ok=True: 
+  p1 sys5 bars 14..16 ok=True:
+
+$ python score.py model.json base.musicxml chopin-op40-1-p25.mxl
+wrote /Users/ckjiang/Documents/muse/.claude/worktrees/agent-a6373b95fb192e74a/api/experiments/omr/out/chopin-op40-1-p25/base.musicxml: 16 bars 1..16, 1 movements
+
+$ python apply_edits.py chopin-op40-1-p25
+wrote /Users/ckjiang/Documents/muse/.claude/worktrees/agent-a6373b95fb192e74a/api/experiments/omr/out/chopin-op40-1-p25/final.musicxml: {'B-clear': 1, 'B-text': 4}
+
+$ python review.py chopin-op40-1-p25
+page 1: bars 1..16 (16), 5 flagged, text in 4 bars
+
+$ uv run --with verovio --with resvg-py python render.py render final-p1.musicxml
+final-p1.musicxml: ok pages=1 1600x1867 -> final-p1.png
+
+$ python compare.py compare-final.json --score final.musicxml --text-gt text_gt_empty.json --reread reread.json --label final (A+B)
+== final (A+B) bars 1..16, 16 bars in the file(s)
+  text_strict  {'tp': 0, 'pred': 4, 'gold': 0, 'p': 0.0, 'r': 0.0, 'f1': 0.0}
+  text_near    {'tp': 0, 'pred': 4, 'gold': 0, 'p': 0.0, 'r': 0.0, 'f1': 0.0}
+  placement x+geometry  strict 0.0 (0/4/0)  near 0.0
+  placement spark_x     strict 0.0 (0/4/0)  near 0.0
+  placement label       strict 0.0 (0/4/0)  near 0.0
+
+$ python compare.py compare-base.json --score base.musicxml --text-gt text_gt_empty.json --label Audiveris alone
+== Audiveris alone bars 1..16, 16 bars in the file(s)
+  text_strict  {'tp': 0, 'pred': 1, 'gold': 0, 'p': 0.0, 'r': 0.0, 'f1': 0.0}
+  text_near    {'tp': 0, 'pred': 1, 'gold': 0, 'p': 0.0, 'r': 0.0, 'f1': 0.0}
+
+$ python build_review.py chopin-op40-1-p25
+wrote /Users/ckjiang/Documents/muse/.claude/worktrees/agent-a6373b95fb192e74a/api/experiments/omr/out/chopin-op40-1-p25/review.html (1.4 MB)
+
+pages: 1 (PDF pages 1 to 1)
+bars: 16 (1 to 16), 16 per page
+movements (Audiveris): 1: - bars 1-16
+Audiveris: 24.0 s for the book, exports chopin-op40-1-p25.mxl
+abnormal bars: 1
+flagged bars: 5
+grade gate: 0.6 {'tuplet': 0.9}: 11 asked, 56 skipped (tuplets skipped: )
+Spark: 16 calls, $0.088; verify 11 calls $0.041 16.8 s wall (76.5 s summed); reread 5 calls $0.0469 16.1 s wall (60.0 s summed)
+text F1 strict (Audiveris alone -> final): 0.0 -> 0.0 (P 0.0, R 0.0)
+text F1 near (±1 bar): 0.0 -> 0.0
+text placement (strict F1): x+geometry 0.0, spark_x 0.0, label 0.0

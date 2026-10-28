@@ -222,3 +222,99 @@ A-input plus Audiveris's `<defaults>` (scaling 6.7733 mm / 40 tenths, page 1434 
 exactly: page 1 is 1-6, 7-12, 13-16, 17-20, 21-24, 25-28, page 2 is 29-32, on a 242.7 x 301.9 mm page (the
 scan's size), 0.60 s. So the only thing between our file and a page-faithful MuseScore engraving is that the
 `score.py` merge drops Audiveris's `<defaults>` and credits.
+
+**E, hand patch (not pipeline output): `same-file/E-musescore-text-fixed.pdf`** from `same-file/E-input.musicxml` =
+D-input with the text layer fixed by hand (`same-file/hand_patch_text.py`): the tempo moved to the head of bar 1 as
+one direction, bold "Andante espressivo." plus the metronome (quarter = 72) and `<sound tempo="72"/>`; the bar 2
+metronome removed; `font-style="italic"` on the six expression words (dolce, cresc. x3, dim., cresc. poco); bar 27's
+"cresc." and "poco" joined into one "cresc. poco". 441 notes, untouched (the `same_notes.py` hash changes to
+`c38c505683cdc6ba` only because it hashes the directions too). MuseScore draws "Andante espressivo. (♩ = 72)" above
+bar 1 at the head of the piece and *dolce*, *cresc.*, *cresc. poco*, *dim.* in italics; systems unchanged
+(1-6, 7-12, 13-16, 17-20, 21-24, 25-28 | 29-32), 0.57 s, 76,004 bytes.
+
+## CK's ratings, 2026-10-28
+
+- A: page 1 90/100, pages 2-3 60/100 (page 1 smooth even with line 2 split in two; page 2 has only 2 lines and page 3 one line; cresc./poco look typed, not Italian).
+- B: presentation 95/100, format preservation 30/100 (page 2 has 3 lines evenly spread with huge gaps; idea: a conversion toggle "Reformat the page to fit digital display", auto-on, stored as metadata of the converted book).
+- C: presentation 80/100 (elongated page, hands too far apart, layout wrong, but even spacing across lines is excellent: 4 + 4 + 1 lines with empty space below).
+- D: 95/100 on both presentation and layout, the most accurate transcription so far.
+
+## Why the Aria's text layer underperforms (from the run's own files)
+
+Run: `/Users/ckjiang/Documents/muse/.claude/worktrees/agent-a320325d43e43534d/api/experiments/omr/out/goldberg-p1-5-gate-tuplet09/`
+(`audiveris/goldberg-bga.mvt1.mxl`, `model.json`, `reread.json`, `edits.json`, `base.musicxml`, `final.musicxml`).
+Probe: `text-layer/spark_probe.py`, 2 Spark calls, $0.031 (`text-layer/spend.json`).
+
+### (a) "Andante espressivo. (♩ = 72.)" lost, the metronome mark on bar 2
+
+1. **Audiveris read it, on the wrong bar.** Raw `mvt1.mxl`, measure 2:
+   `<words default-y="52" relative-x="-160" font-family="serif" font-size="12" font-weight="bold">Andante espressivo. </words>`
+   in the same `<direction placement="above">` as `<metronome parentheses="yes"><beat-unit>quarter</beat-unit><per-minute>72.</per-minute>`
+   and `<sound tempo="72">`. The heading starts over bar 1 (the model has the word "Andante" in bar 1,
+   "espressivo." in bar 2) but Audiveris anchors the sentence to a chord in bar 2 and pulls it back with
+   `relative-x="-160"`.
+2. **`score.py` (music21) splits it**: in `base.musicxml` measure 2 holds two directions, the `<words>` and a
+   separate `<metronome>`; the `relative-x` that drew it over bar 1 survives only on the words.
+3. **`apply_edits.py` deletes the words and keeps the metronome.** B replaces every Audiveris word in the bars of a
+   system Spark answered; `clear_text()` removes `TextExpression`s and `Dynamic`s, not `MetronomeMark`s.
+   `edits.json`: `"B-clear", "number": 2, "what": "dropped Audiveris text ['Andante espressivo.']"`. `final.musicxml`
+   measure 2: `<direction placement="above"> … <metronome parentheses="yes"> … <per-minute>72</per-minute>`, with no
+   offset back, so every renderer draws it over bar 2.
+4. **Spark was never asked.** `REREAD_PROMPT` says "Do NOT include … tempo headings (e.g. "Allegretto")", and the
+   system crop (`pad_y=4` interlines, origin y 324 px on page 1) starts below the heading line. `reread.json` p1
+   sys1 answers only `[{"text": "p", …, "bar": 1}, {"text": "dolce", …, "bar": 1}]`.
+5. **Spark can read it.** Probe on system 1 padded to 8 interlines with a "heading" question:
+   `{"text": "Andante espressivo. (♩=72.)", "x0": 78, "y": 57, "bar": 1}`, exact, on bar 1. (Chopin p25 shows the
+   other failure: Audiveris never OCR'd "Allegro con brio" at all, so only Spark could supply it.)
+
+**Fix.** `spark_layers.py` (and `omr_spark.py` in the app): for the first system of each movement, crop with
+`pad_y=8` (or up to the page top) and ask for a `heading` list (text, left edge `x0`, bar); place it by its left
+edge, not its centre (`text_place.bar_at(x0)`), which also fixes Audiveris's bar-2 anchor. `apply_edits.py`: write
+it as `tempo.MetronomeMark(text=…, number=72, referent=quarter)` at offset 0 of that bar (music21 then writes the
+bold words and the metronome at the head of the bar, checked), and make `clear_text()` also remove Audiveris's
+`MetronomeMark`s in bars Spark answered, so the old one in bar 2 cannot survive. When Spark gives no heading,
+keep Audiveris's words + metronome together and move them to the bar under the words' left edge.
+
+### (b) Every fingering digit is missing
+
+1. **Audiveris reads some digits but never as fingering.** No `<fingering>` anywhere in `mvt1.mxl`,
+   `base.musicxml` or `final.musicxml`. On page 1 the OCR'd digits mostly become page-level `<credit-words>` (26 of
+   the 28 credits are digits and specks: `<credit-words … font-weight="bold">3</credit-words>`, `>2<`, `>4<`,
+   `>21<`, `>4 2<` …), a few become bar text (`<words …>1 2 3</words>` bar 28, `<words …>g 4</words>` bar 23), and
+   `model.json` has them as `word` inters with digit values (`(10, '3')`, `(20, '5')`, `(23, '21')` …).
+2. **The merge drops the credits** (`score.py` builds a new score from the parts; music21 does not carry `<credit>`),
+   and **B deletes the bar words**: `edits.json` `"dropped Audiveris text ['1 2 3']"` (bar 28), `['g 4', 'f']` (bar 23).
+3. **Spark is told to skip them**: `REREAD_PROMPT`, "Do NOT include fingering digits", and `apply_edits.py` has no
+   code that writes `articulations.Fingering`. So the layer was never designed to add fingering; nothing writes it.
+4. **Spark can read them.** Probe, same crops plus a "fingering" question (digits, bar, staff, note index, grace):
+   system 1 (bars 1-6): 16 items returned against 17 printed groups, every one in the right bar and staff, no
+   invention; missed the "15" in bar 2 and merged bar 6's "2" (on the grace note) and "1" (on the A) into "21".
+   System 6 (bars 25-28): 12 of 12, right bar and staff. Its x drifts
+   by up to 100 on the 1000 grid (bar 1's "2" at 212 against about 110), so the bar/staff/note index is the anchor,
+   not the point. The standard crop (pad 4) clips the bass "4" at the bottom of bar 27.
+
+**Fix.** `spark_layers.py`: add a `fingering` list to the B prompt (or its own call per system), crop pad 6 so
+digits below the bass staff are in frame. `apply_edits.py`: append `articulations.Fingering(d)` to the
+`note_index`-th notehead of that staff (all voices by onset, chord once, grace notes counted), one per digit for a
+stacked group on a chord (top digit to top note), skip and log when the index is out of range, like the ornaments;
+music21 then writes `<technical><fingering>` (checked). Snap the position to Audiveris's digit `word` inters within
+2 interlines when there is one. Cost: one more list in the existing 6 calls a page (output +~1k tokens), or +$0.015
+a system as a separate call. Product note: fingering is editorial; a reader toggle "show fingering" is cheap once
+it is in the file.
+
+### (c) "cresc." and "poco" look typed
+
+1. **Audiveris had the style; the B layer drops it.** Raw/base: `<words default-y="-83" font-family="serif"
+   font-size="11" font-style="italic" relative-x="0">creso.</words>` (bar 29), `<words … font-style="italic" …>cresc.
+   poco</words>`. Spark replaces the text (right: "creso." is OCR garbage), and `apply_edits.py` writes a bare
+   `expressions.TextExpression(word)`, so `final.musicxml` has `<words>cresc.</words>`, `<words>poco</words>`,
+   `<words>dolce</words>`, no `font-style`. MuseScore imports a plain `<words>` as upright staff text: hence "typed".
+2. **One phrase becomes several directions.** The prompt asks "one item per word", so "cresc. poco" in bar 27 is two
+   items, placed by `text_place.py` on different staves (`+'cresc.' staff 1 below at 1.5`, `+'poco' staff 2 above
+   at 2.5`), and "cresc. poco a poco" later becomes four directions (`cresc.`, `poco`, `a`, `poco`).
+
+**Fix.** `apply_edits.py`, B-text: for `kind == "words"` set `el.style.fontStyle = "italic"` (music21 writes
+`<words font-style="italic">`, checked); keep tempo headings bold upright. `spark_layers.py`: ask for one item per
+expression phrase ("cresc. poco a poco" is one item), and in `text_place.py` join adjacent items of one system
+whose y differs by under one interline and whose gap is under 3 interlines, as a safety net. E (above) shows the
+result in MuseScore.

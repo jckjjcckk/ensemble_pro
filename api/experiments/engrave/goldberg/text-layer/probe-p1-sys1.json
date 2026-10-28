@@ -1,0 +1,192 @@
+{
+ "page": 1,
+ "system": 1,
+ "pad_interlines": 8.0,
+ "crop": {
+  "origin": [
+   278,
+   244
+  ],
+  "size": [
+   2137,
+   592
+  ]
+ },
+ "numbers": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6
+ ],
+ "answer": {
+  "heading": [
+   {
+    "text": "Andante espressivo. (\u2669=72.)",
+    "x0": 78,
+    "y": 57,
+    "bar": 1
+   }
+  ],
+  "fingering": [
+   {
+    "digits": "2",
+    "bar": 1,
+    "staff": "upper",
+    "note_index": 1,
+    "grace": false,
+    "x": 212,
+    "y": 162
+   },
+   {
+    "digits": "1",
+    "bar": 1,
+    "staff": "upper",
+    "note_index": 2,
+    "grace": false,
+    "x": 246,
+    "y": 168
+   },
+   {
+    "digits": "3",
+    "bar": 1,
+    "staff": "upper",
+    "note_index": 3,
+    "grace": false,
+    "x": 282,
+    "y": 146
+   },
+   {
+    "digits": "1",
+    "bar": 2,
+    "staff": "upper",
+    "note_index": 2,
+    "grace": true,
+    "x": 299,
+    "y": 150
+   },
+   {
+    "digits": "3",
+    "bar": 2,
+    "staff": "upper",
+    "note_index": 3,
+    "grace": false,
+    "x": 321,
+    "y": 196
+   },
+   {
+    "digits": "3",
+    "bar": 3,
+    "staff": "upper",
+    "note_index": 1,
+    "grace": false,
+    "x": 387,
+    "y": 160
+   },
+   {
+    "digits": "2",
+    "bar": 4,
+    "staff": "upper",
+    "note_index": 8,
+    "grace": false,
+    "x": 648,
+    "y": 200
+   },
+   {
+    "digits": "5",
+    "bar": 5,
+    "staff": "upper",
+    "note_index": 1,
+    "grace": false,
+    "x": 725,
+    "y": 175
+   },
+   {
+    "digits": "2",
+    "bar": 5,
+    "staff": "upper",
+    "note_index": 2,
+    "grace": false,
+    "x": 774,
+    "y": 184
+   },
+   {
+    "digits": "21",
+    "bar": 6,
+    "staff": "upper",
+    "note_index": 4,
+    "grace": false,
+    "x": 870,
+    "y": 210
+   },
+   {
+    "digits": "3",
+    "bar": 6,
+    "staff": "upper",
+    "note_index": 5,
+    "grace": false,
+    "x": 975,
+    "y": 152
+   },
+   {
+    "digits": "3",
+    "bar": 1,
+    "staff": "lower",
+    "note_index": 1,
+    "grace": false,
+    "x": 214,
+    "y": 870
+   },
+   {
+    "digits": "54",
+    "bar": 3,
+    "staff": "lower",
+    "note_index": 1,
+    "grace": false,
+    "x": 392,
+    "y": 872
+   },
+   {
+    "digits": "2",
+    "bar": 4,
+    "staff": "lower",
+    "note_index": 2,
+    "grace": false,
+    "x": 647,
+    "y": 644
+   },
+   {
+    "digits": "4",
+    "bar": 4,
+    "staff": "lower",
+    "note_index": 5,
+    "grace": false,
+    "x": 717,
+    "y": 871
+   },
+   {
+    "digits": "45",
+    "bar": 6,
+    "staff": "lower",
+    "note_index": 1,
+    "grace": false,
+    "x": 791,
+    "y": 870
+   }
+  ]
+ },
+ "usages": [
+  {
+   "tag": "probe-p1-sys1",
+   "model": "muse-spark-1.3",
+   "input_tokens": 2088,
+   "output_tokens": 3061,
+   "cost_usd": 0.01562,
+   "latency_s": 15.58,
+   "effort": "low",
+   "stop_reason": "end_turn"
+  }
+ ],
+ "raw": "{\"heading\": [{\"text\": \"Andante espressivo. (\\u2669=72.)\", \"x0\": 78, \"y\": 57, \"bar\": 1}], \"fingering\": [{\"digits\": \"2\", \"bar\": 1, \"staff\": \"upper\", \"note_index\": 1, \"grace\": false, \"x\": 212, \"y\": 162}, {\"digits\": \"1\", \"bar\": 1, \"staff\": \"upper\", \"note_index\": 2, \"grace\": false, \"x\": 246, \"y\": 168}, {\"digits\": \"3\", \"bar\": 1, \"staff\": \"upper\", \"note_index\": 3, \"grace\": false, \"x\": 282, \"y\": 146}, {\"digits\": \"1\", \"bar\": 2, \"staff\": \"upper\", \"note_index\": 2, \"grace\": true, \"x\": 299, \"y\": 150}, {\"digits\": \"3\", \"bar\": 2, \"staff\": \"upper\", \"note_index\": 3, \"grace\": false, \"x\": 321, \"y\": 196}, {\"digits\": \"3\", \"bar\": 3, \"staff\": \"upper\", \"note_index\": 1, \"grace\": false, \"x\": 387, \"y\": 160}, {\"digits\": \"2\", \"bar\": 4, \"staff\": \"upper\", \"note_index\": 8, \"grace\": false, \"x\": 648, \"y\": 200}, {\"digits\": \"5\", \"bar\": 5, \"staff\": \"upper\", \"note_index\": 1, \"grace\": false, \"x\": 725, \"y\": 175}, {\"digits\": \"2\", \"bar\": 5, \"staff\": \"upper\", \"note_index\": 2, \"grace\": false, \"x\": 774, \"y\": 184}, {\"digits\": \"21\", \"bar\": 6, \"staff\": \"upper\", \"note_index\": 4, \"grace\": false, \"x\": 870, \"y\": 210}, {\"digits\": \"3\", \"bar\": 6, \"staff\": \"upper\", \"note_index\": 5, \"grace\": false, \"x\": 975, \"y\": 152}, {\"digits\": \"3\", \"bar\": 1, \"staff\": \"lower\", \"note_index\": 1, \"grace\": false, \"x\": 214, \"y\": 870}, {\"digits\": \"54\", \"bar\": 3, \"staff\": \"lower\", \"note_index\": 1, \"grace\": false, \"x\": 392, \"y\": 872}, {\"digits\": \"2\", \"bar\": 4, \"staff\": \"lower\", \"note_index\": 2, \"grace\": false, \"x\": 647, \"y\": 644}, {\"digits\": \"4\", \"bar\": 4, \"staff\": \"lower\", \"note_index\": 5, \"grace\": false, \"x\": 717, \"y\": 871}, {\"digits\": \"45\", \"bar\": 6, \"staff\": \"lower\", \"note_index\": 1, \"grace\": false, \"x\": 791, \"y\": 870}]}"
+}
