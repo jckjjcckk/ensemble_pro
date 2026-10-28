@@ -11,6 +11,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
+      // OSMD plus motion put the main chunk just past workbox's 2 MiB precache default.
+      workbox: { maximumFileSizeToCacheInBytes: 3 * 1024 * 1024 },
       manifest: {
         id: '/',
         name: 'Folio',

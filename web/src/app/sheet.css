@@ -1,0 +1,29 @@
+/* Sheets, scrims and popovers (Sheet.tsx). Builds on .side in styles.css; adds only what the motion needs. */
+
+.fo .sheet-scrim {
+  position: absolute; inset: 0; z-index: 5;
+  background: oklch(0.12 0.01 255 / 0.32);
+  touch-action: none; -webkit-tap-highlight-color: transparent;
+}
+.fo .sheet-scrim.is-clear { background: transparent; z-index: 19; }
+.fo .sheet-scrim.is-fixed { position: fixed; }
+
+/* The side sheet drags from anywhere; vertical touch scroll inside it stays native. */
+.fo .side.is-side { touch-action: pan-y; }
+/* Once the parent drops its docked column the base .side rule makes a leaving panel an overlay again; nothing to add. */
+
+/* A visible place to take hold of: a pill at the leading edge of a side sheet, at the top of a bottom sheet. */
+.fo .sheet-handle { display: block; flex: none; border-radius: 2px; background: var(--rule-2); pointer-events: none; }
+.fo .side.is-side .sheet-handle { position: absolute; left: 7px; top: 50%; width: 4px; height: 36px; margin-top: -18px; }
+.fo .side.is-bottom .sheet-handle { width: 36px; height: 4px; margin: 8px auto 0; }
+.fo .side.is-bottom .side-head { touch-action: none; }
+/* A drag on the head or handle moves the sheet, never a text selection. */
+.fo .side .side-head, .fo .sheet-handle { -webkit-user-select: none; user-select: none; }
+
+/* Portrait: a half-height sheet rising from the bottom edge so the score stays in view. */
+.fo .side.is-bottom {
+  top: auto; left: 0; right: 0; width: 100%; height: min(56%, 100%);
+  border-left: 0; border-top: 1px solid var(--rule); border-radius: 16px 16px 0 0;
+  box-shadow: 0 -18px 40px -24px oklch(0.1 0.01 255 / 0.4);
+}
+.fo .side.is-bottom .side-head { padding-top: 4px; }

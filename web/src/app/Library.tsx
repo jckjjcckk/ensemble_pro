@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
+import { LayoutGroup, motion } from 'motion/react'
 import { practice, type Part, type Score } from '../mock'
 import { useAuth } from './auth'
 import { MY_LIBRARY, importMusicXml } from './data'
 import { Screen, useViewport } from './layout'
 import { DisplayButton } from './Display'
+import { EASE_OUT, SPRING_LAYOUT, Sheet } from './Sheet'
 import { barRange, difficultyWord, fmtDateTime, partShort, useStore } from './store'
 import { ICamera, IClose, IImport, IRepeat, IWarning } from './icons'
 
@@ -88,8 +90,9 @@ export default function Library() {
 
   return (
     <Screen header={header} dock={dock} className="is-library">
+      <LayoutGroup id="library">
       <div className={`lib-work ${open ? 'has-side' : ''} ${open && docked ? 'side-docked' : ''}`}>
-        <div className="lib">
+        <motion.div className="lib" layoutScroll>
           <div className="lib-inner">
             <div className="ctx">
               {vp.narrow ? (
@@ -123,17 +126,18 @@ export default function Library() {
                 </div>
                 <ul className="covers">
                   {f.scores.map(s => (
-                    <li key={s.id}>
+                    <motion.li key={s.id} layout transition={SPRING_LAYOUT}>
                       <Cover score={s} selected={selected === s.id} onSelect={() => setSelected(v => (v === s.id ? null : s.id))} />
-                    </li>
+                    </motion.li>
                   ))}
                 </ul>
               </section>
             ))}
           </div>
-        </div>
-        {open && <InfoBox score={open} onClose={() => setSelected(null)} />}
+        </motion.div>
+        <InfoBox score={open} docked={docked} onClose={() => setSelected(null)} />
       </div>
+      </LayoutGroup>
     </Screen>
   )
 }
@@ -143,7 +147,9 @@ function StatusBadge({ score: s, partName }: { score: Score; partName?: string }
     const pct = Math.round((s.progress ?? 0) * 100)
     return (
       <span className="badge is-processing">
-        <span className="meter" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Reading"><span style={{ width: `${pct}%` }} /></span>
+        <span className="meter" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Reading">
+          <motion.span initial={false} animate={{ width: `${pct}%` }} transition={{ duration: 0.3, ease: EASE_OUT }} />
+        </span>
         <span>{pct ? `${pct}% read` : 'Queued'}</span>
       </span>
     )
@@ -160,19 +166,30 @@ function Cover({ score: s, selected, onSelect }: { score: Score; selected: boole
   const mine = context.membership.role === 'player' ? s.partIds.map(id => partsById[id]).find(p => p && p.name === context.persona.instrument) : undefined
   const myPart = mine ? partShort[mine.name] ?? mine.name : undefined
   return (
-    <button
+    <motion.button
       type="button" className={`cover ${s.status === 'ready' ? '' : 'is-unavailable'}`} aria-pressed={selected} onClick={onSelect}
       aria-label={`${s.title}, ${s.composer}${s.status === 'ready' ? '' : `, ${s.status}`}`}
+      initial={false} animate={{ y: selected ? -3 : 0, scale: selected ? 1.02 : 1 }} transition={SPRING_LAYOUT}
     >
       <span className="cover-composer">{s.composer}</span>
-      <span className="cover-title">{s.title}</span>
+      {/* The title is the one thing the information box takes from the cover: it travels there and back. */}
+      <motion.span className="cover-title" layoutId={`cover-title-${s.id}`} layout="position" transition={SPRING_LAYOUT}>{s.title}</motion.span>
       <span className="cover-work">{s.work}</span>
       <span className="cover-foot"><StatusBadge score={s} partName={myPart} /></span>
-    </button>
+    </motion.button>
   )
 }
 
-function InfoBox({ score: s, onClose }: { score: Score; onClose: () => void }) {
+/** The information box as a sheet. Stays mounted with no score so the sheet can leave. */
+function InfoBox({ score, docked, onClose }: { score: Score | null; docked: boolean; onClose: () => void }) {
+  return (
+    <Sheet open={!!score} docked={docked} onClose={onClose} label={score ? `${score.title}, information` : 'Information'} className="info">
+      {score && <InfoBody score={score} onClose={onClose} />}
+    </Sheet>
+  )
+}
+
+function InfoBody({ score: s, onClose }: { score: Score; onClose: () => void }) {
   const { context, practiceUI, partsById } = useStore()
   const { membership, persona, ensemble } = context
   const parts = s.partIds.map(id => partsById[id]).filter(Boolean)
@@ -187,14 +204,8 @@ function InfoBox({ score: s, onClose }: { score: Score; onClose: () => void }) {
     : null
   const isPractice = practice.scoreId === s.id
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
-
   return (
-    <aside className="side info" aria-label={`${s.title}, information`}>
+    <>
       <div className="side-head">
         <h2 className="sr-only">Information</h2>
         <span />
@@ -202,7 +213,7 @@ function InfoBox({ score: s, onClose }: { score: Score; onClose: () => void }) {
       </div>
       <div className="side-scroll">
         <div>
-          <h2 className="info-title">{s.title}</h2>
+          <motion.h2 className="info-title" layoutId={`cover-title-${s.id}`} layout="position" transition={SPRING_LAYOUT}>{s.title}</motion.h2>
           <p className="info-sub">{s.composer} · {s.work}</p>
         </div>
 
@@ -274,6 +285,6 @@ function InfoBox({ score: s, onClose }: { score: Score; onClose: () => void }) {
 
         {s.status === 'processing' && <p className="info-log">The librarian is reading the pages. It will say what it did, and ask if a page cannot be placed.</p>}
       </div>
-    </aside>
+    </>
   )
 }
