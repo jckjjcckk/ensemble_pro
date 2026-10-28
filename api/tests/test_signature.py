@@ -22,7 +22,7 @@ from app.librarian.signature import (
 )
 from app.llm import Completion
 from app.spend import Charge
-from tests.test_part_cut import Ctx, FakeDB, synth_page
+from tests.test_part_cut import HEADER, Ctx, FakeDB, synth_page
 
 SCORE = "11111111-1111-1111-1111-111111111111"
 FIXTURES = Path(__file__).resolve().parents[2] / "web" / "public" / "fixtures"
@@ -143,19 +143,19 @@ def pages_world(n: int = 1) -> tuple[FakeDB, dict]:
 async def test_process_pages_writes_the_signature_read_not_the_labels_guess():
     db, pages = pages_world(2)
     ctx = PagesCtx(job({"score_id": SCORE, "source_id": "src1"}), db, pages, labels=[LABELS, LABELS])
-    c, t = fake_client([sig(accidental="flats", count=3, mode="major", name="E-flat major", symbol="digits", num=3, den=4)])
+    c, t = fake_client([sig(accidental="flats", count=3, mode="major", name="E-flat major", symbol="digits", num=3, den=4), HEADER])
     out = await process_pages(job({"score_id": SCORE, "source_id": "src1"}), ctx, client=c, model="muse-spark-1.3")
     score = db.rows["scores"][0]
     assert (score["key_sig"], score["meter"], score["status"], score["bars"]) == ("E- major", "3/4", "ready", 8)
     interp = db.rows["interpretations"][0]
     assert interp["summary"]["key_sig"] == "E- major" and interp["summary"]["signature"]["crop_key"] == f"{SCORE}/signature/p001-s1.png"
     assert interp["summary"]["log"][0] == "Page 1, first system: E- major, 3/4"
-    assert f"{SCORE}/signature/p001-s1.png" in ctx.uploads and len(t.calls) == 1
-    assert out["cost_usd"] == pytest.approx(0.016 + interp["summary"]["signature"]["cost_usd"])
+    assert f"{SCORE}/signature/p001-s1.png" in ctx.uploads and len(t.calls) == 2       # the signature, then the score header
+    assert out["cost_usd"] == pytest.approx(0.016 + interp["summary"]["signature"]["cost_usd"] + interp["summary"]["header"]["cost_usd"])
     # an unsure read leaves both blank, even though the page labels said G major and 3/4
     db, pages = pages_world(1)
     ctx = PagesCtx(job({"score_id": SCORE, "source_id": "src1"}), db, pages, labels=[LABELS])
-    c, _ = fake_client([sig(kconf="low", tconf="low")])
+    c, _ = fake_client([sig(kconf="low", tconf="low"), HEADER])
     await process_pages(job({"score_id": SCORE, "source_id": "src1"}), ctx, client=c, model="muse-spark-1.3")
     assert (db.rows["scores"][0]["key_sig"], db.rows["scores"][0]["meter"]) == (None, None)
     assert "left blank" in db.rows["interpretations"][0]["summary"]["log"][0]
@@ -165,12 +165,12 @@ async def test_process_pages_reads_the_signature_once_across_a_question():
     db, pages = pages_world(2)
     other = {**LABELS, "systems": [{"index": 1, "parts": ["Organ"], "staves_per_part": [6]}]}   # page 2 brings a new part: a question
     ctx = PagesCtx(job({"score_id": SCORE, "source_id": "src1"}), db, pages, labels=[LABELS, other])
-    c, t = fake_client([sig()])
+    c, t = fake_client([sig(), HEADER])
     out = await process_pages(job({"score_id": SCORE, "source_id": "src1"}), ctx, client=c, model="muse-spark-1.3")
-    assert out.get("question") and len(t.calls) == 1
+    assert out.get("question") and len(t.calls) == 2
     assert (db.rows["scores"][0]["key_sig"], db.rows["scores"][0]["meter"]) == ("F# minor", "4/4")   # on the cover while parked
     ctx = PagesCtx(job({"score_id": SCORE, "source_id": "src1", "answer": "Organ"}), db, pages, labels=[])
-    c, t = fake_client([])                                                                             # no second signature call
+    c, t = fake_client([])                                                                             # no second signature or header call
     out = await process_pages(job({"score_id": SCORE, "source_id": "src1", "answer": "Organ"}), ctx, client=c, model="muse-spark-1.3")
     assert t.calls == [] and db.rows["scores"][0]["status"] == "ready" and db.rows["scores"][0]["key_sig"] == "F# minor"
 

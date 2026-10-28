@@ -20,7 +20,7 @@ from app.librarian.process_pages import process_pages
 from app.main import app
 from app.routes import scores as scores_routes
 from app.spend import require_budget
-from tests.test_part_cut import Ctx, FakeDB, synth_page
+from tests.test_part_cut import HEADER, Ctx, FakeDB, synth_page
 from tests.test_signature import LABELS, PagesCtx, sig
 
 SCORE = "11111111-1111-1111-1111-111111111111"
@@ -106,7 +106,7 @@ async def test_the_pdf_reads_itself_end_to_end():
     follow = [j for j in db.rows["jobs"] if j.get("kind") == "process_pages"][0]
     pjob = Job(follow["id"], "process_pages", follow["payload"], SCORE, "u1", 1, 3)
     pctx = PagesCtx(pjob, db, dict(ctx.uploads), labels=[LABELS, LABELS])
-    c, _ = fake_client([sig(accidental="none", count=0, mode="major", name="C major", symbol="common")])
+    c, _ = fake_client([sig(accidental="none", count=0, mode="major", name="C major", symbol="common"), HEADER])
     out = await process_pages(pjob, pctx, client=c, model="muse-spark-1.3")
     score = db.rows["scores"][0]
     assert score["status"] == "ready" and score["pages"] == 2 and score["bars"] == 8 and (score["key_sig"], score["meter"]) == ("C major", "4/4")
@@ -127,13 +127,14 @@ async def test_title_and_blank_pages_first_the_signature_reads_the_first_music()
     follow = [j for j in db.rows["jobs"] if j.get("kind") == "process_pages"][0]
     pjob = Job(follow["id"], "process_pages", follow["payload"], SCORE, "u1", 1, 3)
     pctx = PagesCtx(pjob, db, dict(ctx.uploads), labels=[LABELS])
-    c, t = fake_client([sig(accidental="sharps", count=3, mode="minor", name="F# minor", symbol="common")])
+    c, t = fake_client([sig(accidental="sharps", count=3, mode="minor", name="F# minor", symbol="common"), HEADER])
     await process_pages(pjob, pctx, client=c, model="muse-spark-1.3")
     score = db.rows["scores"][0]
-    assert len(t.calls) == 1 and (score["key_sig"], score["meter"], score["status"]) == ("F# minor", "4/4", "ready")
+    assert len(t.calls) == 2 and (score["key_sig"], score["meter"], score["status"]) == ("F# minor", "4/4", "ready")
     summary = db.rows["interpretations"][0]["summary"]
     assert summary["signature"]["page"] == 3 and summary["signature"]["crop_key"] == f"{SCORE}/signature/p003-s1.png"
     assert summary["log"][0] == "Page 3, first system: F# minor, 4/4" and summary["flagged"]["pages_unreadable"] == 2
+    assert summary["log"][1].startswith("Page 3, score header: 6 staves per full system") and summary["header"]["page"] == 3
 
 
 async def test_process_pages_fails_with_a_sentence_when_no_page_has_staves():

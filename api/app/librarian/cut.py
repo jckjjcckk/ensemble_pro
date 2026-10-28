@@ -10,6 +10,12 @@ else and upscales a page whose staff spacing is under SPACING_MIN. Lyrics under 
 as whole text lines (`text_lines`, the `voice` / `voice_above` flags of `clean_crop`). With the score header's staff
 count (`page_geometry(expected_staves=)`) a short system is searched again in column strips for the staves the
 page-wide profile missed, and a hole between two found staves is filled (`recover_staves`, HARDEN.md).
+
+This is also page reading's geometry (feature 004): `page_measures` turns `page_geometry` into the page record that
+`process_pages` stores (measures with boxes as page fractions and a confidence from the geometry). The raster steps
+(binarise, deskew) came from the grounding experiment's `fallback_cv.py` by way of the old `geometry.py`, which this
+replaced. The systemic line is looked for at the pair's own start as well as the page median (indented first
+systems), and the barline votes widen with the staff spacing on large scans (`barline_tol`).
 """
 from __future__ import annotations
 
@@ -20,11 +26,45 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-from .geometry import binarise, estimate_skew, rotate, vertical_cover
-
 KERNEL = (7, 3)   # joining dilation (w, h) for the clean pass
 PAD = 3           # px around kept ink
 SPECK = 4         # ink px; smaller components outside the wanted region are noise
+
+
+# ---------------------------------------------------------------- raster steps (from the grounding experiment's fallback_cv.py)
+
+def binarise(gray: np.ndarray) -> np.ndarray:
+    """Otsu OR adaptive mean: grey scans print staff lines lighter than Otsu's global threshold."""
+    _, otsu = cv2.threshold(gray, 0, 1, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    adaptive = cv2.adaptiveThreshold(gray, 1, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 51, 18)
+    return np.maximum(otsu, adaptive).astype(np.uint8)
+
+
+def estimate_skew(bw: np.ndarray) -> float:
+    """The rotation (-1.5..1.5 degrees, 0.1 steps) that maximises the row-projection energy."""
+    h, w = bw.shape
+    best, best_score = 0.0, -1.0
+    small = cv2.resize(bw, (w // 2, h // 2), interpolation=cv2.INTER_AREA)
+    for ang in np.arange(-1.5, 1.51, 0.1):
+        m = cv2.getRotationMatrix2D((small.shape[1] / 2, small.shape[0] / 2), ang, 1.0)
+        rot = cv2.warpAffine(small, m, (small.shape[1], small.shape[0]), flags=cv2.INTER_NEAREST)
+        prof = rot.sum(axis=1).astype(float)
+        score = float((prof**2).sum())
+        if score > best_score:
+            best, best_score = float(ang), score
+    return best
+
+
+def rotate(img: np.ndarray, ang: float, border: int) -> np.ndarray:
+    h, w = img.shape
+    m = cv2.getRotationMatrix2D((w / 2, h / 2), ang, 1.0)
+    return cv2.warpAffine(img, m, (w, h), flags=cv2.INTER_NEAREST, borderValue=border)
+
+
+def vertical_cover(bw: np.ndarray, x: int, y0: int, y1: int, tol: int = 1) -> float:
+    """Fraction of rows y0..y1 with ink within `tol` columns of x."""
+    sl = bw[y0 : y1 + 1, max(0, x - tol) : x + tol + 1]
+    return float((sl.max(axis=1) > 0).mean())
 
 
 # ---------------------------------------------------------------- geometry
@@ -208,14 +248,24 @@ def recover_staves(bw: np.ndarray, staves: list[dict], systems: list[list[int]],
 
 
 def group_systems(bw: np.ndarray, staves: list[dict]) -> tuple[list[list[int]], str]:
-    """Consecutive staves joined by the left systemic line; fallback: split at gaps > 2.5x the median gap."""
+    """Consecutive staves joined by the left systemic line; fallback: split at gaps > 2.5x the median gap.
+    The line is looked for at the page's median staff start and at the pair's own start: an indented first system
+    (a title or "Var. 1." in the margin: Goldberg p1-2, Rach 1 two-piano p3) starts well right of the median, and
+    searched only at the median it fell apart into single staves. The window grows with the staff spacing (a
+    10-11 px keyboard page draws its brace and systemic line further from the staff start than a 7 px full score)."""
     systems: list[list[int]] = []
     joined_any = False
     left = int(np.median([s["x0"] for s in staves])) if staves else 0
     for i, s in enumerate(staves):
         if systems:
             a = staves[systems[-1][-1]]
-            if any(vertical_cover(bw, x, a["y_bottom"], s["y_top"]) >= 0.97 for x in range(max(0, left - 8), left + 15)):
+            sp = max(a["spacing"], s["spacing"])
+            lo, hi = int(max(8, round(sp))), int(max(15, round(2 * sp)))
+            xs = set(range(max(0, left - lo), left + hi))
+            own = min(a["x0"], s["x0"])
+            if abs(own - left) > lo:
+                xs |= set(range(max(0, own - lo), own + hi))
+            if any(vertical_cover(bw, x, a["y_bottom"], s["y_top"]) >= 0.97 for x in sorted(xs)):
                 systems[-1].append(i)
                 joined_any = True
                 continue
@@ -228,6 +278,14 @@ def group_systems(bw: np.ndarray, staves: list[dict]) -> tuple[list[list[int]], 
     for i, g in enumerate(gaps):
         systems.append([i + 1]) if g > 2.5 * med else systems[-1].append(i + 1)
     return systems, "gap-fallback"
+
+
+def barline_tol(spacing: float) -> int:
+    """Column tolerance of the barline votes: 4 px up to a 10-11 px staff spacing, 0.4 staff space above it. A barline
+    on a 150-dpi render of a large-format scan (Beethoven 9 at 3150 px, spacing 15-16 px) drifts more than 4 px over a
+    two-staff span and one in nine lost its votes (p172 read 8 bars of 9; 6 px finds it). Wider is not better on a
+    keyboard page: at 5 px two stems meeting across a grand staff's gap vote as a barline (Goldberg p4 at 9.75 px)."""
+    return max(4, int(round(spacing / 2.5)))
 
 
 def find_system_barlines(bw: np.ndarray, staves: list[dict], x0: int, x1: int, min_cover: float = 0.9, tol: int = 4) -> list[tuple[int, int]]:
@@ -253,12 +311,31 @@ def find_system_barlines(bw: np.ndarray, staves: list[dict], x0: int, x1: int, m
     return [(c[0], c[-1]) for c in clusters if c[-1] - c[0] + 1 >= tol + 1]
 
 
-def count_measures(bars: list[tuple[int, int]], x0: int, x1: int, spacing: float) -> int:
-    header = x0 + 12 * spacing
-    edges = [(x0, max([x0] + [b[1] for b in bars if b[0] <= header]))] + [b for b in bars if b[0] > header]
-    if edges[-1][1] < x1 - 10:
+HEADER_SPACES = 12        # header zone (clef, key, start repeat) in staff spaces from the system start
+MIN_MEASURE_SPACES = 1.5  # spans narrower than this between two barlines are slivers, not bars
+
+
+def measure_spans(bars: list[tuple[int, int]], x0: int, x1: int, spacing: float) -> list[dict]:
+    """The bars of one system from its barline clusters: (start edge, closing edge) pairs. Clusters inside the header
+    zone (HEADER_SPACES from the system start: a start repeat, thick key strokes) merge into the system start; a
+    system whose last barline stops short of the staves' end gets an open last bar; slivers are dropped."""
+    header = x0 + HEADER_SPACES * spacing
+    in_header = [b for b in bars if b[0] <= header]
+    edges = [(x0, max([x0] + [b[1] for b in in_header]))] + [b for b in bars if b[0] > header]
+    open_end = edges[-1][1] < x1 - 10
+    if open_end:
         edges.append((x1, x1))
-    return sum(1 for a, b in zip(edges, edges[1:]) if b[0] - a[1] >= 1.5 * spacing)
+    spans = []
+    for k, (a, b) in enumerate(zip(edges, edges[1:])):
+        if b[0] - a[1] < MIN_MEASURE_SPACES * spacing:
+            continue
+        spans.append({"x0": int(a[0]), "x1": int(b[1]), "inner": (int(a[1]), int(b[0])), "closing": None if (open_end and k == len(edges) - 2) else (int(b[0]), int(b[1])),
+                      "header_merged": k == 0 and len(in_header) >= 2})
+    return spans
+
+
+def count_measures(bars: list[tuple[int, int]], x0: int, x1: int, spacing: float) -> int:
+    return len(measure_spans(bars, x0, x1, spacing))
 
 
 # ---------------------------------------------------------------- page-edge shadows and the working scale
@@ -377,8 +454,8 @@ def page_geometry(png: bytes, expected_staves: int | None = None) -> tuple[dict[
     for si, idxs in enumerate(systems_idx, start=1):
         ss = [staves[i] for i in idxs]
         x0, x1 = int(np.median([s["x0"] for s in ss])), int(np.median([s["x1"] for s in ss]))
-        bars = find_system_barlines(bw, ss, x0, x1)
         sp = float(np.median([s["spacing"] for s in ss]))
+        bars = find_system_barlines(bw, ss, x0, x1, tol=barline_tol(sp))
         pad = int(sp * 1.5)
         systems.append({"index": si, "staff_indices": [s["index"] for s in ss],
                         "box": {"x0": x0, "y0": max(0, ss[0]["y_top"] - pad), "x1": x1, "y1": min(h - 1, ss[-1]["y_bottom"] + pad)},
@@ -389,6 +466,89 @@ def page_geometry(png: bytes, expected_staves: int | None = None) -> tuple[dict[
         geom.update({"expected_staves": int(expected_staves), "staves_before_recovery": before,
                      "recovered": [{"index": r["index"], "y_top": r["y_top"], "y_bottom": r["y_bottom"], "fit": r["fit"]} for r in recovered]})
     return geom, bw, Image.fromarray(gray).convert("RGB")
+
+
+NARROW_SPACES = 4.0   # bars narrower than this are flagged low
+WIDE_FACTOR = 2.6     # a bar this many times the page's median width usually hides a missed barline
+
+
+def barline_cover(bw: np.ndarray, staves: list[dict], xa: int, xb: int) -> float:
+    """Fraction of the system's staves whose five-line span a barline cluster crosses (>= 90 % of the rows inked at one
+    column, a px of drift either side). A system barline crosses every staff; a stem or a broken line does not."""
+    hit = 0
+    for s in staves:
+        band = bw[s["y_top"]: s["y_bottom"] + 1, max(0, xa - 1): xb + 2]
+        if band.size and (cv2.dilate(band, np.ones((1, 3), np.uint8)).mean(axis=0) >= 0.9).any():
+            hit += 1
+    return hit / max(1, len(staves))
+
+
+def page_measures(png: bytes, expected_staves: int | None = None) -> dict[str, Any]:
+    """The page record that page reading (feature 004) stores: systems and measures with boxes as fractions 0..1 of the
+    page image, a confidence and a flag per measure from the geometry, numbered top-left to bottom-right. Built on
+    `page_geometry` (edge shadows masked, working scale, the header's staff count driving the staff recovery), so page
+    reading and the part cut see the same staves, systems and barlines. Fractions of the working page are fractions
+    of the uploaded page: the working page is the upload scaled, deskewed about its centre (corners off by a few px
+    on a 0.5 degree page, fine for tapping)."""
+    geom, bw, _ = page_geometry(png, expected_staves=expected_staves)
+    w, h = geom["image_px"]
+    staves = {s["index"]: s for s in geom["staves"]}
+    systems: list[dict] = []
+    measures: list[dict] = []
+    n = 1
+    for sysd in geom["systems"]:
+        ss = [staves[i] for i in sysd["staff_indices"]]
+        sp = float(np.median([s["spacing"] for s in ss]))
+        b = sysd["box"]
+        x0, x1 = b["x0"], b["x1"]
+        covers = [barline_cover(bw, ss, xa, xb) for xa, xb in sysd["barlines"]]
+        systems.append({"index": sysd["index"], "box": {"x0": round(x0 / w, 5), "y0": round(b["y0"] / h, 5), "x1": round(x1 / w, 5), "y1": round(b["y1"] / h, 5)},
+                        "staves": len(ss), "staff_indices": list(sysd["staff_indices"]),
+                        "recovered": sum(1 for s in ss if s.get("recovered")),
+                        "barlines": [{"x0": round(xa / w, 5), "x1": round(xb / w, 5), "width_px": int(xb - xa + 1), "cover": round(c, 3)}
+                                     for (xa, xb), c in zip(sysd["barlines"], covers)]})
+        cover_of = {tuple(bl): c for bl, c in zip(sysd["barlines"], covers)}
+        for span in measure_spans(sysd["barlines"], x0, x1, sp):
+            conf, flag = "high", None
+            if span["closing"] is None:
+                conf, flag = "medium", "no closing barline; bar runs to the end of the staves"
+            elif cover_of.get(span["closing"], 1.0) < 1.0:
+                conf, flag = "medium", "closing barline does not cross every staff"
+            if span["header_merged"]:
+                conf, flag = "medium", "bar start merged with repeat or key strokes"
+            if (span["inner"][1] - span["inner"][0]) / sp < NARROW_SPACES:
+                conf, flag = "low", "very narrow bar"
+            measures.append({"provisional": n, "system": sysd["index"], "confidence": conf, "flag": flag,
+                             "box": {"x0": round(span["x0"] / w, 5), "y0": round(b["y0"] / h, 5), "x1": round(span["x1"] / w, 5), "y1": round(b["y1"] / h, 5)}})
+            n += 1
+    widths = [m["box"]["x1"] - m["box"]["x0"] for m in measures]
+    if len(widths) >= 4:
+        med = float(np.median(widths))
+        for m, wd in zip(measures, widths):
+            if wd > WIDE_FACTOR * med and m["confidence"] == "high":
+                m["confidence"], m["flag"] = "medium", "unusually wide bar, a barline may have been missed"
+    log: list[str] = []
+    prep = geom["prepare"]
+    shadows = [side for side, r in prep["edge_shadows"].items() if r.get("shadow")]
+    if shadows:
+        log.append(f"Masked the page-edge shadow ({', '.join(shadows)})")
+    if prep["scale"] > 1:
+        log.append(f"Read at {prep['scale']}x (staff spacing {prep['spacing_native']:.1f} px)")
+    if abs(geom["skew_deg"]) >= 0.1:
+        log.append(f"Deskewed by {geom['skew_deg']:+.1f}°")
+    if geom.get("recovered"):
+        log.append(f"Recovered {len(geom['recovered'])} staves the page profile missed (header: {geom['expected_staves']} per system)")
+    if not geom["staves"]:
+        log.append("No staff lines found")
+    else:
+        log.append(f"{len(geom['staves'])} staves in {len(systems)} systems; measures per system {[sum(1 for m in measures if m['system'] == s['index']) for s in systems]}")
+    doubtful = sum(1 for m in measures if m["confidence"] != "high")
+    if doubtful:
+        log.append(f"{doubtful} bars flagged by geometry")
+    native = prep.get("native_px") or [w, h]
+    return {"image_px": list(native), "working_px": [w, h], "skew_deg": geom["skew_deg"], "staves": len(geom["staves"]), "grouping": geom["grouping"],
+            "expected_staves": geom.get("expected_staves"), "staves_before_recovery": geom.get("staves_before_recovery"),
+            "systems": systems, "measures": measures, "log": log}
 
 
 def _font(size: int):
