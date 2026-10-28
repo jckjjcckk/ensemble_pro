@@ -80,7 +80,7 @@ interface Store {
   contextFor: (ensembleId: string) => Context | undefined
   /** Part-cut jobs of a score, newest first (008). */
   jobsFor: (scoreId: string) => PartJob[]
-  /** Finished cut parts of a score, newest first (008, 010). */
+  /** Finished splits by instrument of a score, newest first (008, 010). */
   stripsFor: (scoreId: string) => PartStrip[]
   display: Display
   setDisplay: Dispatch<SetStateAction<Display>>

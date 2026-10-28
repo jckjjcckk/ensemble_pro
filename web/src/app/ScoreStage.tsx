@@ -313,12 +313,12 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
       <div className="stage-host" style={hostStyle}>
         <div className="osmd" data-score-state={state}>
           <div key={src} ref={hostRef} />
-          {error && <p role="alert">Could not render score: {error}</p>}
+          {error && <p role="alert">This score could not be engraved: {error}</p>}
         </div>
       </div>
       <div className="stage-over">{settled && geo && overlay?.(geo)}</div>
       <Fade
-        show={!!layout && !settled && !error} className="stage-skeleton" aria-label="Engraving score" role="status"
+        show={!!layout && !settled && !error} className="stage-skeleton" aria-label="Engraving the score" role="status"
         style={layout ? { left: layout.padX, top: layout.padY, width: layout.availW, gap: layout.gap } : undefined}
       >
         {layout && Array.from({ length: layout.perView }, (_, i) => (

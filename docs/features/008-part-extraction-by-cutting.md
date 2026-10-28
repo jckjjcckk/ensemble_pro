@@ -349,6 +349,19 @@ is the whole S+A pair and nothing else: the page-edge bands are gone and p173 an
 earlier runs held half the page there). Left: the grey gutter strip at the far left of each crop, and the "CORO"
 margin label cut to "R O." on p172.
 
+## On the iPad (web, 2026-10-28 night)
+
+The action is called **Split by instrument** everywhere in the app (never "cut parts": *cut* is the bar-range
+marking). `web/src/app/Parts.tsx` holds the picker, the job rows, the staff question and the finished splits,
+all in the information box. A PDF book's flow is unchanged apart from the words: the instruments the first
+page names (or typed names), `POST /scores/{id}/parts` with `{instruments}`, the strip opens at `?view=strips`.
+A digital book (source kind `musicxml`) lists its own `parts` rows, posts the same route, and expects a done
+job with `result {source_id, instruments, storage_path}` plus a new `sources` row of kind `musicxml` with
+`meta.instruments` and `meta.slug` (the API side is another agent's work, not verified from the browser).
+`data.tsx` treats `part_images` sources and `musicxml` sources with `meta.instruments`/`meta.slug` as splits;
+digital splits open in the reader with only their instruments (`/score/{id}?split={source_id}`, OSMD part
+visibility on the book's own file) and export their own file as MusicXML.
+
 ## Open issues
 
 - Geometry on the Beethoven 9 choir pages: fixed 2026-10-28 night (recovery ported, the gutter `x0` fix,

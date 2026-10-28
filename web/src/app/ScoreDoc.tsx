@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { AnimatePresence, motion } from 'motion/react'
 import type { Annotation, AnnotationKind } from '../mock'
@@ -37,11 +37,11 @@ export default function ScoreDoc() {
   const score = scoresById[scoreId]
   const [search] = useSearchParams()
   if (!score) return <Unavailable title={world.loaded ? 'This score is not in the library.' : 'Opening the score'} />
-  if (search.get('view') === 'strips') return <Strips score={score} />   // a cut part (008) reads as strips (010)
+  if (search.get('view') === 'strips') return <Strips score={score} />   // a PDF book's split (008) reads as strips (010)
   if (score.status !== 'ready' || !score.fixture) {
     const why = score.status === 'failed' ? score.failureReason
-      : score.status === 'processing' ? `Still processing, ${Math.round((score.progress ?? 0) * 100)} percent read.`
-      : 'The pages have not been processed yet.'
+      : score.status === 'processing' ? `Still being read, ${Math.round((score.progress ?? 0) * 100)}% so far.`
+      : 'The pages have not been read yet.'
     return <Unavailable title={score.title} detail={why} />
   }
   return <Doc scoreId={score.id} />
@@ -62,8 +62,13 @@ function Unavailable({ title, detail }: { title: string; detail?: string }) {
 function Doc({ scoreId }: { scoreId: string }) {
   const vp = useViewport()
   const reduced = useReducedMotion()
-  const { contextFor, annotations, addAnnotation, scoresById, partsById, world } = useStore()
+  const { contextFor, annotations, addAnnotation, scoresById, partsById, stripsFor, world } = useStore()
   const score = scoresById[scoreId]
+  // A digital book's split (`?split=`) reads on this stage with only its instruments: the part visibility OSMD already has.
+  const [search] = useSearchParams()
+  const splitId = search.get('split')
+  const split = splitId ? stripsFor(score.id).find(x => x.id === splitId && x.kind === 'musicxml') : undefined
+  const splitSel = split ? `split:${split.id}` : null
   // Standing comes from the membership in the ensemble that owns the score, not from which library is open.
   const ctx = contextFor(score.ensembleId)
   const role = ctx?.membership.role ?? 'player'
@@ -77,7 +82,7 @@ function Doc({ scoreId }: { scoreId: string }) {
   const groupBar = leader?.atBar ?? 1
 
   const seat = parts.find(p => p.name === persona.instrument)?.id
-  const defaultPart = role === 'player' && seat ? seat : 'full'
+  const defaultPart = splitSel ?? (role === 'player' && seat ? seat : 'full')
   const [partSel, setPartSel] = useState<string>(defaultPart)
   useEffect(() => { setPartSel(defaultPart) }, [defaultPart])
   const [focus, setFocus] = useState({ bar: groupBar, key: 0 })
@@ -106,14 +111,18 @@ function Doc({ scoreId }: { scoreId: string }) {
   }, [tool, vp.w])
 
   const isFull = partSel === 'full'
-  const instruments = isFull ? null : [score.partIds.indexOf(partSel)]
+  const isSplit = !!split && partSel === splitSel
+  const splitKey = split ? parts.filter(p => split.instruments.includes(p.name)).map(p => p.id).join('\n') : ''
+  const splitPartIds = splitKey ? splitKey.split('\n') : []
+  const splitIdx = splitPartIds.map(id => score.partIds.indexOf(id)).filter(i => i >= 0)
+  const instruments = isFull ? null : isSplit ? (splitIdx.length ? splitIdx : null) : [score.partIds.indexOf(partSel)]
   // Words go to the outer margin when there is room for one beside each page; otherwise the Markings panel carries them.
   // Depends on the viewport only: the panel floating over a margin must not change the engraving.
   const marginW = vp.w >= 1180 ? 184 : 0
-  const visible = useMemo(
-    () => annotations.filter(a => a.scoreId === score.id && (isFull || a.partId === null || a.partId === partSel)).sort((a, b) => a.barFrom - b.barFrom),
-    [annotations, score.id, isFull, partSel],
-  )
+  // Cheap enough to derive on every render (a score carries tens of markings, not thousands).
+  const visible = annotations
+    .filter(a => a.scoreId === score.id && (isFull || a.partId === null || a.partId === partSel || (isSplit && !!a.partId && splitPartIds.includes(a.partId))))
+    .sort((a, b) => a.barFrom - b.barFrom)
   const cuts = visible.filter(a => a.kind === 'cut').map(a => ({ from: a.barFrom, to: a.barTo, label: `Cut ${barRange(a.barFrom, a.barTo)} · ${a.text ?? ''}`.replace(/ · $/, '') }))
   const marks: RulerMark[] = visible.filter(a => a.kind !== 'cut').map(a => ({ id: a.id, bar: a.barFrom, kind: a.kind === 'voice' ? 'voice' : 'mark', label: kindLabel[a.kind] }))
 
@@ -146,9 +155,9 @@ function Doc({ scoreId }: { scoreId: string }) {
   const save = () => {
     const base = { id: `n${Date.now()}`, scoreId: score.id, authorId: persona.id, createdAt: new Date().toISOString() }
     let a: Annotation | null = null
-    if (tool === 'marking') a = { ...base, kind: draftKind, partId: draftAll || isFull ? null : partSel, barFrom: draftBar, barTo: draftBar, text: draftText.trim() || kindLabel[draftKind] }
+    if (tool === 'marking') a = { ...base, kind: draftKind, partId: draftAll || isFull || isSplit ? null : partSel, barFrom: draftBar, barTo: draftBar, text: draftText.trim() || kindLabel[draftKind] }
     if (tool === 'cut') a = { ...base, kind: 'cut', partId: null, barFrom: draftSpan.from, barTo: draftSpan.to, text: 'Proposed cut' }
-    if (tool === 'voice') a = { ...base, kind: 'voice', partId: draftAll || isFull ? null : partSel, barFrom: draftBar, barTo: draftBar, durationSec: rec.sec }
+    if (tool === 'voice') a = { ...base, kind: 'voice', partId: draftAll || isFull || isSplit ? null : partSel, barFrom: draftBar, barTo: draftBar, durationSec: rec.sec }
     if (a) addAnnotation(a)
     setTool(null)
   }
@@ -243,7 +252,7 @@ function Doc({ scoreId }: { scoreId: string }) {
 
   const partSwitcher = (
     <div className="seg dseg" role="radiogroup" aria-label="Part">
-      {[{ id: 'full', name: 'Score' }, ...parts].map(pt => (
+      {[{ id: 'full', name: 'Score' }, ...(split && splitSel ? [{ id: splitSel, name: split.label }] : []), ...parts].map(pt => (
         <button key={pt.id} type="button" role="radio" aria-checked={partSel === pt.id} onClick={() => setPartSel(pt.id)}>
           {pt.id === 'full' ? 'Score' : vp.narrow ? partShort[pt.name] ?? pt.name : pt.name}
         </button>
@@ -267,7 +276,7 @@ function Doc({ scoreId }: { scoreId: string }) {
     </div>
   )
 
-  const audience = !isFull && (
+  const audience = !isFull && !isSplit && (
     <label className="check">
       <input type="checkbox" checked={draftAll} onChange={e => setDraftAll(e.target.checked)} />
       <span>Everyone</span>
@@ -331,8 +340,8 @@ function Doc({ scoreId }: { scoreId: string }) {
     </div>
   )
 
-  const scale = isFull ? (vp.wide ? 0.6 : 0.64) : (vp.wide ? 0.78 : 0.84)
-  const scoreParts = isFull ? 'Full score' : partsById[partSel]?.name
+  const scale = isFull || (isSplit && splitIdx.length > 2) ? (vp.wide ? 0.6 : 0.64) : (vp.wide ? 0.78 : 0.84)
+  const scoreParts = isFull ? 'Full score' : isSplit ? split!.label : partsById[partSel]?.name
 
   return (
     <Screen header={header} ruler={ruler} dock={dock} className="is-doc">

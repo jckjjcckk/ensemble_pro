@@ -1,4 +1,4 @@
-/** Feature 010 for cut parts (008): one strip per system, full width, stacked in reading order, snapping strip by
+/** Feature 010 for a PDF book's splits (008): one strip per system, full width, stacked in reading order, snapping strip by
  *  strip. The `part_images` source lists the crops; the images come from the private bucket through signed URLs. */
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
@@ -13,7 +13,8 @@ import './parts.css'
 export default function Strips({ score }: { score: Score }) {
   const vp = useViewport()
   const { stripsFor } = useStore()
-  const strips = stripsFor(score.id)
+  // A digital split reads on the stage with its instruments (ScoreDoc, `?split=`); strips are a PDF book's.
+  const strips = stripsFor(score.id).filter(s => s.kind === 'images')
   const [search, setSearch] = useSearchParams()
   const wanted = search.get('strip')
   const strip = strips.find(s => s.id === wanted) ?? strips[0] ?? null
@@ -40,7 +41,7 @@ export default function Strips({ score }: { score: Score }) {
     <div className="ph">
       <div className="ph-title">
         <h1>{score.title}</h1>
-        <p>{strip ? `${strip.label} · ${strip.paths.length} ${strip.paths.length === 1 ? 'system' : 'systems'}` : 'No cut parts yet'}</p>
+        <p>{strip ? `${strip.label} · ${strip.paths.length} ${strip.paths.length === 1 ? 'system' : 'systems'}` : 'Nothing split out yet'}</p>
       </div>
       <div className="grow" />
       <DisplayButton />
@@ -50,7 +51,7 @@ export default function Strips({ score }: { score: Score }) {
   const dock = (
     <div className="doc-dock">
       {strips.length > 1 && (
-        <div className="seg dseg strips-seg" role="radiogroup" aria-label="Part">
+        <div className="seg dseg strips-seg" role="radiogroup" aria-label="Instruments">
           {strips.map(s => (
             <button key={s.id} type="button" role="radio" aria-checked={s.id === strip?.id} onClick={() => setSearch({ view: 'strips', strip: s.id }, { replace: true })}>
               {s.label}{strips.filter(x => x.label === s.label).length > 1 && <span className="strip-when"> · {fmtDateTime(s.createdAt)}</span>}
@@ -85,8 +86,8 @@ export default function Strips({ score }: { score: Score }) {
         </div>
       ) : (
         <div className="empty">
-          <p className="empty-title">No cut parts yet</p>
-          <p>Cut a part from the score's information box in the library; it appears here as a strip.</p>
+          <p className="empty-title">Nothing split out yet</p>
+          <p>Choose Split by instrument in the score's information box in the library; each split appears here as a strip.</p>
           <Link className="btn btn-line" to="/">Back to the library</Link>
         </div>
       )}

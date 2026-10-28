@@ -19,11 +19,11 @@ async function request<T>(path: string, token: string, body?: unknown): Promise<
       body: body === undefined ? undefined : JSON.stringify(body),
     })
   } catch {
-    throw new ApiError(0, 'The API did not answer. Is it running?')
+    throw new ApiError(0, 'The librarian could not be reached. Check the connection and try again.')
   }
   if (!res.ok) {
     const detail = (await res.json().catch(() => ({})))?.detail
-    throw new ApiError(res.status, typeof detail === 'string' ? detail : `API ${res.status}`)
+    throw new ApiError(res.status, typeof detail === 'string' ? detail : `The librarian could not do that just now (error ${res.status}). Try again in a moment.`)
   }
   return res.json() as Promise<T>
 }
@@ -47,7 +47,7 @@ export interface JobRow {
   created_at: string
 }
 
-/** Feature 008: cut a selection of parts out of a scanned score. `POST /scores/{id}/parts` with
+/** Feature 008, Split by instrument: a selection of instruments out of a score (a PDF book's pages, or a digital book's file). `POST /scores/{id}/parts` with
  *  `{instruments: [string], pages?: [int]}`; the API queues a `part_cut` job and returns its row. */
 export interface CutPartsBody { instruments: string[]; pages?: number[] }
 export const cutParts = (scoreId: string, body: CutPartsBody, token: string) =>
@@ -63,8 +63,8 @@ export const answerJob = (jobId: string, answer: ChooseStavesAnswer, token: stri
 /** The words for a failed call, in the product's voice. A 404 means the route is not on this server yet. */
 export function apiFailure(e: unknown, what: string): string {
   if (e instanceof ApiError) {
-    if (e.status === 404) return `${what} is not available on this server yet.`
-    if (e.status === 402) return 'The model budget is used up for now.'
+    if (e.status === 404) return `${what} is not available yet.`
+    if (e.status === 402) return 'The reading budget is used up for now.'
     if (e.status === 403) return 'Only the owner or an admin can do this.'
     return e.message
   }

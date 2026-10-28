@@ -1,15 +1,25 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { LayoutGroup, motion } from 'motion/react'
-import { practice, type Part, type Score } from '../mock'
+import { AnimatePresence, LayoutGroup, motion } from 'motion/react'
+import { practice, type BookKind, type Part, type Score } from '../mock'
 import { useAuth } from './auth'
-import { MY_LIBRARY, importMusicXml } from './data'
+import { MY_LIBRARY, exportName, exportStored, importMusicXml } from './data'
 import { Screen, useViewport } from './layout'
 import { DisplayButton } from './Display'
-import { EASE_OUT, SPRING_LAYOUT, Sheet } from './Sheet'
+import { EASE_OUT, Pop, SPRING_LAYOUT, Scrim, Sheet } from './Sheet'
 import { PartsPanel } from './Parts'
+import { Identity } from './Identity'
 import { barRange, difficultyWord, fmtDateTime, partShort, useStore } from './store'
-import { ICamera, IClose, IImport, IRepeat, IWarning } from './icons'
+import { ICamera, IClose, IExport, IImport, IInfo, IRepeat, IWarning } from './icons'
+
+const bookWord: Record<BookKind, string> = { pdf: 'PDF', digital: 'Digital' }
+/** The status as a sentence fragment, for screen readers on a cover. */
+const statusWord: Record<Score['status'], string> = { uploaded: 'not read yet', ordering: 'pages waiting for their order', processing: 'being read', ready: 'ready', failed: 'needs pages' }
+
+/** The one tag a book carries: what it was made from. */
+export function BookTag({ kind }: { kind?: BookKind }) {
+  return kind ? <span className="book-tag">{bookWord[kind]}</span> : null
+}
 
 const roleWord = { owner: 'your own library', admin: 'you are the admin', player: 'you play' } as const
 
@@ -47,7 +57,7 @@ export default function Library() {
       }, apiBase, session.access_token)
       world.reload()
     } catch (e) {
-      window.alert(`Import failed: ${(e as Error).message}`)
+      window.alert(`${file.name} was not imported. ${(e as Error).message}`)
     } finally {
       setImporting(null)
       if (fileRef.current) fileRef.current.value = ''
@@ -113,7 +123,7 @@ export default function Library() {
 
             {folders.length === 0 && (
               <div className="empty is-inline">
-                <p>{world.loaded ? 'Nothing here yet. Scan pages, or import a MusicXML file, and the score appears as a cover.' : 'Opening the library'}</p>
+                <p>{world.loaded ? 'Nothing here yet. Scan the pages of a score, or import a notation file, and it appears here as a cover.' : 'Opening the library'}</p>
                 {world.loaded && canImport && <button type="button" className="btn btn-line" onClick={() => fileRef.current?.click()}><IImport size={18} />Import MusicXML</button>}
                 {world.loaded && <Link className="btn btn-line" to="/scan"><ICamera size={18} />Scan pages</Link>}
               </div>
@@ -151,13 +161,13 @@ function StatusBadge({ score: s, partName }: { score: Score; partName?: string }
         <span className="meter" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Reading">
           <motion.span initial={false} animate={{ width: `${pct}%` }} transition={{ duration: 0.3, ease: EASE_OUT }} />
         </span>
-        <span>{pct ? `${pct}% read` : 'Queued'}</span>
+        <span>{pct ? `${pct}% read` : 'Waiting'}</span>
       </span>
     )
   }
   if (s.status === 'failed') return <span className="badge is-failed"><IWarning size={14} /><span>Needs pages</span></span>
   if (s.status === 'ordering') return <span className="badge">Order pages</span>
-  if (s.status === 'uploaded') return <span className="badge">Uploaded</span>
+  if (s.status === 'uploaded') return <span className="badge">Not read yet</span>
   if (partName) return <span className="badge is-mine">{partName}</span>
   return null
 }
@@ -169,14 +179,14 @@ function Cover({ score: s, selected, onSelect }: { score: Score; selected: boole
   return (
     <motion.button
       type="button" className={`cover ${s.status === 'ready' ? '' : 'is-unavailable'}`} aria-pressed={selected} onClick={onSelect}
-      aria-label={`${s.title}, ${s.composer}${s.status === 'ready' ? '' : `, ${s.status}`}`}
+      aria-label={`${s.title}, ${s.composer}${s.book ? `, ${bookWord[s.book]}` : ''}${s.status === 'ready' ? '' : `, ${statusWord[s.status]}`}`}
       initial={false} animate={{ y: selected ? -3 : 0, scale: selected ? 1.02 : 1 }} transition={SPRING_LAYOUT}
     >
       <span className="cover-composer">{s.composer}</span>
       {/* The title is the one thing the information box takes from the cover: it travels there and back. */}
       <motion.span className="cover-title" layoutId={`cover-title-${s.id}`} layout="position" transition={SPRING_LAYOUT}>{s.title}</motion.span>
       <span className="cover-work">{s.work}</span>
-      <span className="cover-foot"><StatusBadge score={s} partName={myPart} /></span>
+      <span className="cover-foot"><StatusBadge score={s} partName={myPart} /><BookTag kind={s.book} /></span>
     </motion.button>
   )
 }
@@ -198,25 +208,43 @@ function InfoBody({ score: s, onClose }: { score: Score; onClose: () => void }) 
   const holderOf = (p: Part) => ensemble.members.find(m => m.instrument === p.name)
   const myPart = membership.role === 'player' ? parts.find(p => p.name === persona.instrument) : undefined
   const ready = s.status === 'ready'
+  const digital = s.book === 'digital'
   const flags = s.flags
   const flagText = flags && (flags.pagesUnreadable || flags.barsDoubtful)
     ? [flags.pagesUnreadable ? `${flags.pagesUnreadable} ${flags.pagesUnreadable === 1 ? 'page' : 'pages'} unreadable` : null,
        flags.barsDoubtful ? `${flags.barsDoubtful} ${flags.barsDoubtful === 1 ? 'bar' : 'bars'} doubtful` : null].filter(Boolean).join(', ')
     : null
   const isPractice = practice.scoreId === s.id
+  const [exporting, setExporting] = useState(false)
+
+  const exportBook = async () => {
+    if (!s.sourcePath) return
+    setExporting(true)
+    try {
+      await exportStored(s.sourcePath, exportName(s.title, s.sourcePath, s.sourceName))
+    } catch (e) {
+      window.alert((e as Error).message)
+    } finally {
+      setExporting(false)
+    }
+  }
 
   return (
     <>
       <div className="side-head">
         <h2 className="sr-only">Information</h2>
-        <span />
+        <BookTag kind={s.book} />
+        <span className="grow" />
+        <Details score={s} digital={digital} flagText={flagText} />
         <button type="button" className="btn-icon" onClick={onClose} aria-label="Close"><IClose size={20} /></button>
       </div>
       <div className="side-scroll">
         <div>
           <motion.h2 className="info-title" layoutId={`cover-title-${s.id}`} layout="position" transition={SPRING_LAYOUT}>{s.title}</motion.h2>
-          <p className="info-sub">{s.composer} · {s.work}</p>
+          <p className="info-sub">{[s.composer, s.work].filter(Boolean).join(' · ')}</p>
         </div>
+
+        <Identity score={s} digital={digital} />
 
         {s.status === 'failed' && (
           <div className="info-state is-failed">
@@ -228,24 +256,15 @@ function InfoBody({ score: s, onClose }: { score: Score; onClose: () => void }) 
         {s.status === 'processing' && (
           <div className="info-state">
             <StatusBadge score={s} />
-            <span>{s.pages} pages · parts appear when reading finishes</span>
+            <span>{digital ? 'Reading the file. The parts appear when it finishes.' : `${s.pages} pages. The parts appear when reading finishes.`}</span>
           </div>
         )}
         {s.status === 'ordering' && (
           <div className="info-state">
-            <span>{s.pages} pages waiting for their order. Nothing is read until you commit it.</span>
+            <span>{s.pages} pages waiting for their order. Nothing is read until you confirm it.</span>
           </div>
         )}
-        {ready && (
-          <dl className="facts">
-            <dt>Key</dt><dd>{s.key}</dd>
-            <dt>Meter</dt><dd>{s.meter}</dd>
-            <dt>Length</dt><dd><span className="num">{s.bars}</span> bars · {Math.round(s.durationSec / 60)} min · <span className="num">{s.tempoBpm}</span> bpm</dd>
-            <dt>Pages</dt><dd>{s.pages}</dd>
-            <dt>Read</dt><dd>{flagText ?? (flags ? 'Every page and bar resolved' : 'Imported from MusicXML')}</dd>
-            <dt>Changed</dt><dd>{fmtDateTime(s.updatedAt)}</dd>
-          </dl>
-        )}
+        {ready && !digital && flagText && <p className="info-flags"><IWarning size={15} />{flagText}</p>}
 
         {parts.length > 0 && (
           <div>
@@ -257,7 +276,7 @@ function InfoBody({ score: s, onClose }: { score: Score; onClose: () => void }) 
                 return (
                   <li key={p.id}>
                     <span className="pname">{p.name}{isMine && <span className="badge is-mine">You</span>}</span>
-                    <span className={`pwho ${who || isMine ? '' : 'is-unassigned'}`}>{isMine ? persona.name : who ? who.name : 'Unassigned'}</span>
+                    <span className={`pwho ${who || isMine ? '' : 'is-unassigned'}`}>{isMine ? persona.name : who ? who.name : 'No player yet'}</span>
                     <span className="pdiff">{difficultyWord[p.difficulty] ?? ''}</span>
                   </li>
                 )
@@ -282,12 +301,49 @@ function InfoBody({ score: s, onClose }: { score: Score; onClose: () => void }) 
               Practise {partsById[practice.partId]?.name}{practiceUI.loop ? `, loop ${barRange(practiceUI.loop.from, practiceUI.loop.to)}` : ''}
             </Link>
           )}
+          {ready && digital && s.sourcePath && (
+            <button type="button" className="btn btn-line" disabled={exporting} onClick={exportBook}>
+              <IExport size={18} />{exporting ? 'Exporting' : 'Export MusicXML'}
+            </button>
+          )}
           {s.status === 'ordering' && <Link to="/scan" className="btn btn-solid">Order pages</Link>}
           {s.status === 'failed' && <Link to="/scan" className="btn btn-solid"><ICamera size={18} />Retake pages</Link>}
         </div>
 
-        {s.status === 'processing' && <p className="info-log">The librarian is reading the pages. It will say what it did, and ask if a page cannot be placed.</p>}
+        {s.status === 'processing' && !digital && <p className="info-log">The librarian is reading the pages. It will say what it did, and ask if a page cannot be placed.</p>}
       </div>
     </>
+  )
+}
+
+/** The (i) beside the close button: the book's housekeeping, which the box itself does not lead with. */
+function Details({ score: s, digital, flagText }: { score: Score; digital: boolean; flagText: string | null }) {
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    if (!open) return
+    // Capture phase, so Escape closes this popover and leaves the sheet under it open.
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); setOpen(false) } }
+    window.addEventListener('keydown', onKey, true)
+    return () => window.removeEventListener('keydown', onKey, true)
+  }, [open])
+  const rows: [string, string][] = [
+    ...(!digital && s.pages ? [['Pages', String(s.pages)] as [string, string]] : []),
+    ...(s.tempoBpm ? [['Tempo', `${s.tempoBpm} bpm, as marked`] as [string, string]] : []),
+    ...(!digital && s.status === 'ready' ? [['Read', flagText ?? 'Every page and bar placed'] as [string, string]] : []),
+    ...(digital && s.sourceName ? [['Imported from', s.sourceName.replace(/\.[a-z]+$/i, '')] as [string, string]] : []),
+    ['Last changed', fmtDateTime(s.updatedAt)],
+  ]
+  return (
+    <div className="disp-wrap">
+      <button type="button" className="btn-icon" aria-label="Details" aria-expanded={open} aria-pressed={open} onClick={() => setOpen(v => !v)}>
+        <IInfo size={21} />
+      </button>
+      <AnimatePresence>{open && <Scrim key="scrim" clear fixed onClose={() => setOpen(false)} />}</AnimatePresence>
+      <Pop open={open} origin="top right" className="disp info-more" role="dialog" aria-label="Details">
+        <dl className="facts">
+          {rows.map(([k, v]) => <div key={k} className="facts-row"><dt>{k}</dt><dd>{v}</dd></div>)}
+        </dl>
+      </Pop>
+    </div>
   )
 }

@@ -75,7 +75,16 @@ export interface Score {
   brief?: string
   /** What the reader could not resolve, as counts. Absent for MusicXML imports, which have nothing to read. */
   flags?: ReadFlags
+  /** What the book was made from: scanned pages (`pdf`, `images` sources) or a notation file (`musicxml`). Unknown
+   *  only in the moment between creating the row and recording its first source. */
+  book?: BookKind
+  /** The stored notation file of a digital book (bucket-relative), and the name it was imported under. */
+  sourcePath?: string
+  sourceName?: string
 }
+
+/** The one tag every book carries. "MusicXML" names the file format, on import and export only; the book is Digital. */
+export type BookKind = 'pdf' | 'digital'
 
 export type AnnotationKind = 'marking' | 'cut' | 'voice' | 'text' | 'dynamic' | 'bowing' | 'breath'
 
