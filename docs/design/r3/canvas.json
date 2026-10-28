@@ -1,0 +1,40 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Artboard-ny66.dc.html": {"h": 600, "page": "page-xk6x9p", "title": "Artboard 1", "w": 800, "x": 0, "y": 0},
+    "Main.dc.html": {"h": 1194, "title": "Shelf — My Library", "w": 834, "x": 0, "y": 0},
+    "R3_ShelfMineEmpty.dc.html": {"h": 1194, "title": "Shelf — My Library, empty (first import)", "w": 834, "x": 914, "y": 0},
+    "R3_ShelfGroups.dc.html": {"h": 1194, "title": "Shelf — Groups (Manage groups CTA)", "w": 834, "x": 1828, "y": 0},
+    "R3_ShelfGroupsDark.dc.html": {"h": 1194, "title": "Shelf — Groups, dark", "w": 834, "x": 2742, "y": 0},
+    "R2_GroupSheet.dc.html": {"h": 1194, "title": "Groups sheet", "w": 834, "x": 0, "y": 1600},
+    "R2_BookSheet.dc.html": {"h": 1194, "title": "Book sheet over the shelf", "w": 834, "x": 914, "y": 1600},
+    "R2_StandLight.dc.html": {"h": 834, "title": "Stand — landscape, two pages, light", "w": 1194, "x": 0, "y": 3174},
+    "R2_StandDarkPaper.dc.html": {"h": 834, "title": "Stand — dark, dimmed paper page", "w": 1194, "x": 1274, "y": 3174},
+    "R2_StandDarkInk.dc.html": {"h": 834, "title": "Stand — dark, inverted page", "w": 1194, "x": 2548, "y": 3174},
+    "R3_StandPortrait.dc.html": {"h": 1194, "title": "Stand — portrait, one page", "w": 834, "x": 0, "y": 4388},
+    "R3_StandZoom.dc.html": {"h": 834, "title": "Stand — landscape, zoomed into one page", "w": 1194, "x": 914, "y": 4388}
+  },
+  "createdOnFiles": {"at": "2026-10-28T15:05:00Z", "v": 1},
+  "designSystems": [],
+  "launch": {"view": "canvas"},
+  "noteOrder": ["n1", "n2", "n3", "n4"],
+  "notes": {
+    "n1": {"kind": "title1", "maxW": 3576, "text": "Shelf — My Library · Groups (light and dark)", "w": 240, "x": 0, "y": -260},
+    "n2": {"kind": "title1", "maxW": 1748, "text": "Sheets — Groups · Book", "w": 240, "x": 0, "y": 1340},
+    "n3": {"kind": "title1", "maxW": 3742, "text": "Stand — landscape spread, vertical quick menu: light · dark dimmed paper · dark inverted", "w": 240, "x": 0, "y": 2914},
+    "n4": {"kind": "title1", "maxW": 2108, "text": "Stand — portrait one page · landscape zoom", "w": 240, "x": 0, "y": 4128}
+  },
+  "order": [
+    "Main.dc.html", "R3_ShelfMineEmpty.dc.html", "R3_ShelfGroups.dc.html", "R3_ShelfGroupsDark.dc.html",
+    "R2_GroupSheet.dc.html", "R2_BookSheet.dc.html",
+    "R2_StandLight.dc.html", "R2_StandDarkPaper.dc.html", "R2_StandDarkInk.dc.html",
+    "R3_StandPortrait.dc.html", "R3_StandZoom.dc.html",
+    "Artboard-ny66.dc.html"
+  ],
+  "pages": [
+    {"id": "page-1", "name": "Page 1"},
+    {"id": "page-xk6x9p", "name": "Page 2"}
+  ],
+  "title": "Folio — Current Design"
+}

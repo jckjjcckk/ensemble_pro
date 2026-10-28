@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Folio · Stand · landscape, zoomed into one page</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Noto+Music&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1194px; height: 834px; box-sizing: border-box; background: #EAE5DA; color: #1C1A16; font-family: Inter, system-ui, sans-serif; position: relative; overflow: hidden; display: flex; flex-direction: column">
+
+  <div style="height: 52px; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; padding: 0 12px 0 8px; background: #F3EFE6; border-bottom: 1px solid #D9D3C5; position: relative; z-index: 2">
+    <div style="display: flex; align-items: center; gap: 6px">
+      <button aria-label="Back to the shelf" style="height: 44px; padding: 0 12px 0 6px; border: 0; border-radius: 10px; background: transparent; color: #1C1A16; font: 500 14px Inter, sans-serif; display: flex; align-items: center; gap: 2px">
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>Shelf
+      </button>
+      <div style="display: flex; flex-direction: column; line-height: 1.1">
+        <span style="font-family: 'EB Garamond', serif; font-size: 17px; font-weight: 500">String Quartet No. 4 in C minor, Op. 18 — Violin I</span>
+        <span style="font-size: 11px; color: #6B665C">Beethoven · bars 49–56 · p. 4, upper half</span>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 2px; background: #E2DCCD; border-radius: 9px; padding: 2px">
+      <button aria-current="true" style="height: 34px; padding: 0 18px; border: 0; border-radius: 7px; background: #FBF9F4; color: #1C1A16; font: 500 14px Inter, sans-serif; box-shadow: 0 1px 1px rgba(28,26,22,0.12)">Read</button>
+      <button style="height: 34px; padding: 0 18px; border: 0; border-radius: 7px; background: transparent; color: #6B665C; font: 500 14px Inter, sans-serif">Practise</button>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px">
+      <div style="display: flex; align-items: center; gap: 2px; border: 1px solid #CFC8B8; border-radius: 9px; padding: 2px">
+        <button style="height: 32px; padding: 0 12px; border: 0; border-radius: 7px; background: transparent; color: #6B665C; font: 500 13px Inter, sans-serif">Mine</button>
+        <button aria-current="true" style="height: 32px; padding: 0 12px; border: 0; border-radius: 7px; background: #1C1A16; color: #F3EFE6; font: 500 13px Inter, sans-serif; display: flex; align-items: center; gap: 7px"><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: #5B86C8"></span>Quartet</button>
+      </div>
+      <div style="display: flex; align-items: center">
+        <span style="width: 30px; height: 30px; border-radius: 50%; background: #5B86C8; color: #FFFFFF; font: 600 11px Inter, sans-serif; display: flex; align-items: center; justify-content: center; border: 2px solid #F3EFE6">AK</span>
+        <span style="width: 30px; height: 30px; border-radius: 50%; background: #C8905B; color: #FFFFFF; font: 600 11px Inter, sans-serif; display: flex; align-items: center; justify-content: center; border: 2px solid #F3EFE6; margin-left: -8px">JL</span>
+        <span style="width: 30px; height: 30px; border-radius: 50%; background: #7A9A6B; color: #FFFFFF; font: 600 11px Inter, sans-serif; display: flex; align-items: center; justify-content: center; border: 2px solid #F3EFE6; margin-left: -8px">MR</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex: 1; position: relative; overflow: hidden">
+    <div style="position: absolute; left: 40px; top: 0; width: 1114px; height: 1575px; box-sizing: border-box; padding: 70px 80px; background: #FBF9F4; box-shadow: 0 1px 0 #D9D3C5, 0 10px 30px rgba(28,26,22,0.10); display: flex; flex-direction: column; gap: 60px">
+      <sc-for list="{{systems}}" as="sys" hint-placeholder-count="2">
+        <div style="display: flex; flex-direction: column; gap: 36px; border-left: 4px solid #1C1A16">
+          <sc-for list="{{sys.staves}}" as="st" hint-placeholder-count="4">
+            <div style="display: flex; height: 56px">
+              <span style="width: 60px; position: relative; flex: none">
+                <span aria-hidden="true" style="position: absolute; left: 8px; top: {{st.ct}}px; font-family: 'Noto Music', serif; font-size: {{st.cs}}px; line-height: 1; color: #1C1A16">{{st.clef}}</span>
+              </span>
+              <div style="flex: 1; display: flex; position: relative; background: repeating-linear-gradient(to bottom, #1C1A16 0 2px, transparent 2px 14px); height: 58px">
+                <sc-for list="{{st.bars}}" as="bar" hint-placeholder-count="4">
+                  <div style="flex: 1; position: relative; border-right: 2px solid #1C1A16">
+                    <sc-if value="{{bar.hl}}" hint-placeholder-val="{{false}}">
+                      <span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: -18px; bottom: -18px; background: rgba(240,216,120,0.55)"></span>
+                    </sc-if>
+                    <sc-if value="{{bar.first}}" hint-placeholder-val="{{false}}">
+                      <span style="position: absolute; left: 6px; top: -30px; font: 500 17px Inter, sans-serif; color: #6B665C">{{bar.num}}</span>
+                    </sc-if>
+                    <sc-for list="{{bar.notes}}" as="n" hint-placeholder-count="3">
+                      <span aria-hidden="true" style="position: absolute; left: {{n.x}}%; top: {{n.y}}px; width: 16px; height: 11px; border-radius: 50%; background: #1C1A16; transform: rotate(-22deg)"></span>
+                      <span aria-hidden="true" style="position: absolute; left: calc({{n.x}}% + 14px); top: {{n.sy}}px; width: 2px; height: 38px; background: #1C1A16"></span>
+                    </sc-for>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="position: absolute; left: 390px; top: 396px; display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 8px; background: #FFFFFF; border: 1px solid #5B86C8; border-radius: 12px; box-shadow: 0 2px 8px rgba(28,26,22,0.12); font-size: 15px; color: #1C1A16">
+      <span style="width: 26px; height: 26px; border-radius: 50%; background: #5B86C8; color: #FFFFFF; font: 600 11px Inter, sans-serif; display: flex; align-items: center; justify-content: center">AK</span>
+      <span>Breathe before the <i>sf</i> — bar 54</span>
+    </div>
+
+    <div style="position: absolute; left: 4px; top: 420px; display: flex; flex-direction: column; align-items: center; gap: 4px">
+      <span style="width: 34px; height: 34px; border-radius: 50%; background: #7A9A6B; color: #FFFFFF; font: 600 12px Inter, sans-serif; display: flex; align-items: center; justify-content: center; border: 2px solid #EAE5DA">MR</span>
+      <span style="font-size: 10px; color: #6B665C">b.58 ↓</span>
+    </div>
+
+    <div aria-label="Page overview, showing the visible part" style="position: absolute; right: 16px; bottom: 16px; width: 72px; height: 102px; background: #FBF9F4; border: 1px solid #CFC8B8; box-shadow: 0 2px 8px rgba(28,26,22,0.15)">
+      <span aria-hidden="true" style="position: absolute; left: 6px; right: 6px; top: 8px; height: 1px; background: #CFC8B8"></span>
+      <span aria-hidden="true" style="position: absolute; left: 6px; right: 6px; top: 30px; height: 1px; background: #CFC8B8"></span>
+      <span aria-hidden="true" style="position: absolute; left: 6px; right: 6px; top: 52px; height: 1px; background: #CFC8B8"></span>
+      <span aria-hidden="true" style="position: absolute; left: 6px; right: 6px; top: 74px; height: 1px; background: #CFC8B8"></span>
+      <span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0; height: 50px; background: rgba(91,134,200,0.18); border-bottom: 2px solid #5B86C8"></span>
+    </div>
+    <span style="position: absolute; right: 100px; bottom: 16px; height: 32px; padding: 0 12px; border-radius: 16px; background: #F3EFE6; border: 1px solid #CFC8B8; font: 500 12px/32px Inter, sans-serif; color: #6B665C">225 % · pinch to see the whole page</span>
+
+    <button style="position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); height: 40px; padding: 0 16px 0 8px; border: 1px solid #CFC8B8; border-radius: 20px; background: #F3EFE6; color: #1C1A16; font: 500 13px Inter, sans-serif; display: flex; align-items: center; gap: 8px">
+      <span style="width: 24px; height: 24px; border-radius: 50%; background: #5B86C8; color: #FFFFFF; font: 600 10px Inter, sans-serif; display: flex; align-items: center; justify-content: center">AK</span>
+      Following Anna's page turns
+    </button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1194,"height":834}}'>
+class Component extends DCLogic {
+  renderVals() {
+    let s = 23;
+    const rnd = () => { s = (s * 48271) % 2147483647; return s / 2147483647; };
+    const clefs = [
+      { clef: '𝄞', cs: 80, ct: -20 },
+      { clef: '𝄞', cs: 80, ct: -20 },
+      { clef: '𝄡', cs: 60, ct: -2 },
+      { clef: '𝄢', cs: 60, ct: -8 }
+    ];
+    let bar = 49;
+    const systems = [];
+    for (let si = 0; si < 2; si++) {
+      const staves = clefs.map((c, st) => {
+        const bars = [];
+        for (let bi = 0; bi < 4; bi++) {
+          const num = bar + bi;
+          const n = 2 + Math.floor(rnd() * 4);
+          const notes = [];
+          for (let k = 0; k < n; k++) {
+            const x = 8 + Math.round((k + 0.5) * (82 / n));
+            const y = Math.round(rnd() * 8) * 7 - 14;
+            notes.push({ x, y, sy: y - 32 });
+          }
+          bars.push({ num, first: st === 0, hl: num === 54, notes });
+        }
+        return Object.assign({ bars }, c);
+      });
+      bar += 4;
+      systems.push({ staves });
+    }
+    return { systems };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Folio R2 · Groups sheet</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Noto+Music&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 834px; height: 1194px; box-sizing: border-box; background: #F3EFE6; color: #1C1A16; font-family: Inter, system-ui, sans-serif; position: relative; overflow: hidden">
+
+  <div aria-hidden="true" style="position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0.5">
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; padding: 56px 40px 14px 40px">
+      <span style="font-family: 'EB Garamond', serif; font-weight: 500; font-size: 46px; line-height: 1">Shelf</span>
+      <div style="display: flex; gap: 10px"><span style="width: 96px; height: 48px; border-radius: 12px; border: 1px solid #CFC8B8"></span><span style="width: 86px; height: 48px; border-radius: 12px; border: 1px solid #CFC8B8"></span><span style="width: 104px; height: 48px; border-radius: 12px; background: #1C1A16"></span><span style="width: 48px; height: 48px; border-radius: 50%; border: 1px solid #CFC8B8"></span></div>
+    </div>
+    <div style="padding: 28px 40px; display: flex; flex-direction: column; gap: 46px">
+      <div style="display: flex; gap: 18px"><span style="width: 232px; height: 246px; border-radius: 6px; background: #FBF9F4; border: 1px solid #E2DCCD"></span><span style="width: 232px; height: 246px; border-radius: 6px; background: #FBF9F4; border: 1px solid #E2DCCD"></span><span style="width: 232px; height: 246px; border-radius: 6px; background: #FBF9F4; border: 1px solid #E2DCCD"></span></div>
+      <div style="display: flex; gap: 18px"><span style="width: 232px; height: 246px; border-radius: 6px; background: #FBF9F4; border: 1px solid #E2DCCD"></span><span style="width: 232px; height: 246px; border-radius: 6px; background: #FBF9F4; border: 1px solid #E2DCCD"></span></div>
+      <div style="display: flex; gap: 18px"><span style="width: 232px; height: 246px; border-radius: 6px; background: #FBF9F4; border: 1px solid #E2DCCD"></span></div>
+    </div>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(28,26,22,0.28)"></div>
+
+  <div role="dialog" aria-label="Groups" style="position: absolute; left: 97px; top: 120px; width: 640px; height: 900px; box-sizing: border-box; background: #FBF9F4; border-radius: 18px; box-shadow: 0 24px 60px rgba(28,26,22,0.35); display: flex; flex-direction: column; overflow: hidden">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 22px 28px 14px 28px; border-bottom: 1px solid #E2DCCD">
+      <h2 style="margin: 0; font-family: 'EB Garamond', serif; font-weight: 500; font-size: 30px">Groups</h2>
+      <button style="height: 40px; padding: 0 16px; border: 0; border-radius: 10px; background: transparent; color: #1C1A16; font: 600 16px Inter, sans-serif">Done</button>
+    </div>
+
+    <div style="flex: 1; padding: 20px 28px; display: flex; flex-direction: column; gap: 18px">
+      <div style="border: 1px solid #E2DCCD; border-radius: 12px; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; align-items: baseline; justify-content: space-between">
+          <div style="display: flex; align-items: baseline; gap: 12px">
+            <span style="font-family: 'EB Garamond', serif; font-size: 24px; font-weight: 500">Quartet</span>
+            <span style="font-size: 13px; color: #6B665C">4 members · you are admin</span>
+          </div>
+          <span style="font-size: 13px; color: #6B665C">2 shared books</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 10px; background: #F3EFE6">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #6B665C">Join code</span>
+            <span style="font-family: 'EB Garamond', serif; font-size: 40px; letter-spacing: 0.14em; line-height: 1">4821 7730</span>
+          </div>
+          <button aria-label="Copy the join code" style="height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #CFC8B8; background: #FBF9F4; font: 500 14px Inter, sans-serif; color: #1C1A16; display: flex; align-items: center; gap: 8px">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>Copy
+          </button>
+        </div>
+        <div style="display: flex; flex-direction: column">
+          <sc-for list="{{members}}" as="m" hint-placeholder-count="4">
+            <div style="display: flex; align-items: center; gap: 12px; height: 48px; border-bottom: 1px solid #EEE9DD">
+              <span style="width: 32px; height: 32px; border-radius: 50%; background: {{m.color}}; color: #FFFFFF; font: 600 12px Inter, sans-serif; display: flex; align-items: center; justify-content: center">{{m.ini}}</span>
+              <span style="flex: 1; font-size: 15px">{{m.name}}</span>
+              <span style="font-size: 12px; color: #6B665C">{{m.role}}</span>
+            </div>
+          </sc-for>
+        </div>
+        <button style="align-self: flex-start; height: 40px; padding: 0 4px; border: 0; background: transparent; color: #B5392E; font: 500 14px Inter, sans-serif">Delete group…</button>
+      </div>
+
+      <button style="display: flex; align-items: center; justify-content: space-between; height: 64px; padding: 0 20px; border: 1px solid #E2DCCD; border-radius: 12px; background: transparent; color: #1C1A16; text-align: left">
+        <span style="display: flex; align-items: baseline; gap: 12px"><span style="font-family: 'EB Garamond', serif; font-size: 22px; font-weight: 500">Choir</span><span style="font: 400 13px Inter, sans-serif; color: #6B665C">12 members · Anna is admin · 1 shared book</span></span>
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B665C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+
+      <div style="margin-top: 6px; display: flex; flex-direction: column; gap: 10px">
+        <label for="join-code" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #6B665C">Join with a code</label>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <input id="join-code" type="text" inputmode="numeric" value="9034 11" aria-label="8-digit join code" style="flex: 1; height: 56px; box-sizing: border-box; padding: 0 18px; border: 1px solid #CFC8B8; border-radius: 12px; background: #FFFFFF; font: 500 26px 'EB Garamond', serif; letter-spacing: 0.18em; color: #1C1A16">
+          <button style="height: 56px; padding: 0 24px; border: 0; border-radius: 12px; background: #1C1A16; color: #F3EFE6; font: 500 16px Inter, sans-serif">Join</button>
+        </div>
+        <span style="font-size: 12px; color: #6B665C">8 digits, from whoever runs the group.</span>
+      </div>
+
+      <button style="margin-top: auto; height: 56px; border: 1px solid #CFC8B8; border-radius: 12px; background: transparent; color: #1C1A16; font: 500 16px Inter, sans-serif; display: flex; align-items: center; justify-content: center; gap: 10px">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Create a group
+      </button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":834,"height":1194}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const members = [
+      { ini: 'K',  name: 'Kai (you)', role: 'admin',  color: '#1C1A16' },
+      { ini: 'AK', name: 'Anna K.',   role: 'member', color: '#5B86C8' },
+      { ini: 'JL', name: 'Jonas L.',  role: 'member', color: '#C8905B' },
+      { ini: 'MR', name: 'Mira R.',   role: 'member', color: '#7A9A6B' }
+    ];
+    return { members };
+  }
+}
+</script>
+</body>
+</html>
