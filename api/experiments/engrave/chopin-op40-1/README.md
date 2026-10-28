@@ -31,6 +31,58 @@ the D page is 240.2 x 318.9 mm, about 13 % larger than the PDF page (212.0 x 290
 from its own staff height, not the paper. Title "Polonaise Op. 40 No. 1", composer "F. Chopin". Audiveris's own 8
 credits ("op. 40 M1", "* Druga wersja", "* Second version", the footnotes, "PWM-9386", "34") are not carried.
 
+## MuseScore drops notes in six bars (A, B, D): the merge's voice numbers, not the music
+
+CK spotted it in bar 16: A, B and D show an empty bass staff, C (OSMD) has the six bass octaves. The four
+renderings do come from the same notes (`same_notes.py`: A, B, D inputs identical, bar 16's staff 2 included),
+and the bass is in the file:
+
+```
+bar 16 (A-input.musicxml, divisions 10080, 3/4 = 30240):
+  voice 1 staff 1: 7 chords = 30240         <backup>30240</backup>
+  <forward>15120</forward> voice 2 staff 1: D4+D5, C#4+C#5 16ths   <backup>20160</backup>
+  <forward>25200</forward> voice 3 staff 1: C#5, B4 16ths          <backup>30240</backup>
+  voice 4 staff 2: E2+E3, C#2+C#3, F#2+F#3, B1+B2, E2+E3, E1+E2 eighths = 30240
+  <note default-x="13"><pitch><step>E</step><octave>2</octave></pitch><duration>5040</duration>
+        <voice>4</voice><type>eighth</type><stem>up</stem><staff>2</staff>
+```
+
+Every voice adds up to the bar, every note has its `<staff>`, every duration divides `divisions`. What breaks is
+the voice numbering. Audiveris numbers per staff (raw `audiveris-p25.mxl`: voices 1-3 on staff 1, 5-6 on staff 2;
+bar 16's bass is voice 5). `score.py`'s music21 merge re-exports the score and **music21 renumbers voices per
+measure across both staves**: bar 16 becomes 1, 2, 3 upper and 4 lower, bar 1 is 1 upper and 2 lower. Over the
+page, voice 2 is the bass in bars 1, 3, 6, 8, 11, 12 (115 notes on staff 2) and an upper voice in 9, 10, 13, 14,
+16 (18 notes). MuseScore's importer ties each voice number to one staff for the whole part, so in bar 16 it
+files voice 2 under the bass staff as cross-staff chords (`<staffMove>-1</staffMove>` in `A-musescore-layout.mscx`,
+staff 2, bar 16) and loses voices 3 and 4: the measure keeps 23 of 37 notes. No warning: the import log holds only
+the usual libjack lines.
+
+`musescore_kept.py` (pitched notes in the input vs `<Note>`s in MuseScore's .mscx), A-input: **628 notes, 586
+kept; short in bars 2 (25 → 20), 4 (29 → 24), 10 (44 → 40), 13 (39 → 32), 14 (57 → 50), 16 (37 → 23)**. B and D
+carry the same voices. OSMD assigns voices per staff and draws everything, which is why C looks right in bar 16.
+`same_notes.py` cannot catch this: it hashes the inputs, not what the engraver kept.
+
+The end-repeat: **not in the file and not in the scan.** A-input's only repeats are the backward repeat closing
+bar 8 and the forward repeat opening bar 9; bar 16 has no `<barline>`, and the scan's bar 16 ends in a plain
+single barline (the section continues on the next page). OSMD draws an end-repeat after bar 16 to close the open
+forward repeat; MuseScore, correctly, does not. The scan's two grace notes in bar 16 (before the D natural and
+the A) are missing everywhere: Audiveris did not read them.
+
+**Fix** (stage: the music21 merge, `score.py` here and the same `sc.write("musicxml")` in the app's
+`omr_convert.py`; `apply_edits.py` writes through music21 again, so it needs the same pass): after writing,
+renumber voices per staff, staff 1 voices 1-4 and staff 2 voices 5-8, as `../renumber_voices.py` does (each
+voice of a measure goes to the staff holding most of its notes; a cross-staff note keeps its `<staff>`). A test:
+across the part, no voice number may appear on two staves except as a minority cross-staff note.
+
+**A2, hand patch:** `A2-musescore-layout-bar16fixed.pdf` from `A2-input.musicxml` = A-input through
+`renumber_voices.py` (228 notes renumbered, nothing else; notes identical, the hash changes because voice numbers
+are hashed). MuseScore keeps **628 of 628** notes; bar 16 has its bass, bars 2 and 4 their full bass, bars 10, 13,
+14 their inner voices. Systems as A (p1: 1-3, 4-6, 7-9, 10, 11-13; p2: 14-16), 0.56 s.
+
+The Goldberg set has the same defect: `../goldberg/same-file/D-input.musicxml` loses 23 of 414 notes in MuseScore
+(bars 1, 4, 5, 6, 7, 9, 19, 29, 30, 32; bars 29 and 30 lose their whole bass line, which the Goldberg README had
+put down to content), and keeps 414 of 414 after `renumber_voices.py`.
+
 ## What the transcription gets wrong (all four files, it is the content)
 
 - **"Allegro con brio" is missing.** Audiveris did not OCR it at all (no word inter on the page reads it; its words
@@ -45,9 +97,7 @@ credits ("op. 40 M1", "* Druga wersja", "* Second version", the footnotes, "PWM-
 - Flagged for review: bars 2, 4 (upper staff fills 3/2 of 3/4), 12 (Audiveris abnormal), 13, 14 (both staves short).
   Bars 13 and 14, with the double-sharp chords and the triplets across the staves, are visibly wrong in every render.
 - A and B print "Music21" as the composer (the merge's `<creator>`); C hides titles; D carries "F. Chopin".
-- OSMD (C) draws an end-repeat after bar 16 that is not in the file: the forward repeat at bar 9 opens a section
-  whose closing repeat is on the next PDF page, and OSMD appears to close the open repeat at the end of the file
-  (MuseScore does not).
+- OSMD (C) draws an end-repeat after bar 16 that is neither in the file nor in the scan (see above).
 
 ## Spark (Muse Spark 1.3)
 
@@ -108,5 +158,6 @@ whole run directory is `api/experiments/omr/out/chopin-op40-1-p25/` (gitignored,
 - `/Users/ckjiang/Documents/muse/.claude/worktrees/agent-a6373b95fb192e74a/api/experiments/engrave/chopin-op40-1/B-musescore-reflow.pdf`
 - `/Users/ckjiang/Documents/muse/.claude/worktrees/agent-a6373b95fb192e74a/api/experiments/engrave/chopin-op40-1/C-osmd.pdf`
 - `/Users/ckjiang/Documents/muse/.claude/worktrees/agent-a6373b95fb192e74a/api/experiments/engrave/chopin-op40-1/D-musescore-layout-pagesize.pdf`
+- `/Users/ckjiang/Documents/muse/.claude/worktrees/agent-a6373b95fb192e74a/api/experiments/engrave/chopin-op40-1/A2-musescore-layout-bar16fixed.pdf` (hand patch: voices renumbered per staff)
 - `/Users/ckjiang/Documents/muse/.claude/worktrees/agent-a6373b95fb192e74a/api/experiments/engrave/chopin-op40-1/scan-p25.png`
 - `/Users/ckjiang/Documents/muse/.claude/worktrees/agent-a6373b95fb192e74a/api/fixtures/pdf/chopin-op40-1-p25.pdf`

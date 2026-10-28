@@ -163,8 +163,9 @@ The mp3 length is from `afinfo` (163 s); MuseScore plays the repeats.
 - MuseScore prints the file's `<creator type="composer">` as the composer: ours shows "Music21" top right (music21
   writes that when the score has no composer); the raw Audiveris file shows the OCR'd "S. Bach.". Worth fixing in
   `score.py` / `omr_score` either way (write Bach, or no creator).
-- Content, not engraving, visible in both renderers: our bars 29 and 30 have an empty bass staff (page 2's first
-  system), and the scan's "Andante espressivo" (which raw Audiveris read) is gone, leaving only quarter = 72.
+- Our bars 29 and 30 show an empty bass staff in MuseScore. **Corrected 2026-10-28:** the bass is in the file
+  (voice 4, staff 2, six eighths a bar) and OSMD draws it; MuseScore drops it because music21's merge renumbers
+  voices per measure across both staves (see "MuseScore drops notes" below). Content, visible in both renderers: the scan's "Andante espressivo" (which raw Audiveris read) is gone, leaving only quarter = 72.
 - No Playwright: headless Google Chrome (`/Applications/Google Chrome.app`) with `--print-to-pdf` and
   `--virtual-time-budget` was enough. Verovio was not needed.
 - Not done: musescore.com PDF import (cloud, account; skipped by rule).
@@ -231,6 +232,17 @@ metronome removed; `font-style="italic"` on the six expression words (dolce, cre
 `c38c505683cdc6ba` only because it hashes the directions too). MuseScore draws "Andante espressivo. (♩ = 72)" above
 bar 1 at the head of the piece and *dolce*, *cresc.*, *cresc. poco*, *dim.* in italics; systems unchanged
 (1-6, 7-12, 13-16, 17-20, 21-24, 25-28 | 29-32), 0.57 s, 76,004 bytes.
+
+## MuseScore drops notes: the merge's voice numbers (found 2026-10-28 on the Chopin page)
+
+`score.py`'s music21 merge renumbers voices per measure across both staves (Audiveris numbers them per staff,
+1-4 upper and 5-8 lower), so one voice number is the treble in one bar and the bass in the next; MuseScore ties a
+voice number to one staff for the whole part and drops or misfiles the minority uses, silently. On
+`same-file/D-input.musicxml`, `../musescore_kept.py` against MuseScore's `same-file/D-musescore-layout-pagesize.mscx`:
+**414 notes, 391 kept**, short in bars 1, 4, 5, 6, 7, 9, 19 (one or three notes each), 29 and 30 (the whole bass,
+21 → 15 each) and 32 (13 → 11). A, B and E have the same voices, so the same losses; OSMD (C) keeps them all. After
+`../renumber_voices.py` (staff 1 voices 1-4, staff 2 voices 5-8) MuseScore keeps 414 of 414. CK's D rating below
+was given on the version with these gaps. Details and the fix: `../chopin-op40-1/README.md`.
 
 ## CK's ratings, 2026-10-28
 
