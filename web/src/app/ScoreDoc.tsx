@@ -1,10 +1,11 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useParams, useSearchParams } from 'react-router'
 import { AnimatePresence, motion } from 'motion/react'
 import type { Annotation, AnnotationKind } from '../mock'
 import { Screen, useReducedMotion, useViewport } from './layout'
 import { ScoreStage, type StageView } from './ScoreStage'
 import { Ruler, type RulerMark } from './Ruler'
+import Strips from './Strips'
 import { spanRects, type Geo } from './geometry'
 import { CutLayer, KindIcon, MarginLayer, NoteBody, PinLayer, inMargin } from './marks'
 import { barRange, firstName, initials, kindLabel, partShort, useStore, type Span } from './store'
@@ -33,7 +34,9 @@ export default function ScoreDoc() {
   const { scoreId = '' } = useParams()
   const { scoresById, world } = useStore()
   const score = scoresById[scoreId]
+  const [search] = useSearchParams()
   if (!score) return <Unavailable title={world.loaded ? 'This score is not in the library.' : 'Opening the score'} />
+  if (search.get('view') === 'strips') return <Strips score={score} />   // a cut part (008) reads as strips (010)
   if (score.status !== 'ready' || !score.fixture) {
     const why = score.status === 'failed' ? score.failureReason
       : score.status === 'processing' ? `Still processing, ${Math.round((score.progress ?? 0) * 100)} percent read.`

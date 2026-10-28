@@ -3,7 +3,7 @@ import {
   annotations as seedAnnotations, practice, scanDraft,
   type Annotation, type Ensemble, type Member, type Membership, type Part, type ScanPage, type Score,
 } from '../mock'
-import type { World } from './data'
+import type { PartJob, PartStrip, World } from './data'
 
 export const BASE = ''
 export const WORDMARK = 'Folio'
@@ -78,6 +78,10 @@ interface Store {
   setContext: (ensembleId: string) => void
   /** The account's standing in the ensemble that owns a score, whatever library is open. */
   contextFor: (ensembleId: string) => Context | undefined
+  /** Part-cut jobs of a score, newest first (008). */
+  jobsFor: (scoreId: string) => PartJob[]
+  /** Finished cut parts of a score, newest first (008, 010). */
+  stripsFor: (scoreId: string) => PartStrip[]
   display: Display
   setDisplay: Dispatch<SetStateAction<Display>>
   practiceUI: PracticeUI
@@ -117,15 +121,17 @@ export function StoreProvider({ world, children }: { world: World; children: Rea
   const scoresById = useMemo(() => byId(world.scores), [world.scores])
   const partsById = useMemo(() => byId(world.parts), [world.parts])
   const membersById = useMemo(() => byId(world.ensembles.flatMap(e => e.members)), [world.ensembles])
+  const jobsFor = useCallback((scoreId: string) => world.jobs.filter(j => j.scoreId === scoreId), [world.jobs])
+  const stripsFor = useCallback((scoreId: string) => world.strips.filter(s => s.scoreId === scoreId), [world.strips])
 
   const value = useMemo<Store>(() => ({
     world, contexts, scoresById, partsById, membersById,
-    context: contextFor(contextId) ?? contexts[0], setContext, contextFor,
+    context: contextFor(contextId) ?? contexts[0], setContext, contextFor, jobsFor, stripsFor,
     display, setDisplay,
     practiceUI, setPracticeUI,
     annotations, addAnnotation: a => setAnnotations(xs => [...xs, a]),
     scan, setScan,
-  }), [world, contexts, scoresById, partsById, membersById, contextId, contextFor, setContext, display, practiceUI, annotations, scan])
+  }), [world, contexts, scoresById, partsById, membersById, contextId, contextFor, setContext, jobsFor, stripsFor, display, practiceUI, annotations, scan])
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }

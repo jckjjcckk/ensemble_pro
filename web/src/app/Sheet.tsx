@@ -1,4 +1,5 @@
 import { useEffect, useRef, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { AnimatePresence, motion, useDragControls, useIsPresent, type HTMLMotionProps, type PanInfo, type Transition } from 'motion/react'
 import { useReducedMotion, useViewport } from './layout'
 import './sheet.css'
@@ -24,6 +25,11 @@ interface SheetProps {
   label: string
   /** Laid out as a column beside the work by the parent's grid instead of over it: no scrim, no drag. */
   docked?: boolean
+  /**
+   * Rendered at the app root (`.fo`) over everything, above any open side panel: a sheet opened from inside a
+   * sliding panel must not be positioned inside that panel's transform. Escape closes this sheet alone.
+   */
+  portal?: boolean
   className?: string
   children: ReactNode
 }
@@ -35,35 +41,40 @@ interface SheetProps {
  * Docked (a grid column the parent owns) it only slides; the scrim and the drag go away.
  * Keep it mounted with `open` false so the exit can play.
  */
-export function Sheet({ open, onClose, label, docked = false, className = '', children }: SheetProps) {
+export function Sheet({ open, onClose, label, docked = false, portal = false, className = '', children }: SheetProps) {
   const vp = useViewport()
   const reduced = useReducedMotion()
   const bottom = !docked && vp.h > vp.w
 
   useEffect(() => {
     if (!open) return
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [open, onClose])
+    // A portaled sheet sits over the panel that opened it: Escape in the capture phase closes it alone.
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { if (portal) e.stopImmediatePropagation(); onClose() } }
+    window.addEventListener('keydown', onKey, portal)
+    return () => window.removeEventListener('keydown', onKey, portal)
+  }, [open, onClose, portal])
 
-  return (
+  const tree = (
     <AnimatePresence initial={false}>
-      {open && !docked && <Scrim key="scrim" onClose={onClose} />}
+      {open && !docked && <Scrim key="scrim" raised={portal} onClose={onClose} />}
       {open && (
         <Panel
-          key="panel" label={label} className={className} docked={docked} bottom={bottom} reduced={reduced} onClose={onClose}
-          off={bottom ? Math.round(vp.h * BOTTOM_FRACTION) + SHADOW : Math.min(SIDE_W, vp.w) + SHADOW}
+          key="panel" label={label} className={`${className} ${portal ? 'is-raised' : ''}`} docked={docked} bottom={bottom} reduced={reduced} onClose={onClose}
+          // A raised sheet sizes to its content, so it rests past the edge by its own extent rather than a fixed one.
+          off={portal ? '110%' : bottom ? Math.round(vp.h * BOTTOM_FRACTION) + SHADOW : Math.min(SIDE_W, vp.w) + SHADOW}
         >
           {children}
         </Panel>
       )}
     </AnimatePresence>
   )
+  if (!portal) return tree
+  const host = document.querySelector('.fo') ?? document.body
+  return createPortal(tree, host)
 }
 
 function Panel({ label, className, docked, bottom, reduced, off, onClose, children }: {
-  label: string; className: string; docked: boolean; bottom: boolean; reduced: boolean; off: number; onClose: () => void; children: ReactNode
+  label: string; className: string; docked: boolean; bottom: boolean; reduced: boolean; off: number | string; onClose: () => void; children: ReactNode
 }) {
   const ref = useRef<HTMLElement>(null)
   const present = useIsPresent()
@@ -77,7 +88,7 @@ function Panel({ label, className, docked, bottom, reduced, off, onClose, childr
     const t = e.target as HTMLElement
     if (t.closest('button, a, input, select, textarea, [role="slider"]')) return
     // The bottom sheet's list scrolls; its handle and head drag. The side sheet drags from anywhere (vertical scroll stays native).
-    if (bottom && t.closest('.side-scroll')) return
+    if (bottom && t.closest('.side-scroll, .sheet-body')) return
     controls.start(e)
   }
 
@@ -110,11 +121,11 @@ function Panel({ label, className, docked, bottom, reduced, off, onClose, childr
   )
 }
 
-/** Dims the work under a sheet and swallows the tap that dismisses it. `clear` keeps the dim off (a small popover). */
-export function Scrim({ onClose, clear = false, fixed = false }: { onClose: () => void; clear?: boolean; fixed?: boolean }) {
+/** Dims the work under a sheet and swallows the tap that dismisses it. `clear` keeps the dim off (a small popover); `raised` sits above open side panels. */
+export function Scrim({ onClose, clear = false, fixed = false, raised = false }: { onClose: () => void; clear?: boolean; fixed?: boolean; raised?: boolean }) {
   return (
     <motion.div
-      className={`sheet-scrim ${clear ? 'is-clear' : ''} ${fixed ? 'is-fixed' : ''}`} aria-hidden="true"
+      className={`sheet-scrim ${clear ? 'is-clear' : ''} ${fixed ? 'is-fixed' : ''} ${raised ? 'is-raised' : ''}`} aria-hidden="true"
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: FADE_OUT }} transition={FADE_IN}
       onClick={onClose}
     />

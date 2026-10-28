@@ -7,6 +7,7 @@ import { MY_LIBRARY, importMusicXml } from './data'
 import { Screen, useViewport } from './layout'
 import { DisplayButton } from './Display'
 import { EASE_OUT, SPRING_LAYOUT, Sheet } from './Sheet'
+import { PartsPanel } from './Parts'
 import { barRange, difficultyWord, fmtDateTime, partShort, useStore } from './store'
 import { ICamera, IClose, IImport, IRepeat, IWarning } from './icons'
 
@@ -271,6 +272,8 @@ function InfoBody({ score: s, onClose }: { score: Score; onClose: () => void }) 
             <blockquote className="info-brief">{s.brief}</blockquote>
           </div>
         )}
+
+        <PartsPanel score={s} />
 
         <div className="info-actions">
           {ready && <Link to={`/score/${s.id}`} className="btn btn-solid">Open score</Link>}

@@ -1,0 +1,98 @@
+/* Part cutting (008), the staff question (011) and the strip reading view (010). Tokens from styles.css; the sheets they open in are Sheet.tsx (sheet.css). */
+
+/* ---------------------------------------------------------------- the part picker */
+
+.fo .pick-sub { font-size: 14.5px; color: var(--ink-2); line-height: 1.45; }
+.fo .pick { display: flex; flex-direction: column; }
+.fo .pick-row {
+  display: flex; align-items: center; gap: 12px; min-height: 50px; padding: 0 4px; border: 0; border-top: 1px solid var(--rule); border-radius: 0;
+  background: transparent; text-align: left; font-size: 16px; color: var(--ink); transition: background-color 120ms var(--ease);
+}
+.fo .pick-row:first-child { border-top: 0; }
+.fo .pick-mark {
+  flex: none; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--rule-2); color: var(--sheet);
+  transition: background-color 120ms var(--ease), border-color 120ms var(--ease);
+}
+.fo .pick-mark svg { opacity: 0; transition: opacity 120ms var(--ease); }
+.fo .pick-row[aria-checked='true'] .pick-mark { background: var(--ink); border-color: var(--ink); }
+.fo .pick-row[aria-checked='true'] .pick-mark svg { opacity: 1; }
+.fo .pick-name { flex: 1; min-width: 0; }
+.fo .pick-pos { font-size: 12.5px; color: var(--ink-3); }
+.fo .pick-add { display: flex; gap: 8px; align-items: flex-end; }
+.fo .pick-add .field { flex: 1; }
+.fo .pick-add .btn { min-height: 46px; }
+
+/* ---------------------------------------------------------------- jobs and cut parts in the information box */
+
+.fo .pt-list { display: flex; flex-direction: column; }
+.fo .pt-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--rule); font-size: 14.5px; }
+.fo .pt-row:first-child { border-top: 0; }
+.fo .pt-name { font-weight: 600; }
+.fo .pt-when { font-weight: 400; color: var(--ink-3); font-size: 13px; }
+.fo .pt-state { display: flex; align-items: center; gap: 8px; color: var(--ink-3); font-size: 13.5px; white-space: nowrap; }
+.fo .pt-state .meter { width: 44px; }
+.fo .pt-note { grid-column: 1 / -1; font-size: 13.5px; color: var(--ink-2); }
+.fo .pt-log { grid-column: 1 / -1; margin: 2px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--ink-3); line-height: 1.45; }
+.fo .pt-log li { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fo .pt-fail { grid-column: 1 / -1; font-size: 13.5px; color: var(--amber); line-height: 1.45; }
+.fo .pt-q { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 10px; margin-top: 4px; padding: 12px 14px; border-radius: 10px; background: color-mix(in oklch, var(--amber) 10%, transparent); }
+.fo .pt-q p { font-size: 14.5px; line-height: 1.45; }
+.fo .pt-q .btn { align-self: flex-start; }
+.fo .pt-open { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; margin-right: -12px; border-radius: 8px; font-size: 14.5px; font-weight: 600; color: var(--ink); text-decoration: none; }
+.fo .pt-actions { margin-top: 10px; }
+.fo .pt-actions .btn { width: 100%; min-height: 48px; }
+
+/* ---------------------------------------------------------------- the staff question */
+
+.fo .sq-ctx { font-size: 15px; line-height: 1.45; }
+.fo .sq-why { font-size: 14px; color: var(--ink-3); line-height: 1.45; padding-left: 12px; border-left: 1px solid var(--rule-2); }
+.fo .sq-image { position: relative; overflow: hidden; border-radius: 6px; background: var(--sheet); border: 1px solid var(--sheet-edge); touch-action: pan-y; }
+.fo .sq-image img { position: absolute; left: 0; top: 0; width: 100%; height: auto; display: block; }
+.fo .sq-image.is-ready { flex: none; height: 0; }
+.fo .sq-image.is-loading { min-height: 180px; display: grid; place-items: center; color: var(--ink-3); font-size: 14px; }
+.fo .sq-box { position: absolute; border: 1.5px solid oklch(0.45 0.08 255 / 0.55); border-radius: 3px; background: transparent; padding: 0; transition: background-color 120ms var(--ease), border-color 120ms var(--ease); }
+.fo .sq-box[aria-checked='true'] { background: oklch(0.235 0.008 255 / 0.18); border-color: var(--ink); }
+.fo .sq-rows { display: flex; flex-direction: column; }
+.fo .sq-row {
+  display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 4px; border: 0; border-top: 1px solid var(--rule); border-radius: 0;
+  background: transparent; text-align: left; font-size: 15px; color: var(--ink); transition: background-color 120ms var(--ease);
+}
+.fo .sq-row:first-child { border-top: 0; }
+.fo .sq-row .num { width: 28px; text-align: right; color: var(--ink-2); }
+.fo .sq-row .sq-tag { font-size: 12.5px; color: var(--ink-3); margin-left: auto; }
+.fo .sq-row[aria-checked='true'] { background: var(--wash); }
+.fo .sq-row[aria-checked='true'] .pick-mark { background: var(--ink); border-color: var(--ink); }
+.fo .sq-row[aria-checked='true'] .pick-mark svg { opacity: 1; }
+.fo .sq-pick { font-size: 13.5px; color: var(--ink-3); }
+
+/* ---------------------------------------------------------------- strips: one cut system per row, snapping */
+
+.fo .strips {
+  height: 100%; overflow-y: auto; scroll-snap-type: y mandatory; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  padding: 16px 16px 24px; display: flex; flex-direction: column; gap: 16px;
+}
+/* A system strip is about 6.5 times wider than tall; the reserved height keeps the snap points still while images decode. */
+.fo .strip { flex: none; min-height: calc((100vw - 32px) * 0.155 + 36px); scroll-snap-align: start; scroll-margin-top: 16px; background: var(--sheet); border: 1px solid var(--sheet-edge); border-radius: 4px; box-shadow: var(--shadow); }
+.fo .strip-when { font-weight: 400; opacity: 0.7; }
+/* Several cut parts: the switcher scrolls sideways under the finger instead of pushing the Library button off the dock. */
+.fo .strips-seg { flex: 0 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.fo .strips-seg::-webkit-scrollbar { display: none; }
+.fo .strips-seg button { white-space: nowrap; }
+.fo .strip img { display: block; width: 100%; height: auto; }
+.fo .strip-cap { display: flex; gap: 12px; padding: 8px 14px; font-size: 12.5px; color: var(--ink-3); border-top: 1px solid var(--rule); }
+.fo .strips-empty { padding: 48px 24px; color: var(--ink-2); }
+
+@media (prefers-color-scheme: dark) {
+  .fo:not([data-theme='light']) .strip img, .fo:not([data-theme='light']) .sq-image img { filter: invert(0.93) hue-rotate(180deg); }
+}
+.fo[data-theme='dark'] .strip img, .fo[data-theme='dark'] .sq-image img { filter: invert(0.93) hue-rotate(180deg); }
+
+/* Pressed within a frame; hover only where a pointer can hover (styles.css, "pressed and hover"). */
+.fo .pick-row:active, .fo .sq-row:active, .fo .sq-box:active, .fo .pt-open:active { background: var(--wash-2); transition-duration: 40ms; }
+@media (hover: hover) {
+  .fo .pick-row:hover, .fo .pt-open:hover, .fo .sq-box:hover, .fo .sq-row:hover { background: var(--wash); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fo .pick-row, .fo .pick-mark, .fo .pick-mark svg, .fo .sq-box, .fo .sq-row { transition: none; }
+}
