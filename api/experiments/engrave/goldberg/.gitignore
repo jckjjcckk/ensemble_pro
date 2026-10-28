@@ -1,0 +1,5 @@
+# Large or derived copies; absolute paths are listed in README.md
+inputs/ref-full.musicxml
+inputs/ours-p1-5.musicxml
+scan-p*.png
+*.mp3
