@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import { Pop } from './Sheet'
 import { KindIcon } from './marks'
-import { IRepeat } from './icons'
 import { kindLabel } from './store'
 import type { Geo } from './geometry'
 import type { BarMark } from './ink'
-import { IHighlight, INote, IScribble } from './MarkIcons'
+import { IHighlight } from './MarkIcons'
 import './Ink.css'
 
 // ---------------------------------------------------------------- the menu's state and its dismissal
@@ -62,8 +61,18 @@ function useKeyboardOverlap(el: HTMLElement | null, on: boolean) {
 
 // ---------------------------------------------------------------- the menu
 
-const GAP = 12
+const GAP = 14
+const ARROW = 22
 
+/** R3's icons for the four acts (docs/design/r3, the vertical quick menu). */
+const IHl = () => <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16M6 16l9-9 3 3-9 9H6z" /></svg>
+const INoteR3 = () => <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 5h14v10H9l-4 4z" /></svg>
+const IScr = () => <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 17c3-6 6 2 9-4s4-5 7-9" /></svg>
+const ILoop = () => <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 4l3 3-3 3M4 7h16M7 20l-3-3 3-3M20 17H4" /></svg>
+
+/** The quick menu on a tapped bar (R3): a vertical card beside the bar, its arrow at the bar's middle, on the side with
+ *  room. "Bar N", the marks already on the bar (each removable by its author), then Highlight, Note (opens a line to
+ *  write in), Scribble and Loop from here. It pops from the arrow and leaves faster. */
 export function MarkMenu({ geo, state, marks, highlighted, nameOf, onHighlight, onNote, onSaveNote, onScribble, onLoop, onRemove, onClose }: {
   geo: Geo
   state: BarMenuState | null
@@ -76,14 +85,14 @@ export function MarkMenu({ geo, state, marks, highlighted, nameOf, onHighlight, 
   onNote: () => void
   onSaveNote: (text: string) => void
   onScribble: () => void
-  /** Practice only: loop from this bar. */
+  /** Loop from this bar (practice, or the stand's way into it). */
   onLoop?: () => void
   onRemove: (id: string) => void
   onClose: () => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [host, setHost] = useState<HTMLElement | null>(null)
-  const [size, setSize] = useState({ w: 340, h: 92 })
+  const [size, setSize] = useState({ w: 200, h: 236 })
   const [text, setText] = useState('')
   const box = state ? geo.bars.get(state.bar) : undefined
   const note = !!state?.note
@@ -94,20 +103,21 @@ export function MarkMenu({ geo, state, marks, highlighted, nameOf, onHighlight, 
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
-    setHost(h => h ?? el.closest<HTMLElement>('.stage'))
+    setHost(h => h ?? el.closest<HTMLElement>('.stage-content') ?? el.closest<HTMLElement>('.stage'))
     const w = el.offsetWidth, h = el.offsetHeight
     setSize(s => (s.w === w && s.h === h ? s : { w, h }))
   }, [state?.bar, note, marks.length])
 
   if (!state || !box) return <Pop open={false} />
 
-  // Below the bar when it fits above the keyboard and the page foot; otherwise above it.
-  const stageW = host?.clientWidth ?? 1024
-  const stageH = (host?.clientHeight ?? 768) - kb
-  const below = box.y + box.h + GAP + size.h <= stageH - 34 || box.y - GAP - size.h < 8
-  const top = below ? box.y + box.h + GAP : box.y - GAP - size.h
-  const left = Math.max(8, Math.min(box.x + box.w / 2 - size.w / 2, stageW - size.w - 8))
-  const originX = Math.max(16, Math.min(size.w - 16, box.x + box.w / 2 - left))
+  // Beside the bar on the side with room (right first), the arrow level with the bar's middle.
+  const hostW = host?.clientWidth ?? 1024
+  const hostH = (host?.clientHeight ?? 768) - kb
+  const right = box.x + box.w + GAP + size.w <= hostW - 8 || box.x - GAP - size.w < 8
+  const left = right ? box.x + box.w + GAP : box.x - GAP - size.w
+  const mid = box.y + box.h / 2
+  const top = Math.max(8, Math.min(mid - ARROW - 6, hostH - size.h - 8))
+  const arrowY = Math.max(12, Math.min(size.h - 24, mid - top - 6))
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
@@ -119,53 +129,51 @@ export function MarkMenu({ geo, state, marks, highlighted, nameOf, onHighlight, 
 
   return (
     <Pop
-      open id={String(state.bar)} className="qm" role="dialog" aria-label={`Bar ${state.bar}`}
-      style={{ left, top: Math.max(8, top) }} origin={`${originX}px ${below ? '0px' : '100%'}`}
+      open id={String(state.bar)} className={`qm ${right ? 'is-right' : 'is-left'}`} role="menu" aria-label={`Bar ${state.bar}`}
+      style={{ left: Math.max(8, left), top }} origin={`${right ? '0px' : '100%'} ${arrowY + 6}px`}
+      transition={{ type: 'spring', stiffness: 520, damping: 34, mass: 0.7 }}
       // Keys typed in the note never reach the stage (arrows turn pages there).
       onKeyDown={e => { e.stopPropagation(); if (e.key === 'Escape') onClose() }}
     >
+      <span className="qm-arrow" aria-hidden="true" style={{ top: arrowY }} />
       <div ref={ref} className="qm-in">
+        <span className="qm-head">Bar {state.bar}</span>
         {marks.length > 0 && (
           <ul className="qm-marks" aria-label={`Marks on bar ${state.bar}`}>
             {marks.map(m => (
               <li key={m.id} className="qm-mark">
-                <span className={`qm-kind is-${m.kind}`}>{m.kind === 'highlight' ? <IHighlight size={18} on /> : <KindIcon kind={m.kind} size={16} />}</span>
+                <span className={`qm-kind is-${m.kind}`}>{m.kind === 'highlight' ? <IHighlight size={16} on /> : <KindIcon kind={m.kind} size={15} />}</span>
                 <span className="qm-mark-body">
                   <span className="qm-mark-text">{m.kind === 'highlight' ? 'Highlight' : m.text || m.transcript || kindLabel[m.kind]}</span>
-                  <span className="qm-mark-by">{m.mine ? 'You' : nameOf(m)}{m.kind === 'text' && m.partId === null && m.mine ? ' · only you see it' : ''}</span>
+                  <span className="qm-mark-by">{m.mine ? 'You' : nameOf(m)}{m.kind === 'text' && m.partId === null && m.mine && m.audience === 'member' ? ' · only you' : ''}</span>
                 </span>
-                {m.removable && (
-                  <button type="button" className="btn btn-line is-small qm-remove" onClick={() => onRemove(m.id)}>Remove</button>
-                )}
+                {m.removable && <button type="button" className="qm-remove" onClick={() => onRemove(m.id)} aria-label={`Remove ${m.kind === 'highlight' ? 'highlight' : 'note'}`}>Remove</button>}
               </li>
             ))}
           </ul>
         )}
-        <div className="qm-acts" role="group" aria-label={`Mark bar ${state.bar}`}>
-          <span className="qm-bar"><span className="qm-bar-k">bar</span><span className="num">{state.bar}</span></span>
-          <button type="button" className="qm-act" aria-pressed={highlighted} onClick={onHighlight}>
-            <IHighlight size={22} on={highlighted} /><span>Highlight</span>
-          </button>
-          <button type="button" className="qm-act" aria-expanded={note} onClick={onNote}>
-            <INote size={22} /><span>Note</span>
-          </button>
-          <button type="button" className="qm-act" onClick={onScribble}>
-            <IScribble size={22} /><span>Scribble</span>
-          </button>
-          {onLoop && (
-            <button type="button" className="qm-act" onClick={onLoop}>
-              <IRepeat size={22} /><span>Loop from here</span>
-            </button>
-          )}
-        </div>
+        <button type="button" role="menuitemcheckbox" className="qm-act" aria-checked={highlighted} onClick={onHighlight}>
+          <IHl /><span>{highlighted ? 'Highlighted' : 'Highlight'}</span>
+        </button>
+        <button type="button" role="menuitem" className="qm-act" aria-expanded={note} onClick={onNote}>
+          <INoteR3 /><span>Note</span>
+        </button>
         {note && (
           <form className="qm-note" onSubmit={submit}>
             <input
               className="qm-input" value={text} onChange={e => setText(e.target.value)} autoFocus maxLength={140}
               enterKeyHint="done" placeholder={`Note on bar ${state.bar}`} aria-label={`Note on bar ${state.bar}`}
             />
-            <button type="submit" className="btn btn-solid is-small" disabled={!text.trim()}>Save</button>
+            <button type="submit" className="qm-save" disabled={!text.trim()}>Save</button>
           </form>
+        )}
+        <button type="button" role="menuitem" className="qm-act" onClick={onScribble}>
+          <IScr /><span>Scribble</span>
+        </button>
+        {onLoop && (
+          <button type="button" role="menuitem" className="qm-act" onClick={onLoop}>
+            <ILoop /><span>Loop from here</span>
+          </button>
         )}
       </div>
     </Pop>

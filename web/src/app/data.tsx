@@ -513,3 +513,17 @@ export async function unshareBook(scoreId: string, ensembleId: string): Promise<
   const { error } = await supabase.rpc('unshare_score', { score: scoreId, ensemble: ensembleId })
   if (error) throw new Error(groupError(error, 'The book is still shared. Try again in a moment.'))
 }
+
+/** Rename a book (owner or admin: the scores update policy). */
+export async function renameBook(scoreId: string, title: string): Promise<void> {
+  const { error } = await supabase.from('scores').update({ title }).eq('id', scoreId)
+  if (error) throw new Error(error.message)
+}
+
+/** Delete a book and everything hanging from it (owner or admin: the scores delete policy; children cascade). The
+ *  stored files stay in the bucket. */
+export async function deleteBook(scoreId: string): Promise<void> {
+  const { error, count } = await supabase.from('scores').delete({ count: 'exact' }).eq('id', scoreId)
+  if (error) throw new Error(error.message)
+  if (count === 0) throw new Error('Only its owner, or the group\'s admin, can delete this book.')
+}

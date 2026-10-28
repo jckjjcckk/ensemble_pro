@@ -34,7 +34,7 @@ function Digits({ text, x, y, width }: { text: string; x: number; y: number; wid
 }
 
 /** The plate itself. `unit` is CSS px per glyph unit (1.1 draws an 11 px staff space). */
-export function IdentityStaff({ keySig, meter, unit = 1.1, label }: { keySig: KeySig | null; meter: Meter | null; unit?: number; label: string }) {
+export function IdentityStaff({ keySig, meter, unit = 1.1, label, minWidth = 0 }: { keySig: KeySig | null; meter: Meter | null; unit?: number; label: string; /** CSS px the staff runs to at least (the shelf card's plate). */ minWidth?: number }) {
   const fadeId = useId().replace(/:/g, '')
   const accs = keySig ? (keySig.fifths > 0 ? SHARP_LINES.slice(0, keySig.fifths).map(line => ({ line, g: GLYPHS.sharp })) : FLAT_LINES.slice(0, -keySig.fifths).map(line => ({ line, g: GLYPHS.flat }))) : []
 
@@ -45,7 +45,7 @@ export function IdentityStaff({ keySig, meter, unit = 1.1, label }: { keySig: Ke
   const tsW = meter ? Math.max(digitsWidth(meter.top), digitsWidth(meter.bottom)) : 0
   // With no signature yet the plate keeps a signature's room, so the box does not jump when the read lands.
   const sigEnd = keySig || meter ? tsX + tsW : tsX + 30
-  const W = sigEnd + TAIL
+  const W = Math.max(sigEnd + TAIL, minWidth / unit)
   const H = BOTTOM - TOP
 
   return (

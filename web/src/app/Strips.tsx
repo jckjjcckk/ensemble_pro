@@ -6,7 +6,7 @@ import type { Score } from '../mock'
 import { supabase } from '../lib/supabase'
 import { Screen, useViewport } from './layout'
 import { fmtDateTime, useStore } from './store'
-import { DisplayButton } from './Display'
+import { AccountButton } from './Display'
 import { ILibrary } from './icons'
 import './parts.css'
 
@@ -44,7 +44,7 @@ export default function Strips({ score }: { score: Score }) {
         <p>{strip ? `${strip.label} · ${strip.paths.length} ${strip.paths.length === 1 ? 'system' : 'systems'}` : 'Nothing split out yet'}</p>
       </div>
       <div className="grow" />
-      <DisplayButton />
+      <AccountButton />
     </div>
   )
 
