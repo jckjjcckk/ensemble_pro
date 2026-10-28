@@ -1,0 +1,7 @@
+page,engine,bars,clef_key_time,pitch,rhythm,voices_staves,ornaments_articulation,dynamics_text,overall,notes
+goldberg-bga-p01,audiveris,80,100,50,70,65,10,10,0,No fingering; sometimes missing or wrong text
+goldberg-bga-p01,homr,100,66,60,80,50,20,0,5,Wrong time; missing ornaments; does not connect the 16th notes
+goldberg-bga-p01,transcoda,70,100,30,30,20,0,0,-5,Completely crazy page layout
+goldberg-bga-p01-sys1,smt,,,,,,,,,Verovio crashed
+rach1-2pf-gutheil-p03,audiveris,100,100,20,0,60,0,60,-5,"It recognized piano I and piano II and did a correct split, but the dense piano I is compl[etely wrong; note truncated in screenshot]"
+rach1-2pf-gutheil-p03,homr,90,95,60,40,70,40,0,5,"Treat piano I and piano II as sequential not parallel"

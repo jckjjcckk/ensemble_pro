@@ -20,6 +20,35 @@ OUT.mkdir(exist_ok=True)
 
 PAGE_NAMES = ["goldberg-bga-p01", "rach1-2pf-gutheil-p03"]
 
+# Piano-cut experiment: which score. `--score <stem>` on the command line or PIANO_CUT_SCORE=<stem>; the
+# default (Rach 1 Gutheil) keeps the original layout, out/piano-cut/; any other score writes to
+# out/piano-cut/<stem>/ and reads fixtures/pdf/<stem>.pdf.
+PIANO_CUT_DEFAULT = "rach1-fullscore-gutheil-1919"
+PIANO_CUT_TITLES = {
+    "rach1-fullscore-gutheil-1919": "Rachmaninoff, Piano Concerto No. 1, 1919 Gutheil edition",
+    "rach2-fullscore-imslp03631": "Rachmaninoff, Piano Concerto No. 2",
+    "beethoven-pc3-fullscore-imslp977417": "Beethoven, Piano Concerto No. 3",
+    "beethoven-pc5-fullscore-imslp977419": "Beethoven, Piano Concerto No. 5",
+}
+
+
+def piano_cut_score() -> str:
+    """Score stem from `--score X` (removed from sys.argv so the scripts' own parsers never see it) or the env."""
+    import sys
+
+    argv = sys.argv
+    if "--score" in argv:
+        i = argv.index("--score")
+        os.environ["PIANO_CUT_SCORE"] = argv[i + 1]
+        del argv[i : i + 2]
+    return os.environ.get("PIANO_CUT_SCORE", PIANO_CUT_DEFAULT)
+
+
+PIANO_CUT_SCORE = piano_cut_score()
+PIANO_CUT_PDF = HERE.parent.parent / "fixtures" / "pdf" / f"{PIANO_CUT_SCORE}.pdf"
+PIANO_CUT_OUT = OUT / "piano-cut" / ("" if PIANO_CUT_SCORE == PIANO_CUT_DEFAULT else PIANO_CUT_SCORE)
+PIANO_CUT_TITLE = PIANO_CUT_TITLES.get(PIANO_CUT_SCORE, PIANO_CUT_SCORE)
+
 # Prices from dev.meta.ai pricing page (see README for the values and date).
 PRICE = {
     "muse-spark-1.3": {"input_per_m": 1.25, "output_per_m": 4.25},  # dev.meta.ai pricing, 2026-10-27
