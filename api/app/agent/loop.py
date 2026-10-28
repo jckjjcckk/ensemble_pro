@@ -201,6 +201,7 @@ async def run_agent(
             try:
                 out = await tools.call(name, args, st)
                 results.append(_tool_result(cid, out))
+                st.refusals.pop(name, None)  # a success clears the tool's refusal streak
                 st.log.append(f"Turn {st.turn}: {name} ok")
             except Refusal as r:
                 n = st.refusals.get(name, 0) + 1

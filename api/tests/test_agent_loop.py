@@ -141,3 +141,31 @@ async def test_invalid_arguments_are_reported_before_the_tool_runs():
     assert "must be integer" in last_results(t.calls[2])[0]["error"]
     assert "unknown argument(s) extra" in last_results(t.calls[3])[0]["error"]
     assert st.scratch.get("read") is None and st.status == "done"
+
+
+@pytest.mark.asyncio
+async def test_success_resets_the_refusal_streak():
+    """Two refusals, a good commit on another page, then two more refusals must not escalate (3 is the cap)."""
+    b = ToolBox()
+
+    @b.tool("commit_page", "Commit a page.", {"properties": {"page": {"type": "integer"}, "ok": {"type": "boolean"}}, "required": ["page", "ok"]}, commit=True)
+    def commit_page(args, state):
+        if not args["ok"]:
+            raise Refusal(f"page {args['page']} is wrong")
+        state.scratch["done"] = state.scratch.get("done", 0) + 1
+        return {"committed": args["page"]}
+
+    @b.tool("finish", "Finish.", {"properties": {}}, commit=True)
+    def finish(args, state):
+        raise Stop("done", pages=state.scratch.get("done", 0))
+
+    bad, good = {"ok": False}, {"ok": True}
+    client, t = fake_client([
+        tool("commit_page", {"page": 1, **bad}), tool("commit_page", {"page": 1, **bad}),
+        tool("commit_page", {"page": 1, **good}),
+        tool("commit_page", {"page": 2, **bad}), tool("commit_page", {"page": 2, **bad}),
+        tool("commit_page", {"page": 2, **good}), tool("finish", {}),
+    ])
+    st = await run_agent(system=SYSTEM, tools=b, user_text="go", client=client, max_refusals=3)
+    assert st.status == "done" and st.result["pages"] == 2
+    assert last_results(t.calls[4])[0]["refusals"] == 1  # the streak restarted after the good commit on page 1
