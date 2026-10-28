@@ -280,6 +280,42 @@ class SshEngraver:
         return {"seconds": round(time.perf_counter() - t0, 1)}
 
 
+    async def render_png(self, run_id: str, musicxml: bytes, dest: Path, dpi: int = 300) -> dict:
+        """The file as 300 dpi PNG pages (`p-1.png`, ...) plus `p.mpos` in `dest`: what the verify step of Convert
+        (`omr_verify`) shows Spark next to the scan. Same job-file run as `engrave`, under <run id>/verify."""
+        if not re.fullmatch(r"[A-Za-z0-9-]+", run_id):
+            raise ValueError("run id must be alphanumeric")
+        d = f"{self.root}/{run_id}/verify"
+        q = shlex.quote
+        t0 = time.perf_counter()
+        await self.ssh(f"mkdir -p {q(d)} && cat > {q(d + '/in.musicxml')}", stdin=musicxml, timeout=120)
+        job = json.dumps([{"in": f"{d}/in.musicxml", "out": [f"{d}/p.png", f"{d}/p.mpos"]}])
+        await self.ssh(f"cat > {q(d + '/job.json')}", stdin=job.encode())
+        try:
+            rc, out, err = await self.ssh(
+                f"cd && MU_QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORM=offscreen {q(self.musescore)} -r {int(dpi)} -j {q(d + '/job.json')} > {q(d + '/run.log')} 2>&1; "
+                f"rc=$?; test -s {q(d + '/p.mpos')} || rc=$((rc == 0 ? 9 : rc)); echo $rc; tail -c 400 {q(d + '/run.log')}", timeout=300)
+            lines = out.decode(errors="replace").strip().splitlines() or ["1"]
+            try:
+                code = int(lines[0].strip())
+            except ValueError:
+                code = 1
+            if code != 0:
+                raise EngraverFailed(_box_error(code, "\n".join(lines[1:]) or err.decode(errors="replace")))
+            rc, tar, err = await self.ssh(f"cd {q(d)} && tar -czf - p-*.png p.mpos", timeout=180)
+            if rc != 0:
+                raise EngraverFailed(f"Could not fetch the rendered pages: {err.decode(errors='replace')[-200:]}")
+            with tarfile.open(fileobj=io.BytesIO(tar), mode="r:gz") as tf:
+                tf.extractall(dest, filter="data")
+        finally:
+            if not os.environ.get("OMR_KEEP"):
+                try:
+                    await self.ssh(f"rm -rf {q(d)}", timeout=60)
+                except (EngraverOffline, EngraverFailed):
+                    pass
+        return {"seconds": round(time.perf_counter() - t0, 1)}
+
+
 def _box_error(code: int, tail: str) -> str:
     if code == 9:
         return "The engraving engine wrote no pages for this file"

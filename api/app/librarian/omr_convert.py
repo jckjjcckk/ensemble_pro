@@ -67,12 +67,13 @@ from PIL import Image
 
 from ..llm import _client as default_client, model_name as default_model
 from . import Job, JobContext, handler
-from .engrave import engrave_step
+from .engrave import SshEngraver, engrave_step
 from .import_musicxml import book_facts, part_groups, write_measures, write_parts
 from .musicxml_fix import PageLayout, fix_musicxml
-from .omr_agent import USD_PER_PAGE, Budget, PdfPages, enrich, front_matter, page_kinds, verify
+from .omr_agent import USD_PER_PAGE, Budget, PdfPages, front_matter, page_kinds, reread, verify
 from .omr_book import load_run
-from .omr_enrich import apply_front, apply_items, apply_verify
+from .omr_enrich import Undos, apply_front, apply_text, apply_verify
+from .omr_verify import verify_edits
 from .omr_score import BarsDoNotLineUp, flagged_bars, merge, movement_files
 
 ENGINE = "audiveris-5.11+spark-v2"
@@ -325,30 +326,43 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
         index = {pg: i for i, pg in enumerate(book_run["pdf_pages"], start=1)}
         scans = {pg["page"]: Image.open(run / "scan" / f"p{index[pg['pdf_page']]}.png") for pg in doc["pages"]}
         t_spark = time.time()
-        form, enriched, answers = await asyncio.gather(front_matter(ctx, client, model, doc, scans, budget),
-                                                       enrich(ctx, client, model, doc, scans, budget),
-                                                       verify(ctx, client, model, doc, scans, budget))
+        form = await front_matter(ctx, client, model, doc, scans, budget)
+        heading = (form.get("tempo_heading"),)
+        texts, answers = await asyncio.gather(reread(ctx, client, model, doc, scans, budget, exclude=heading),
+                                              verify(ctx, client, model, doc, scans, budget))
         spark_s = time.time() - t_spark
+
+        await ctx.progress(0.8, "Writing the digital version")
+        t_write = time.time()
+        score_row = (ctx.db.table("scores").select("*").eq("id", score_id).limit(1).execute().data or [{}])[0]
+        form_ok = form.pop("_ok", False)
+        first_number = doc["measures"][0]["number"]
+        undos: Undos = {}
+        # In the file: what the page prints (the form, else the scan's credits). The library's title is shelf metadata.
+        log = await asyncio.to_thread(apply_front, sc, form, first_number, undos, credit_title=page.text("title"),
+                                      credit_composer=page.text("composer"))
+        text_log, counts = await asyncio.to_thread(apply_text, sc, doc, texts, undos)
+        verify_log, extra = await asyncio.to_thread(apply_verify, sc, answers)
+        log += text_log + verify_log
+        for n, whys in filled.items():
+            extra.setdefault(n, []).extend(whys)
+        existing = [r["name"] for r in (ctx.db.table("parts").select("name,position").eq("score_id", score_id).order("position").execute().data or [])]
+        groups, kept_names = name_parts(sc, existing)
+        data = await asyncio.to_thread(write_musicxml, sc, page, form.get("opus"))
+
+        # Verify: every bar an edit touched, engraved and shown to Spark beside the scan; on "no" Audiveris's reading
+        # comes back for that system's touched bars and they are flagged.
+        await ctx.progress(0.85, "Checking the edited bars against the scan")
+        t_verify = time.time()
+        checked = await verify_edits(ctx, client, model, engraver or SshEngraver(), f"{job.id}-verify", data, doc, scans, undos, budget)
+        verify_s = time.time() - t_verify
+        for n, why in checked["reverted"].items():
+            extra.setdefault(n, []).append(f"verify: the engraved text did not match the scan ({why}); the engine's reading restored")
+        if checked["reverted"]:
+            data = await asyncio.to_thread(write_musicxml, sc, page, form.get("opus"))
         for im in scans.values():
             im.close()
-
-    await ctx.progress(0.85, "Writing the digital version")
-    t_write = time.time()
-    score_row = (ctx.db.table("scores").select("*").eq("id", score_id).limit(1).execute().data or [{}])[0]
-    form_ok = form.pop("_ok", False)
-    first_number = doc["measures"][0]["number"]
-    # The book's facts first, then the page's heading, then the scan's credits; never "Music21".
-    log = await asyncio.to_thread(apply_front, sc, form, first_number,
-                                  title=score_row.get("title") or page.text("title"), composer=score_row.get("composer") or page.text("composer"))
-    items_log, counts = await asyncio.to_thread(apply_items, sc, doc, enriched)
-    verify_log, extra = await asyncio.to_thread(apply_verify, sc, answers)
-    log += items_log + verify_log
-    for n, whys in filled.items():
-        extra.setdefault(n, []).extend(whys)
     flags = await asyncio.to_thread(flagged_bars, sc, doc, extra)
-    existing = [r["name"] for r in (ctx.db.table("parts").select("name,position").eq("score_id", score_id).order("position").execute().data or [])]
-    groups, kept_names = name_parts(sc, existing)
-    data = await asyncio.to_thread(write_musicxml, sc, page, form.get("opus"))
     path = digital_path(score_id)
     ctx.storage_upload(path, data, CONTENT_TYPE)
 
@@ -357,9 +371,9 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
     names = f["names"]
     flagged = [b["number"] for b in flags]
     cost = budget.summary()
-    items = {"written": {k: counts[k] for k in ("words", "dynamic", "fingering", "pedal", "ornament")},
-             "duplicates": counts["duplicates"], "dropped": counts["dropped"], "out_of_range": counts["out_of_range"],
-             "systems_answered": sum(1 for r in enriched if r.get("ok")), "systems": len(enriched)}
+    items = {"written": {k: counts[k] for k in ("words", "dynamic")}, "duplicates": counts["duplicates"], "dropped": counts["dropped"],
+             "systems_answered": counts["systems_answered"], "systems": counts["systems"],
+             "verified": {"systems": checked["asked"], "reverted_bars": sorted(checked["reverted"]), "skipped": checked["skipped"]}}
     meta = {"transcribed_from": src["id"], "engine": ENGINE,
             "flags": {"bars_doubtful": len(flagged), "pages_unreadable": len(doc["unreadable"])},
             "flagged_bars": flags, "pages": book_run["pdf_pages"], "parts": names,
@@ -401,8 +415,10 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
         "pages": book_run["pdf_pages"], "page_kinds": [(k["pdf_page"], k["kind"]) for k in kinds], "cover": cover_key,
         "pages_unreadable": doc["unreadable"], "spark_calls": budget.calls, "spark_skipped": budget.skipped,
         "front_matter": form | {"read": form_ok}, "items": items,
-        "edits": {k: sum(1 for e in log if e["layer"] == k) for k in ("front", "words", "dynamic", "fingering", "pedal", "ornament", "dup", "A", "flag")},
+        "edits": {k: sum(1 for e in log if e["layer"] == k) for k in ("front", "words", "dynamic", "dup", "A", "flag")},
+        "verify": {k: v for k, v in checked.items() if k != "log"},
         "timings": {"kinds_s": round(kinds_s, 1), "box_s": book_run.get("box_s"), "audiveris_s": book_run.get("audiveris_s"),
                     "render_s": book_run.get("render_s"), "upload_s": book_run.get("upload_s"), "pull_s": book_run.get("pull_s"),
-                    "spark_s": round(spark_s, 1), "write_s": round(write_s, 1), "engrave_s": engraving.get("seconds")},
+                    "spark_s": round(spark_s, 1), "write_s": round(write_s, 1), "verify_s": round(verify_s, 1),
+                    "engrave_s": engraving.get("seconds")},
     }

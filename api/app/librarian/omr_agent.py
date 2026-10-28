@@ -16,12 +16,15 @@ The four steps, each a prompt here and a writer in `omr_enrich`:
                 movement_or_number, tempo_heading, metronome {unit, bpm}, opus, dedication, editor; null where the
                 page prints nothing. Written as the file's credits and work metadata, a metronome mark with text
                 and number at the head of bar 1, and into the score row where it has no value.
-  enrich        one call per system: the system crop (padded so fingering under the lowest staff and a tempo line
-                above the top staff are in frame), every bar boxed and labelled with its global number. Spark
-                returns items of kind words / dynamic / fingering / pedal / ornament, each anchored by bar number,
-                staff (1 = top) and note index within the bar (chords once, grace notes counted, rests not), plus
-                the text. Anchors are symbolic on purpose: Spark's bar label alone scored text F1 1.00 on Goldberg
-                p1-5 while its pixel x drifted 50 to 150 px (the v1 placement by position is gone with it).
+  reread        one call per system (the crop with every bar boxed and labelled with its global number): Spark lists
+                every dynamic and expression phrase with its centre on a 0-1000 grid and the bar label it reads.
+                `place` snaps each item to the Audiveris text glyph nearest its point (within 8 interlines): Spark
+                says what the ink says, Audiveris says where the ink is. An item no glyph confirms is discarded
+                (CK, 2026-10-28 late: Spark may confirm or correct text Audiveris saw, never add free text), and so
+                is anything that is only punctuation, digits, a plate or page number, or a hairpin character. A
+                dynamic takes the bar of the first notehead at or right of its ink, a word the bar under its ink;
+                staff by the nearer staff band. Spark's bar label is a cross-check only. (The per-note items of the
+                first v2 build, fingering, pedal and ornaments, are gone: CK judged them worse than main.)
   verify        the closed questions that remain: one per low-grade accidental (`alter`) or ornament the gate let in
                 (`omr_book.VERIFY_TAGS`). An accidental verdict never edits a pitch: a disagreement flags the bar. An
                 ornament that is not one is removed (ornaments are Spark's to change). The v1 questions on tuplets,
@@ -52,9 +55,10 @@ WORKERS = 6
 USD_PER_PAGE = 1.00            # the default allowance per PDF page (v1 measured $0.078 a page; v2 asks more per system)
 MAX_KIND_QUESTIONS = 6         # front matter longer than this is assumed to have ended: the rest is music
 PAGE_KINDS = ("cover", "preface", "contents", "music")
-ITEM_KINDS = ("words", "dynamic", "fingering", "pedal", "ornament")
 DYNAMICS = {"p", "pp", "ppp", "pppp", "mp", "mf", "f", "ff", "fff", "ffff", "sf", "sfz", "sffz", "fp", "fz", "rf", "rfz", "sfp"}
-ORNAMENTS = ("mordent", "inverted_mordent", "trill", "turn", "schleifer")
+GRID = 1000.0
+SNAP_IL = 8.0    # how far (interlines) a Spark point may be from the Audiveris glyph it snaps to
+ANCHOR_IL = 3.0  # how far (interlines, horizontally) a dynamic may be from the notehead it anchors to
 UNITS = {"whole": ("whole", 0), "half": ("half", 0), "quarter": ("quarter", 0), "eighth": ("eighth", 0), "sixteenth": ("16th", 0),
          "dotted-half": ("half", 1), "dotted-quarter": ("quarter", 1), "dotted-eighth": ("eighth", 1)}
 FRONT_FIELDS = ("title", "composer", "movement_or_number", "tempo_heading", "metronome", "opus", "dedication", "editor")
@@ -74,20 +78,13 @@ FRONT_PROMPT = """This is the top of the first page of music of a scanned printe
 {{"title": "the title of the work or piece", "composer": "the composer as printed", "movement_or_number": "the movement title or piece number at the head of the music, e.g. Aria, No. 3, Var. 1, Polonaise", "tempo_heading": "the tempo or character heading at the start of the music, e.g. Allegro con brio, Andante espressivo.", "metronome": {{"unit": "quarter|half|eighth|sixteenth|whole|dotted-quarter|dotted-half|dotted-eighth", "bpm": 72}}, "opus": "the opus or catalogue number, e.g. Op. 40 No. 1, BWV 988", "dedication": "the dedication line, e.g. à Monsieur ...", "editor": "the editor or reviser named on the page"}}
 The metronome mark is the small note-symbol = number, usually next to the tempo heading; null when there is none. Do not include fingering digits, dynamics, bar numbers, page numbers, publisher plate numbers or footnotes. Return only the JSON object."""
 
-ENRICH_SYSTEM = "You are a music engraver reading one system of a scanned page of printed music. Answer with strict JSON only, no prose."
-ENRICH_PROMPT = """This is one system ({staves}) of a scanned page of printed piano or chamber music, 300 dpi. Blue boxes with yellow numbers mark the measures {first}..{last}; a measure's box covers every staff of the system. Staves are numbered from the top: staff 1 is the top staff{staff_note}.
+REREAD_SYSTEM = "You are a music engraver reading a scanned page of printed music. Answer with strict JSON only, no prose."
+REREAD_PROMPT = """This is one system ({staves}) of a scanned page of printed piano or chamber music, 300 dpi. Blue boxes with yellow numbers mark the measures {first}..{last}; a measure's box covers every staff of the system.
 
-List every printed marking of these kinds in or around this system, each anchored to the note it is printed at:
-- "dynamic": p, pp, ppp, mp, mf, f, ff, fff, sf, sfz, fp, rf, rfz; one item each, exactly as printed.
-- "words": expression and direction words or phrases: "dolce", "cresc.", "dim.", "cresc. poco a poco", "legato", "espress.", "rit.", "a tempo". One item per phrase, not per word. A hairpin (the long < or > wedge) is NOT a word: never list hairpins.
-- "fingering": the small digits 1 to 5 printed above or below noteheads. One item per note; when a chord carries a stack of digits, give them top to bottom separated by spaces ("5 2").
-- "pedal": the "Ped." pedal-down sign (text "Ped.") and the "*" pedal-up sign (text "*").
-- "ornament": mordent (short zigzag with a vertical stroke through it), inverted_mordent (short zigzag without a stroke), trill ("tr" or a long zigzag), turn (a sideways S), schleifer; the text is that name.
+"text": every dynamic marking and expression phrase printed in or around this system, exactly as printed. Dynamics one item each ("p", "mf", "f", "rf", "sf"). Expression words one item per phrase, not per word ("dolce", "cresc.", "dim.", "cresc. poco a poco", "legato", "a tempo"). For each give where its ink is, on a 0-1000 grid over this image ((0,0) top-left, (1000,1000) bottom-right): "x" = horizontal centre of the item, "y" = vertical centre. Also give "bar" = the yellow number of the box it sits in or under.
+Do NOT include hairpins (the long < or > wedge signs are not text), fingering digits, the yellow labels, measure numbers, plate or page numbers, tempo headings (e.g. "Allegretto"), instrument names or movement titles (e.g. "Var. 2"). List only what is printed; an empty list is a fine answer.
 
-For every item give "kind", "text" (exactly as printed; for an ornament its name), "bar" (the yellow number of the measure it belongs to), "staff" (1 = top staff) and "note": the note it is printed at, counting the notes and chords of that staff in that measure from left to right starting at 1 (a chord counts once, small grace notes count, rests do not count). A dynamic or word printed between two notes takes the note at or just right of it.
-Do NOT include the yellow labels, measure numbers, tempo headings or titles (e.g. "Allegretto", "Var. 2"), instrument names, page numbers or footnotes. Do not invent anything: list only what is printed, and return an empty list when there is nothing.
-
-Return only JSON: {{"items": [{{"kind": "dynamic", "text": "p", "bar": {first}, "staff": 1, "note": 1}}]}}"""
+Return only JSON: {{"text": [{{"text": "p", "x": 120, "y": 640, "bar": {first}}}]}}"""
 
 VERIFY_SYSTEM = "You are a music engraver checking symbols on a scanned page of printed music. Answer with strict JSON only."
 VERIFY_OPTIONS = {
@@ -168,8 +165,8 @@ def png_bytes(im: Image.Image, max_width: int | None = None) -> bytes:
 class Cropper:
     """Crops from the 300 dpi scan of one page, in Audiveris's pixel frame (every box is Audiveris's)."""
 
-    HEAD_IL = 8.0      # the front-matter crop and a system's top pad: at least this many interlines above the first staff
-    FOOT_IL = 7.0      # a system's bottom pad: fingering under the lowest staff sits 1 to 4 interlines below it
+    HEAD_IL = 8.0      # the front-matter crop reaches at least this many interlines above the first staff
+    PAD_IL = 4.0       # a system crop's padding above and below (v1's; the text sits within a few interlines)
 
     def __init__(self, model: dict, page: int, scan: Image.Image):
         self.page = scan.convert("RGB")
@@ -177,35 +174,30 @@ class Cropper:
         self.measures = [m for m in model["measures"] if m["page"] == page]
         self.systems = {s["system"]: s for s in model["systems"] if s["page"] == page}
 
-    def pads(self, system: int) -> tuple[int, int]:
-        """Top and bottom padding in pixels: generous, but never past the middle of the gap to the next system (its
-        fingering would be read as this system's)."""
+    def system_box(self, system: int, pad_il: float | None = None) -> tuple[int, int, int, int]:
         s = self.systems[system]
-        above = self.systems.get(system - 1)
-        below = self.systems.get(system + 1)
-        top = self.HEAD_IL * self.il if above is None else min(self.HEAD_IL * self.il, (s["top"] - above["bottom"]) / 2 + self.il)
-        bottom = self.FOOT_IL * self.il if below is None else min(self.FOOT_IL * self.il, (below["top"] - s["bottom"]) / 2 + self.il)
-        return int(max(top, self.il)), int(max(bottom, self.il))
-
-    def system_crop(self, system: int) -> tuple[Image.Image, dict]:
-        s = self.systems[system]
-        pt, pb = self.pads(system)
+        py = int((self.PAD_IL if pad_il is None else pad_il) * self.il)
         x0, x1 = max(0, s["left"] - 2 * self.il), min(self.page.width, s["right"] + self.il)
-        y0, y1 = max(0, int(s["top"]) - pt), min(self.page.height, int(s["bottom"]) + pb)
+        y0, y1 = max(0, int(s["top"]) - py), min(self.page.height, int(s["bottom"]) + py)
+        return x0, y0, x1, y1
+
+    def system_crop(self, system: int, labels: bool = True) -> tuple[Image.Image, dict]:
+        x0, y0, x1, y1 = self.system_box(system)
         im = self.page.crop((x0, y0, x1, y1))
-        d = ImageDraw.Draw(im)
-        font = _font(int(1.6 * self.il))
-        for m in self.measures:
-            if m["system"] != system:
-                continue
-            l, t, r, b = m["px"]
-            bx = (l - x0, int(t) - y0 - 3, r - x0, int(b) - y0 + 3)
-            d.rectangle(bx, outline=(0, 90, 220), width=2)
-            label = str(m["number"])
-            tw = d.textlength(label, font=font)
-            lx, ly = bx[0] + 4, bx[1] - int(1.8 * self.il)
-            d.rectangle((lx - 3, ly - 2, lx + tw + 3, ly + int(1.7 * self.il)), fill=(255, 230, 0))
-            d.text((lx, ly), label, fill=(0, 0, 0), font=font)
+        if labels:
+            d = ImageDraw.Draw(im)
+            font = _font(int(1.6 * self.il))
+            for m in self.measures:
+                if m["system"] != system:
+                    continue
+                l, t, r, b = m["px"]
+                bx = (l - x0, int(t) - y0 - 3, r - x0, int(b) - y0 + 3)
+                d.rectangle(bx, outline=(0, 90, 220), width=2)
+                label = str(m["number"])
+                tw = d.textlength(label, font=font)
+                lx, ly = bx[0] + 4, bx[1] - int(1.8 * self.il)
+                d.rectangle((lx - 3, ly - 2, lx + tw + 3, ly + int(1.7 * self.il)), fill=(255, 230, 0))
+                d.text((lx, ly), label, fill=(0, 0, 0), font=font)
         return im, {"origin": [x0, y0], "size": [x1 - x0, y1 - y0]}
 
     def head_crop(self) -> Image.Image:
@@ -342,85 +334,159 @@ async def front_matter(ctx, client, model: str, doc: dict, scans: dict[int, Imag
     return normalize_front(ans) | {"_ok": ans is not None}
 
 
-# ---------------------------------------------------------------------------------------------------- enrichment
+# ---------------------------------------------------------------------------------------------------- text placement
 
-def _int(v: Any) -> int | None:
-    if isinstance(v, bool):
+JUNK_PLATE = re.compile(r"^[\d\s.'’,:/-]+$")           # "07'880.", "34", "1 2 3": digits and punctuation only
+
+
+def _num(v: Any) -> float | None:
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
         return None
-    if isinstance(v, (int, float)):
-        return int(v)
-    if isinstance(v, str) and re.fullmatch(r"\s*\d+\s*", v):
-        return int(v)
+    return f if -50 <= f <= GRID + 50 else None
+
+
+def junk(text: str) -> str | None:
+    """Why a text item is not text: punctuation or digits only (fingering, plate and page numbers), a hairpin
+    character, a single letter that is not a dynamic. None when the item may be written."""
+    t = text.strip()
+    plain = t.rstrip(".").lower()
+    if plain in DYNAMICS:
+        return None
+    if not t:
+        return "empty"
+    if "<" in t or ">" in t or "\u2329" in t or "\u232a" in t:
+        return "a hairpin character"
+    if JUNK_PLATE.fullmatch(t):
+        return "digits or punctuation only (fingering, a plate or page number)"
+    letters = re.findall(r"[^\W\d_]", t)
+    if not letters:
+        return "no letters"
+    if len(letters) == 1 and len(t) <= 2:
+        return "a single letter"
     return None
 
 
-def normalize_items(raw: Any, numbers: list[int], n_staves: int) -> tuple[list[dict], list[dict]]:
-    """Spark's items for one system -> (items, dropped). Each item: kind, text, number (global bar), staff, note; a
-    fingering item's text is its digits ("5 2"), a pedal's "start"/"stop", an ornament's one of ORNAMENTS."""
-    items, dropped = [], []
-    allowed = set(numbers)
-    for it in raw if isinstance(raw, list) else []:
-        if not isinstance(it, dict):
-            dropped.append({"item": it, "why": "not an object"})
+def grid_to_page(x: float, y: float, crop: dict[str, Any]) -> tuple[float, float]:
+    (ox, oy), (w, h) = crop["origin"], crop["size"]
+    return ox + x / GRID * w, oy + y / GRID * h
+
+
+def bar_at(px_x: float, measures: list[dict[str, Any]]) -> tuple[dict[str, Any], str]:
+    ms = sorted(measures, key=lambda m: m["px"][0])
+    for m in ms:
+        if m["px"][0] <= px_x < m["px"][2]:
+            return m, "x"
+    if px_x < ms[0]["px"][0]:
+        return ms[0], "x-before-first"
+    if px_x >= ms[-1]["px"][2]:
+        return ms[-1], "x-after-last"
+    return min(ms, key=lambda m: min(abs(px_x - m["px"][0]), abs(px_x - m["px"][2]))), "x-gap"
+
+
+def staff_at(px_y: float, staves: list[dict[str, Any]]) -> tuple[int, str]:
+    def dist(s):
+        return 0.0 if s["top"] <= px_y <= s["bottom"] else min(abs(px_y - s["top"]), abs(px_y - s["bottom"]))
+    best = min(range(len(staves)), key=lambda i: (dist(staves[i]), i))
+    s = staves[best]
+    return best + 1, "above" if px_y < (s["top"] + s["bottom"]) / 2 else "below"
+
+
+def is_text_glyph(g: dict[str, Any]) -> bool:
+    if g.get("tag") == "dynamics":
+        return True
+    if g.get("tag") != "word":
+        return False
+    return bool(re.search(r"[A-Za-z]", (g.get("value") or "").strip()))
+
+
+def _centre(b: list[float]) -> tuple[float, float]:
+    return b[0] + b[2] / 2, b[1] + b[3] / 2
+
+
+def _snap(X: float, Y: float, glyphs: list[dict[str, Any]], interline: float) -> dict[str, Any] | None:
+    best, best_d = None, SNAP_IL * interline
+    for g in glyphs:
+        if not is_text_glyph(g):
             continue
-        kind = str(it.get("kind", "")).strip().lower()
-        kind = {"dynamics": "dynamic", "word": "words", "text": "words", "expression": "words", "finger": "fingering",
-                "fingerings": "fingering", "ornaments": "ornament", "pedals": "pedal"}.get(kind, kind)
-        text = " ".join(str(it.get("text", "")).split()).strip()
-        bar, staff, note = _int(it.get("bar")), _int(it.get("staff")), _int(it.get("note"))
-        if kind not in ITEM_KINDS or not text:
-            dropped.append({"item": it, "why": "no kind or no text"})
+        cx, cy = _centre(g["bounds"])
+        d = ((cx - X) ** 2 + (cy - Y) ** 2) ** 0.5
+        if d <= best_d:
+            best, best_d = g, d
+    return best
+
+
+def _anchor(left: float, X: float, heads: list[dict[str, Any]], interline: float) -> dict[str, Any] | None:
+    near = [h for h in heads if h["x"] >= left - interline / 2 and abs(h["x"] - X) <= ANCHOR_IL * interline]
+    return min(near, key=lambda h: h["x"]) if near else None
+
+
+def place(items: list[dict[str, Any]], measures: list[dict[str, Any]], staves: list[dict[str, Any]], crop: dict[str, Any],
+          glyphs: list[dict[str, Any]], heads: list[dict[str, Any]], interline: float = 20.0,
+          exclude: tuple[str, ...] = ()) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Spark's text items for one system -> (placed, dropped). Only an item an Audiveris text glyph confirms is
+    placed (the glyph's centre is the point); `exclude` lists texts never written (the tempo heading)."""
+    placed, dropped = [], []
+    by_number = {m["number"]: m for m in measures}
+    ex = {e.strip().rstrip(".").lower() for e in exclude if e}
+    for it in items:
+        text = " ".join(str(it.get("text", "")).split()).strip() if isinstance(it, dict) else ""
+        why = junk(text)
+        if why:
+            dropped.append({"item": it, "why": why})
             continue
-        if bar not in allowed:
-            dropped.append({"item": it, "why": f"bar {bar} is not in this system ({numbers[0]}..{numbers[-1]})"})
+        if text.rstrip(".").lower() in ex:
+            dropped.append({"item": it, "why": "the tempo heading (written by the front-matter read)"})
             continue
-        plain = text.rstrip(".").lower()
-        if kind == "words" and plain in DYNAMICS:
-            kind = "dynamic"
+        kind = "dynamic" if text.rstrip(".").lower() in DYNAMICS else "words"
         if kind == "dynamic":
-            if plain not in DYNAMICS:
-                kind = "words"                                   # "cresc." called a dynamic: it is a word
-            else:
-                text = plain
-        if kind == "fingering":
-            digits = re.findall(r"[1-5]", text)
-            if not digits or len(digits) > 5:
-                dropped.append({"item": it, "why": f"fingering {text!r} is not digits 1 to 5"})
-                continue
-            if bar == numbers[0] and (note or 1) == 1 and text.strip() == str(numbers[0]):
-                # the measure number engraved at the left of a system (Chopin p25: "4" at bar 4 read as a fingering)
-                dropped.append({"item": it, "why": f"fingering {text!r} on the first note of bar {bar} is the printed bar number"})
-                continue
-            text = " ".join(digits)
-        if kind == "pedal":
-            low = text.lower().replace(" ", "")
-            if "*" in low or low in ("up", "stop", "release", "pedalup"):
-                text = "stop"
-            elif "ped" in low or low in ("down", "start"):
-                text = "start"
-            else:
-                dropped.append({"item": it, "why": f"pedal {text!r} is neither Ped. nor *"})
-                continue
-        if kind == "ornament":
-            name = text.lower().replace(" ", "_").replace("-", "_")
-            name = {"tr": "trill", "pralltriller": "inverted_mordent", "short_trill": "inverted_mordent", "inverted-mordent": "inverted_mordent",
-                    "mordant": "mordent", "gruppetto": "turn", "slide": "schleifer"}.get(name, name)
-            if name not in ORNAMENTS:
-                dropped.append({"item": it, "why": f"ornament {text!r} is not one of {', '.join(ORNAMENTS)}"})
-                continue
-            text = name
-        items.append({"kind": kind, "text": text, "number": bar, "staff": min(max(staff or 1, 1), max(n_staves, 1)),
-                      "note": max(note or 1, 1), "spark": {"staff": staff, "note": note}})
-    return items, dropped
+            text = text.rstrip(".").lower()
+        x, y = _num(it.get("x")), _num(it.get("y"))
+        label = it.get("bar")
+        label = int(label) if isinstance(label, (int, float)) or (isinstance(label, str) and label.isdigit()) else None
+        if x is None:
+            dropped.append({"item": it, "why": "no position"})
+            continue
+        X, Y = grid_to_page(min(max(x, 0), GRID), min(max(y if y is not None else GRID / 2, 0), GRID), crop)
+        g = _snap(X, Y, glyphs, interline)
+        if g is None:
+            dropped.append({"item": it, "why": "no Audiveris text glyph within 8 interlines (free text is never added)"})
+            continue
+        X, Y = _centre(g["bounds"])
+        h = _anchor(g["bounds"][0], X, heads, interline) if kind == "dynamic" else None
+        if h is not None and h["number"] in by_number:
+            m, how = by_number[h["number"]], "glyph+head"
+        else:
+            m, how = bar_at(X, measures)
+            how = "glyph+" + how
+        staff, placement = staff_at(Y, staves)
+        left_px, right_px = m["px"][0], m["px"][2]
+        placed.append({"text": text, "kind": kind, "number": m["number"], "staff": staff, "placement": placement, "how": how,
+                       "glyph": g.get("value"), "spark_bar": label, "label_agrees": (label == m["number"]) if label is not None else None,
+                       "frac": round(min(max((X - left_px) / (right_px - left_px), 0.0), 1.0), 3) if right_px > left_px else 0.0})
+    return placed, dropped
 
 
-async def enrich(ctx, client, model: str, doc: dict, scans: dict[int, Image.Image], budget: Budget) -> list[dict]:
-    """One record per system: {page, system, numbers, ok, items, dropped}."""
+def place_system(doc: dict, system: dict, answer: dict, crop: dict, exclude: tuple[str, ...] = ()) -> tuple[list[dict], list[dict]]:
+    nums = set(system["numbers"])
+    ms = [m for m in doc["measures"] if m["number"] in nums]
+    mine = [i for i in doc["inters"] if i["page"] == system["page"] and i["number"] in nums]
+    glyphs = [i for i in mine if i["tag"] in ("word", "dynamics")]
+    heads = [{"x": i["bounds"][0] + i["bounds"][2] / 2, "number": i["number"]} for i in mine if i["tag"] == "head"]
+    il = next(p["interline"] for p in doc["pages"] if p["page"] == system["page"])
+    items = answer.get("text") if isinstance(answer.get("text"), list) else []
+    return place(items, ms, system["staves"], crop, glyphs, heads, interline=il, exclude=exclude)
+
+
+async def reread(ctx, client, model: str, doc: dict, scans: dict[int, Image.Image], budget: Budget,
+                 exclude: tuple[str, ...] = ()) -> list[dict]:
+    """One record per system: {page, system, numbers, ok, placed, dropped}."""
     croppers = {p: Cropper(doc, p, im) for p, im in scans.items()}
     pdf_page = {p["page"]: p["pdf_page"] for p in doc["pages"]}
 
     async def one(s):
-        rec = {"page": s["page"], "system": s["system"], "numbers": s["numbers"], "ok": False, "items": [], "dropped": []}
+        rec = {"page": s["page"], "system": s["system"], "numbers": s["numbers"], "ok": False, "placed": [], "dropped": []}
         if s["page"] not in croppers:
             return rec
         async with budget.sem:
@@ -429,13 +495,12 @@ async def enrich(ctx, client, model: str, doc: dict, scans: dict[int, Image.Imag
             im, crop = croppers[s["page"]].system_crop(s["system"])
             n = len(s["staves"])
             staves = "treble + bass staff" if n == 2 else f"{n} staves" if n != 1 else "one staff"
-            staff_note = ", staff 2 the bottom staff" if n == 2 else f", staff {n} the bottom staff" if n > 2 else ""
-            prompt = ENRICH_PROMPT.format(staves=staves, first=s["numbers"][0], last=s["numbers"][-1], staff_note=staff_note)
-            ans = await _ask(ctx, client, model, prompt, png_bytes(im), ENRICH_SYSTEM, budget, "enrich", pdf_page[s["page"]])
+            ans = await _ask(ctx, client, model, REREAD_PROMPT.format(staves=staves, first=s["numbers"][0], last=s["numbers"][-1]),
+                             png_bytes(im), REREAD_SYSTEM, budget, "reread", pdf_page[s["page"]])
         if ans is None:
             return rec
-        items, dropped = normalize_items(ans.get("items"), s["numbers"], len(s["staves"]))
-        return rec | {"ok": True, "items": items, "dropped": dropped, "crop": crop}
+        placed, dropped = place_system(doc, s, ans, crop, exclude)
+        return rec | {"ok": True, "placed": placed, "dropped": dropped, "crop": crop}
 
     return list(await asyncio.gather(*(one(s) for s in doc["systems"])))
 

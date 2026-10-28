@@ -5,7 +5,7 @@ The fake PDF has three pages: a cover without staves, a contents page with stave
 page of music. The fake box writes what `omr_box.py` leaves on the real one: a one-page Audiveris book (book.xml,
 sheet#1.xml with one grand-staff system of two stacks and a few inters), movements.json, book_run.json, the export
 `book.mxl`, and a white 300 dpi scan. The fake model answers by system prompt: the page kind, the front-matter form,
-the per-system items and the two closed questions."""
+the per-system text, the two closed questions and the render check."""
 from __future__ import annotations
 
 import io
@@ -27,7 +27,8 @@ from PIL import Image
 from app.auth import User
 from app.librarian import Job
 from app.librarian.omr_box import detected_movements, parse_pages
-from app.librarian.omr_agent import ENRICH_SYSTEM, FRONT_SYSTEM, PAGE_KIND_SYSTEM, VERIFY_SYSTEM
+from app.librarian.omr_agent import FRONT_SYSTEM, PAGE_KIND_SYSTEM, REREAD_SYSTEM, VERIFY_SYSTEM
+from app.librarian.omr_verify import VERIFY_RENDER_SYSTEM
 from app.librarian.omr_convert import OFFLINE, EngineOffline, SshBox, clean_name, cover_path, digital_path, name_parts, omr_convert
 from app.librarian.omr_score import merge
 from app.main import app
@@ -143,26 +144,41 @@ class FakePdf:
 
 FRONT = {"title": "Aria con Variazioni.", "composer": "J. S. Bach", "movement_or_number": "Aria", "tempo_heading": "Andante espressivo.",
          "metronome": {"unit": "quarter", "bpm": 72}, "opus": "BWV 988", "dedication": None, "editor": "Hans Bischoff"}
-ITEMS = [
-    {"kind": "dynamic", "text": "p", "bar": 1, "staff": 1, "note": 1},             # written (Audiveris's sf is cleared)
-    {"kind": "dynamic", "text": "p", "bar": 1, "staff": 2, "note": 1},             # the same p seen from the other staff: duplicate
-    {"kind": "words", "text": "dolce", "bar": 1, "staff": 1, "note": 1},           # written, italic
-    {"kind": "words", "text": "cresc.", "bar": 2, "staff": 1, "note": 1},          # Audiveris's hairpin starts here: duplicate
-    {"kind": "fingering", "text": "2", "bar": 1, "staff": 1, "note": 1},           # on G4
-    {"kind": "fingering", "text": "1 3", "bar": 2, "staff": 2, "note": 1},         # two digits on D3
-    {"kind": "pedal", "text": "Ped.", "bar": 1, "staff": 2, "note": 1},            # Audiveris read it: duplicate
-    {"kind": "pedal", "text": "*", "bar": 2, "staff": 2, "note": 1},               # the same lift seen from the other staff: duplicate
-    {"kind": "pedal", "text": "Ped.", "bar": 2, "staff": 1, "note": 1},            # a new pedal, B4 ...
-    {"kind": "pedal", "text": "*", "bar": 2, "staff": 1, "note": 3},               # ... to D5
-    {"kind": "ornament", "text": "trill", "bar": 2, "staff": 1, "note": 3},        # on D5
-    {"kind": "fingering", "text": "7", "bar": 1, "staff": 1, "note": 2},           # not a finger: dropped
-    {"kind": "dynamic", "text": "f", "bar": 5, "staff": 1, "note": 1},             # not in this system: dropped
+TEXT = [
+    {"text": "p", "x": 169, "y": 432, "bar": 1},                     # on Audiveris's sf glyph: written as p (the sf is cleared)
+    {"text": "dolce", "x": 663, "y": 432, "bar": 2},                 # on Audiveris's "dolc" glyph: written in italic
+    {"text": "cresc.", "x": 500, "y": 432, "bar": 2},                # snaps to the "dolc" glyph, but a hairpin starts in bar 2: duplicate
+    {"text": "07'880.", "x": 900, "y": 980, "bar": 2},               # a plate number
+    {"text": "<", "x": 400, "y": 432, "bar": 1},                     # a hairpin character
+    {"text": "3", "x": 120, "y": 900, "bar": 1},                     # a fingering digit
+    {"text": "Andante espressivo.", "x": 160, "y": 20, "bar": 1},    # the tempo heading: the front-matter read owns it
 ]
 
 
+class FakeRenderer:
+    """Writes one white 300 dpi page and an .mpos with the two bars side by side; remembers the file it was given."""
+
+    def __init__(self, fail: bool = False):
+        self.fail, self.runs = fail, []
+
+    async def reachable(self) -> bool:
+        return True
+
+    async def render_png(self, run_id: str, musicxml: bytes, dest: Path) -> dict:
+        self.runs.append((run_id, musicxml))
+        if self.fail:
+            raise RuntimeError("no MuseScore today")
+        Image.new("RGB", (2480, 3508), (255, 255, 255)).save(dest / "p-1.png")
+        (dest / "p.mpos").write_text('<?xml version="1.0"?><score><elements>'
+                                     '<element id="0" x="9600" y="24000" sx="48000" sy="19200" page="0"/>'
+                                     '<element id="1" x="57600" y="24000" sx="48000" sy="19200" page="0"/></elements></score>')
+        return {"seconds": 0.5}
+
+
 class FakeMessages:
-    def __init__(self):
+    def __init__(self, same: bool = True):
         self.calls: list[dict] = []
+        self.same = same
 
     async def create(self, **kw):
         self.calls.append(kw)
@@ -171,9 +187,12 @@ class FakeMessages:
             ans = {"kind": "contents" if "page 2 " in prompt else "music", "confidence": "high"}
         elif kw["system"] == FRONT_SYSTEM:
             ans = FRONT
-        elif kw["system"] == ENRICH_SYSTEM:
+        elif kw["system"] == REREAD_SYSTEM:
             assert "treble + bass staff" in prompt and "measures 1..2" in prompt
-            ans = {"items": ITEMS}
+            ans = {"text": TEXT}
+        elif kw["system"] == VERIFY_RENDER_SYSTEM:
+            assert "measures 1..2" in prompt
+            ans = {"same": self.same, "reason": "matches" if self.same else "the bottom shows dolce where the top prints nothing"}
         else:
             assert kw["system"] == VERIFY_SYSTEM
             ans = {"verdict": "natural", "value": ""} if "SHARP" in prompt else {"verdict": "nothing_else", "value": ""}
@@ -182,8 +201,8 @@ class FakeMessages:
                                model="muse-spark-1.3", usage=SimpleNamespace(input_tokens=1000, output_tokens=500))
 
 
-def fake_client():
-    return SimpleNamespace(messages=FakeMessages())
+def fake_client(same: bool = True):
+    return SimpleNamespace(messages=FakeMessages(same))
 
 
 def pdf_book(parts: list[dict] | None = None, score: dict | None = None) -> StoreDB:
@@ -200,10 +219,11 @@ def job(payload: dict | None = None) -> Job:
     return Job("job-1", "omr_convert", {"score_id": SCORE, **(payload or {})}, None, "u1", 1, 1)
 
 
-async def run(db: StoreDB, box: FakeBox, client=None, payload: dict | None = None, pdf: FakePdf | None = None):
+async def run(db: StoreDB, box: FakeBox, client=None, payload: dict | None = None, pdf: FakePdf | None = None, renderer=None):
     j = job(payload)
     ctx = StoreCtx(j, db, {})
-    out = await omr_convert(j, ctx, box=box, client=client or fake_client(), model="muse-spark-1.3", pdf_pages=pdf or FakePdf())
+    out = await omr_convert(j, ctx, box=box, client=client or fake_client(), model="muse-spark-1.3", pdf_pages=pdf or FakePdf(),
+                            engraver=renderer or FakeRenderer())
     return out, ctx
 
 
@@ -211,28 +231,32 @@ CALL_USD = (1000 * 1.25 + 500 * 4.25) / 1e6
 
 
 async def test_convert_writes_the_digital_version_with_flags_and_the_facts():
-    db, box, client, pdf = pdf_book(), FakeBox(), fake_client(), FakePdf()
-    out, ctx = await run(db, box, client, pdf=pdf)
+    db, box, client, pdf, renderer = pdf_book(), FakeBox(), fake_client(), FakePdf(), FakeRenderer()
+    out, ctx = await run(db, box, client, pdf=pdf, renderer=renderer)
     # page kinds: the cover by geometry, the contents page asked, the music page asked; Audiveris gets the music page only
     assert out["page_kinds"] == [(1, "cover"), (2, "contents"), (3, "music")]
     assert box.runs == [("job-1", b"%PDF-1.4 fake", [3])]
     assert out["cover"] == cover_path(SCORE) and db.storage.types[out["cover"]] == "image/png" and 1 in pdf.rendered
     assert out["instruments"] == ["Piano"] and out["bars"] == 2 and out["pages"] == [3]
     assert 1 in out["flagged_bars"]                                                  # Audiveris's own rhythm check
-    # two page-kind questions, the front matter, one system, two closed questions (the flat at 0.9 is over the gate)
-    assert len(client.messages.calls) == 6 and len(ctx.charges) == 6
+    # two page-kind questions, the front matter, one system, two closed questions (the flat at 0.9 is over the gate), one render check
+    assert len(client.messages.calls) == 7 and len(ctx.charges) == 7
     assert all(c.kind == "spark" and c.model == "muse-spark-1.3" for c in ctx.charges)
-    assert out["cost_usd"] == pytest.approx(6 * CALL_USD, abs=1e-4)
-    assert out["cost_per_page"] == {"2": pytest.approx(CALL_USD, abs=1e-4), "3": pytest.approx(5 * CALL_USD, abs=1e-4)}
+    assert out["cost_usd"] == pytest.approx(7 * CALL_USD, abs=1e-4)
+    assert out["cost_per_page"] == {"2": pytest.approx(CALL_USD, abs=1e-4), "3": pytest.approx(6 * CALL_USD, abs=1e-4)}
+    assert out["verify"] == {"asked": 1, "reverted": {}, "systems": 1, "skipped": None, "render_s": 0.5}
+    assert len(renderer.runs) == 1 and renderer.runs[0][0] == "job-1-verify"
 
     key = digital_path(SCORE)
     assert key == f"{SCORE}/digital/score.musicxml" and db.storage.types[key] == "application/vnd.recordare.musicxml+xml"
     xml = db.storage.files[key]
+    assert xml == renderer.runs[0][1]                                                # what Spark checked is what was written
     back = converter.parse(xml, format="musicxml")
     upper, lower = back.parts
     assert [m.number for m in upper.getElementsByClass(stream.Measure)] == [1, 2]
-    # front matter: the book's title and composer, the page's movement, opus and editor; the tempo line on bar 1 only
-    assert b"<work-title>Goldberg Variations</work-title>" in xml and back.metadata.composer == "J. S. Bach"
+    # front matter: the page's heading is the file's title (the shelf title "Goldberg Variations" is never written in)
+    assert b"<work-title>Aria con Variazioni.</work-title>" in xml and b"Goldberg Variations" not in xml
+    assert back.metadata.composer == "J. S. Bach"
     assert b"<work-number>BWV 988</work-number>" in xml and b"<movement-title>Aria</movement-title>" in xml
     assert b'<creator type="editor">Hans Bischoff</creator>' in xml
     m1, m2 = upper.measure(1), upper.measure(2)
@@ -243,20 +267,18 @@ async def test_convert_writes_the_digital_version_with_flags_and_the_facts():
     tempo_dir = next(d for d in re.findall(rb"<direction\b.*?</direction>", m1_xml, re.S) if b"<metronome" in d)
     assert tempo_dir.index(b"Andante espressivo.") < tempo_dir.index(b"<metronome")      # one direction: words, then the mark
     assert xml.count(b"Andante espressivo.") == 1
-    # items: p once, dolce in italic, no cresc. beside the hairpin, fingering on the notes, one new pedal, a trill
+    # text: p where Audiveris's sf glyph was, dolce in italic where its "dolc" was; the free cresc., the plate number,
+    # the hairpin character and the digit never reach the file
     assert [d.value for d in back.recurse().getElementsByClass(dynamics.Dynamic)] == ["p"]
     words = [(t.content, t.style.fontStyle) for t in back.recurse().getElementsByClass(expressions.TextExpression)
              if t.style.fontWeight != "bold"]                                         # the heading comes back as bold words
     assert words == [("dolce", "italic")]
-    notes = {n.nameWithOctave: n for n in back.recurse().notes}
-    assert [a.fingerNumber for a in notes["G4"].articulations if isinstance(a, articulations.Fingering)] == [2]
-    assert [a.fingerNumber for a in notes["D3"].articulations if isinstance(a, articulations.Fingering)] == [1]   # a single note takes one digit
-    assert xml.count(b'<pedal') == 4 and xml.count(b'type="start"') >= 2            # Audiveris's pedal and Spark's, each start + stop
-    assert [type(e).__name__ for e in notes["D5"].expressions] == ["Trill"]
-    assert notes["A4"].expressions == []                                             # the low-grade mordent Spark called nothing
+    assert b"07'880" not in xml and b">cresc.<" not in xml and b"&lt;" not in xml
+    assert [type(e).__name__ for e in next(n for n in back.recurse().notes if n.nameWithOctave == "A4").expressions] == []   # the low-grade mordent Spark called nothing
+    assert xml.count(b"<pedal") == 2 and xml.count(b"<wedge") == 2                 # Audiveris's pedal and hairpin untouched
     assert [p.nameWithOctave for n in back.recurse().notes for p in n.pitches][:2] == ["G4", "A4"]   # notes as Audiveris read them
-    assert out["items"]["written"] == {"words": 1, "dynamic": 1, "fingering": 2, "pedal": 2, "ornament": 1}
-    assert out["items"]["duplicates"] == 4 and out["items"]["dropped"] == 2
+    assert out["items"]["written"] == {"words": 1, "dynamic": 1} and out["items"]["duplicates"] == 1 and out["items"]["dropped"] == 4
+    assert out["items"]["verified"] == {"systems": 1, "reverted_bars": [], "skipped": None}
 
     row = next(r for r in db.rows["sources"] if r["id"] == out["source_id"])
     assert row["kind"] == "musicxml" and row["storage_paths"] == [key]
@@ -270,15 +292,41 @@ async def test_convert_writes_the_digital_version_with_flags_and_the_facts():
     assert any(r.startswith("accidental: the engine read a sharp; Spark sees natural") for r in b2["reasons"])
     assert [k["kind"] for k in meta["page_kinds"]] == ["cover", "contents", "music"] and meta["cover"] == out["cover"]
     assert meta["front_matter"]["tempo_heading"] == "Andante espressivo." and meta["front_matter"]["read"] is True
-    assert meta["cost"]["total_usd"] == out["cost_usd"] and set(meta["cost"]["per_step"]) == {"page_kind", "front_matter", "enrich", "verify"}
+    assert meta["cost"]["total_usd"] == out["cost_usd"] and set(meta["cost"]["per_step"]) == {"page_kind", "front_matter", "reread", "verify", "verify_render"}
     assert "instruments" not in meta and "slug" not in meta and "split_from" not in meta   # not a split (the web's isSplit)
 
     s = db.rows["scores"][0]
     assert s["key_sig"] == "G major" and s["meter"] == "3/4" and s["bars"] == 2 and s["pages"] == 3 and s["status"] == "ready"
-    assert s["composer"] == "J. S. Bach" and s["work"] == "BWV 988" and s["tempo_bpm"] == 72     # only where the row had none
+    assert s["title"] == "Goldberg Variations" and s["composer"] == "J. S. Bach" and s["work"] == "BWV 988" and s["tempo_bpm"] == 72
     assert "current_interpretation_id" not in s
     assert [(p["name"], p["storage_path"]) for p in db.rows["parts"]] == [("Piano", key)]
     assert sorted(m["number"] for m in db.rows["measures"]) == [1, 2]
+
+
+async def test_a_render_check_that_fails_reverts_the_systems_edits_and_flags_its_bars():
+    db, renderer = pdf_book(), FakeRenderer()
+    out, _ = await run(db, FakeBox(), fake_client(same=False), renderer=renderer)
+    assert out["verify"]["asked"] == 1 and sorted(out["verify"]["reverted"]) == [1, 2]
+    xml = db.storage.files[digital_path(SCORE)]
+    assert xml != renderer.runs[0][1]                                                 # rewritten after the revert
+    back = converter.parse(xml, format="musicxml")
+    assert [d.value for d in back.recurse().getElementsByClass(dynamics.Dynamic)] == ["sf"]          # Audiveris's reading is back
+    assert [t.content for t in back.recurse().getElementsByClass(expressions.TextExpression) if t.style.fontWeight != "bold"] == ["dolc"]
+    assert xml.count(b"<metronome") == 1 and b"Andante espressivo." in xml           # bar 2's own tempo line, as Audiveris had it
+    m1 = re.search(rb'<measure[^>]*number="1".*?</measure>', xml, re.S).group(0)
+    assert b"<metronome" not in m1
+    meta = next(r for r in db.rows["sources"] if r["id"] == out["source_id"])["meta"]
+    reasons = {b["number"]: b["reasons"] for b in meta["flagged_bars"]}
+    assert any(r.startswith("verify: the engraved text did not match the scan (the bottom shows dolce") for r in reasons[1])
+    assert any(r.startswith("verify:") for r in reasons[2])
+    assert out["items"]["verified"]["reverted_bars"] == [1, 2]
+
+
+async def test_a_failed_render_leaves_the_edits_and_says_why():
+    db = pdf_book()
+    out, _ = await run(db, FakeBox(), renderer=FakeRenderer(fail=True))
+    assert out["verify"]["asked"] == 0 and out["verify"]["skipped"].startswith("render failed (RuntimeError")
+    assert b"dolce" in db.storage.files[digital_path(SCORE)]
 
 
 async def test_a_book_of_front_matter_only_fails_before_the_box():
@@ -328,7 +376,7 @@ async def test_spark_allowance_stops_the_questions_and_keeps_audiveris():
     out, ctx = await run(db, FakeBox(), client, {"max_cost_usd": 0.000001})
     assert out["spark_skipped"] >= 1 and len(ctx.charges) == 1 and out["bars"] == 2    # the first call is always allowed
     assert out["page_kinds"] == [(1, "cover"), (2, "contents"), (3, "music")]        # page 3 unasked: a page with staves is music
-    assert out["front_matter"]["read"] is False and out["items"]["systems_answered"] == 0
+    assert out["front_matter"]["read"] is False and out["items"]["systems_answered"] == 0 and out["verify"]["asked"] == 0
     xml = db.storage.files[digital_path(SCORE)]
     assert b"dolc" in xml and b"<sf" in xml                                           # Audiveris's reading kept
 

@@ -6,12 +6,11 @@ import json
 from types import SimpleNamespace
 
 import pytest
-from music21 import articulations, chord, converter, dynamics, expressions, stream, tempo
+from music21 import converter, dynamics, expressions, stream, tempo
 
 from app.librarian import Job
-from app.librarian.omr_agent import (Budget, Cropper, PAGE_KIND_SYSTEM, normalize_front, normalize_items, normalize_kind,
-                                     page_kinds)
-from app.librarian.omr_enrich import apply_front, apply_items, apply_verify, note_slots
+from app.librarian.omr_agent import Budget, Cropper, PAGE_KIND_SYSTEM, junk, normalize_front, normalize_kind, page_kinds, place
+from app.librarian.omr_enrich import apply_front, apply_text, apply_verify
 from tests.test_part_cut import Ctx, FakeDB
 
 
@@ -32,23 +31,26 @@ def test_normalize_front_fills_the_fixed_form():
     assert normalize_front("garbage") == {k: None for k in ("title", "composer", "movement_or_number", "tempo_heading", "metronome", "opus", "dedication", "editor")}
 
 
-def test_normalize_items_keeps_the_five_kinds_anchored_in_the_system():
-    raw = [{"kind": "dynamics", "text": "mf", "bar": 3, "staff": 1, "note": 2},
-           {"kind": "dynamic", "text": "cresc.", "bar": 3, "staff": 2, "note": 1},     # a word called a dynamic
-           {"kind": "words", "text": "f", "bar": 4, "staff": 1, "note": 1},            # a dynamic called a word
-           {"kind": "fingering", "text": "5 2", "bar": 4, "staff": 1, "note": 3},
-           {"kind": "fingering", "text": "x", "bar": 4, "staff": 1, "note": 3},
-           {"kind": "fingering", "text": "3", "bar": 3, "staff": 2, "note": 1},        # the engraved bar number, not a finger
-           {"kind": "pedal", "text": "Ped.", "bar": 3, "staff": 2, "note": 1}, {"kind": "pedal", "text": "*", "bar": 4, "staff": 2, "note": 2},
-           {"kind": "ornament", "text": "tr", "bar": 4, "staff": 1, "note": 1}, {"kind": "ornament", "text": "wiggle", "bar": 4, "staff": 1, "note": 1},
-           {"kind": "words", "text": "dolce", "bar": 9, "staff": 1, "note": 1},         # not in this system
-           {"kind": "words", "text": "legato", "bar": 3, "staff": 7, "note": "2"},      # staff clamped, note from a string
-           "nonsense"]
-    items, dropped = normalize_items(raw, [3, 4], 2)
-    assert [(i["kind"], i["text"], i["number"], i["staff"], i["note"]) for i in items] == [
-        ("dynamic", "mf", 3, 1, 2), ("words", "cresc.", 3, 2, 1), ("dynamic", "f", 4, 1, 1), ("fingering", "5 2", 4, 1, 3),
-        ("pedal", "start", 3, 2, 1), ("pedal", "stop", 4, 2, 2), ("ornament", "trill", 4, 1, 1), ("words", "legato", 3, 2, 2)]
-    assert [d["why"][:12] for d in dropped] == ["fingering 'x", "fingering '3", "ornament 'wi", "bar 9 is not", "not an objec"]
+def test_junk_filter_keeps_text_and_drops_numbers_hairpins_and_specks():
+    assert junk("cresc. poco a poco") is None and junk("p") is None and junk("dolce") is None and junk("rf") is None
+    assert junk("07'880.") and junk("34") and junk("1 2 3") and junk("<") and junk(">") and junk("a") and junk(".") and junk("")
+
+
+def test_place_writes_only_what_an_audiveris_glyph_confirms():
+    ms = [{"number": 18, "px": [100, 0, 500, 100]}, {"number": 19, "px": [500, 0, 900, 100]}]
+    staves, crop = [{"top": 20, "bottom": 80}], {"origin": [0, 0], "size": [1000, 100]}
+    glyph = {"tag": "word", "value": "creso.", "bounds": [540, 85, 60, 10]}
+    heads = [{"x": 560, "number": 19}]
+    items = [{"text": "cresc.", "x": 520, "y": 900, "bar": 18},           # Spark's point left of the barline; the glyph is in 19
+             {"text": "legato", "x": 150, "y": 900, "bar": 18},           # no glyph near: never added
+             {"text": "p", "x": 560, "y": 900, "bar": 19},                # a dynamic on the same glyph: anchored to the head
+             {"text": "<", "x": 300, "y": 900, "bar": 18}]
+    placed, dropped = place(items, ms, staves, crop, [glyph], heads, interline=10)
+    assert [(p["text"], p["kind"], p["number"], p["how"], p["label_agrees"]) for p in placed] == [
+        ("cresc.", "words", 19, "glyph+x", False), ("p", "dynamic", 19, "glyph+head", True)]
+    assert [d["why"][:18] for d in dropped] == ["no Audiveris text ", "a hairpin characte"]
+    _, dropped = place([{"text": "Andante", "x": 520, "y": 900, "bar": 18}], ms, staves, crop, [glyph], heads, interline=10, exclude=("Andante.",))
+    assert dropped[0]["why"].startswith("the tempo heading")
 
 
 class KindModel:
@@ -102,15 +104,15 @@ async def test_page_kinds_gives_up_asking_after_the_cap_and_without_budget():
     assert [(r["pdf_page"], r["kind"]) for r in out] == [(2, "music")] and model.calls == []
 
 
-def test_crop_pads_stop_halfway_to_the_next_system():
+def test_crops_pad_four_interlines_and_the_head_reaches_the_page_top():
     from PIL import Image
     doc = {"pages": [{"page": 1, "interline": 20}], "measures": [],
            "systems": [{"page": 1, "system": 1, "top": 400, "bottom": 600, "left": 100, "right": 900, "numbers": [1]},
                        {"page": 1, "system": 2, "top": 700, "bottom": 900, "left": 100, "right": 900, "numbers": [2]}]}
     c = Cropper(doc, 1, Image.new("L", (1000, 1400), 255))
-    assert c.pads(1) == (160, 70) and c.pads(2) == (70, 140)      # 8 il above the first, 7 il below the last; (100/2 + 20) between
     im, crop = c.system_crop(1)
-    assert crop == {"origin": [60, 240], "size": [860, 430]} and im.size == (860, 430)
+    assert crop == {"origin": [60, 320], "size": [860, 360]} and im.size == (860, 360)
+    assert c.system_crop(2, labels=False)[0].size == (860, 360)
     assert c.head_crop().size == (1000, 660)
 
 
@@ -131,64 +133,54 @@ def small_score() -> stream.Score:
     return converter.parse(XML, format="musicxml")
 
 
-def test_note_slots_count_as_a_reader_does():
-    sc = small_score()
-    upper, lower = sc.parts
-    assert [getattr(s, "nameWithOctave", "chord") if not isinstance(s, chord.Chord) else "chord" for s in note_slots(upper.measure(7))] == ["B4", "C5", "chord"]
-    assert [s.nameWithOctave for s in note_slots(lower.measure(7))] == ["C3"]       # the rest is not counted
-
-
 def doc_for(sc: stream.Score) -> dict:
     return {"systems": [{"page": 1, "system": 1, "staves": [{}, {}], "numbers": [7]}], "measures": [{"number": 7}]}
 
 
-def test_items_land_on_the_counted_note_and_stacked_fingering_goes_top_down():
+def test_text_lands_at_the_nearest_onset_and_reverts_cleanly():
     sc = small_score()
-    items = [{"kind": "fingering", "text": "5 1", "number": 7, "staff": 1, "note": 3},     # on the chord E4+G4: 5 on G4, 1 on E4
-             {"kind": "fingering", "text": "2", "number": 7, "staff": 1, "note": 1},       # on the grace note
-             {"kind": "dynamic", "text": "mf", "number": 7, "staff": 1, "note": 2},
-             {"kind": "dynamic", "text": "mf", "number": 7, "staff": 2, "note": 1},        # seen again from the lower staff
-             {"kind": "words", "text": "dolce", "number": 7, "staff": 1, "note": 2},
-             {"kind": "ornament", "text": "mordent", "number": 7, "staff": 1, "note": 2},
-             {"kind": "ornament", "text": "trill", "number": 7, "staff": 1, "note": 2},    # the note has one already
-             {"kind": "fingering", "text": "4", "number": 7, "staff": 2, "note": 5},       # past the last note: skipped
-             {"kind": "pedal", "text": "start", "number": 7, "staff": 2, "note": 1}]       # Ped. without *: to the end of the bar
-    log, counts = apply_items(sc, doc_for(sc), [{"page": 1, "system": 1, "numbers": [7], "ok": True, "items": items, "dropped": [{}]}])
     upper, lower = sc.parts
     m = upper.measure(7)
-    slots = note_slots(m)
-    assert [a.fingerNumber for a in slots[0].articulations] == [2]
-    ch = slots[2]
-    assert [p.nameWithOctave for p in ch.pitches] == ["E4", "G4"] and [a.fingerNumber for a in ch.articulations] == [1, 5]
+    old = expressions.TextExpression("dolc")
+    m.insert(1.0, old)                                                                 # Audiveris's reading
+    placed = [{"text": "mf", "kind": "dynamic", "number": 7, "staff": 1, "placement": "below", "how": "glyph+head", "frac": 0.0, "glyph": "SF"},
+              {"text": "mf", "kind": "dynamic", "number": 7, "staff": 2, "placement": "above", "how": "glyph+x", "frac": 0.0, "glyph": "SF"},
+              {"text": "dolce", "kind": "words", "number": 7, "staff": 1, "placement": "below", "how": "glyph+x", "frac": 0.6, "glyph": "dolc"}]
+    undos = {}
+    log, counts = apply_text(sc, doc_for(sc), [{"page": 1, "system": 1, "numbers": [7], "ok": True, "placed": placed, "dropped": [{}, {}]}], undos)
+    assert counts == {"words": 1, "dynamic": 1, "duplicates": 1, "dropped": 2, "systems": 1, "systems_answered": 1}
     assert [(d.value, d.getOffsetBySite(m), d.placement) for d in m.getElementsByClass(dynamics.Dynamic)] == [("mf", 0.0, "below")]
-    assert [(t.content, t.style.fontStyle) for t in m.getElementsByClass(expressions.TextExpression)] == [("dolce", "italic")]
-    assert [type(e).__name__ for e in slots[1].expressions] == ["Mordent"]
-    assert counts == {"words": 1, "dynamic": 1, "fingering": 2, "pedal": 1, "ornament": 1, "duplicates": 2, "dropped": 1, "out_of_range": 1}
-    pedal = lower.getElementsByClass(expressions.PedalMark)
-    assert len(pedal) == 1 and pedal[0].getFirst().nameWithOctave == "C3"
-    assert any(e["layer"] == "pedal" and "end of its bar" in e.get("what", "") for e in log)
+    assert [(t.content, t.style.fontStyle, t.getOffsetBySite(m)) for t in m.getElementsByClass(expressions.TextExpression)] == [("dolce", "italic", 1.0)]
+    assert sorted(undos) == [7] and len(undos[7].added) == 2 and len(undos[7].removed) == 1
+    undos[7].revert()
+    assert not m.getElementsByClass(dynamics.Dynamic)
+    assert [(t.content, t.getOffsetBySite(m)) for t in m.getElementsByClass(expressions.TextExpression)] == [("dolc", 1.0)]
 
 
-def test_front_matter_writes_the_tempo_line_once_and_the_metadata():
+def test_front_matter_writes_the_tempo_line_once_and_the_pages_own_title():
     sc = small_score()
     upper = sc.parts[0]
     old = tempo.MetronomeMark(number=60)
     upper.measure(7).insert(0, old)                                                        # Audiveris's unchecked mark
     form = {"title": "Aria", "composer": "J. S. Bach", "movement_or_number": "Aria", "tempo_heading": "Andante",
             "metronome": {"unit": "dotted-quarter", "bpm": 50}, "opus": "BWV 988", "dedication": "To CK", "editor": "Ed"}
-    log = apply_front(sc, form, 7, title="Goldberg Variations", composer="")
+    undos = {}
+    log = apply_front(sc, form, 7, undos, credit_title="Aria con Variazioni.", credit_composer="S. Bach.")
     marks = list(upper.measure(7).getElementsByClass(tempo.MetronomeMark))
     assert len(marks) == 1 and marks[0].text == "Andante" and marks[0].number == 50 and marks[0].referent.quarterLength == 1.5
-    assert sc.metadata.title == "Goldberg Variations" and sc.metadata.composer == "J. S. Bach" and sc.metadata.movementName == "Aria"
+    assert sc.metadata.title == "Aria" and sc.metadata.composer == "J. S. Bach" and sc.metadata.movementName == "Aria"
     assert sc.metadata.opusNumber == "BWV 988" and [e["layer"] for e in log] == ["front-clear", "front"]
+    undos[7].revert()
+    assert list(upper.measure(7).getElementsByClass(tempo.MetronomeMark)) == [old]
     sc2 = small_score()
-    assert apply_front(sc2, {k: None for k in form}, 7, title="T") == [] and not sc2.parts[0].measure(7).getElementsByClass(tempo.MetronomeMark)
+    assert apply_front(sc2, {k: None for k in form}, 7, {}, credit_title="Aria con Variazioni.") == []
+    assert sc2.metadata.title == "Aria con Variazioni." and not sc2.parts[0].measure(7).getElementsByClass(tempo.MetronomeMark)
 
 
 def test_verify_flags_accidentals_and_removes_false_ornaments():
     sc = small_score()
     upper = sc.parts[0]
-    c5 = note_slots(upper.measure(7))[1]
+    c5 = next(n for n in upper.measure(7).recurse().notes if n.nameWithOctave == "C5")
     c5.expressions.append(expressions.Trill())
     answers = [{"inter": {"number": 7, "tag": "alter", "shape": "SHARP", "staff": 1}, "answer": {"verdict": "natural"}},
                {"inter": {"number": 7, "tag": "alter", "shape": "FLAT", "staff": 2}, "answer": {"verdict": "flat"}},
