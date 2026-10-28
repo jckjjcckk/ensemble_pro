@@ -58,7 +58,8 @@ export default function Practice() {
   const vp = useViewport()
   const reduced = useReducedMotion()
   const { practiceUI: p, setPracticeUI: setP, annotations } = useStore()
-  const [historyOpen, setHistoryOpen] = useState(vp.w >= 1360)
+  // History floats over the stage at every width, so the part never re-engraves for it; it opens on demand (H).
+  const [historyOpen, setHistoryOpen] = useState(false)
   const [focus, setFocus] = useState({ bar: p.loop?.from ?? p.bar, key: 0 })
   const [lost, setLost] = useState(false)
   const [pin, setPin] = useState<string | null>(null)
@@ -270,7 +271,7 @@ export default function Practice() {
 
   return (
     <Screen header={header} ruler={ruler} dock={dock} tall={tall} className="is-practice">
-      <div className={`work ${historyOpen ? 'has-side' : ''} ${historyOpen && vp.w >= 1360 ? 'side-docked' : ''}`}>
+      <div className={`work ${historyOpen ? 'has-side' : ''}`}>
         <ScoreStage
           src={part.fixture}
           instruments={[score.partIds.indexOf(part.id)]}

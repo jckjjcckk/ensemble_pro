@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react'
-import type { OpenSheetMusicDisplay } from 'opensheetmusicdisplay'
-import { ScoreView } from '../mock'
+import { OpenSheetMusicDisplay } from 'opensheetmusicdisplay'
 import { measureGeo, readModel, type Geo } from './geometry'
 import { IChevronLeft, IChevronRight } from './icons'
 
-/** Page shapes the stage may ask OSMD for. Few buckets, so a small resize re-renders instead of reloading. */
+/** Page shapes the stage may ask OSMD for. Few buckets, so a small resize re-engraves at the same shape. */
 const ASPECTS = [0.72, 0.82, 0.94, 1.06, 1.2, 1.414]
+
+/** A resize burst (window drag, rotation) settles this long before the score re-engraves. */
+const RESIZE_SETTLE_MS = 160
 
 export interface StageView { first: number; last: number; spread: number; spreads: number; perView: number }
 
@@ -37,12 +39,24 @@ function nearest(xs: number[], v: number) {
   return xs.reduce((a, b) => (Math.abs(b - v) < Math.abs(a - v) ? b : a))
 }
 
+/**
+ * The stage engraves for exactly three reasons: the score loaded, the stage's own size changed (a rotation or a
+ * window resize, settled), or the part changed. Chrome never resizes it: panels and the composer float over it.
+ * The reader's place survives every engrave as a bar number (the anchor), never as a page number.
+ */
 export function ScoreStage({ src, instruments, scale, focus, follow, underlay, overlay, onBarTap, onBarHold, onView, margin, label }: Props) {
   const stageRef = useRef<HTMLDivElement>(null)
   const hostRef = useRef<HTMLDivElement>(null)
   const osmdRef = useRef<OpenSheetMusicDisplay | null>(null)
-  const awaitingRef = useRef(false)
+  /** The instance has drawn at least once; before that there is nothing to measure. */
+  const drawnRef = useRef(false)
+  /** An engrave is scheduled; measurements of the old drawing are skipped until it lands. */
+  const pendingRef = useRef(false)
+  /** What the current drawing was engraved for. A change that settles back here is not re-engraved. */
+  const engravedRef = useRef<string | null>(null)
   const [size, setSize] = useState<{ w: number; h: number } | null>(null)
+  const [loaded, setLoaded] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [geo, setGeo] = useState<Geo | null>(null)
   const [settled, setSettled] = useState(false)
   const [anchor, setAnchor] = useState(focus.bar)
@@ -50,13 +64,20 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
   const instrumentsKey = JSON.stringify(instruments)
   const instrumentsRef = useRef(instruments)
 
+  // The stage's real size. A zero size (hidden, or not laid out yet) is not a size: the engrave waits for a real one.
   useLayoutEffect(() => {
     const el = stageRef.current
     if (!el) return
-    const ro = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect
-      setSize(s => (s && Math.abs(s.w - width) < 2 && Math.abs(s.h - height) < 2 ? s : { w: Math.round(width), h: Math.round(height) }))
-    })
+    const apply = (width: number, height: number) => {
+      if (width < 2 || height < 2) return
+      const w = Math.round(width)
+      const h = Math.round(height)
+      setSize(s => (s && Math.abs(s.w - w) < 2 && Math.abs(s.h - h) < 2 ? s : { w, h }))
+    }
+    // The size at mount is read directly: a page that gets no frames yet (background tab) still engraves.
+    const r = el.getBoundingClientRect()
+    apply(r.width, r.height)
+    const ro = new ResizeObserver(([entry]) => apply(entry.contentRect.width, entry.contentRect.height))
     ro.observe(el)
     return () => ro.disconnect()
   }, [])
@@ -87,65 +108,97 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
     instrumentsRef.current = instruments
   })
 
+  /** Show the spread holding the anchor bar and read every bar's box on it. Cheap: no OSMD work. */
   const measure = useCallback(() => {
-    const host = hostRef.current
     const stage = stageRef.current
+    const container = hostRef.current
     const osmd = osmdRef.current
-    const container = host?.querySelector<HTMLElement>('.osmd > div')
-    if (!stage || !container) return
+    if (!stage || !container || !osmd || !drawnRef.current || pendingRef.current) return
     const pageEls = Array.from(container.children) as HTMLElement[]
     const n = perViewRef.current
-    let spread = 0
-    if (osmd && !awaitingRef.current) {
-      const model = readModel(osmd)
-      spread = Math.floor((model.barPage.get(anchorRef.current) ?? 0) / n)
-      spread = Math.max(0, Math.min(spread, Math.ceil(model.pageCount / n) - 1))
-    }
+    const model = readModel(osmd)
+    let spread = Math.floor((model.barPage.get(anchorRef.current) ?? 0) / n)
+    spread = Math.max(0, Math.min(spread, Math.ceil(model.pageCount / n) - 1))
     pageEls.forEach((el, i) => { el.style.display = i >= spread * n && i < spread * n + n ? '' : 'none' })
-    if (!osmd || awaitingRef.current) return
     setGeo(measureGeo(osmd, stage, pageEls))
     setSettled(true)
   }, [])
 
-  const applyInstruments = useCallback((osmd: OpenSheetMusicDisplay): boolean => {
-    const want = instrumentsRef.current
-    let changed = false
-    osmd.Sheet.Instruments.forEach((ins, i) => {
-      const v = want === null || want.includes(i)
-      if (ins.Visible !== v) { ins.Visible = v; changed = true }
-    })
-    return changed
-  }, [])
-
-  const onReady = useCallback((osmd: OpenSheetMusicDisplay) => {
-    osmdRef.current = osmd
-    // Every render, including OSMD's own resize renders, re-measures synchronously before paint.
-    const render = osmd.render.bind(osmd)
-    osmd.render = () => {
-      if (osmdRef.current !== osmd) return
-      render()
-      awaitingRef.current = false
-      measure()
-    }
-    if (applyInstruments(osmd)) {
-      // ScoreView re-renders once more after load (its zoom effect); measure then. Fallback if it does not.
-      awaitingRef.current = true
-      setSettled(false)
-      window.setTimeout(() => { if (awaitingRef.current && osmdRef.current === osmd) osmd.render() }, 700)
-    } else {
-      measure()
-    }
-  }, [applyInstruments, measure])
-
-  // Part switch on a live instance.
+  // One instance per score, loaded once. Page format, zoom and visible parts are set per engrave, not per load.
   useEffect(() => {
-    const osmd = osmdRef.current
-    if (!osmd || !osmd.GraphicSheet) return
-    if (applyInstruments(osmd)) osmd.render()
-  }, [instrumentsKey, applyInstruments])
+    const container = hostRef.current
+    if (!container) return
+    const osmd = new OpenSheetMusicDisplay(container, {
+      autoResize: false,
+      backend: 'svg',
+      drawTitle: false,
+      drawComposer: false,
+      drawSubtitle: false,
+      drawLyricist: false,
+      drawPartNames: true,
+      drawMeasureNumbers: true,
+      pageFormat: 'A4_P',
+    })
+    osmdRef.current = osmd
+    drawnRef.current = false
+    let cancelled = false
+    setLoaded(null)
+    setError(null)
+    setSettled(false)
+    setGeo(null)
+    osmd.load(src)
+      .then(() => { if (!cancelled) setLoaded(src) })
+      .catch((e: unknown) => { if (!cancelled) setError(e instanceof Error ? e.message : String(e)) })
+    return () => {
+      cancelled = true
+      osmd.clear()
+      if (osmdRef.current === osmd) osmdRef.current = null
+      drawnRef.current = false
+    }
+  }, [src])
 
-  // A new page format reloads the score: hide until it settles again.
-  useEffect(() => { osmdRef.current = null; setSettled(false); setGeo(null) }, [layout?.format, src])
+  // The engrave. Scheduled in the layout phase so measure() below knows to wait. The first one for a score runs
+  // right after the next paint, so the skeleton is on screen while OSMD works (hundreds of ms here, seconds on an
+  // iPad); later ones wait for the burst to settle, since a rotation changes the viewport, the scale and the
+  // stage's size in separate frames. Whatever the inputs settle back to, an unchanged drawing is kept.
+  useLayoutEffect(() => {
+    const osmd = osmdRef.current
+    if (!osmd || loaded !== src || !layout) return
+    const signature = `${src} ${layout.format} ${layout.zoom} ${instrumentsKey}`
+    if (drawnRef.current && engravedRef.current === signature) { measure(); return }
+    pendingRef.current = true
+    setSettled(false)
+    let done = false
+    const engrave = () => {
+      if (done || osmdRef.current !== osmd) return
+      done = true
+      osmd.setPageFormat(layout.format)
+      osmd.zoom = layout.zoom
+      const want = instrumentsRef.current
+      osmd.Sheet.Instruments.forEach((ins, i) => { ins.Visible = want === null || want.includes(i) })
+      performance.mark('score-engrave', { detail: { format: layout.format, zoom: layout.zoom, parts: instrumentsKey, w: size?.w, h: size?.h } })
+      osmd.render()
+      drawnRef.current = true
+      engravedRef.current = signature
+      pendingRef.current = false
+      measure()
+    }
+    let frame: number | undefined
+    let timer: number | undefined
+    if (drawnRef.current) {
+      timer = window.setTimeout(engrave, RESIZE_SETTLE_MS)
+    } else {
+      // After the next paint when frames come; on a timer when they do not (a background tab gets no frames).
+      frame = window.requestAnimationFrame(() => { timer = window.setTimeout(engrave, 0) })
+      timer = window.setTimeout(engrave, 120)
+    }
+    return () => {
+      done = true
+      if (frame !== undefined) window.cancelAnimationFrame(frame)
+      window.clearTimeout(timer)
+      pendingRef.current = false
+    }
+  }, [loaded, src, layout?.format, layout?.zoom, instrumentsKey, measure]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { setAnchor(focus.bar) }, [focus.key, focus.bar])
 
@@ -234,11 +287,13 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
   }
   const onPointerCancel = () => { window.clearTimeout(gesture.current?.hold); gesture.current = null }
 
-  const hostStyle = layout ? ({
+  // The host exists before the size is known so the score can start loading at once; it shows once settled.
+  const hostStyle: CSSProperties = layout ? {
     left: layout.padX, top: layout.padY, width: layout.availW,
     '--pw': `${layout.pw}px`, '--gap': `${layout.gap}px`,
     visibility: settled ? 'visible' : 'hidden',
-  } as CSSProperties) : undefined
+  } as CSSProperties : { left: 0, top: 0, width: '100%', visibility: 'hidden' }
+  const state = error ? 'error' : settled ? 'ready' : 'loading'
 
   return (
     <div
@@ -250,13 +305,14 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
         {settled && geo?.pages.map((p, i) => p && <div key={i} className="sheet" style={{ left: p.x, top: p.y, width: p.w, height: p.h }} />)}
         {settled && geo && underlay?.(geo)}
       </div>
-      {layout && (
-        <div className="stage-host" ref={hostRef} style={hostStyle}>
-          <ScoreView src={src} zoom={layout.zoom} pageFormat={layout.format} onReady={onReady} className="osmd" />
+      <div className="stage-host" style={hostStyle}>
+        <div className="osmd" data-score-state={state}>
+          <div key={src} ref={hostRef} />
+          {error && <p role="alert">Could not render score: {error}</p>}
         </div>
-      )}
+      </div>
       <div className="stage-over">{settled && geo && overlay?.(geo)}</div>
-      {layout && !settled && (
+      {layout && !settled && !error && (
         <div className="stage-skeleton" style={{ left: layout.padX, top: layout.padY, width: layout.availW, gap: layout.gap }} aria-label="Engraving score" role="status">
           {Array.from({ length: layout.perView }, (_, i) => (
             <div key={i} className="skeleton-page" style={{ width: layout.pw, height: layout.ph }}>
