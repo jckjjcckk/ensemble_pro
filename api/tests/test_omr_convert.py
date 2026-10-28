@@ -86,6 +86,7 @@ MUSICXML = f"""<?xml version="1.0" encoding="UTF-8"?>
 <measure number="2"><direction placement="above"><direction-type><words font-weight="bold">Andante espressivo.</words></direction-type>
 <direction-type><metronome parentheses="yes"><beat-unit>quarter</beat-unit><per-minute>72</per-minute></metronome></direction-type><staff>1</staff><sound tempo="72"/></direction>
 <direction placement="below"><direction-type><words>dolc</words></direction-type><staff>1</staff></direction>
+<direction placement="below"><direction-type><words>07'880.</words></direction-type><staff>2</staff></direction>
 {WEDGE.format(t="crescendo")}
 {note("B", 4, 3, "eighth", 1, 1)}{note("C", 5, 3, "eighth", 1, 1)}{note("D", 5, 6, "quarter", 1, 1)}{note("E", 5, 6, "quarter", 1, 1)}
 {WEDGE.format(t="stop")}<backup><duration>18</duration></backup>
@@ -192,7 +193,8 @@ class FakeMessages:
             ans = {"text": TEXT}
         elif kw["system"] == VERIFY_RENDER_SYSTEM:
             assert "measures 1..2" in prompt
-            ans = {"same": self.same, "reason": "matches" if self.same else "the bottom shows dolce where the top prints nothing"}
+            ans = ({"same": True, "reason": "matches", "differences": []} if self.same else
+                   {"same": False, "reason": "the bottom shows dolce where the top prints nothing", "differences": [{"measure": 2, "what": "dolce"}]})
         else:
             assert kw["system"] == VERIFY_SYSTEM
             ans = {"verdict": "natural", "value": ""} if "SHARP" in prompt else {"verdict": "nothing_else", "value": ""}
@@ -303,23 +305,24 @@ async def test_convert_writes_the_digital_version_with_flags_and_the_facts():
     assert sorted(m["number"] for m in db.rows["measures"]) == [1, 2]
 
 
-async def test_a_render_check_that_fails_reverts_the_systems_edits_and_flags_its_bars():
+async def test_a_render_check_that_fails_reverts_the_named_bars_and_flags_them():
     db, renderer = pdf_book(), FakeRenderer()
     out, _ = await run(db, FakeBox(), fake_client(same=False), renderer=renderer)
-    assert out["verify"]["asked"] == 1 and sorted(out["verify"]["reverted"]) == [1, 2]
+    assert out["verify"]["asked"] == 1 and sorted(out["verify"]["reverted"]) == [2]       # Spark named measure 2 only
     xml = db.storage.files[digital_path(SCORE)]
     assert xml != renderer.runs[0][1]                                                 # rewritten after the revert
     back = converter.parse(xml, format="musicxml")
-    assert [d.value for d in back.recurse().getElementsByClass(dynamics.Dynamic)] == ["sf"]          # Audiveris's reading is back
+    assert [d.value for d in back.recurse().getElementsByClass(dynamics.Dynamic)] == ["p"]           # bar 1 kept Spark's p
     assert [t.content for t in back.recurse().getElementsByClass(expressions.TextExpression) if t.style.fontWeight != "bold"] == ["dolc"]
-    assert xml.count(b"<metronome") == 1 and b"Andante espressivo." in xml           # bar 2's own tempo line, as Audiveris had it
+    assert b"07'880" not in xml                                                       # Audiveris's plate number never comes back
+    assert xml.count(b"<metronome") == 1 and b"Andante espressivo." in xml           # the tempo line on bar 1 stays
     m1 = re.search(rb'<measure[^>]*number="1".*?</measure>', xml, re.S).group(0)
-    assert b"<metronome" not in m1
+    assert b"<metronome" in m1
     meta = next(r for r in db.rows["sources"] if r["id"] == out["source_id"])["meta"]
     reasons = {b["number"]: b["reasons"] for b in meta["flagged_bars"]}
-    assert any(r.startswith("verify: the engraved text did not match the scan (the bottom shows dolce") for r in reasons[1])
-    assert any(r.startswith("verify:") for r in reasons[2])
-    assert out["items"]["verified"]["reverted_bars"] == [1, 2]
+    assert any(r.startswith("verify: the engraved text did not match the scan (the bottom shows dolce") for r in reasons[2])
+    assert not any(r.startswith("verify:") for r in reasons.get(1, []))
+    assert out["items"]["verified"]["reverted_bars"] == [2]
 
 
 async def test_a_failed_render_leaves_the_edits_and_says_why():

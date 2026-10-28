@@ -55,7 +55,7 @@ def meta_client() -> AsyncAnthropic:
 
 def capture(run: Path, store: dict):
     """Wrap the stage's steps so their answers land on disk (the handler returns counts only)."""
-    for name in ("page_kinds", "front_matter", "enrich", "verify"):
+    for name in ("page_kinds", "front_matter", "reread", "verify", "verify_edits"):
         fn = getattr(oc, name)
 
         async def wrapped(*a, _fn=fn, _name=name, **kw):
@@ -63,13 +63,13 @@ def capture(run: Path, store: dict):
             store[_name] = res
             return res
         setattr(oc, name, wrapped)
-    items_fn = oc.apply_items
+    items_fn = oc.apply_text
 
     def items_wrapped(*a, **kw):
         log, counts = items_fn(*a, **kw)
         store.setdefault("log", []).extend(log)
         return log, counts
-    oc.apply_items = items_wrapped
+    oc.apply_text = items_wrapped
     front_fn = oc.apply_front
 
     def front_wrapped(*a, **kw):
@@ -84,6 +84,23 @@ def capture(run: Path, store: dict):
         store.setdefault("log", []).extend(log)
         return log, flags
     oc.apply_verify = verify_wrapped
+
+
+def junk_written(xml: bytes) -> dict:
+    """Words in the file that are only digits/punctuation (plate or page numbers, fingering) or hairpin characters."""
+    import html
+    words = [html.unescape(w.decode()) for w in re.findall(rb"<words[^>]*>([^<]*)</words>", xml)]
+    bad = [w for w in words if not re.search(r"[^\W\d_]", w) or "<" in w or ">" in w]
+    return {"count": len(bad), "words": bad[:20]}
+
+
+def dropped_reasons(reread: list[dict]) -> dict:
+    out: dict[str, int] = {}
+    for r in reread:
+        for d in r.get("dropped") or []:
+            k = d["why"].split(" (")[0][:60]
+            out[k] = out.get(k, 0) + 1
+    return out
 
 
 def tempo_on_bar_1(xml: bytes, first: int) -> dict:
@@ -137,7 +154,7 @@ async def main() -> None:
     (run / "result.json").write_text(json.dumps(out, indent=1))
     (run / "meta.json").write_text(json.dumps(row["meta"], indent=1))
     (run / "charges.json").write_text(json.dumps([{"model": c.model, "input": c.input_tokens, "output": c.output_tokens, "usd": float(c.cost_usd)} for c in ctx.charges], indent=1))
-    for name in ("page_kinds", "front_matter", "enrich", "verify", "log"):
+    for name in ("page_kinds", "front_matter", "reread", "verify", "verify_edits", "log"):
         (run / f"{ {'page_kinds': 'kinds', 'front_matter': 'front'}.get(name, name) }.json").write_text(json.dumps(store.get(name), indent=1, default=str))
     (run / "score_row.json").write_text(json.dumps(db.rows["scores"][0], indent=1))
 
@@ -147,6 +164,8 @@ async def main() -> None:
                      "spark_calls": out["spark_calls"], "spark_skipped": out["spark_skipped"], "cost_usd": out["cost_usd"],
                      "cost_per_page": out["cost_per_page"], "cost_per_step": row["meta"]["cost"]["per_step"],
                      "items": out["items"], "duplicates": out["items"]["duplicates"], "flagged": len(out["flagged_bars"]),
+                     "verify": out["verify"], "engraving": {k: v for k, v in out["engraving"].items() if k != "layouts"},
+                     "junk_written": junk_written(xml), "dropped_by_reason": dropped_reasons(store.get("reread") or []),
                      "front_matter": out["front_matter"], "tempo_bar_1": tempo_on_bar_1(xml, first), "score_row": db.rows["scores"][0]}
     if a.text_gt:
         cmp = run / "compare.json"

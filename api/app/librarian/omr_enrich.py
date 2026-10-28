@@ -9,7 +9,8 @@ duration, rest or barline change. No model. Every write is undoable by bar (`Und
                 "Andante espressivo." to a chord in bar 2). Title and composer in the file are what the page prints
                 (the form, else the scan's credits; the library's shelf title is never written into the MusicXML:
                 CK, 2026-10-28 late); movement, opus, dedication and editor go into the metadata.
-  apply_text    per system Spark answered: Audiveris's dynamics and plain (non-bold) words in its bars are dropped,
+  apply_text    per system Spark answered: Audiveris's dynamics and plain words in its bars are dropped (headings
+                stay; junk words, digits, plate numbers and hairpin characters go for good),
                 then every placed item (a text glyph confirmed it, `omr_agent.place`) is written at the note onset
                 nearest its position in the bar: a dynamic as `<dynamics>` (never as words), a phrase as
                 `<words font-style="italic">`, below the top staff of a part and above the staves under it. Dedupe
@@ -28,7 +29,7 @@ from typing import Any
 
 from music21 import dynamics, duration, expressions, metadata, stream, tempo
 
-from .omr_agent import UNITS
+from .omr_agent import UNITS, junk
 from .omr_score import staff_groups
 
 log = logging.getLogger("folio.omr")
@@ -85,17 +86,29 @@ def _remove(undo: Undo, el) -> None:
     site.remove(el)
 
 
+def _is_heading(el: expressions.TextExpression) -> bool:
+    """A tempo heading or movement title as Audiveris reads it: bold, or starting with a capital letter ("Allegro
+    moderato", "Var. 2"); Spark's reread never lists those, so they must survive the clearing."""
+    text = (el.content or "").strip()
+    return _is_bold(el) or (text[:1].isalpha() and text[:1].isupper())
+
+
 def clear_text(m: stream.Measure, undo: Undo) -> list[str]:
-    """Drop Audiveris's dynamics and plain words from a bar Spark answered; bold words (headings) and metronome marks
-    stay (they belong to the tempo line, which `apply_front` handles for the first page)."""
+    """Drop Audiveris's dynamics and plain words from a bar Spark answered (undoable); headings and metronome marks
+    stay (they belong to the tempo line, which `apply_front` handles for the first page). A word that is junk by
+    the text filter (digits, a plate number, a hairpin character, specks) goes for good: a revert never brings it back."""
     gone = []
     for el in list(m.recurse()):
         if isinstance(el, dynamics.Dynamic):
             gone.append(el.value)
             _remove(undo, el)
-        elif isinstance(el, expressions.TextExpression) and not _is_bold(el):
-            gone.append(el.content)
-            _remove(undo, el)
+        elif isinstance(el, expressions.TextExpression):
+            if junk(el.content or ""):
+                gone.append(el.content)
+                el.activeSite.remove(el)
+            elif not _is_heading(el):
+                gone.append(el.content)
+                _remove(undo, el)
     return gone
 
 
@@ -170,7 +183,7 @@ def apply_front(sc: stream.Score, form: dict[str, Any], first_number: int, undos
                 continue
             for el in list(m.recurse()):
                 if isinstance(el, tempo.MetronomeMark) or (isinstance(el, expressions.TextExpression) and _is_bold(el)):
-                    _remove(_undo(undos, n), el)
+                    _remove(_undo(undos, first_number), el)      # one edit, the tempo line: undone with bar 1 only
                     log_.append({"layer": "front-clear", "number": n, "what": f"dropped Audiveris's {type(el).__name__} {getattr(el, 'text', None) or getattr(el, 'content', '')!r}"})
     kw: dict[str, Any] = {"text": heading} if heading else {}
     if mm:

@@ -1,10 +1,12 @@
 """omr_convert: "Convert to Digital" (feature 005). A PDF book gets a second version of itself: a transcription with
 flagged bars. The PDF stays the truth and the book's primary source; the web decides which to open.
 
-Meta model: **Muse Spark 1.3** as librarian agent v2 (`omr_agent`, 2026-10-28): it sorts the leading pages (cover,
-preface, contents or thematic index, music), reads the front matter of the first page of music into a fixed form,
-lists the text, dynamics, fingering, pedal and ornament marks of every system anchored by bar, staff and note, and
-answers the closed questions left (low-grade accidentals: flag only; ornaments). Effort low, 8k output budget,
+Meta model: **Muse Spark 1.3** as librarian agent v2 (`omr_agent`, 2026-10-28, revised the same night after CK's
+look): it sorts the leading pages (cover, preface, contents or thematic index, music), reads the front matter of the
+first page of music into a fixed form, re-reads the dynamics and expression words of every system (written only
+where an Audiveris text glyph confirms them, never free text), answers the closed questions left (low-grade
+accidentals: flag only; ornaments), and proofreads every edited system against the scan once MuseScore has engraved
+it (`omr_verify`: on "no" the system's edits are reverted and its bars flagged). Effort low, 8k output budget,
 JSON-only system prompts, every call charged through `ctx.charge` and recorded per PDF page. Spark never places
 staves or bars and never changes a note; `omr_enrich` writes what it read by fixed rules with a dedupe against what
 the bar already holds. The engine is Audiveris 5.11 on the OMR box (a separate process over ssh, AGPL: nothing here
@@ -27,25 +29,29 @@ Steps:
      tar. An unreachable box fails the job with `result.reason` "The transcription engine is offline".
   3. `omr_book` reads the book into the bar map (global bar numbers, Audiveris's boxes, the grade gate at 0.6);
      `omr_score.merge` puts the movements on those numbers (a mismatch fails here).
-  4. `omr_agent.front_matter`, `enrich` and `verify` run in parallel (6 calls in flight) within the job's allowance
-     (`max_cost_usd`, default $1.00 a page, page-kind questions included); `omr_enrich` writes the answers: the tempo
-     line at the head of bar 1, words in italic, dynamics, fingering on the notes, pedal directions, ornaments, each
-     deduped against the bar (hairpins, pedals and ornaments Audiveris read are never doubled); accidentals Spark
-     disagrees with flag their bar. `flagged_bars` lists every doubtful bar with its page, box and reasons.
+  4. `omr_agent.front_matter`, then `reread` and `verify` in parallel (6 calls in flight), within the job's allowance
+     (`max_cost_usd`, default $1.00 a page, page-kind questions included); `omr_enrich` writes the answers, each
+     undoable by bar: the tempo line at the head of bar 1 (the page's own heading is the file's title; the shelf
+     title never goes into the MusicXML), dynamics as `<dynamics>`, phrases in italic, only where an Audiveris text
+     glyph confirms them and never digits, plate or page numbers or hairpin characters, deduped against the bar;
+     accidentals Spark disagrees with flag their bar.
   5. The file is written through music21, then `musicxml_fix`: voices numbered per staff (MuseScore drops notes
-     otherwise) and the first movement's `<defaults>` and credits put back, the title and composer written into them.
-     It goes to `{score_id}/digital/score.musicxml`; a `sources` row of kind `musicxml` records it with
-     `meta = {transcribed_from, engine, flags, flagged_bars, pages, parts, page_kinds, cover, front_matter, items,
-     cost: {total_usd, per_page, per_step}}` (a re-run replaces the file and updates the same row). The file is read
-     back through the import's own `book_facts`: `measures` rows (upsert, never delete); `parts` rows as the import
-     writes them when the book has none, else the book's own part names are kept (positionally, when the counts
-     agree) and only their `storage_path` moves to the digital file; score facts only where the score has none:
-     key, meter, bars, pages, and from the front-matter form composer, work (the opus) and tempo (the metronome Spark
-     read from the heading; Audiveris's unchecked marks are still never taken). `status`, `progress` and
-     `current_interpretation_id` are not touched.
+     otherwise), one tempo direction, and the first movement's `<defaults>` and credits put back. `omr_verify` then
+     engraves it with MuseScore on the box (PNG pages + `.mpos`) and asks Spark, per system an edit touched, whether
+     the engraved text matches the scan; on "no" that system's edited bars go back to Audiveris's reading, are
+     flagged, and the file is written again. It goes to `{score_id}/digital/score.musicxml`; a `sources` row of kind
+     `musicxml` records it with `meta = {transcribed_from, engine, flags, flagged_bars, pages, parts, page_kinds,
+     cover, front_matter, items (written, duplicates, dropped, verified), cost: {total_usd, per_page, per_step}}`
+     (a re-run replaces the file and updates the same row). The file is read back through the import's own
+     `book_facts`: `measures` rows (upsert, never delete); `parts` rows as the import writes them when the book has
+     none, else the book's own part names are kept (positionally, when the counts agree) and only their
+     `storage_path` moves to the digital file; score facts only where the score has none: key, meter, bars, pages,
+     and from the front-matter form composer, work (the opus) and tempo (the metronome Spark read from the heading;
+     Audiveris's unchecked marks are still never taken). `status`, `progress` and `current_interpretation_id` are not
+     touched. Last, `engrave_step` draws the pages (engrave.py).
 
-Result: `{source_id, instruments, bars, flagged_bars (bar numbers), seconds, cost_usd, cost_per_page, pages,
-page_kinds, cover, front_matter, items, spark_calls, spark_skipped, timings}`.
+Result: `{source_id, instruments, bars, flagged_bars (bar numbers), engraving, seconds, cost_usd, cost_per_page, pages,
+page_kinds, cover, front_matter, items, verify, spark_calls, spark_skipped, timings}`.
 """
 from __future__ import annotations
 

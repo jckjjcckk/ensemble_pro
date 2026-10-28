@@ -1,18 +1,20 @@
 """The verify step of librarian agent v2 (feature 005, CK's decision 2026-10-28 late): after the digital file is
 written, every bar an edit touched is engraved by MuseScore on the box and shown to Spark next to the scan of the
-same system, one closed question per system: "same text and markings? yes/no" with a one-line reason. On no, the
-edits of every touched bar in that system are reverted (`omr_enrich.Undo`: Audiveris's reading comes back) and the
+same system, one closed question per system: same text? yes/no, a one-line reason and the measures that differ. On no, the
+edits of the named bars (every touched bar of the system when none is named) are reverted (`omr_enrich.Undo`: Audiveris's reading comes back) and the
 bars are flagged. The verify calls are charged like every other call and recorded per page (`Budget`, step
 `verify_render`).
 
 The render: MuseScore writes one PNG per page at 300 dpi plus the `.mpos` measure positions (`engrave.SshEngraver
-.render_png`); a system's box on the page is the union of its bars' boxes (`.mpos` units: `MPOS_PER_PX_300`). The
+.render_png`); a system's box on the page is the union of its bars' boxes (`.mpos` units are 12 per 300 dpi pixel). The
 question image is the scan's system (no labels) above the engraved system, both scaled to one width.
 """
 
 from __future__ import annotations
 
+import asyncio
 import logging
+import os
 import re
 import tempfile
 from pathlib import Path
@@ -20,20 +22,20 @@ from typing import Any
 
 from PIL import Image, ImageDraw
 
-from .engrave import MPOS_PER_SVG_UNIT, measure_numbers, parse_mpos
+from .engrave import measure_numbers, parse_mpos
 from .omr_agent import Budget, Cropper, _ask, png_bytes
 from .omr_enrich import Undos
 
 log = logging.getLogger("folio.omr")
 
-MPOS_PER_PX_300 = MPOS_PER_SVG_UNIT * 1200 / 300     # .mpos units per pixel of a 300 dpi PNG (SVG units are 1/1200 in)
+MPOS_PER_PX_300 = 12.0                               # .mpos units per pixel of a 300 dpi PNG (measured on Chopin p25: 32054 / 2670 px)
 PAD_PX = 60                                          # around the engraved system, so text above and below is in frame
 MAX_WIDTH = 1600
 
 VERIFY_RENDER_SYSTEM = "You are a music engraver proofreading a transcription against its scanned original. Answer with strict JSON only."
-VERIFY_RENDER_PROMPT = """Two images of the same system, measures {first}..{last} of a piece of piano or chamber music. TOP: the scanned original (300 dpi). BOTTOM: our engraving of the transcription (a different engraver, so note spacing, stems, beams, staff size and layout differ: ignore all of that).
-Compare only the printed text and markings: tempo heading and metronome mark, dynamics (p, mf, f, sf ...), expression words (dolce, cresc., dim. ...), hairpins. Does the bottom carry the same text and markings as the top, in the same measures, with no text added that the top does not print? Fingering digits, page and plate numbers may be missing from the bottom: that is fine.
-Return only JSON: {{"same": true, "reason": "<one line: what differs, or 'matches'>"}}"""
+VERIFY_RENDER_PROMPT = """Two images of the same system, measures {first}..{last} of a piece of piano or chamber music. TOP: the scanned original (300 dpi). BOTTOM: our engraving of the transcription by a different engraver, so note spacing, stems, beams, slurs, staff size and layout differ, and hairpins are drawn as plain lines: ignore all of that.
+Compare only the printed TEXT: dynamic letters (p, mf, f, sf, rf ...) and expression words (dolce, cresc., dim., poco ...), measure by measure. Is every text item of the bottom also printed on the top in the same measure, and every dynamic or expression word of the top present on the bottom? Fingering digits, plate and page numbers, tempo headings and titles may be missing from the bottom; hairpins, slurs and ornaments are not text: never count them.
+Return only JSON: {{"same": true, "reason": "<one line>", "differences": [{{"measure": {first}, "what": "<the text that differs>"}}]}} ("differences" empty when same is true)."""
 
 
 def _system_boxes(mpos: str, numbers: list[int], png_sizes: list[tuple[int, int]]) -> dict[int, tuple[int, int, int, int, int]]:
@@ -73,14 +75,22 @@ def pair_image(scan: Image.Image, render: Image.Image) -> Image.Image:
     return out
 
 
-def _same(ans: dict | None) -> tuple[bool | None, str]:
+def _same(ans: dict | None, numbers: list[int]) -> tuple[bool | None, str, list[int]]:
+    """Spark's verdict, its reason, and the measures it names as different (within the system; empty = all)."""
     if not ans:
-        return None, "no answer"
+        return None, "no answer", []
     v = ans.get("same")
     if isinstance(v, str):
         v = v.strip().lower() in ("true", "yes", "same", "y")
     reason = " ".join(str(ans.get("reason") or "").split())[:200]
-    return (bool(v) if v is not None else None), reason
+    named: list[int] = []
+    for d in ans.get("differences") if isinstance(ans.get("differences"), list) else []:
+        m = d.get("measure") if isinstance(d, dict) else None
+        if isinstance(m, (int, float)) and int(m) in numbers:
+            named.append(int(m))
+        elif isinstance(m, str) and m.strip().isdigit() and int(m) in numbers:
+            named.append(int(m))
+    return (bool(v) if v is not None else None), reason, sorted(set(named))
 
 
 async def verify_edits(ctx, client, model: str, engraver: Any, run_id: str, data: bytes, doc: dict, scans: dict[int, Image.Image],
@@ -114,26 +124,39 @@ async def verify_edits(ctx, client, model: str, engraver: Any, run_id: str, data
     boxes = _system_boxes(mpos, numbers, [(p.width, p.height) for p in pages])
     pdf_page = {p["page"]: p["pdf_page"] for p in doc["pages"]}
     croppers = {p: Cropper(doc, p, im) for p, im in scans.items()}
-    for s in systems:
+    dump = os.environ.get("OMR_VERIFY_DUMP")
+
+    async def one(s: dict) -> dict | None:
         bars = [n for n in s["numbers"] if n in touched]
         render = engraved_system(pages, boxes, s["numbers"])
         if render is None:
-            out["log"].append({"system": s["system"], "page": s["page"], "what": "no engraved box for these bars"})
-            continue
+            return {"system": s["system"], "page": s["page"], "bars": bars, "same": None, "reason": "no engraved box for these bars"}
         scan, _ = croppers[s["page"]].system_crop(s["system"], labels=False)
+        pair = png_bytes(pair_image(scan, render))
+        if dump:
+            Path(dump).mkdir(parents=True, exist_ok=True)
+            (Path(dump) / f"p{s['page']}-sys{s['system']}.png").write_bytes(pair)
         async with budget.sem:
             if not budget.ok():
-                out["skipped"] = "budget spent before every system was checked"
-                break
+                return None
             prompt = VERIFY_RENDER_PROMPT.format(first=s["numbers"][0], last=s["numbers"][-1])
-            ans = await _ask(ctx, client, model, prompt, png_bytes(pair_image(scan, render)), VERIFY_RENDER_SYSTEM, budget,
-                             "verify_render", pdf_page[s["page"]])
-        out["asked"] += 1
-        same, reason = _same(ans)
-        rec = {"system": s["system"], "page": s["page"], "bars": bars, "same": same, "reason": reason}
+            ans = await _ask(ctx, client, model, prompt, pair, VERIFY_RENDER_SYSTEM, budget, "verify_render", pdf_page[s["page"]])
+        same, reason, named = _same(ans, s["numbers"])
+        return {"system": s["system"], "page": s["page"], "bars": bars, "same": same, "reason": reason, "named": named, "asked": True}
+
+    results = await asyncio.gather(*(one(s) for s in systems))
+    for rec in results:
+        if rec is None:
+            out["skipped"] = "budget spent before every system was checked"
+            continue
         out["log"].append(rec)
-        if same is False:
-            for n in bars:
+        if not rec.get("asked"):
+            continue
+        out["asked"] += 1
+        if rec["same"] is False:
+            # Revert the bars Spark names when it names any of this system's edited bars, else every edited bar of the system
+            targets = [n for n in rec["bars"] if n in rec["named"]] or rec["bars"]
+            for n in targets:
                 undos[n].revert()
-                out["reverted"][n] = reason or "Spark says the engraved text differs from the scan"
+                out["reverted"][n] = rec["reason"] or "Spark says the engraved text differs from the scan"
     return out
