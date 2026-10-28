@@ -1,0 +1,22 @@
+{
+ "title": "Chopin Polonaise Op. 40 No. 1 (3b, Ekier) PDF p25: Audiveris 5.11 + Muse Spark",
+ "summary": {
+  "pages": "1 (PDF pages 1 to 1)",
+  "bars": "16 (1 to 16), 16 per page",
+  "movements (Audiveris)": "1: - bars 1-16",
+  "Audiveris": "24.0 s for the book, exports chopin-op40-1-p25.mxl",
+  "abnormal bars": 1,
+  "flagged bars": 5,
+  "grade gate": "0.6 {'tuplet': 0.9}: 11 asked, 56 skipped (tuplets skipped: )",
+  "Spark": "16 calls, $0.088; verify 11 calls $0.041 16.8 s wall (76.5 s summed); reread 5 calls $0.0469 16.1 s wall (60.0 s summed)",
+  "text F1 strict (Audiveris alone -> final)": "0.0 -> 0.0 (P 0.0, R 0.0)",
+  "text F1 near (\u00b11 bar)": "0.0 -> 0.0",
+  "text placement (strict F1)": "x+geometry 0.0, spark_x 0.0, label 0.0"
+ },
+ "pages": {
+  "1": {
+   "content": "mvt 1",
+   "render_error": null
+  }
+ }
+}

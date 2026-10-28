@@ -238,6 +238,32 @@ stacked give 2 parts x 13 bars, 7/13 flagged; 40 s CPU. Per page: 8 s staff dete
 retry crops +30 s. Grace notes: homr keeps 16 trills, drops all 26. Spent $0.26 of $2. Verdict: not as a
 Spark loop and not this week as a transcription feature.
 
+## Engraving (2026-10-28, MuseScore headless on the box)
+
+MuseScore Studio 4.7.5 runs headless on the box (`~/omr/musescore/`, the extracted AppImage, no install;
+`MU_QT_QPA_PLATFORM=offscreen ~/omr/musescore/scripts/musescore_render.sh out.(pdf|mpos|mscx) in.musicxml`, about
+0.6 s a page; plain `QT_QPA_PLATFORM` is ignored). Engraving our file there found two defects in what the merge
+writes, both fixed in `api/app/librarian/musicxml_fix.py`, a post-write pass on the bytes that `omr_convert`'s
+`write_musicxml` and the experiments' `score.py` and `apply_edits.py` all run:
+
+- **Voice numbers.** music21 renumbers voices per bar across both staves, so voice 2 is the bass in one bar and
+  an upper voice in the next; MuseScore binds a voice to one staff per part and silently drops the rest. Now every
+  staff gets its own numbers (staff 1 voices 1-4, staff 2 voices 5-8; each voice of a bar goes to the staff with
+  most of its notes, a cross-staff note keeps its own `<staff>`). Notes kept by MuseScore (`musescore_kept.py`):
+  Goldberg Aria **391 → 414 of 414**, Chopin Op. 40/1 page **586 → 628 of 628** (bar 16's bass, the inner voices
+  of 2, 4, 10, 13, 14).
+- **Layout metadata.** The merge builds a new score, so Audiveris's `<defaults>` (page size, margins, scaling) and
+  every `<credit>` were lost, and music21 wrote "Music21" as the composer. Now the first movement file's
+  `<defaults>` and its title and composer credits (the first two credits with real text; OCR'd fingering digits
+  and specks dropped) are carried, the book's title and composer written into them (else the credits' own text),
+  and an empty or "Music21" creator removed. `<print new-system/new-page>` were already kept. With the scan's
+  page size MuseScore reproduces the scan's systems exactly: Goldberg p1 1-6, 7-12, 13-16, 17-20, 21-24, 25-28,
+  p2 29-32; Chopin 1-3, 4-6, 7-10, 11-13, 14-16 on one page (before: Letter, extra breaks, a second page).
+
+The fixed files and their renders: `api/experiments/engrave/goldberg/same-file/F-*` and
+`api/experiments/engrave/chopin-op40-1/F-*` (`fix_inputs.py`; `G-input.musicxml` is the same after a music21
+re-write, same counts and systems). Tests: `api/tests/test_musicxml_fix.py`.
+
 ## The box
 
 The OMR engines run on CK's Ryzen Ubuntu box, reached as ssh alias `omr` (CK's `~/.ssh/config`; LAN host,
@@ -272,7 +298,8 @@ compare-*.json, base/final.musicxml, slices, render, review.html) and `goldberg-
 
 In the app: `api/app/librarian/omr_convert.py` (handler, `SshBox`), `omr_box.py` (box side, stdlib, copied over
 per run), `omr_book.py` (bar map and gate), `omr_spark.py` (crops, prompts, placement, the two passes),
-`omr_score.py` (merge, edits, flags); `api/app/routes/convert.py`; tests `api/tests/test_omr_convert.py`.
+`omr_score.py` (merge, edits, flags), `musicxml_fix.py` (voices per staff, page layout and credits);
+`api/app/routes/convert.py`; tests `api/tests/test_omr_convert.py`, `api/tests/test_musicxml_fix.py`.
 
 ## Next steps
 

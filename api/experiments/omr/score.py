@@ -5,7 +5,8 @@ movement K is the stack with movement == K and movement_bar == k in the measure 
 its global number; a count mismatch between a movement file and the map stops the run (the map and the file
 would then address different bars). Measures are moved, not copied, and each movement's spanners (slurs,
 hairpins, ties across bars) are carried into the merged parts, so nothing the engine read is lost. Each
-movement's clef, key and time signature are already on its first measure.
+movement's clef, key and time signature are already on its first measure. The written file goes through the
+app's `musicxml_fix` (voices numbered per staff; movement 1's `<defaults>` and title and composer credits put back).
 
 Usage: uv run python experiments/omr/score.py model.json out.musicxml mvt1.mxl mvt2.mxl ...
 """
@@ -19,7 +20,9 @@ from pathlib import Path
 from music21 import converter, stream
 
 sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))           # api/, for app.librarian.musicxml_fix
 from measure_map import by_movement  # noqa: E402
+from app.librarian.musicxml_fix import PageLayout, fix_musicxml  # noqa: E402
 
 
 def merge(model: dict, movement_files: list[str]) -> tuple[stream.Score, list[str]]:
@@ -61,6 +64,8 @@ def main() -> None:
     model = json.load(open(sys.argv[1]))
     sc, notes = merge(model, sys.argv[3:])
     sc.write("musicxml", fp=sys.argv[2], makeNotation=False)  # Audiveris bars can overflow; makeNotation would re-bar them
+    out = Path(sys.argv[2])
+    out.write_bytes(fix_musicxml(out.read_bytes(), PageLayout.read(sys.argv[3])))
     n = len(model["measures"])
     print(f"wrote {sys.argv[2]}: {n} bars {model['measures'][0]['number']}..{model['measures'][-1]['number']}, "
           f"{len(sys.argv) - 3} movements")

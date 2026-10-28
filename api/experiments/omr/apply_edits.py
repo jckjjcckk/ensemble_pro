@@ -9,6 +9,9 @@ the same code would run in the product. Every edit is addressed by global bar nu
                   ornaments: added to the n-th notehead of the melody voice of that staff, only when placement
                   is unambiguous (single voice, no grace notes, bar not abnormal, index in range)
 
+The written file goes through the app's `musicxml_fix` again (music21 renumbers the voices on every write; the
+`<defaults>` and credits come from the base file, which score.py already fixed).
+
 Usage: uv run python experiments/omr/apply_edits.py RUN_DIR [--base base.musicxml] [--out final.musicxml]
 Writes RUN_DIR/final.musicxml and RUN_DIR/edits.json (one record per edit or skip).
 """
@@ -17,10 +20,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from fractions import Fraction
 from pathlib import Path
 
 from music21 import converter, duration, dynamics, expressions, stream
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))           # api/, for app.librarian.musicxml_fix
+from app.librarian.musicxml_fix import PageLayout, fix_musicxml  # noqa: E402
 
 ORN = {"mordent": expressions.Mordent, "inverted_mordent": expressions.InvertedMordent, "trill": expressions.Trill,
        "turn": expressions.Turn, "schleifer": expressions.Schleifer}
@@ -174,6 +181,7 @@ def main() -> None:
     run = Path(a.run)
     sc, log = apply(str(run / a.base), run)
     sc.write("musicxml", fp=str(run / a.out), makeNotation=False)
+    (run / a.out).write_bytes(fix_musicxml((run / a.out).read_bytes(), PageLayout.read(run / a.base)))
     (run / "edits.json").write_text(json.dumps(log, indent=1))
     by = {}
     for e in log:

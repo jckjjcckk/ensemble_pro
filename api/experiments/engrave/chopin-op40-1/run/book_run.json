@@ -1,0 +1,25 @@
+{
+ "pdf": "/home/ck/omr/chopin-op40-1/pdf/chopin-op40-1-p25.pdf",
+ "pdf_pages": [
+  1
+ ],
+ "cmd": [
+  "/home/ck/.local/bin/audiveris",
+  "-batch",
+  "-transcribe",
+  "-export",
+  "-output",
+  "/home/ck/omr/chopin-op40-1/p25/audiveris",
+  "/home/ck/omr/chopin-op40-1/p25/audiveris/input/chopin-op40-1-p25.pdf"
+ ],
+ "audiveris_s": 24.0,
+ "tessdata": "/home/ck/omr/tessdata",
+ "movements": 1,
+ "exports": [
+  "chopin-op40-1-p25.mxl"
+ ],
+ "export_log": [
+  "Score chopin-op40-1-p25 exported to /home/ck/omr/chopin-op40-1/p25/audiveris/chopin-op40-1-p25.mxl"
+ ],
+ "measures": 16
+}

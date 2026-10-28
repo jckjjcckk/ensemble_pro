@@ -1,0 +1,462 @@
+[
+ {
+  "page": 1,
+  "system": 1,
+  "numbers": [
+   1,
+   2,
+   3
+  ],
+  "crop": {
+   "origin": [
+    209,
+    223
+   ],
+   "size": [
+    2222,
+    495
+   ]
+  },
+  "ok": true,
+  "answer": {
+   "text": [
+    {
+     "text": "f",
+     "x": 134,
+     "y": 555,
+     "bar": 1
+    }
+   ],
+   "measures": [
+    {
+     "number": 1,
+     "ornaments": []
+    },
+    {
+     "number": 2,
+     "ornaments": []
+    },
+    {
+     "number": 3,
+     "ornaments": []
+    }
+   ]
+  },
+  "usages": [
+   {
+    "tag": "reread p1 sys1",
+    "model": "muse-spark-1.3",
+    "input_tokens": 1901,
+    "output_tokens": 1619,
+    "cost_usd": 0.00926,
+    "latency_s": 12.27,
+    "effort": "low",
+    "stop_reason": "end_turn"
+   }
+  ],
+  "raw": "{\"text\":[{\"text\":\"f\",\"x\":134,\"y\":555,\"bar\":1}],\"measures\":[{\"number\":1,\"ornaments\":[]},{\"number\":2,\"ornaments\":[]},{\"number\":3,\"ornaments\":[]}]}",
+  "placed": [
+   {
+    "text": "f",
+    "kind": "dynamic",
+    "number": 1,
+    "key": "1.1.1",
+    "staff": 2,
+    "placement": "above",
+    "px": [
+     491,
+     488
+    ],
+    "spark_px": [
+     507,
+     498
+    ],
+    "how": "glyph+head",
+    "spark_bar": 1,
+    "label_agrees": true,
+    "frac": 0.275
+   }
+  ],
+  "dropped": [],
+  "placed_spark_x": [
+   {
+    "text": "f",
+    "kind": "dynamic",
+    "number": 1,
+    "key": "1.1.1",
+    "staff": 2,
+    "placement": "above",
+    "px": [
+     507,
+     498
+    ],
+    "spark_px": [
+     507,
+     498
+    ],
+    "how": "x",
+    "spark_bar": 1,
+    "label_agrees": true,
+    "frac": 0.293
+   }
+  ]
+ },
+ {
+  "page": 1,
+  "system": 2,
+  "numbers": [
+   4,
+   5,
+   6
+  ],
+  "crop": {
+   "origin": [
+    59,
+    852
+   ],
+   "size": [
+    2372,
+    483
+   ]
+  },
+  "ok": true,
+  "answer": {
+   "text": [
+    {
+     "text": ">",
+     "x": 239,
+     "y": 358,
+     "bar": 4
+    },
+    {
+     "text": "<",
+     "x": 607,
+     "y": 480,
+     "bar": 5
+    },
+    {
+     "text": ">",
+     "x": 817,
+     "y": 443,
+     "bar": 6
+    }
+   ],
+   "measures": [
+    {
+     "number": 4,
+     "ornaments": []
+    },
+    {
+     "number": 5,
+     "ornaments": []
+    },
+    {
+     "number": 6,
+     "ornaments": []
+    }
+   ]
+  },
+  "usages": [
+   {
+    "tag": "reread p1 sys2",
+    "model": "muse-spark-1.3",
+    "input_tokens": 1889,
+    "output_tokens": 2172,
+    "cost_usd": 0.01159,
+    "latency_s": 14.89,
+    "effort": "low",
+    "stop_reason": "end_turn"
+   }
+  ],
+  "raw": "{\"text\": [{\"text\": \">\", \"x\": 239, \"y\": 358, \"bar\": 4}, {\"text\": \"<\", \"x\": 607, \"y\": 480, \"bar\": 5}, {\"text\": \">\", \"x\": 817, \"y\": 443, \"bar\": 6}], \"measures\": [{\"number\": 4, \"ornaments\": []}, {\"number\": 5, \"ornaments\": []}, {\"number\": 6, \"ornaments\": []}]}",
+  "placed": [
+   {
+    "text": ">",
+    "kind": "words",
+    "number": 4,
+    "key": "1.2.1",
+    "staff": 1,
+    "placement": "below",
+    "px": [
+     626,
+     1025
+    ],
+    "spark_px": [
+     626,
+     1025
+    ],
+    "how": "x",
+    "spark_bar": 4,
+    "label_agrees": true,
+    "frac": 0.615
+   },
+   {
+    "text": "<",
+    "kind": "words",
+    "number": 5,
+    "key": "1.2.2",
+    "staff": 1,
+    "placement": "below",
+    "px": [
+     1499,
+     1084
+    ],
+    "spark_px": [
+     1499,
+     1084
+    ],
+    "how": "x",
+    "spark_bar": 5,
+    "label_agrees": true,
+    "frac": 0.73
+   },
+   {
+    "text": ">",
+    "kind": "words",
+    "number": 6,
+    "key": "1.2.3",
+    "staff": 1,
+    "placement": "below",
+    "px": [
+     1997,
+     1066
+    ],
+    "spark_px": [
+     1997,
+     1066
+    ],
+    "how": "x",
+    "spark_bar": 6,
+    "label_agrees": true,
+    "frac": 0.418
+   }
+  ],
+  "dropped": [],
+  "placed_spark_x": [
+   {
+    "text": ">",
+    "kind": "words",
+    "number": 4,
+    "key": "1.2.1",
+    "staff": 1,
+    "placement": "below",
+    "px": [
+     626,
+     1025
+    ],
+    "spark_px": [
+     626,
+     1025
+    ],
+    "how": "x",
+    "spark_bar": 4,
+    "label_agrees": true,
+    "frac": 0.615
+   },
+   {
+    "text": "<",
+    "kind": "words",
+    "number": 5,
+    "key": "1.2.2",
+    "staff": 1,
+    "placement": "below",
+    "px": [
+     1499,
+     1084
+    ],
+    "spark_px": [
+     1499,
+     1084
+    ],
+    "how": "x",
+    "spark_bar": 5,
+    "label_agrees": true,
+    "frac": 0.73
+   },
+   {
+    "text": ">",
+    "kind": "words",
+    "number": 6,
+    "key": "1.2.3",
+    "staff": 1,
+    "placement": "below",
+    "px": [
+     1997,
+     1066
+    ],
+    "spark_px": [
+     1997,
+     1066
+    ],
+    "how": "x",
+    "spark_bar": 6,
+    "label_agrees": true,
+    "frac": 0.418
+   }
+  ]
+ },
+ {
+  "page": 1,
+  "system": 3,
+  "numbers": [
+   7,
+   8,
+   9,
+   10
+  ],
+  "crop": {
+   "origin": [
+    59,
+    1471
+   ],
+   "size": [
+    2370,
+    500
+   ]
+  },
+  "ok": true,
+  "answer": {
+   "text": [],
+   "measures": [
+    {
+     "number": 7,
+     "ornaments": []
+    },
+    {
+     "number": 8,
+     "ornaments": []
+    },
+    {
+     "number": 9,
+     "ornaments": []
+    },
+    {
+     "number": 10,
+     "ornaments": []
+    }
+   ]
+  },
+  "usages": [
+   {
+    "tag": "reread p1 sys3",
+    "model": "muse-spark-1.3",
+    "input_tokens": 1991,
+    "output_tokens": 2240,
+    "cost_usd": 0.01201,
+    "latency_s": 15.98,
+    "effort": "low",
+    "stop_reason": "end_turn"
+   }
+  ],
+  "raw": "{\"text\":[],\"measures\":[{\"number\":7,\"ornaments\":[]},{\"number\":8,\"ornaments\":[]},{\"number\":9,\"ornaments\":[]},{\"number\":10,\"ornaments\":[]}]}",
+  "placed": [],
+  "dropped": [],
+  "placed_spark_x": []
+ },
+ {
+  "page": 1,
+  "system": 4,
+  "numbers": [
+   11,
+   12,
+   13
+  ],
+  "crop": {
+   "origin": [
+    56,
+    2086
+   ],
+   "size": [
+    2371,
+    453
+   ]
+  },
+  "ok": true,
+  "answer": {
+   "text": [],
+   "measures": [
+    {
+     "number": 11,
+     "ornaments": []
+    },
+    {
+     "number": 12,
+     "ornaments": []
+    },
+    {
+     "number": 13,
+     "ornaments": []
+    }
+   ]
+  },
+  "usages": [
+   {
+    "tag": "reread p1 sys4",
+    "model": "muse-spark-1.3",
+    "input_tokens": 1805,
+    "output_tokens": 1211,
+    "cost_usd": 0.0074,
+    "latency_s": 9.16,
+    "effort": "low",
+    "stop_reason": "end_turn"
+   }
+  ],
+  "raw": "{\"text\":[],\"measures\":[{\"number\":11,\"ornaments\":[]},{\"number\":12,\"ornaments\":[]},{\"number\":13,\"ornaments\":[]}]}",
+  "placed": [],
+  "dropped": [],
+  "placed_spark_x": []
+ },
+ {
+  "page": 1,
+  "system": 5,
+  "numbers": [
+   14,
+   15,
+   16
+  ],
+  "crop": {
+   "origin": [
+    54,
+    2674
+   ],
+   "size": [
+    2372,
+    483
+   ]
+  },
+  "ok": true,
+  "answer": {
+   "text": [],
+   "measures": [
+    {
+     "number": 14,
+     "ornaments": []
+    },
+    {
+     "number": 15,
+     "ornaments": []
+    },
+    {
+     "number": 16,
+     "ornaments": []
+    }
+   ]
+  },
+  "usages": [
+   {
+    "tag": "reread p1 sys5",
+    "model": "muse-spark-1.3",
+    "input_tokens": 1889,
+    "output_tokens": 1006,
+    "cost_usd": 0.00664,
+    "latency_s": 7.75,
+    "effort": "low",
+    "stop_reason": "end_turn"
+   }
+  ],
+  "raw": "{\"text\": [], \"measures\": [{\"number\": 14, \"ornaments\": []}, {\"number\": 15, \"ornaments\": []}, {\"number\": 16, \"ornaments\": []}]}",
+  "placed": [],
+  "dropped": [],
+  "placed_spark_x": []
+ }
+]

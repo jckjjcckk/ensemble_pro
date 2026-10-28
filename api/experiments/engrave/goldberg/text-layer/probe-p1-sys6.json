@@ -1,0 +1,147 @@
+{
+ "page": 1,
+ "system": 6,
+ "pad_interlines": 4.0,
+ "crop": {
+  "origin": [
+   110,
+   2674
+  ],
+  "size": [
+   2314,
+   438
+  ]
+ },
+ "numbers": [
+  25,
+  26,
+  27,
+  28
+ ],
+ "answer": {
+  "heading": [],
+  "fingering": [
+   {
+    "digits": "5",
+    "bar": 25,
+    "staff": "upper",
+    "note_index": 1,
+    "grace": false,
+    "x": 135,
+    "y": 98
+   },
+   {
+    "digits": "4",
+    "bar": 25,
+    "staff": "lower",
+    "note_index": 1,
+    "grace": false,
+    "x": 123,
+    "y": 937
+   },
+   {
+    "digits": "2",
+    "bar": 26,
+    "staff": "upper",
+    "note_index": 7,
+    "grace": true,
+    "x": 360,
+    "y": 114
+   },
+   {
+    "digits": "2",
+    "bar": 26,
+    "staff": "lower",
+    "note_index": 3,
+    "grace": false,
+    "x": 322,
+    "y": 739
+   },
+   {
+    "digits": "1",
+    "bar": 26,
+    "staff": "lower",
+    "note_index": 5,
+    "grace": false,
+    "x": 318,
+    "y": 914
+   },
+   {
+    "digits": "3",
+    "bar": 26,
+    "staff": "lower",
+    "note_index": 6,
+    "grace": false,
+    "x": 342,
+    "y": 914
+   },
+   {
+    "digits": "4",
+    "bar": 27,
+    "staff": "lower",
+    "note_index": 7,
+    "grace": false,
+    "x": 686,
+    "y": 960
+   },
+   {
+    "digits": "3",
+    "bar": 27,
+    "staff": "lower",
+    "note_index": 8,
+    "grace": false,
+    "x": 734,
+    "y": 960
+   },
+   {
+    "digits": "4",
+    "bar": 27,
+    "staff": "lower",
+    "note_index": 9,
+    "grace": false,
+    "x": 778,
+    "y": 955
+   },
+   {
+    "digits": "1",
+    "bar": 28,
+    "staff": "upper",
+    "note_index": 5,
+    "grace": false,
+    "x": 857,
+    "y": 84
+   },
+   {
+    "digits": "2",
+    "bar": 28,
+    "staff": "upper",
+    "note_index": 6,
+    "grace": false,
+    "x": 885,
+    "y": 84
+   },
+   {
+    "digits": "3",
+    "bar": 28,
+    "staff": "upper",
+    "note_index": 8,
+    "grace": false,
+    "x": 917,
+    "y": 63
+   }
+  ]
+ },
+ "usages": [
+  {
+   "tag": "probe-p1-sys6",
+   "model": "muse-spark-1.3",
+   "input_tokens": 1813,
+   "output_tokens": 3044,
+   "cost_usd": 0.0152,
+   "latency_s": 17.45,
+   "effort": "low",
+   "stop_reason": "end_turn"
+  }
+ ],
+ "raw": "{\"heading\": [], \"fingering\": [{\"digits\": \"5\", \"bar\": 25, \"staff\": \"upper\", \"note_index\": 1, \"grace\": false, \"x\": 135, \"y\": 98}, {\"digits\": \"4\", \"bar\": 25, \"staff\": \"lower\", \"note_index\": 1, \"grace\": false, \"x\": 123, \"y\": 937}, {\"digits\": \"2\", \"bar\": 26, \"staff\": \"upper\", \"note_index\": 7, \"grace\": true, \"x\": 360, \"y\": 114}, {\"digits\": \"2\", \"bar\": 26, \"staff\": \"lower\", \"note_index\": 3, \"grace\": false, \"x\": 322, \"y\": 739}, {\"digits\": \"1\", \"bar\": 26, \"staff\": \"lower\", \"note_index\": 5, \"grace\": false, \"x\": 318, \"y\": 914}, {\"digits\": \"3\", \"bar\": 26, \"staff\": \"lower\", \"note_index\": 6, \"grace\": false, \"x\": 342, \"y\": 914}, {\"digits\": \"4\", \"bar\": 27, \"staff\": \"lower\", \"note_index\": 7, \"grace\": false, \"x\": 686, \"y\": 960}, {\"digits\": \"3\", \"bar\": 27, \"staff\": \"lower\", \"note_index\": 8, \"grace\": false, \"x\": 734, \"y\": 960}, {\"digits\": \"4\", \"bar\": 27, \"staff\": \"lower\", \"note_index\": 9, \"grace\": false, \"x\": 778, \"y\": 955}, {\"digits\": \"1\", \"bar\": 28, \"staff\": \"upper\", \"note_index\": 5, \"grace\": false, \"x\": 857, \"y\": 84}, {\"digits\": \"2\", \"bar\": 28, \"staff\": \"upper\", \"note_index\": 6, \"grace\": false, \"x\": 885, \"y\": 84}, {\"digits\": \"3\", \"bar\": 28, \"staff\": \"upper\", \"note_index\": 8, \"grace\": false, \"x\": 917, \"y\": 63}]}"
+}
