@@ -4,6 +4,7 @@ import { useStore } from './store'
 import { barRange, firstName, fmtDateTime, kindLabel } from './store'
 import { IClose, IMic, IPause, IPencil, IPlay, IScissors } from './icons'
 import { spanRects, type Geo } from './geometry'
+import { Pop } from './Sheet'
 
 export function pinText(a: Annotation, authorName = ''): string {
   const author = { name: authorName }
@@ -84,6 +85,7 @@ export function PinLayer({ geo, items, selected, onSelect }: {
   const open = items.find(a => a.id === selected)
   const openBox = open ? geo.bars.get(open.barFrom) : undefined
   const right = Math.max(0, ...geo.pages.map(p => (p ? p.x + p.w : 0)))
+  const popLeft = openBox ? Math.max(8, Math.min(openBox.x, right - 328)) : 0
   const { membersById } = useStore()
 
   useEffect(() => {
@@ -111,16 +113,21 @@ export function PinLayer({ geo, items, selected, onSelect }: {
           </div>
         )
       })}
-      {open && openBox && (
-        <div
-          className="pop" role="dialog" aria-label={`${kindLabel[open.kind]}, bar ${open.barFrom}`}
-          style={{ left: Math.max(8, Math.min(openBox.x, right - 328)), top: openBox.y + openBox.h + 18 }}
-          onClick={e => e.stopPropagation()}
-        >
-          <button type="button" className="pop-close" onClick={() => onSelect(null)} aria-label="Close"><IClose size={18} /></button>
-          <NoteBody a={open} />
-        </div>
-      )}
+      {/* The card grows out of its pin: the origin is the pin's x inside the card, at the card's top edge. */}
+      <Pop
+        open={!!(open && openBox)} id={open?.id} className="pop" role="dialog"
+        aria-label={open ? `${kindLabel[open.kind]}, bar ${open.barFrom}` : undefined}
+        style={openBox ? { left: popLeft, top: openBox.y + openBox.h + 18 } : undefined}
+        origin={`${Math.max(12, Math.min(308, (openBox?.x ?? 0) - popLeft + 12))}px 0px`}
+        onClick={e => e.stopPropagation()}
+      >
+        {open && (
+          <>
+            <button type="button" className="pop-close" onClick={() => onSelect(null)} aria-label="Close"><IClose size={18} /></button>
+            <NoteBody a={open} />
+          </>
+        )}
+      </Pop>
     </>
   )
 }

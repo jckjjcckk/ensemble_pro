@@ -12,6 +12,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
     "@tailwindcss/vite": "^4.3.3",
+    "motion": "^14.7.1",
     "opensheetmusicdisplay": "^2.2.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

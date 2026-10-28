@@ -10,6 +10,8 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      // OSMD plus motion put the main chunk just past workbox's 2 MiB precache default.
+      workbox: { maximumFileSizeToCacheInBytes: 3 * 1024 * 1024 },
       manifest: {
         name: 'Folio',
         short_name: 'Folio',
