@@ -1,6 +1,9 @@
-# cloudflared config for the API tunnel (template). `./install.sh --serve` copies it to ~/.cloudflared/folio.yml with
-# `tunnel:` set to the tunnel's UUID and `credentials-file:` to its JSON, both from `cloudflared tunnel list` on this
-# Mac. Run by hand with:  cloudflared tunnel --config ~/.cloudflared/folio.yml run
+# cloudflared config for the API tunnel `macbook_pro_m4` (template, locally managed mode; deploy/README.md).
+# `./install.sh --serve` copies it to ~/.cloudflared/folio.yml with `tunnel:` set to the tunnel's UUID and
+# `credentials-file:` to its JSON, both from `cloudflared tunnel list` on this Mac. By hand:
+#   cloudflared tunnel --config ~/.cloudflared/folio.yml run
+# In dashboard-managed mode (a connector token) this file is not used: the same route (api.folio.jckjjcckk.com ->
+# http://localhost:8000) is the tunnel's public hostname in Zero Trust -> Networks -> Tunnels.
 tunnel: macbook_pro_m4
 credentials-file: ~/.cloudflared/macbook_pro_m4.json
 no-autoupdate: true

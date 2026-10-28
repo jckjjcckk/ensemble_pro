@@ -1,76 +1,88 @@
 # Hosting Folio
 
-Two origins, both on CK's Cloudflare zone `jckjjcckk.com`:
+Three names on CK's Cloudflare zone `jckjjcckk.com`:
 
 | What | Where | How |
 |---|---|---|
-| Web app (`web/dist`) | `https://folio.jckjjcckk.com` | Cloudflare Pages project `folio` |
+| Marketing site | `https://folio.jckjjcckk.com` | A separate project |
+| Web app (`web/dist`) | `https://app.folio.jckjjcckk.com` | Cloudflare Worker `folio-app` with static assets (`web/wrangler.jsonc`) |
 | API (`api/`) | `https://api.folio.jckjjcckk.com` | This Mac, behind the named tunnel `macbook_pro_m4` |
 
-The API stays on the Mac on purpose: the Casio, the OMR tooling and the local fixtures live here.
+The API stays on the Mac on purpose: the Casio, the OMR tooling and the local fixtures live here. CK does
+every Cloudflare login and dashboard step; nothing here logs in or deploys on its own.
 
-## Web: Cloudflare Pages
+## The production build (reproducible)
 
-`web/scripts/deploy-pages.sh` builds `web/` with the hosted values and uploads `dist` with wrangler
-(direct upload; no GitHub integration, so nothing is deployed on push). The browser gets exactly three
-values and nothing else: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (both read from `web/.env`,
-which holds the hosted project) and `VITE_API_URL=https://api.folio.jckjjcckk.com`. `web/.env.local`
-points the dev server at the local Docker stack and is ignored by the script because the values are passed
-on the command line, which Vite ranks above every `.env` file.
+```bash
+cd web && npm run build:hosted
+```
 
-One-time, by CK (needs the Cloudflare login):
+`scripts/build-hosted.sh` builds `web/dist` with the hosted values passed as real environment variables:
+`VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` from `web/.env` (the hosted project; public values)
+and `VITE_API_URL=https://api.folio.jckjjcckk.com`. `web/.env.local` points the dev server at the local
+Docker stack and is never read here, because Vite ranks environment variables above every `.env` file. The
+script refuses to build when `web/.env` holds a local Supabase URL. The same build goes into the iPad shell
+(`npm run build:ios`).
 
-1. `cd web && npx wrangler login` (opens the browser, approve once).
-2. `npx wrangler pages project create folio --production-branch main`.
-3. `./scripts/deploy-pages.sh` (every later deploy is just this).
-4. Dashboard → Workers & Pages → `folio` → Custom domains → add `folio.jckjjcckk.com` (Cloudflare creates
-   the CNAME in the zone itself; it is live within a minute).
-5. Supabase dashboard → Authentication → URL Configuration: add `https://folio.jckjjcckk.com/**` to the
-   redirect URLs (and set it as the site URL once the hosted site is the main one). Sign-in is by password,
-   so this only matters for password resets and magic links, but the reviewer flow should not depend on it.
+## Web app: a Worker with static assets
 
-If CK prefers the dashboard's Git integration instead: root directory `web`, build command `npm run build`,
-output `dist`, environment variables the three `VITE_*` above. Either way the SPA fallback is
-`web/public/_redirects` (`/* /index.html 200`), copied into `dist` by Vite.
+`web/wrangler.jsonc` names the Worker `folio-app`, serves `./dist` and answers unknown paths with
+`index.html` (React Router). Deploying is one command after the build:
+
+```bash
+cd web && npm run deploy:web        # build:hosted, then npx wrangler deploy
+```
+
+Steps for CK, in order:
+
+1. `cd web && npx wrangler login` (opens the browser; approve once). **Stop here until this is done.**
+2. `npm run deploy:web`. The first deploy creates the Worker; the output ends with its `workers.dev` URL.
+3. Dashboard → Workers & Pages → `folio-app` → Settings → Domains & Routes → Add → Custom domain →
+   `app.folio.jckjjcckk.com`. Cloudflare writes the DNS record and the certificate itself; live within a
+   minute. (Workers Builds from GitHub can replace step 2 later: root `web`, build `npm run build:hosted`,
+   deploy `npx wrangler deploy`, with the three `VITE_*` as build variables.)
 
 ## API: the Mac behind the named tunnel
 
-`./install.sh --serve` (run from `~/Documents/muse`, the main checkout) installs two launchd agents under
-`~/Library/LaunchAgents` and starts them; they come back after a reboot or a crash:
+`deploy/cloudflared/config.yml` routes `api.folio.jckjjcckk.com` to `http://localhost:8000` and everything
+else to 404. It is written, not run. Two ways to run the tunnel, CK's choice:
+
+**A. Dashboard-managed (token).** Zero Trust → Networks → Tunnels → `macbook_pro_m4` → Configure:
+- Public hostname: subdomain `api`, domain `folio.jckjjcckk.com`, service `HTTP` `localhost:8000`.
+- Install connector → copy the token from the `cloudflared service install <token>` line, and save only
+  the token to `~/.cloudflared/folio-tunnel.token` (`chmod 600`). Nothing else from that line is needed.
+- `./install.sh --serve` then runs `cloudflared tunnel run --token ...` under launchd.
+
+**B. Locally managed (config file).** `cloudflared tunnel login` (browser, pick the zone), then
+`cloudflared tunnel list` must show `macbook_pro_m4` with its credentials at `~/.cloudflared/<UUID>.json`
+(if the tunnel was created elsewhere: `cloudflared tunnel delete macbook_pro_m4 && cloudflared tunnel create
+macbook_pro_m4`), then `cloudflared tunnel route dns macbook_pro_m4 api.folio.jckjjcckk.com`.
+`./install.sh --serve` copies the config to `~/.cloudflared/folio.yml` with the UUID and credentials path.
+
+Either way, `./install.sh --serve` (from `~/Documents/muse`, the main checkout) installs two launchd agents
+under `~/Library/LaunchAgents` and starts them; they come back after a crash or a reboot:
 
 - `com.jckjjcckk.folio.api`: `uv run uvicorn app.main:app --host 127.0.0.1 --port 8000` in `api/`, no
   `--reload`, logs in `.logs/api.serve.log`.
-- `com.jckjjcckk.folio.tunnel`: `cloudflared tunnel --config ~/.cloudflared/folio.yml run`, logs in
-  `.logs/tunnel.serve.log`.
+- `com.jckjjcckk.folio.tunnel`: `cloudflared tunnel run` (token or config), logs in `.logs/tunnel.serve.log`.
 
-`./install.sh --unserve` stops and removes both. `./install.sh` (dev mode) keeps using port 8000 too, so
-stop the service first when you want the reloading dev server (`--unserve`, or `launchctl bootout
-gui/$(id -u)/com.jckjjcckk.folio.api`).
+`./install.sh --unserve` stops and removes both. The dev mode `./install.sh` uses port 8000 too, so
+`--unserve` first when you want the reloading dev server.
 
-One-time, by CK (needs the Cloudflare login; `cloudflared` has no certificate on this Mac yet):
-
-1. `cloudflared tunnel login` (browser; pick the `jckjjcckk.com` zone). Writes `~/.cloudflared/cert.pem`.
-2. `cloudflared tunnel list` must show `macbook_pro_m4`. Its credentials JSON must be at
-   `~/.cloudflared/<UUID>.json`; if it is not (the tunnel was created on another machine), recreate it:
-   `cloudflared tunnel delete macbook_pro_m4 && cloudflared tunnel create macbook_pro_m4`.
-3. `cloudflared tunnel route dns macbook_pro_m4 api.folio.jckjjcckk.com` (creates the CNAME).
-4. `./install.sh --serve`. It writes `~/.cloudflared/folio.yml` from `deploy/cloudflared/config.yml` with the
-   tunnel's UUID and credentials path, installs the agents and checks `https://api.folio.jckjjcckk.com/health`.
-
-`api/.env` must list the web and app origins in `CORS_ORIGINS`:
+`api/.env` lists the app and the iPad shell as origins (done; `api/.env.example` matches):
 
 ```
-CORS_ORIGINS=http://localhost:5173,https://folio.jckjjcckk.com,capacitor://localhost,ionic://localhost,http://localhost
+CORS_ORIGINS=http://localhost:5173,https://app.folio.jckjjcckk.com,capacitor://localhost,ionic://localhost,http://localhost
 ```
 
-(`capacitor://localhost` is the iOS app's origin; `http://localhost` is Android's; `ionic://localhost`
-is the legacy scheme. Nothing but the API's CORS list changes for them.)
+`capacitor://localhost` is the iOS app's origin; `http://localhost` is Android's; `ionic://localhost` the
+legacy scheme. Supabase needs no redirect URL: sign-in is by password with sign-up off.
 
 ## Checks
 
 ```
-curl -s https://api.folio.jckjjcckk.com/health      # {"status":"ok"}
-curl -sI https://folio.jckjjcckk.com | head -1      # HTTP/2 200
+curl -s https://api.folio.jckjjcckk.com/health       # {"status":"ok"}
+curl -sI https://app.folio.jckjjcckk.com | head -1    # HTTP/2 200
 ```
 
-Then sign in at `https://folio.jckjjcckk.com` on an iPad and open a book.
+Then sign in at `https://app.folio.jckjjcckk.com` on an iPad and open a book.

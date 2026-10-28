@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:hosted": "./scripts/build-hosted.sh",
+    "build:ios": "./scripts/build-ios.sh",
+    "deploy:web": "./scripts/deploy-web.sh"
   },
   "dependencies": {
     "@capacitor/camera": "^8.2.6",
@@ -38,6 +41,7 @@
     "oxlint": "^1.88.0",
     "typescript": "~6.0.3",
     "vite": "^8.3.4",
-    "vite-plugin-pwa": "^2.0.0"
+    "vite-plugin-pwa": "^2.0.0",
+    "wrangler": "^4.154.0"
   }
 }

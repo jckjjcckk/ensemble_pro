@@ -4,7 +4,7 @@
 #   ./install.sh --stop   just stop anything running on the dev ports
 #   ./install.sh --check  only run the requirement checks
 #   ./install.sh --serve  install launchd agents: the API on :8000 and the named Cloudflare tunnel
-#                         (api.folio.jckjjcckk.com); both restart after a crash or reboot. See deploy/README.md
+#                         (api.folio.jckjjcckk.com, by token or config); both restart after a crash or reboot. deploy/README.md
 #   ./install.sh --unserve  stop and remove those agents
 set -euo pipefail
 
@@ -72,25 +72,34 @@ if [ "$MODE" = "--serve" ]; then
   echo "Serving the API behind the named tunnel"
   need uv "brew install uv"; need cloudflared "brew install cloudflared"
   env_filled "$ROOT/api/.env" SUPABASE_URL SUPABASE_SECRET_KEY CORS_ORIGINS
-  grep -qE '^CORS_ORIGINS=.*https://folio\.jckjjcckk\.com' "$ROOT/api/.env" || { red "  CORS_ORIGINS in api/.env must include https://folio.jckjjcckk.com (and capacitor://localhost for the iPad app)"; fail=1; }
-  if [ ! -f "$HOME/.cloudflared/cert.pem" ]; then
-    red "  cloudflared is not logged in on this Mac."
-    echo "    1. cloudflared tunnel login            (browser: choose the jckjjcckk.com zone)"
-    echo "    2. cloudflared tunnel list             (must show $TUNNEL_NAME; if its ~/.cloudflared/<UUID>.json is missing, recreate it:"
-    echo "       cloudflared tunnel delete $TUNNEL_NAME && cloudflared tunnel create $TUNNEL_NAME)"
-    echo "    3. cloudflared tunnel route dns $TUNNEL_NAME $API_HOST"
-    echo "    4. ./install.sh --serve"
+  grep -qE '^CORS_ORIGINS=.*https://app\.folio\.jckjjcckk\.com' "$ROOT/api/.env" || { red "  CORS_ORIGINS in api/.env must include https://app.folio.jckjjcckk.com (and capacitor://localhost for the iPad app)"; fail=1; }
+  # Two ways to run the tunnel (deploy/README.md): a dashboard-managed tunnel with its token saved to
+  # ~/.cloudflared/folio-tunnel.token, or a locally managed one (cert.pem + credentials JSON) with the config template.
+  TOKEN_FILE="$HOME/.cloudflared/folio-tunnel.token"
+  TUNNEL_ARGS=()
+  if [ -s "$TOKEN_FILE" ]; then
+    TUNNEL_ARGS=(tunnel --no-autoupdate run --token "$(tr -d '[:space:]' <"$TOKEN_FILE")")
+    dim "  tunnel: token from $TOKEN_FILE (public hostname $API_HOST -> localhost:$API_PORT is set in the dashboard)"
+  elif [ -f "$HOME/.cloudflared/cert.pem" ]; then
+    uuid="$(cloudflared tunnel list --name "$TUNNEL_NAME" --output json 2>/dev/null | python3 -c 'import json,sys; t=json.load(sys.stdin); print(t[0]["id"] if t else "")' 2>/dev/null || true)"
+    [ -n "$uuid" ] || { red "  tunnel $TUNNEL_NAME not found: cloudflared tunnel create $TUNNEL_NAME"; exit 1; }
+    cred="$HOME/.cloudflared/$uuid.json"
+    [ -f "$cred" ] || { red "  $cred missing (the tunnel was created on another machine): cloudflared tunnel delete $TUNNEL_NAME && cloudflared tunnel create $TUNNEL_NAME, then rerun"; exit 1; }
+    CF_CONFIG="$HOME/.cloudflared/folio.yml"
+    sed -e "s|^tunnel: .*|tunnel: $uuid|" -e "s|^credentials-file: .*|credentials-file: $cred|" "$ROOT/deploy/cloudflared/config.yml" >"$CF_CONFIG"
+    cloudflared tunnel route dns "$TUNNEL_NAME" "$API_HOST" >/dev/null 2>&1 || true
+    TUNNEL_ARGS=(tunnel --config "$CF_CONFIG" run)
+    dim "  tunnel: $CF_CONFIG ($uuid)"
+  else
+    red "  No tunnel credentials on this Mac. Either (deploy/README.md):"
+    echo "    A. Zero Trust -> Networks -> Tunnels -> $TUNNEL_NAME -> public hostname $API_HOST -> http://localhost:$API_PORT,"
+    echo "       then save the connector token to $TOKEN_FILE (chmod 600)"
+    echo "    B. cloudflared tunnel login; cloudflared tunnel list (shows $TUNNEL_NAME with ~/.cloudflared/<UUID>.json);"
+    echo "       cloudflared tunnel route dns $TUNNEL_NAME $API_HOST"
+    echo "    then ./install.sh --serve"
     exit 1
   fi
-  uuid="$(cloudflared tunnel list --name "$TUNNEL_NAME" --output json 2>/dev/null | python3 -c 'import json,sys; t=json.load(sys.stdin); print(t[0]["id"] if t else "")' 2>/dev/null || true)"
-  [ -n "$uuid" ] || { red "  tunnel $TUNNEL_NAME not found: cloudflared tunnel create $TUNNEL_NAME"; exit 1; }
-  cred="$HOME/.cloudflared/$uuid.json"
-  [ -f "$cred" ] || { red "  $cred missing (the tunnel was created on another machine): cloudflared tunnel delete $TUNNEL_NAME && cloudflared tunnel create $TUNNEL_NAME, then rerun"; exit 1; }
   [ "$fail" -ne 0 ] && { red "Fix the items above, then rerun."; exit 1; }
-  # The checked-in config is a template; the copy with this Mac's tunnel id and credentials path lives in ~/.cloudflared.
-  CF_CONFIG="$HOME/.cloudflared/folio.yml"
-  sed -e "s|^tunnel: .*|tunnel: $uuid|" -e "s|^credentials-file: .*|credentials-file: $cred|" "$ROOT/deploy/cloudflared/config.yml" >"$CF_CONFIG"
-  cloudflared tunnel route dns "$TUNNEL_NAME" "$API_HOST" >/dev/null 2>&1 || true
   ( cd "$ROOT/api" && uv sync --quiet )
   mkdir -p "$LOG_DIR" "$AGENTS"
   UV="$(command -v uv)"; CF="$(command -v cloudflared)"
@@ -120,7 +129,7 @@ PLIST
   }
   unload_agent "$API_LABEL"; unload_agent "$TUNNEL_LABEL"; kill_port $API_PORT
   write_agent "$API_LABEL" "$ROOT/api" "$LOG_DIR/api.serve.log" "$UV" run uvicorn app.main:app --host 127.0.0.1 --port "$API_PORT"
-  write_agent "$TUNNEL_LABEL" "$ROOT" "$LOG_DIR/tunnel.serve.log" "$CF" tunnel --config "$CF_CONFIG" run
+  write_agent "$TUNNEL_LABEL" "$ROOT" "$LOG_DIR/tunnel.serve.log" "$CF" "${TUNNEL_ARGS[@]}"
   launchctl bootstrap "gui/$(id -u)" "$AGENTS/$API_LABEL.plist"
   launchctl bootstrap "gui/$(id -u)" "$AGENTS/$TUNNEL_LABEL.plist"
   for i in $(seq 1 40); do curl -sf "http://localhost:$API_PORT/health" >/dev/null 2>&1 && break; sleep 0.5; done

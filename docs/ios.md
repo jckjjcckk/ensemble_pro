@@ -1,6 +1,6 @@
 # Folio on the iPad: the Capacitor shell
 
-The App Store app is the same React build that runs at `https://folio.jckjjcckk.com`, bundled inside a
+The App Store app is the same React build that runs at `https://app.folio.jckjjcckk.com`, bundled inside a
 Capacitor shell (`web/ios/`). No `server.url`: the assets ship in the binary, the API is reached at
 `https://api.folio.jckjjcckk.com`, Supabase at the hosted project. Feature file: `docs/features/015-ios-wrapper.md`.
 
@@ -18,30 +18,39 @@ Capacitor shell (`web/ios/`). No `server.url`: the assets ship in the binary, th
 
 ```bash
 cd web
-./scripts/build-ios.sh        # hosted VITE_* values + npm run build + npx cap sync ios
+npm run build:ios             # build:hosted (hosted VITE_* values) + npx cap sync ios
 npx cap open ios              # Xcode; pick an iPad simulator or the connected iPad, press Run
 ```
 
-`scripts/build-ios.sh` passes the hosted values on the command line, so `web/.env.local` (the local Docker
-stack for the dev server) never leaks into the binary. It needs `web/.env` with the hosted
-`VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+`npm run build:hosted` (`scripts/build-hosted.sh`) passes the hosted values as environment variables, so
+`web/.env.local` (the local Docker stack for the dev server) never leaks into the binary. It needs `web/.env`
+with the hosted `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`; `VITE_API_URL` is fixed to
+`https://api.folio.jckjjcckk.com`. The same command makes the build that is deployed to
+`app.folio.jckjjcckk.com` (`deploy/README.md`).
 
 Without Xcode's UI, a simulator build proves the project compiles:
 
 ```bash
 cd web/ios/App && xcodebuild -project App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator \
-  -destination 'platform=iOS Simulator,name=iPad Pro 13-inch (M4)' CODE_SIGNING_ALLOWED=NO build
+  -destination 'platform=iOS Simulator,name=iPad Pro 13-inch (M4)' CODE_SIGNING_ALLOWED=NO \
+  -scmProvider system build
 ```
+
+`-scmProvider system` makes Swift package resolution use the system git, so the one remote package
+(`capacitor-swift-pm`, public) is fetched anonymously and Xcode does not ask the keychain for a saved
+github.com credential. If a keychain prompt appears anyway, Deny it: the build does not need it. If
+resolution then fails, run `xcodebuild -resolvePackageDependencies -scmProvider system` once in
+`web/ios/App`, or clear a stale `credential.helper` from git config. Never type a keychain password for a
+build.
 
 ## Sync after a web change
 
 ```bash
-cd web && ./scripts/build-ios.sh      # or: npm run build && npx cap sync ios
+cd web && npm run build:ios      # or: npm run build:hosted && npx cap sync ios
 ```
 
 `cap sync` copies `dist/` into the project and resolves the plugin packages. It never touches the Swift
-sources, `Info.plist` or the asset catalog, so edits there are safe. Rerun `npx capacitor-assets generate
---ios ...` (the exact flags are in `web/scripts/build-ios.sh --assets`) only when the icon or splash changes.
+sources, `Info.plist` or the asset catalog, so edits there are safe. Rerun the asset catalog (`npm run build:ios -- --assets`) only when the icon or splash changes.
 
 ## How the web app behaves inside the shell
 
@@ -55,6 +64,23 @@ sources, `Info.plist` or the asset catalog, so edits there are safe. Rerun `npx 
 - Keyboard: the webview shrinks (`resize: native`); the web app's `--kb` lift measures 0 and does nothing.
 - Safe areas: `viewport-fit=cover` is kept and `contentInset: never` stops the webview adding its own inset.
 - Origin: `capacitor://localhost`. The API's `CORS_ORIGINS` lists it (`deploy/README.md`).
+
+## The hosted app: a Worker with static assets (dashboard steps)
+
+The reviewer and the testers use the same hosted stack as the web app. `deploy/README.md` is the runbook;
+the Cloudflare part in short:
+
+1. `cd web && npx wrangler login` (once; the browser asks CK to approve).
+2. `npm run deploy:web`: builds with the hosted values and runs `npx wrangler deploy`, which creates the
+   Worker `folio-app` from `web/wrangler.jsonc` (assets directory `dist`, unknown paths → `index.html`).
+3. Dashboard → Workers & Pages → `folio-app` → Settings → Domains & Routes → Add custom domain
+   `app.folio.jckjjcckk.com`.
+4. Later, Workers Builds from GitHub: root directory `web`, build command `npm run build:hosted`, deploy
+   command `npx wrangler deploy`, variables `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`,
+   `VITE_API_URL=https://api.folio.jckjjcckk.com`.
+5. The API: Zero Trust → Networks → Tunnels → `macbook_pro_m4` → public hostname `api.folio.jckjjcckk.com` →
+   `http://localhost:8000`; save the connector token to `~/.cloudflared/folio-tunnel.token`; then
+   `./install.sh --serve` from the main checkout.
 
 ## What CK does in Xcode (once)
 
@@ -74,8 +100,9 @@ sources, `Info.plist` or the asset catalog, so edits there are safe. Rerun `npx 
 App Store Connect → My Apps → New App: platform iOS, name Folio, primary language English, bundle id
 `com.jckjjcckk.folio`, SKU `folio-ipad`.
 
-- **Demo account in the review notes.** Reviewers cannot sign up (signups are off). Give them one of the
-  five seeded accounts and its password, say which ensemble it belongs to and that a book is already in the
+- **Demo account in the review notes.** Reviewers cannot sign up (signups are off). CK makes a test
+  account for App Review and types its email and password into the review notes in App Store Connect only
+  (never into the repo or these docs); say which ensemble it belongs to, that a book is already in the
   library, and name the three things to try: open a book, make a mark, export MusicXML.
 - **Privacy policy URL** (required): a page on `folio.jckjjcckk.com/privacy` saying what is stored (account
   email, scores and markings in Supabase, usage events for the model budget), that pages sent to the
