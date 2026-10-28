@@ -44,10 +44,31 @@ from common import PIANO_CUT_INSTRUMENT, PIANO_CUT_RUN, PIANO_CUT_TITLE
 from fallback_cv import binarise, rotate, vertical_cover
 from piano_cut_clean import clean_crop
 from piano_cut_geometry import PC, PAGES_DIR, DEFAULT_PAGES
-from piano_cut_label import instrument_staves
+from piano_cut_label import instrument_staves, is_voice
 
 RUN = PIANO_CUT_RUN
 INSTRUMENT = PIANO_CUT_INSTRUMENT
+TEXT_MODE = "overlap"  # text-line grouping for the lyric rule (piano_cut_clean.text_lines); --text-mode baseline to compare
+
+
+def voice_flags(geom: dict, system: dict, ans: dict, wanted: list[int], instrument: str) -> tuple[bool, bool]:
+    """(target is a vocal staff, the staff above the target is a vocal staff), from the header's families through
+    the names Spark gave the staves on this page (by score order when the system is full and a staff is unnamed)."""
+    idxs = system["staff_indices"]
+    names = {int(s.get("n")): s.get("instrument") for s in (ans.get("staves") or []) if isinstance(s, dict) and s.get("n") is not None}
+    pos = idxs.index(min(wanted)) if min(wanted) in idxs else 0
+    voice = is_voice(instrument, pos + 1, len(idxs))
+    above = None
+    if pos > 0:
+        above = idxs[pos - 1]
+    else:
+        prev_sys = next((s for s in geom["systems"] if s["index"] == system["index"] - 1), None)
+        if prev_sys:
+            above = prev_sys["staff_indices"][-1]
+    if above is None:
+        return voice, False
+    voice_above = is_voice(names.get(above), idxs.index(above) + 1 if above in idxs else None, len(idxs))
+    return voice, voice_above
 
 
 def font(size: int):
@@ -164,7 +185,9 @@ def build_page(n: int, clean: bool = True) -> dict:
             plain_box = crop_box(geom, system, wanted)
             plain = deskewed.crop((plain_box["x0"], plain_box["y0"], plain_box["x1"] + 1, plain_box["y1"] + 1))
             if clean:
-                crop, box, cstats, dbg = clean_crop(bw, deskewed, geom, system, wanted, debug=True)
+                voice, voice_above = voice_flags(geom, system, ans, wanted, instrument)
+                crop, box, cstats, dbg = clean_crop(bw, deskewed, geom, system, wanted, debug=True, voice=voice,
+                                                    voice_above=voice_above, text_mode=TEXT_MODE)
                 dbg.save(RUN / f"clean-debug-p{n:02d}-s{system['index']}.png")
                 cstats.pop("detail", None)
                 rec["clean"] = cstats
@@ -357,14 +380,17 @@ def main(pages: list[int], clean: bool = True) -> None:
     for r in slim:
         print(json.dumps({"page": r["page"], "systems": [{k: v for k, v in s.items() if k in ("system", "wanted_staves", "status", "n_measures")}
                           | ({"verify": {k: (c["pass"] if isinstance(c, dict) else c) for k, c in s["verify"].items()}} if s.get("verify") else {})
-                          | ({"clean": {k: s["clean"][k] for k in ("erased", "kept", "edge_ink_top", "edge_ink_bottom")}} if s.get("clean") else {})
+                          | ({"clean": {k: s["clean"].get(k) for k in ("erased", "kept", "edge_ink_top", "edge_ink_bottom", "voice", "voice_above")}
+                              | {"lyric_lines": [(l["class"], l["words"]) for l in s["clean"].get("lyric_lines", [])]}} if s.get("clean") else {})
                           for s in r["systems"]]}))
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-clean", action="store_true", help="plain fixed-margin crop (the old behaviour), no clean-compare.html")
+    ap.add_argument("--text-mode", default=TEXT_MODE, choices=("overlap", "baseline"), help="text-line grouping for the lyric rule")
     ap.add_argument("pages", nargs="*", type=int, default=DEFAULT_PAGES)
     a = ap.parse_args()
     RUN.mkdir(parents=True, exist_ok=True)
+    TEXT_MODE = a.text_mode
     main(a.pages, clean=not a.no_clean)

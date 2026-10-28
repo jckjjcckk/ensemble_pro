@@ -97,6 +97,20 @@ runs only when `header.json` exists.
 Later runs: PC5 p1 Cb recovered; PC5 p4 3 recovered (of 10 missed); Dvořák p6 and p9 2 each, all correct;
 Beethoven 9 p174 6 recovered (16/16 after).
 
+## Page preparation (2026-10-28, from the Beethoven 9 choir defects in 008)
+
+`prepare_page` in `piano_cut_geometry.py` and `cut.py`, before skew and staves: `mask_page_edges` masks the
+dark book-scan shadows touching a page edge (run of pixels darker than paper minus 100, at least 8 px in 90 %
+of the edge's columns, followed per column through the blurred rim); `working_scale` upscales by an integer when
+the staff spacing is under `SPACING_MIN` = 6 px; `render_dpi` renders a page that is one embedded raster under
+150 dpi at its own resolution. Beethoven 9 now runs at native 1513x1920 (spacing 7.0 to 8.0, inside the tuned
+band): the earlier native 10/16 was the shadows locking the skew estimate to 0.0, not the resolution; with the
+shadows masked the five pages find 13 to 15 staves and recovery completes them (16, 16, 16, 16, 17), the header
+reads 16 (was 18), one system per page. Recovery gained hole filling (`recover_staves`): two staves about two
+pitches apart are searched at 3 of 12 strip votes, not capped by the header count. Regression: Rach 1 p1 to 5
+and PC3 p1 to 5 geometry and crops pixel-identical. The "drop a staff whose x range is the whole page" idea was
+not needed once the bands are masked.
+
 ## What still breaks
 
 - Staff detection drops staves on thin-lined, bowed Breitkopf scans (never on Rach 1 or Rach 2): PC3 p4 s2

@@ -134,12 +134,63 @@ alarms (Dvořák p6, p7; Beethoven 9 S p174, p176, A p174, p175) against 2 true 
 
 **CK judged the soprano strip usable as it stands (2026-10-28).**
 
-Known choir defects: a lyric line is half erased (the gap between S and A holds the soprano's lyrics and the
-alto's noteheads; nearest-ink splits the line word by word, "Seyd _schlungen _li o_nen!"; the whole-note
-blind spot makes semibreve bars count as resting so syllables under them go to the neighbour); page-edge
-shadows counted as staves (003); soprano/alto C-clef confusion in the recheck (4 times); native resolution
-finds 10/16 staves vs 16/16 upscaled (003). A lyric line needs its own rule: the text row directly under a
-vocal staff belongs to it.
+Known choir defects (2026-10-28 morning): a lyric line is half erased (the gap between S and A holds the
+soprano's lyrics and the alto's noteheads; nearest-ink splits the line word by word, "Seyd _schlungen _li
+o_nen!"; the whole-note blind spot makes semibreve bars count as resting so syllables under them go to the
+neighbour); page-edge shadows counted as staves (003); soprano/alto C-clef confusion in the recheck (4 times);
+native resolution finds 10/16 staves vs 16/16 upscaled (003).
+
+**Choir defects fixed (2026-10-28, branch `worktree-agent-a4cf8156a80b2ad8b`, $0.63: 22 labels, 28 rechecks,
+1 header, 3 wasted retries; `out/piano-cut/beethoven-sym9-fullscore-imslp46254/choir-before-after.html`, the
+earlier run kept in `before/`).** Three rules, in the experiment and in `cut.py` (`tests/test_cut.py`):
+
+1. *Lyrics, the text-line rule* (`piano_cut_clean.text_lines`, `clean_crop(voice=, voice_above=)`;
+   `piano_cut_build.voice_flags` reads the families from the header through the names Spark gave the staves).
+   A text line is a chain of word-sized components (0.5 to 2.6 spaces tall, under 20 wide, fill at least 0.15)
+   whose rows overlap, up to 30 spaces apart (syllables sit a bar or more apart), plus the hyphens and extenders
+   between its words. Under a vocal staff the band from its bottom line to the midpoint of the gap below is its
+   own: a text line with a word there is kept whole; a text line under the staff with no word there is the staff
+   below's and erased whole; a text line with a word in the upper half of the gap above a vocal neighbour is that
+   neighbour's lyrics, erased whole. Words on text lines never go to the rest rule. A word glued to neighbour
+   ink by a scratch (p175 "Brü", a hairline runs from the word to the alto's staff) is carved out on the line's
+   rows (baseline-bounded, 3x3 join). Two groupings were tried: chaining by row overlap ("overlap", kept) and
+   clustering by bottom row within one space ("baseline", `--text-mode baseline`); on the five soprano pages
+   both kept the same words, and overlap is order-aware (a word on another baseline cannot join a line through
+   a tolerance), so it is the default. Applied to voice staves only: the band-below-is-own premise is false
+   for orchestral staves (Rach 1 p2 "a tempo" under the timpani belongs to the piano below), so single-staff
+   orchestral instruments keep the nearest-ink and rest rules, which is also what keeps the 17 Rach 1 / PC3
+   regression crops pixel-identical.
+2. *Page-edge shadows* (`mask_page_edges`, before anything else): a side has a shadow when the run of pixels
+   darker than paper minus 100 from that edge is at least 8 px in 90 % of its columns; the masked run follows
+   each column through the blurred rim (paper minus 40, at most 40 px past the core) plus 2 px, capped near the
+   band's median thickness so a systemic line touching the band is not swallowed. Header 18 became 16 (one
+   call; Spark listed "Violoncello e Bassi." twice for the unboxed bottom staves and `score_header.reconcile`
+   drops a consecutive duplicate without boxes; `--reconcile` re-runs that on the saved answer). Geometry
+   16/16 on p172 to 175 and 17/17 on p176, one system per page (p173 and p176 were split before).
+3. *Resolution* (`render_dpi`, `working_scale`, `prepare_page`): the page renders at the scan's own resolution
+   when it is one embedded raster under 150 dpi (B9: 1513x1920, no invented pixels), and the geometry upscales
+   by an integer when the staff spacing is under `SPACING_MIN` = 6 px. Measured: B9 native spacing is 7.0 to
+   8.0, the same as the tuned 150-dpi scans (Rach 1 7.25, PC3 7.25 to 7.5, Dvořák 6.25), so a spacing threshold
+   alone could never have separated them, and the native 10/16 was not resolution at all: the shadow bands lock
+   the skew estimate to 0.0 (p172 is -0.4°, p176 -0.8°) and the thin lines then miss the row profile. With the
+   shadows masked, native finds 13 to 15 of 16 and recovery completes every page, with a new hole-filling pass
+   (two staves two pitches apart, the hole searched at 3 of 12 strip votes, not capped by the header count:
+   p173 Viola, p176 Violin II). Crops are now 1.2 to 1.4k px wide (the scan's real pixels) instead of 3k.
+
+Per page after (S / A / T): p172 S and A rest, T "Seyd umschlungen Millionen" (unchanged); p173 S "Seyd um_
+_schlungen Mil_ _ _li_o_nen! die_ _sen" complete (before: "Seyd _schlungen _li o_nen! die_sen"), A alone with
+the soprano's "um_ Mil_" above gone and no right-edge black band (before: A + unboxed T), T complete (before:
+A + T pair); p174 S "Kuss der FF gan_ _zen Welt!" (before: "der gan_ _"); p175 S "Brü_ _der ü_bern Ster_ _
+_nen_zelt" (before: "Brü_ _ _der _bern Ster_ _nen_"); p176 S "muss ein lie_ _ _ber Va_ _ _ter woh_nen."
+(before: "ein lie_ _ber Va _ter woh"), T "Va _ter" as before. Every crop holds the right staff and nothing
+else by eye; geometry verify passes on 14 of 15 (T p173: the system's final barline at x 1208 does not cover
+0.9 of the thin single staff in the crop, present by eye); the recheck still mistakes the C clefs (soprano
+clef read as "Alto", alto clef as "Viola", tenor clef as "Viola"): 11 of 15 crops are flagged needs_review by
+the recheck alone (before: 5 of 10 S and A crops). Left: the grey gutter
+texture next to the masked band (cols 50 to 110 at native) is not uniform enough for the mask and shows as a
+faint strip at the crop's left edge; the recheck needs the header's clefs; the bar-aware rest rule is still
+not ported to `cut.py`; `part_cut.py` must pass `voice` / `voice_above` to `cut_system` from the header
+family (defaults keep the old behaviour).
 
 ## The job handler (`api/app/librarian/part_cut.py`, drafted 2026-10-27 on branch `worktree-agent-a4b9692edf1cec344`, commit 6c1885d; merged into main 2026-10-28 as 2524caf with 7f827d8)
 
