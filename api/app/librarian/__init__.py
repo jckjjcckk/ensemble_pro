@@ -84,6 +84,12 @@ class JobContext:
         return datetime.now(timezone.utc).isoformat()
 
 
+class ScoreFailure(Exception):
+    """A failure a musician can read: the message goes to `scores.failure_reason` as it is, and the worker does not
+    retry (the file will not change between attempts). Anything else is a fault: retried, then reported in
+    general words while `jobs.error` keeps the technical text."""
+
+
 Handler = Callable[[Job, JobContext], Awaitable[dict[str, Any] | None]]
 HANDLERS: dict[str, Handler] = {}
 
@@ -97,7 +103,7 @@ def handler(kind: str) -> Callable[[Handler], Handler]:
 
 def load_handlers() -> None:
     """Import every handler module so it registers. Add new modules here."""
-    from . import import_musicxml, part_cut, part_split  # noqa: F401
+    from . import import_musicxml, import_pdf, part_cut, part_split  # noqa: F401
     try:
         from . import process_pages, transcribe_voice, brief  # noqa: F401  (intelligence thread)
     except ImportError:

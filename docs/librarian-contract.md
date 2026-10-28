@@ -49,6 +49,7 @@ that `charge_usage` enforces at the next check.
 | kind | owner | payload | writes | model(s) |
 |---|---|---|---|---|
 | `import_musicxml` | app | `{score_id, source_id}` | `interpretations` (engine `musicxml`), `parts`, `measures`, `scores` facts and `ready` | none (music21) |
+| `import_pdf` | app | `{score_id, source_id}` | `{score_id}/pages/{n}.png` at 150 dpi, `sources.page_order`/`page_count`/`meta.render`, then a `process_pages` job (002) | none (PyMuPDF) |
 | `process_pages` | intelligence | `{score_id, source_id, answer?}` | `interpretations` (engine `opencv-geometry+spark-labels`), `measures`, `measure_placements`, `parts`, `scores` facts, `processing` → `ready` or `failed` | Spark (labels, parts, difficulty, brief), SAM 3.1 optional (system crops), OMR optional later |
 | `transcribe_voice` | intelligence | `{score_id, session_id, audio_path, author_id}` | `annotations` with `status = 'proposed'`, `audience`, `measure_from/to` by stable id, `body` = transcript | Voice Transcribe, then Spark |
 | `brief` | intelligence | `{score_id}` | `scores.brief`, `parts.difficulty` | Spark |
@@ -74,7 +75,12 @@ Annotations point at `measures.id`, so a reprocess keeps every marking. Placemen
 `sources.storage_paths` lists the uploaded files as object keys inside the private `scores` bucket, always `{score_id}/...` (the storage policies read the score id from the first folder); `kind`
 is `pdf`, `images` or `musicxml`. For pages, the app thread rasterises in the browser (pdf.js) and uploads
 `{score_id}/pages/{n}.png`; `page_order` is the committed reading order (1-based indexes into the upload
-set). A handler reads pages in `page_order` and reports page numbers in that order.
+set). A handler reads pages in `page_order` and reports page numbers in that order. A whole PDF imported from
+the browser (`kind = 'pdf'`, `storage_paths = ['{score_id}/source.pdf']`) is rendered by the `import_pdf` job into
+the same `{score_id}/pages/{n}.png` keys with `page_order` = the file's own order (002).
+
+A handler raises `ScoreFailure("sentence")` for a failure the musician can act on: no retry, the sentence goes to
+`scores.failure_reason` as it is. Any other exception is retried and then reported in general words per job kind.
 
 ## Money and models
 

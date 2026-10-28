@@ -53,7 +53,11 @@ closed question fills them (`api/app/librarian/signature.py`, Muse Spark 1.3):
   `interpretations.params.state.signature`, so a resumed run never pays for it again). The score row gets
   `key_sig` and `meter` at once, so the cover shows them even while the run waits on a parts question; the
   final facts write the same values. The labels' own key and meter are no longer used for the score.
-- What Spark sees: the first system of page 1, cut by the geometry (`cut.page_geometry` at the working
+- Which page (2026-10-28, for whole PDFs from 002): the first page where the geometry finds a system, at most page 4,
+  since a real PDF opens with a title page and often a blank page (Rach 1 two-piano: read on page 3, F# minor 4/4;
+  page 1 gave blanks before). Pages without a system cost no call. `summary.signature.page` and the crop key
+  `p{page:03}-s1.png` say which.
+- What Spark sees: the first system of page 1 (or of the page above), cut by the geometry (`cut.page_geometry` at the working
   resolution, `cut.cut_system` over all its staves: cleaned, the next system's ink erased, never widened),
   uploaded for audit to `{score_id}/signature/p001-s1.png`. Spark never places a staff or a bar here.
 - What it is asked (JSON-only system prompt, effort low, 8000-token budget, one retry through `ask.ask_model`,

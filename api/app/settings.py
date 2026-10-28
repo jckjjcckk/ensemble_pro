@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     per_user_budget_usd: float = 10.0
     cors_origins: str = "http://localhost:5173"
 
+    # An imported PDF longer than this fails with a sentence instead of being read (002): about $0.01 and 5-10 s
+    # of reading per page, so 40 pages is about $0.40 and five minutes. Raise it in api/.env when CK says.
+    pdf_max_pages: int = 40
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

@@ -29,13 +29,14 @@ from typing import Any
 from anthropic import AsyncAnthropic
 
 from ..llm import _client as default_client, model_name as default_model
-from . import Job, JobContext, handler
+from . import Job, JobContext, ScoreFailure, handler
 from .geometry import measures_on_page
 from .labels import PageLabels, canon_part, label_page
 from .signature import read_signature
 
 ENGINE = "opencv-geometry+spark-labels"
 LEVELS = ["high", "medium", "low"]
+SIGNATURE_PAGES = 4   # how far into the book the signature read looks for the first system (title and blank pages first)
 
 
 def downgrade(conf: str) -> str:
@@ -161,19 +162,25 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
             pngs[i] = ctx.storage_download(paths[i - 1])
         return pngs[i]
 
-    # ---------------------------------------------------------------- the book's key and meter: page 1, first system
+    # ---------------------------------------------------------------- the book's key and meter: the first system of the music
     if "signature" not in state:
         await ctx.progress(0.03, "Reading the key and time signature")
         title = (ctx.db.table("scores").select("title").eq("id", score_id).single().execute().data or {}).get("title") or ""
-        sig = await read_signature(ctx, page_png(1), client or default_client(), model or default_model(), title=title)
+        # A whole PDF often opens with a title page and a blank page (Rach 1 two-piano, Gutheil 1919): the first system is
+        # on the first page where the geometry finds one. Pages with no system cost no call; at most SIGNATURE_PAGES looked at.
+        for sig_page in range(1, min(n_pages, SIGNATURE_PAGES) + 1):
+            sig = await read_signature(ctx, page_png(sig_page), client or default_client(), model or default_model(), title=title)
+            if not str(sig.get("error", "")).startswith("no system found"):
+                break
+        sig["page"] = sig_page
         crop_png = sig.pop("crop_png", None)
         if crop_png:
-            sig["crop_key"] = f"{score_id}/signature/p001-s1.png"
+            sig["crop_key"] = f"{score_id}/signature/p{sig_page:03}-s1.png"
             ctx.storage_upload(sig["crop_key"], crop_png, "image/png")
         state["signature"] = sig
         state["cost_usd"] = float(Decimal(str(state["cost_usd"])) + Decimal(str(sig["cost_usd"])))
         said = ", ".join(x for x in (sig["key_sig"], sig["meter"]) if x)
-        state["log"].append(f"Page 1, first system: {said}" if said else "Page 1, first system: key and meter left blank (not sure)")
+        state["log"].append(f"Page {sig_page}, first system: {said}" if said else f"Page {sig_page}, first system: key and meter left blank (not sure)")
         save_state()
         # the identity shows on the cover even while the run waits on a question
         ctx.db.table("scores").update({"key_sig": sig["key_sig"], "meter": sig["meter"]}).eq("id", score_id).execute()
@@ -228,6 +235,12 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
     await ctx.progress(0.85, "Writing measures and parts")
     pages_read = [k for k, p in sorted(state["pages"].items(), key=lambda kv: int(kv[0])) if not p["unreadable"]]
     unreadable = n_pages - len(pages_read)
+    if not pages_read:
+        state["log"].append(f"None of the {n_pages} pages could be read")
+        ctx.db.table("interpretations").update({"status": "failed", "summary": partial_summary(state, n_pages, ""), "cost_usd": state["cost_usd"],
+                                                "finished_at": ctx.now(), "params": {**interp["params"], "state": state}}).eq("id", interp_id).execute()
+        what = "page" if n_pages == 1 else f"{n_pages} pages"
+        raise ScoreFailure(f"Folio found no staves on the {what}. If this is a scan or a photo, try a sharper, straighter copy.")
     first_labels = PageLabels.from_dict(state["pages"][pages_read[0]]["labels"]) if pages_read else PageLabels()
     first = first_labels.first_measure_number if first_labels.confidence in ("high", "medium") else 1
     if first_labels.is_pickup:
@@ -296,7 +309,7 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
         "pages": n_pages, "systems": systems_total, "measures": len(placements), "first_measure": first, "last_measure": n - 1,
         "title": title, "composer": composer, "parts": part_names, "difficulty": {p: difficulty.get(p) for p in part_names},
         "key_sig": signature["key_sig"], "meter": signature["meter"],
-        "signature": {k: signature.get(k) for k in ("key_sig", "meter", "read", "why", "crop", "crop_key", "cost_usd", "error") if signature.get(k) is not None},
+        "signature": {k: signature.get(k) for k in ("key_sig", "meter", "read", "why", "crop", "crop_key", "cost_usd", "error", "page") if signature.get(k) is not None},
         "flagged": {"pages_unreadable": unreadable, "bars_doubtful": doubtful},
         "models": {"geometry": "opencv", "labels": next((PageLabels.from_dict(state["pages"][k]["labels"]).model for k in pages_read), None)},
         "log": state["log"],

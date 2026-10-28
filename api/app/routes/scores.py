@@ -2,6 +2,7 @@
 these routes record the source and queue the job that reads it."""
 import asyncio
 from datetime import datetime, timezone
+from typing import Literal
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -35,20 +36,48 @@ class PartsBody(BaseModel):
 
 
 class ImportBody(BaseModel):
-    path: str                       # object key inside the scores bucket: {score_id}/source.musicxml
+    path: str                       # object key inside the scores bucket: {score_id}/source.musicxml or {score_id}/source.pdf
     filename: str | None = None     # the file's own name, for the title when the MusicXML has none
+    kind: Literal["musicxml", "pdf"] | None = None   # from the key's extension when omitted (.pdf is a PDF)
+
+
+READING_KINDS = ("import_pdf", "process_pages")
 
 
 @router.post("/scores/{score_id}/import")
 def import_score(score_id: str, body: ImportBody, user: BudgetedUser) -> dict:
-    """Queue the MusicXML import (Path A). Returns the source and job ids; the library watches the job row."""
+    """Queue the import. MusicXML (Path A): records the source, queues `import_musicxml`. PDF (002): the browser has
+    uploaded `{score_id}/source.pdf` and inserted the `pdf` source row (the route records one itself when it finds
+    none); queues `import_pdf`, which renders every page and queues `process_pages` with no ordering step. Either
+    way the score goes `processing` now and `ready` or `failed` later. Returns `{source_id, job_id, kind}`."""
     assert_can_edit(user, score_id)
     if not body.path.startswith(f"{score_id}/"):
         raise HTTPException(400, "Path must be inside the score's folder")
+    kind = body.kind or ("pdf" if body.path.lower().endswith(".pdf") else "musicxml")
+    if kind == "pdf":
+        return import_pdf(score_id, body, user)
     src = db().table("sources").insert({"score_id": score_id, "kind": "musicxml", "storage_paths": [body.path], "meta": {"filename": body.filename}, "created_by": user.id}).execute().data[0]
     job = db().table("jobs").insert({"kind": "import_musicxml", "score_id": score_id, "created_by": user.id, "payload": {"score_id": score_id, "source_id": src["id"]}}).execute().data[0]
     db().table("scores").update({"status": "processing", "progress": 0}).eq("id", score_id).execute()
-    return {"source_id": src["id"], "job_id": job["id"]}
+    return {"source_id": src["id"], "job_id": job["id"], "kind": "import_musicxml"}
+
+
+def import_pdf(score_id: str, body: ImportBody, user: User) -> dict:
+    busy = [j for j in db().table("jobs").select("id,kind,status").eq("score_id", score_id).execute().data or []
+            if j.get("kind") in READING_KINDS and j.get("status") in ("queued", "running")]
+    if busy:
+        raise HTTPException(409, "This score is already being read")
+    sources = [s for s in db().table("sources").select("id,kind,storage_paths,created_at").eq("score_id", score_id).execute().data or []
+               if s.get("kind") == "pdf" and body.path in (s.get("storage_paths") or [])]
+    if sources:
+        src = max(sources, key=lambda s: s.get("created_at") or "")
+    else:
+        src = db().table("sources").insert({"score_id": score_id, "kind": "pdf", "storage_paths": [body.path],
+                                            "meta": {"filename": body.filename}, "created_by": user.id}).execute().data[0]
+    job = db().table("jobs").insert({"kind": "import_pdf", "status": "queued", "score_id": score_id, "created_by": user.id,
+                                     "payload": {"score_id": score_id, "source_id": src["id"]}}).execute().data[0]
+    db().table("scores").update({"status": "processing", "progress": 0, "failure_reason": None}).eq("id", score_id).execute()
+    return {"source_id": src["id"], "job_id": job["id"], "kind": "import_pdf"}
 
 
 @router.post("/scores/{score_id}/parts")
