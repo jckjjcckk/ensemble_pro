@@ -203,3 +203,22 @@ On disk only (ignored by `goldberg/.gitignore`: large, or copies of files that l
 
 On the box: MuseScore stays installed at `~/omr/musescore/` (AppImage + `squashfs-root/`), renders and PNGs in
 `~/omr/musescore/goldberg/`, the demo score in `~/omr/musescore/ref/goldberg.mscz`.
+
+## Same file, three renderers (`same-file/`)
+
+Every PDF here starts from `inputs/ours-aria-layout.musicxml` (our Convert output, bars 1-32, breaks kept),
+copied as `same-file/A-input.musicxml`; only the renderer changes. `same_notes.py` hashes every measure's
+content minus `<print>`: A, B and D inputs all give `ae2f5b00e83e51af`, 441 notes.
+
+| File | Input | Page 1 systems (scan: 1-6, 7-12, 13-16, 17-20, 21-24, 25-28) | Pages | Wall |
+|---|---|---|---|---|
+| `A-musescore-layout.pdf` | A-input, as is | 1-6, 7-10, 11-12, 13-16, 17-20 | 3 (Letter) | 0.57 s |
+| `B-musescore-reflow.pdf` | `B-input.musicxml` = A stripped (`cut_measures.py --strip-layout`: no `<print>`, no `<defaults>`) | 1-6, 7-10, 11-15, 16-19, 20-23 | 2 (Letter) | 0.56 s |
+| `C-osmd.pdf` | A-input, OSMD as the iPad draws it | 1-5, 6-9, 10-13, 14-16 (from the image) | 3 | 1.38 s |
+
+Preview of the merge fix, not part of the three: `D-musescore-layout-pagesize.pdf` from `D-input.musicxml` =
+A-input plus Audiveris's `<defaults>` (scaling 6.7733 mm / 40 tenths, page 1434 x 1783 tenths, margins 80) and two
+`<credit>`s, title "Aria" and composer "J. S. Bach" (`restore_defaults.py`). MuseScore then reproduces the scan
+exactly: page 1 is 1-6, 7-12, 13-16, 17-20, 21-24, 25-28, page 2 is 29-32, on a 242.7 x 301.9 mm page (the
+scan's size), 0.60 s. So the only thing between our file and a page-faithful MuseScore engraving is that the
+`score.py` merge drops Audiveris's `<defaults>` and credits.
