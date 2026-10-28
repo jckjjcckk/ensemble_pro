@@ -1,10 +1,14 @@
 """omr_convert: "Convert to Digital" (feature 005). A PDF book gets a second version of itself: a transcription with
 flagged bars. The PDF stays the truth and the book's primary source; the web decides which to open.
 
-Meta model: **Muse Spark 1.3** for two passes over what Audiveris read (closed questions on low-confidence symbols,
-and the text and dynamics re-read, `omr_spark`), effort low, 8k output budget, JSON-only system prompt, every call
-charged through `ctx.charge`. Spark never places staves or bars and never judges or re-transcribes notes. The
-engine is Audiveris 5.11 on the OMR box (a separate process over ssh, AGPL: nothing here imports it).
+Meta model: **Muse Spark 1.3** as librarian agent v2 (`omr_agent`, 2026-10-28): it sorts the leading pages (cover,
+preface, contents or thematic index, music), reads the front matter of the first page of music into a fixed form,
+lists the text, dynamics, fingering, pedal and ornament marks of every system anchored by bar, staff and note, and
+answers the closed questions left (low-grade accidentals: flag only; ornaments). Effort low, 8k output budget,
+JSON-only system prompts, every call charged through `ctx.charge` and recorded per PDF page. Spark never places
+staves or bars and never changes a note; `omr_enrich` writes what it read by fixed rules with a dedupe against what
+the bar already holds. The engine is Audiveris 5.11 on the OMR box (a separate process over ssh, AGPL: nothing here
+imports it).
 
 Payload `{score_id, source_id?, pages?, max_cost_usd?}`, queued by `POST /scores/{id}/convert` (routes/convert.py).
 The job row carries the score in `payload.score_id` and leaves `jobs.score_id` empty on purpose: the worker marks a
@@ -12,29 +16,36 @@ job's score `failed` when the job fails and `ctx.progress` moves the score's met
 PDF book because its conversion failed or is running. `max_attempts` is 1: a retry would pay for Spark again.
 
 Steps:
-  1. The stored PDF goes to the box over ssh (`OMR_HOST`, default the `omr` alias; runs under `~/OMR_ROOT/<job>`,
-     default `~/omr/folio/<job>`); `omr_box.py` runs Audiveris on the PDF itself, one book per run, no `-sheets`,
-     renders the 300 dpi scans, and the results come back as one tar. An unreachable box fails the job with
-     `result.reason` "The transcription engine is offline", before any model call (no charge).
-  2. `omr_book` reads the book into the bar map (global bar numbers, Audiveris's boxes, the grade gate at 0.6);
-     `omr_score.merge` puts the movements on those numbers (a mismatch fails here, still before any charge).
-  3. `omr_spark` asks the closed questions and re-reads the text per system, in parallel (6 at a time), within the
-     job's Spark allowance (`max_cost_usd`, default $0.20 a page; measured $0.08); `omr_score.apply` writes the
-     answers as deterministic edits; `flagged_bars` lists every doubtful bar with its page, box and reasons.
-  4. The file is written through music21, then `musicxml_fix`: voices numbered per staff (staff 1 voices 1-4, staff 2
-     5-8; MuseScore drops notes otherwise) and the first movement's `<defaults>` (page size, margins, scaling) and
-     title and composer credits put back, the book's title and composer written into them.
+  1. `omr_agent.page_kinds`: the PDF is rendered on the Mac (PyMuPDF) and the 003 geometry says which pages have
+     staves; for the first pages with staves one closed question each, until the first page of music. Front-matter
+     pages are recorded in the source's meta, never transcribed; the cover page (the first page when it has no
+     staves, or the page Spark calls the cover) is uploaded as `{score_id}/cover.png` and its key written to
+     `meta.cover` (the score row has no cover column). No music page: the job fails before the box.
+  2. The stored PDF goes to the box over ssh (`OMR_HOST`, default the `omr` alias; runs under `~/OMR_ROOT/<job>`,
+     default `~/omr/folio/<job>`); `omr_box.py` runs Audiveris on the music pages only (a page subset is cut into its
+     own PDF there), one book per run, no `-sheets`, renders the 300 dpi scans, and the results come back as one
+     tar. An unreachable box fails the job with `result.reason` "The transcription engine is offline".
+  3. `omr_book` reads the book into the bar map (global bar numbers, Audiveris's boxes, the grade gate at 0.6);
+     `omr_score.merge` puts the movements on those numbers (a mismatch fails here).
+  4. `omr_agent.front_matter`, `enrich` and `verify` run in parallel (6 calls in flight) within the job's allowance
+     (`max_cost_usd`, default $1.00 a page, page-kind questions included); `omr_enrich` writes the answers: the tempo
+     line at the head of bar 1, words in italic, dynamics, fingering on the notes, pedal directions, ornaments, each
+     deduped against the bar (hairpins, pedals and ornaments Audiveris read are never doubled); accidentals Spark
+     disagrees with flag their bar. `flagged_bars` lists every doubtful bar with its page, box and reasons.
+  5. The file is written through music21, then `musicxml_fix`: voices numbered per staff (MuseScore drops notes
+     otherwise) and the first movement's `<defaults>` and credits put back, the title and composer written into them.
      It goes to `{score_id}/digital/score.musicxml`; a `sources` row of kind `musicxml` records it with
-     `meta = {transcribed_from, engine, flags: {bars_doubtful, pages_unreadable}, flagged_bars, pages, parts}`
-     (a re-run replaces the file and updates the same row). The file is read back through the import's own
-     `book_facts`: `measures` rows (upsert, never delete); `parts` rows as the import writes them when the book has
-     none, else the book's own part names are kept (positionally, when the counts agree) and only their
-     `storage_path` moves to the digital file; score facts (key, meter, bars, pages) only where the score has none
-     (`key_sig` and `meter` are never overwritten; tempo and length are not taken: nothing checks Audiveris's
-     metronome marks, and the Goldberg Aria, which prints none, came back as quarter = 72). `status`, `progress`
-     and `current_interpretation_id` are not touched.
+     `meta = {transcribed_from, engine, flags, flagged_bars, pages, parts, page_kinds, cover, front_matter, items,
+     cost: {total_usd, per_page, per_step}}` (a re-run replaces the file and updates the same row). The file is read
+     back through the import's own `book_facts`: `measures` rows (upsert, never delete); `parts` rows as the import
+     writes them when the book has none, else the book's own part names are kept (positionally, when the counts
+     agree) and only their `storage_path` moves to the digital file; score facts only where the score has none:
+     key, meter, bars, pages, and from the front-matter form composer, work (the opus) and tempo (the metronome Spark
+     read from the heading; Audiveris's unchecked marks are still never taken). `status`, `progress` and
+     `current_interpretation_id` are not touched.
 
-Result: `{source_id, instruments, bars, flagged_bars (bar numbers), seconds, cost_usd, pages, spark_calls, timings}`.
+Result: `{source_id, instruments, bars, flagged_bars (bar numbers), seconds, cost_usd, cost_per_page, pages,
+page_kinds, cover, front_matter, items, spark_calls, spark_skipped, timings}`.
 """
 from __future__ import annotations
 
@@ -51,22 +62,22 @@ from pathlib import Path
 from typing import Any
 
 from anthropic import AsyncAnthropic
-from music21 import converter, metadata, stream
+from music21 import converter, stream
 from PIL import Image
 
 from ..llm import _client as default_client, model_name as default_model
 from . import Job, JobContext, handler
 from .import_musicxml import book_facts, part_groups, write_measures, write_parts
 from .musicxml_fix import PageLayout, fix_musicxml
+from .omr_agent import USD_PER_PAGE, Budget, PdfPages, enrich, front_matter, page_kinds, verify
 from .omr_book import load_run
-from .omr_score import BarsDoNotLineUp, apply, flagged_bars, merge, movement_files
-from .omr_spark import Budget, reread, verify
+from .omr_enrich import apply_front, apply_items, apply_verify
+from .omr_score import BarsDoNotLineUp, flagged_bars, merge, movement_files
 
-ENGINE = "audiveris-5.11+spark"
+ENGINE = "audiveris-5.11+spark-v2"
 OFFLINE = "The transcription engine is offline"
 CONTENT_TYPE = "application/vnd.recordare.musicxml+xml"
 MAX_PAGES = 40                 # a book over this is refused before Audiveris runs (about 35 s a page on the box)
-SPARK_USD_PER_PAGE = 0.20      # the default allowance; measured $0.078 a page on Goldberg p1-5
 BOX_SCRIPT = Path(__file__).with_name("omr_box.py")
 
 
@@ -80,6 +91,10 @@ class EngineFailed(RuntimeError):
 
 def digital_path(score_id: str) -> str:
     return f"{score_id}/digital/score.musicxml"
+
+
+def cover_path(score_id: str) -> str:
+    return f"{score_id}/cover.png"
 
 
 # ---------------------------------------------------------------------------------------------------- the box
@@ -210,14 +225,14 @@ def name_parts(sc: stream.Score, existing: list[str]) -> tuple[list[tuple[str, l
     return groups, keep
 
 
-def write_musicxml(sc: stream.Score, page: PageLayout | None = None) -> bytes:
+def write_musicxml(sc: stream.Score, page: PageLayout | None = None, opus: str | None = None) -> bytes:
     """The file as written, then `musicxml_fix`: voices numbered per staff (MuseScore drops notes otherwise) and
     Audiveris's page layout and title and composer credits put back (`page`, from the first movement file)."""
     with tempfile.TemporaryDirectory() as tmp:
         fp = Path(tmp) / "score.musicxml"
         sc.write("musicxml", fp=str(fp), makeNotation=False)   # Audiveris bars can overflow; makeNotation would re-bar them
         md = sc.metadata
-        return fix_musicxml(fp.read_bytes(), page, title=md.title if md else None, composer=md.composer if md else None)
+        return fix_musicxml(fp.read_bytes(), page, title=md.title if md else None, composer=md.composer if md else None, opus=opus)
 
 
 HEARTBEAT_S = 60
@@ -235,15 +250,16 @@ async def _heartbeat(ctx: JobContext) -> None:
 
 
 @handler("omr_convert")
-async def omr_convert(job: Job, ctx: JobContext, *, box: Any = None, client: AsyncAnthropic | None = None, model: str | None = None) -> dict:
+async def omr_convert(job: Job, ctx: JobContext, *, box: Any = None, client: AsyncAnthropic | None = None, model: str | None = None,
+                      pdf_pages: Any = None) -> dict:
     beat = asyncio.create_task(_heartbeat(ctx))
     try:
-        return await _convert(job, ctx, box, client, model)
+        return await _convert(job, ctx, box, client, model, pdf_pages)
     finally:
         beat.cancel()
 
 
-async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic | None, model: str | None) -> dict:
+async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic | None, model: str | None, pdf_pages: Any) -> dict:
     t0 = time.time()
     p = job.payload
     score_id = p["score_id"]
@@ -254,21 +270,44 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
     if key is None:
         await _fail(ctx, RuntimeError("This book's PDF source holds no .pdf file"))
     pages = _pages(p.get("pages"))
+    client = client or default_client()
+    model = model or default_model()
 
-    await ctx.progress(0.02, "Sending the PDF to the transcription engine")
-    pdf = ctx.storage_download(key)
     box = box or SshBox()
-    if not await box.reachable():
+    if not await box.reachable():                      # before any model call: an offline engine costs nothing
         await _fail(ctx, EngineOffline(OFFLINE))
+    await ctx.progress(0.02, "Looking at the pages")
+    pdf = ctx.storage_download(key)
+    try:
+        book_pages = pdf_pages or await asyncio.to_thread(PdfPages, pdf)
+    except Exception as e:  # noqa: BLE001  (PyMuPDF's own error types)
+        await _fail(ctx, EngineFailed(f"This PDF could not be opened ({e})"))
+    page_count = book_pages.count
+    if pages and pages[-1] > page_count:
+        await _fail(ctx, RuntimeError(f"This PDF has {page_count} pages; page {pages[-1]} was asked for"))
+    n_pages = len(pages) if pages else page_count
+    budget = Budget(float(p.get("max_cost_usd") or USD_PER_PAGE * n_pages))
+    t_kinds = time.time()
+    kinds = await page_kinds(ctx, client, model, book_pages, pages, budget)
+    kinds_s = time.time() - t_kinds
+    music = [k["pdf_page"] for k in kinds if k["kind"] == "music"]
+    front = [k for k in kinds if k["kind"] != "music"]
+    if not music:
+        await _fail(ctx, EngineFailed("No page of music was found in this PDF (only " + ", ".join(k["kind"] for k in front) + ")"))
+    cover_key = None
+    cover = next((k for k in kinds if k["kind"] == "cover"), None)
+    if cover is not None:
+        cover_key = cover_path(score_id)
+        ctx.storage_upload(cover_key, book_pages.png(cover["pdf_page"]), "image/png")
 
+    await ctx.progress(0.05, "Sending the PDF to the transcription engine")
     with tempfile.TemporaryDirectory() as tmp:
         run = Path(tmp)
-        await ctx.progress(0.05, "Reading the pages" + (f" ({len(pages)})" if pages else ""))
+        await ctx.progress(0.08, f"Reading {len(music)} page{'s' if len(music) != 1 else ''} of music")
         try:
-            book_run = await box.transcribe(job.id, pdf, pages, run)
+            book_run = await box.transcribe(job.id, pdf, music, run)
         except (EngineOffline, EngineFailed) as e:
             await _fail(ctx, e)
-        n_pages = len(book_run["pdf_pages"])
         doc = await asyncio.to_thread(load_run, run)
         if not doc["measures"]:
             await _fail(ctx, EngineFailed("The transcription engine found no bars in this PDF"))
@@ -278,31 +317,34 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
             await _fail(ctx, EngineFailed(f"The transcription's bars do not line up with its pages ({e})"))
         page = PageLayout.read(movement_files(run)[0])
 
-        await ctx.progress(0.6, f"Checking {len(doc['doubtful'])} doubtful symbols and the text of {len(doc['systems'])} systems")
+        await ctx.progress(0.6, f"Reading the heading, the text of {len(doc['systems'])} systems and {len(doc['doubtful'])} doubtful symbols")
         index = {pg: i for i, pg in enumerate(book_run["pdf_pages"], start=1)}
         scans = {pg["page"]: Image.open(run / "scan" / f"p{index[pg['pdf_page']]}.png") for pg in doc["pages"]}
-        budget = Budget(float(p.get("max_cost_usd") or SPARK_USD_PER_PAGE * n_pages))
-        client = client or default_client()
-        model = model or default_model()
         t_spark = time.time()
-        answers, texts = await asyncio.gather(verify(ctx, client, model, doc, scans, budget), reread(ctx, client, model, doc, scans, budget))
+        form, enriched, answers = await asyncio.gather(front_matter(ctx, client, model, doc, scans, budget),
+                                                       enrich(ctx, client, model, doc, scans, budget),
+                                                       verify(ctx, client, model, doc, scans, budget))
         spark_s = time.time() - t_spark
         for im in scans.values():
             im.close()
 
     await ctx.progress(0.85, "Writing the digital version")
     t_write = time.time()
-    log, extra = await asyncio.to_thread(apply, sc, doc, answers, texts)
+    score_row = (ctx.db.table("scores").select("*").eq("id", score_id).limit(1).execute().data or [{}])[0]
+    form_ok = form.pop("_ok", False)
+    first_number = doc["measures"][0]["number"]
+    # The book's facts first, then the page's heading, then the scan's credits; never "Music21".
+    log = await asyncio.to_thread(apply_front, sc, form, first_number,
+                                  title=score_row.get("title") or page.text("title"), composer=score_row.get("composer") or page.text("composer"))
+    items_log, counts = await asyncio.to_thread(apply_items, sc, doc, enriched)
+    verify_log, extra = await asyncio.to_thread(apply_verify, sc, answers)
+    log += items_log + verify_log
     for n, whys in filled.items():
         extra.setdefault(n, []).extend(whys)
     flags = await asyncio.to_thread(flagged_bars, sc, doc, extra)
     existing = [r["name"] for r in (ctx.db.table("parts").select("name,position").eq("score_id", score_id).order("position").execute().data or [])]
     groups, kept_names = name_parts(sc, existing)
-    score_row = (ctx.db.table("scores").select("*").eq("id", score_id).limit(1).execute().data or [{}])[0]
-    sc.metadata = metadata.Metadata()      # the book's facts, else the scan's title and composer credits; never "Music21"
-    sc.metadata.title = score_row.get("title") or page.text("title")
-    sc.metadata.composer = score_row.get("composer") or page.text("composer")
-    data = await asyncio.to_thread(write_musicxml, sc, page)
+    data = await asyncio.to_thread(write_musicxml, sc, page, form.get("opus"))
     path = digital_path(score_id)
     ctx.storage_upload(path, data, CONTENT_TYPE)
 
@@ -310,9 +352,15 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
     f = await asyncio.to_thread(lambda: book_facts(converter.parse(data, format="musicxml")))
     names = f["names"]
     flagged = [b["number"] for b in flags]
+    cost = budget.summary()
+    items = {"written": {k: counts[k] for k in ("words", "dynamic", "fingering", "pedal", "ornament")},
+             "duplicates": counts["duplicates"], "dropped": counts["dropped"], "out_of_range": counts["out_of_range"],
+             "systems_answered": sum(1 for r in enriched if r.get("ok")), "systems": len(enriched)}
     meta = {"transcribed_from": src["id"], "engine": ENGINE,
             "flags": {"bars_doubtful": len(flagged), "pages_unreadable": len(doc["unreadable"])},
-            "flagged_bars": flags, "pages": book_run["pdf_pages"], "parts": names}
+            "flagged_bars": flags, "pages": book_run["pdf_pages"], "parts": names,
+            "page_kinds": [{k: v for k, v in r.items() if k != "staves"} | {"staves": r["staves"]} for r in kinds],
+            "cover": cover_key, "front_matter": form | {"read": form_ok}, "items": items, "cost": cost}
     same = [r for r in (ctx.db.table("sources").select("id,meta").eq("score_id", score_id).eq("kind", "musicxml").execute().data or [])
             if (r.get("meta") or {}).get("transcribed_from") == src["id"]]
     if same:
@@ -327,22 +375,26 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
     elif not existing:
         write_parts(ctx.db, score_id, f["groups"], path)
     write_measures(ctx.db, score_id, f["numbers"])
-    # No tempo or length: an unchecked Audiveris metronome mark (the Goldberg Aria prints none, came back as 72).
+    # Facts only where the score has none. Tempo comes from the metronome Spark read in the heading, never from an
+    # unchecked Audiveris mark (the Goldberg Aria prints none and Audiveris once gave 72).
+    mm = form.get("metronome") or {}
     facts = {"key_sig": f["key_sig"], "meter": f["meter"], "bars": len(f["numbers"]),
-             "pages": book_run.get("pdf_page_count") if not pages else None}
+             "pages": page_count if not pages else None, "composer": form.get("composer"), "work": form.get("opus"),
+             "tempo_bpm": mm.get("bpm")}
     fill = {k: v for k, v in facts.items() if v is not None and score_row.get(k) in (None, "")}
     if fill:
         ctx.db.table("scores").update(fill).eq("id", score_id).execute()
     write_s = time.time() - t_write
 
-    cost = round(budget.spent, 4)
     ctx.result["note"] = f"Digital: {len(f['numbers'])} bars, {len(flagged)} to check"
     return {
         "source_id": row["id"], "instruments": names, "bars": len(f["numbers"]), "flagged_bars": flagged,
-        "seconds": round(time.time() - t0, 1), "cost_usd": cost, "pages": book_run["pdf_pages"],
+        "seconds": round(time.time() - t0, 1), "cost_usd": cost["total_usd"], "cost_per_page": cost["per_page"],
+        "pages": book_run["pdf_pages"], "page_kinds": [(k["pdf_page"], k["kind"]) for k in kinds], "cover": cover_key,
         "pages_unreadable": doc["unreadable"], "spark_calls": budget.calls, "spark_skipped": budget.skipped,
-        "edits": {k: sum(1 for e in log if e["layer"] == k) for k in ("A", "B-text", "B-clear", "B")},
-        "timings": {"box_s": book_run.get("box_s"), "audiveris_s": book_run.get("audiveris_s"), "render_s": book_run.get("render_s"),
-                    "upload_s": book_run.get("upload_s"), "pull_s": book_run.get("pull_s"), "spark_s": round(spark_s, 1),
-                    "write_s": round(write_s, 1)},
+        "front_matter": form | {"read": form_ok}, "items": items,
+        "edits": {k: sum(1 for e in log if e["layer"] == k) for k in ("front", "words", "dynamic", "fingering", "pedal", "ornament", "dup", "A", "flag")},
+        "timings": {"kinds_s": round(kinds_s, 1), "box_s": book_run.get("box_s"), "audiveris_s": book_run.get("audiveris_s"),
+                    "render_s": book_run.get("render_s"), "upload_s": book_run.get("upload_s"), "pull_s": book_run.get("pull_s"),
+                    "spark_s": round(spark_s, 1), "write_s": round(write_s, 1)},
     }

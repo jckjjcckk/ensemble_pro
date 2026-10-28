@@ -8,15 +8,12 @@ Ported from `api/experiments/omr/{score,apply_edits,review}.py`, generalised fro
           measure numbers and gets a whole-bar rest there, flagged; any other mismatch stops the run before any
           model call (the map and the file would address different bars). Measures are moved, not copied; each movement's spanners are carried.
           Parts keep Audiveris's ids, so a two-staff piano stays one part ("P1-Staff1", "P1-Staff2").
-  apply   A (closed questions): a tuplet that is not a tuplet is un-tupleted in that part's staves; a dynamic is
-          replaced by the value Spark read, or dropped; a fermata that is not one is dropped. Rests, dots,
-          ornaments and wedges are never edited: a doubtful verdict becomes a review flag.
-          B (text): for every system Spark answered, Audiveris's words and dynamics in its bars are dropped and
-          Spark's words written where `omr_spark.place` put them (staff by rank, offset snapped to the nearest
-          note onset). A system whose staff count differs from the file's keeps Audiveris's text.
   flags   per bar: Audiveris's own `abnormal` (its rhythm check), a durations-add-up check on every staff of the
-          final file, a text word placed by position alone whose bar label points outside its system, a doubtful
-          symbol left as read. A flagged bar is "doubtful": the PDF is the truth.
+          final file, plus whatever the writers add (`omr_enrich`: an accidental Spark disagrees with, a bar a staff
+          had to be filled in). A flagged bar is "doubtful": the PDF is the truth.
+
+Spark's answers are written by `omr_enrich` (v2, 2026-10-28); the v1 `apply` (closed-question edits, text placed by
+Spark's pixel position) is gone with `omr_spark`.
 """
 
 from __future__ import annotations
@@ -25,10 +22,7 @@ from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
-from music21 import converter, duration, dynamics, expressions, layout, meter, note, stream
-
-DYN = {"p", "pp", "ppp", "mp", "mf", "f", "ff", "fff", "sf", "sfz", "fp", "fz", "rf", "rfz", "sfp"}
-NOT_EDITED = {"rest": "rest", "augmentation-dot": "augmentation_dot", "ornament": "ornament", "wedge": "hairpin_wedge"}
+from music21 import converter, layout, meter, note, stream
 
 
 class BarsDoNotLineUp(RuntimeError):
@@ -110,7 +104,7 @@ def _rest_bar(p: stream.Part, src: stream.Part) -> stream.Measure:
     return m
 
 
-# ---------------------------------------------------------------------------------------------------- edits
+# ---------------------------------------------------------------------------------------------------- flags
 
 def _measures(part: stream.Part) -> dict[int, stream.Measure]:
     return {m.number: m for m in part.getElementsByClass(stream.Measure)}
@@ -118,39 +112,6 @@ def _measures(part: stream.Part) -> dict[int, stream.Measure]:
 
 def _containers(m: stream.Measure):
     return list(m.voices) if m.voices else [m]
-
-
-def _untuplet(m: stream.Measure) -> int:
-    n = 0
-    for v in _containers(m):
-        for el in v.notesAndRests:
-            if el.duration.tuplets:
-                el.duration = duration.Duration(type=el.duration.type, dots=el.duration.dots)
-                n += 1
-    return n
-
-
-def _clear_text(m: stream.Measure) -> list[str]:
-    gone = []
-    for el in list(m.recurse()):
-        if isinstance(el, dynamics.Dynamic):
-            gone.append(el.value)
-            el.activeSite.remove(el)
-        elif isinstance(el, expressions.TextExpression):
-            gone.append(el.content)
-            el.activeSite.remove(el)
-    return gone
-
-
-def _snap_offset(bar: list[stream.Measure], frac: float) -> float:
-    """The note onset in the bar nearest to the word's relative x position (a proportional guess of the beat)."""
-    first = bar[0]
-    bar_ql = first.barDuration.quarterLength if first.barDuration else 4.0
-    onsets = sorted({float(el.offset) for m in bar for v in _containers(m) for el in v.notesAndRests if not el.duration.isGrace})
-    if not onsets:
-        return 0.0
-    target = frac * bar_ql
-    return min(onsets, key=lambda o: abs(o - target))
 
 
 def staff_groups(sc: stream.Score) -> list[int]:
@@ -164,82 +125,6 @@ def staff_groups(sc: stream.Score) -> list[int]:
         out.append(g)
         last = sid
     return out
-
-
-def apply(sc: stream.Score, doc: dict, verify: list[dict], reread: list[dict]) -> tuple[list[dict], dict[int, list[str]]]:
-    """Edits in place. Returns (log, extra flags by bar number)."""
-    parts = list(sc.parts)
-    pm = [_measures(p) for p in parts]
-    group = staff_groups(sc)
-    log: list[dict] = []
-    flags: dict[int, list[str]] = {}
-
-    def staves_of(rank: int | None) -> list[int]:
-        if rank is None or not 1 <= rank <= len(parts):
-            return list(range(len(parts)))
-        return [i for i, g in enumerate(group) if g == group[rank - 1]]
-
-    for r in verify:
-        d, ans = r["inter"], r.get("answer")
-        if not ans:
-            continue
-        n, tag, verdict = d["number"], d["tag"], str(ans.get("verdict", ""))
-        idx = [i for i in staves_of(d.get("staff")) if n in pm[i]]
-        if not idx:
-            continue
-        if tag == "tuplet" and verdict != "tuplet_number":
-            k = sum(_untuplet(pm[i][n]) for i in idx)
-            log.append({"layer": "A", "number": n, "what": f"tuplet is {verdict} {ans.get('value', '')!r}: un-tupleted {k} notes"})
-        elif tag == "dynamics":
-            shape = (d["shape"] or "").replace("DYNAMICS_", "").lower()
-            val = str(ans.get("value", "")).strip().rstrip(".").lower()
-            for i in idx:
-                for el in list(pm[i][n].recurse().getElementsByClass(dynamics.Dynamic)):
-                    if el.value == shape:
-                        el.activeSite.remove(el)
-            if verdict == "dynamic_marking" and val in DYN:
-                rank = d.get("staff")
-                target = rank - 1 if rank and 1 <= rank <= len(parts) and n in pm[rank - 1] else idx[0]
-                pm[target][n].insert(0, dynamics.Dynamic(val))
-                log.append({"layer": "A", "number": n, "what": f"dynamic {shape} -> {val}"})
-            else:
-                log.append({"layer": "A", "number": n, "what": f"dropped dynamic {shape} ({verdict} {ans.get('value', '')!r})"})
-        elif tag == "fermata" and verdict != "fermata":
-            for i in idx:
-                for el in pm[i][n].recurse().notesAndRests:
-                    kept = [e for e in el.expressions if not isinstance(e, expressions.Fermata)]
-                    if len(kept) != len(el.expressions):
-                        el.expressions = kept
-                        log.append({"layer": "A", "number": n, "what": f"dropped fermata ({verdict})"})
-        elif tag in NOT_EDITED and verdict and verdict != NOT_EDITED[tag]:
-            flags.setdefault(n, []).append(f"symbol: the engine read a {tag}; Spark sees {verdict.replace('_', ' ')} {ans.get('value') or ''}".strip())
-
-    for r in reread:
-        if not r.get("ok"):
-            continue
-        system = next((s for s in doc["systems"] if s["page"] == r["page"] and s["system"] == r["system"]), None)
-        if system is None or len(system["staves"]) != len(parts):
-            log.append({"layer": "B", "number": r["numbers"][0], "what": f"p{r['page']} sys{r['system']}: "
-                        f"{len(system['staves']) if system else '?'} staves on the page, {len(parts)} in the file; Audiveris text kept"})
-            continue
-        for n in r["numbers"]:
-            gone = [w for i in range(len(parts)) if n in pm[i] for w in _clear_text(pm[i][n])]
-            if gone:
-                log.append({"layer": "B-clear", "number": n, "what": f"dropped Audiveris text {gone}"})
-        for it in r["placed"]:
-            n, staff = it["number"], it["staff"]
-            bar = [pm[i][n] for i in range(len(parts)) if n in pm[i]]
-            if not bar or n not in pm[staff - 1]:
-                continue
-            off = _snap_offset(bar, it["frac"])
-            word = it["text"].strip()
-            el = dynamics.Dynamic(word.rstrip(".").lower()) if it["kind"] == "dynamic" else expressions.TextExpression(word)
-            el.placement = it["placement"]
-            pm[staff - 1][n].insert(off, el)
-            log.append({"layer": "B-text", "number": n, "staff": staff, "text": word, "how": it["how"]})
-            if it["label_agrees"] is False and not it["how"].startswith("glyph"):
-                flags.setdefault(n, []).append(f"text: Spark's position puts {word!r} here, its bar label says {it['spark_bar']}")
-    return log, flags
 
 
 def rhythm_flags(m: stream.Measure, staff: int) -> list[str]:

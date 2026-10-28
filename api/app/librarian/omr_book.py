@@ -23,8 +23,9 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
 
-# classes the closed question (omr_spark.VERIFY_OPTIONS) can ask about
-VERIFY_TAGS = ("tuplet", "dynamics", "fermata", "rest", "augmentation-dot", "ornament", "wedge")
+# classes the closed questions (omr_agent.VERIFY_OPTIONS) cover: accidentals (flag only) and ornaments (v2, 2026-10-28;
+# v1 also asked about tuplets, dynamics, fermatas, rests, dots and wedges)
+VERIFY_TAGS = ("alter", "ornament")
 DEFAULT_GATE = 0.6
 STACK_KEYS = ("id", "left", "right")
 
