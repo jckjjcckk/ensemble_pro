@@ -216,6 +216,12 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
 
   useEffect(() => { rememberBook(pathname + rawSearch) }, [pathname, rawSearch])
   useEffect(() => {
+    if (!moreOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); setMoreOpen(false) } }
+    window.addEventListener('keydown', onKey, true)
+    return () => window.removeEventListener('keydown', onKey, true)
+  }, [moreOpen])
+  useEffect(() => {
     if (!view) return
     rememberPlace(score.id, { bar: view.first, page: view.spread * view.perView + 1 })
   }, [view, score.id])
@@ -291,8 +297,10 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
   }
 
   const menuBar = menu.menu?.bar ?? null
-  const onMenuBar = menuBar == null ? [] : visible.filter(a => a.kind !== 'cut' && a.barFrom <= menuBar && menuBar <= a.barTo)
-  const highlighted = onMenuBar.some(a => a.kind === 'highlight' && a.mine)
+  const onBar = menuBar == null ? [] : visible.filter(a => a.kind !== 'cut' && a.barFrom <= menuBar && menuBar <= a.barTo)
+  const highlighted = onBar.some(a => a.kind === 'highlight' && a.mine)
+  // The reader's own highlight is the Highlight row itself (pressed); the list holds everything else on the bar.
+  const onMenuBar = onBar.filter(a => !(a.kind === 'highlight' && a.mine))
   const nameOf = (m: BarMark) => firstName(membersById[m.authorId]?.name ?? 'Someone')
   const endScribble = () => { void ink.flush(); setScribble(false) }
   const arrivingBars = new Set(visible.filter(a => a.kind === 'highlight' && a.arriving).map(a => a.barFrom))
@@ -366,7 +374,7 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
           <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M15 5l-7 7 7 7" /></svg>Shelf
         </Link>
         <div className="stand-title">
-          <span className="stand-name">{score.title}{partWord ? ` — ${partWord}` : ''}</span>
+          <span className="stand-name"><span className="stand-name-t">{score.title}</span>{partWord && <span className="stand-name-p"> — {partWord}</span>}</span>
           <span className="stand-where">{[composerLast, where].filter(Boolean).join(' · ')}</span>
         </div>
       </div>
@@ -628,8 +636,8 @@ function EdgeFaces({ geo, people, zoom, colorOf, onJump }: { geo: Geo; people: M
         if (!b) return null
         const page = geo.pages[b.page]!
         const isRight = shown.length > 1 && b.page === shown[shown.length - 1].i
-        const gutter = isRight ? Number.POSITIVE_INFINITY : page.x
-        const narrow = gutter < 70 || !!zoom
+        // The spread has room for "bar 58" in its margins; a single page or a zoomed one says "b.58".
+        const narrow = shown.length < 2 || !!zoom
         let y = b.y + b.h / 2 - 17
         let arrow = ''
         if (zoom) {
@@ -640,7 +648,7 @@ function EdgeFaces({ geo, people, zoom, colorOf, onJump }: { geo: Geo; people: M
         const side = isRight ? 'r' : 'l'
         while (used.some(u => u.side === side && Math.abs(u.y - y) < 50)) y += 52
         used.push({ side, y })
-        const left = isRight ? page.x + page.w + (narrow ? 4 : 12) : Math.max(2, page.x - (narrow ? 40 : 46))
+        const left = zoom ? Math.max(zoom.left + 4, page.x - 40) : isRight ? page.x + page.w + (narrow ? 4 : 12) : Math.max(2, page.x - (narrow ? 40 : 46))
         return (
           <motion.button
             key={m.id} type="button" className="edge-face" style={{ left, top: y }} onClick={() => m.atBar && onJump(m.atBar)}

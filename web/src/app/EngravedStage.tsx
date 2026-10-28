@@ -15,7 +15,7 @@ import type { StageView } from './ScoreStage'
 import { useStageGestures } from './stageGestures'
 import { useReducedMotion } from './layout'
 
-export interface ZoomView { k: number; page: number; /** visible part of the page, as fractions of its height */ top: number; bottom: number }
+export interface ZoomView { k: number; page: number; /** visible part of the page, as fractions of its height */ top: number; bottom: number; /** visible left and right edges, in content px */ left: number; right: number }
 
 interface Props {
   engraving: Engraving
@@ -114,7 +114,7 @@ export function EngravedStage({ engraving, aspect: aspectIn, focus, follow, onUs
   useEffect(() => { setAnchor(focus.bar) }, [focus.key, focus.bar])
   // A jump to a bar (a face, a note, the shelf's "continues at") shows its whole spread.
   const focusKey = useRef(focus.key)
-  useEffect(() => { if (focus.key !== focusKey.current) { focusKey.current = focus.key; setZoom(null) } }, [focus.key])
+  useEffect(() => { if (focus.key !== focusKey.current) { focusKey.current = focus.key; kRef.current = 1; setZoom(null) } }, [focus.key])
 
   // The page's shape: the engraver's page in millimetres (3:4 for the iPad layout, the scan's for the original), or the
   // page image's own.
@@ -189,8 +189,8 @@ export function EngravedStage({ engraving, aspect: aspectIn, focus, follow, onUs
     if (!p) return null
     const top = Math.max(0, Math.min(1, (scroll.y - p.y) / p.h))
     const bottom = Math.max(0, Math.min(1, (scroll.y + layout.h - p.y) / p.h))
-    return { k: zoom.k, page: zoom.page, top, bottom }
-  }, [zoom, geo, layout, scroll.y])
+    return { k: zoom.k, page: zoom.page, top, bottom, left: scroll.x, right: scroll.x + layout.w }
+  }, [zoom, geo, layout, scroll.y, scroll.x])
   const view = useMemo<StageView | null>(() => {
     if (zoomView && geo) {
       const p = geo.pages[zoomView.page]!
@@ -228,8 +228,10 @@ export function EngravedStage({ engraving, aspect: aspectIn, focus, follow, onUs
 
   // ---------------------------------------------------------------- zoom
 
+  const kRef = useRef(1)
   const unzoom = useCallback(() => {
     focal.current = null
+    kRef.current = 1
     setZoom(null)
     if (stageRef.current) { stageRef.current.scrollLeft = 0; stageRef.current.scrollTop = 0 }
     setScroll({ x: 0, y: 0 })
@@ -245,10 +247,12 @@ export function EngravedStage({ engraving, aspect: aspectIn, focus, follow, onUs
     const shown = geo.pages.map((p, i) => ({ p, i })).filter((x): x is { p: Rect; i: number } => !!x.p)
     if (!shown.length) return
     const hit = shown.find(({ p }) => cx >= p.x && cx <= p.x + p.w) ?? shown.reduce((a, b) => (Math.abs(b.p.x + b.p.w / 2 - cx) < Math.abs(a.p.x + a.p.w / 2 - cx) ? b : a))
-    const k0 = zoom?.k ?? 1
+    // Events can arrive faster than renders (a trackpad pinch): scale from the last factor asked for, not the last drawn.
+    const k0 = kRef.current
     // A spread's page is a little narrower than a single page's whole size; zoom is relative to the whole-page size.
     const k = Math.max(1, Math.min(MAX_K, k0 * ratio))
-    if (k <= 1.02) { unzoom(); return }
+    if (k <= 1.02) { kRef.current = 1; unzoom(); return }
+    kRef.current = k
     focal.current = { fx: (cx - hit.p.x) / hit.p.w, fy: (cy - hit.p.y) / hit.p.h, sx, sy }
     setZoom({ k: Math.round(k * 100) / 100, page: hit.i })
   }, [geo, layout, zoom, unzoom])

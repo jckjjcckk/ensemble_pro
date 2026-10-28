@@ -38,3 +38,6 @@ docs/design/explorations/shots/
 api/fixtures/voice/*.m4a
 api/fixtures/voice/*.wav
 api/fixtures/voice/*.mp3
+
+# R3 verification screenshots (local, like the explorations shots)
+docs/design/r3/shots/
