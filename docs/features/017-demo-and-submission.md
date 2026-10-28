@@ -37,7 +37,7 @@ real ensemble or UofT Faculty of Music contacts.
 - Web at `https://folio.jckjjcckk.com`: Cloudflare Pages, root `web`, build `npm run build`, output `dist`,
   env `VITE_*`, custom domain on CK's zone (subdomain, not a path: PWA scope, Vite base, Pages domains and
   Supabase redirects all favour a clean origin).
-- API at `https://api.folio.jckjjcckk.com` through CK's named Cloudflare tunnel (`macbook_pro_m4`, inactive
+- API at `https://folio-api.jckjjcckk.com` through CK's named Cloudflare tunnel (`macbook_pro_m4`, inactive
   today; `zephyr server` healthy) to the Mac (Casio and OMR live there); Railway later if wanted. Set
   `CORS_ORIGINS` to the web origin, `VITE_API_URL` to the API origin, add `https://folio.jckjjcckk.com/**` to
   the Supabase redirect URLs.

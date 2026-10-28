@@ -1,7 +1,7 @@
 {
   // The hosted web app: a Cloudflare Worker that serves web/dist as static assets (no Worker code of its own).
   // Build with `npm run build:hosted`, deploy with `npm run deploy:web` (scripts/deploy-web.sh). Custom domain
-  // app.folio.jckjjcckk.com is added in the dashboard (deploy/README.md).
+  // folio-app.jckjjcckk.com is added in the dashboard (deploy/README.md).
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "folio-app",
   "compatibility_date": "2026-10-01",
