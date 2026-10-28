@@ -11,8 +11,8 @@ import { Pop, SPRING_LAYOUT, Scrim, Sheet } from './Sheet'
 import { PartsPanel } from './Parts'
 import { Identity } from './Identity'
 import { StaffQuestion } from './StaffQuestion'
-import { GroupSheet, type GroupFace } from './Groups'
-import { bookState, dotOf, type BookState } from './book'
+import { GroupSheet, ShareSheet, type GroupFace } from './Groups'
+import { bookShare, bookState, dotOf, type BookShare, type BookState } from './book'
 import { barRange, difficultyWord, fmtDateTime, partShort, useStore } from './store'
 import { ICamera, IChevronRight, IClose, IExport, IImport, IInfo, IKeypad, IMore, INote, IPeople, IPlusCircle, IRepeat, IScore, IWarning } from './icons'
 import './groups.css'
@@ -58,8 +58,20 @@ export default function Library() {
 
   // The Fauré moves to processing once its page order is committed on the scan screen.
   const live = useMemo(() => scores.map(s => (s.id === 's-faure' && scan.committed ? { ...s, status: 'processing' as const, progress: 0 } : s)), [scores, scan.committed])
-  const mine = live.filter(s => s.ensembleId === context.ensemble.id)
-  const folders = [...new Set(mine.map(s => s.folder))].map(name => ({ name, scores: mine.filter(s => s.folder === name) }))
+  const here = context.ensemble.id
+  const shareOf = useCallback((s: Score): BookShare => bookShare(s, world.shares, world.owners, world.account.id, here), [world.shares, world.owners, world.account.id, here])
+  // A group's shelf: the group's own books in their folders, then the books its members share from their own libraries.
+  const sharedHere = inGroup ? live.filter(s => shareOf(s).sharedHere) : []
+  const own = live.filter(s => s.ensembleId === here && !sharedHere.includes(s))
+  const mine = [...own, ...sharedHere]
+  const folders = [
+    ...[...new Set(own.map(s => s.folder))].map(name => ({ name, scores: own.filter(s => s.folder === name) })),
+    ...(sharedHere.length ? [{ name: 'Shared with the group', scores: sharedHere }] : []),
+  ]
+  // The book whose Share with a group sheet is open (kept while the sheet leaves, so its content does not vanish).
+  const [sharing, setSharing] = useState<string | null>(null)
+  const [shareOpen, setShareOpen] = useState(false)
+  const openShare = (id: string) => { setSharing(id); setShareOpen(true) }
   // A selection from another library simply finds nothing here; no reset effect needed.
   const open = selected ? mine.find(s => s.id === selected) ?? null : null
   const stateOf = useCallback((s: Score): BookState => {
@@ -219,7 +231,7 @@ export default function Library() {
                   {f.scores.map(s => (
                     <motion.li key={s.id} layout transition={SPRING_LAYOUT}>
                       <Cover
-                        score={s} state={stateOf(s)} selected={selected === s.id}
+                        score={s} state={stateOf(s)} share={shareOf(s)} selected={selected === s.id}
                         onSelect={() => setSelected(v => (v === s.id ? null : s.id))}
                         onInfo={() => setSelected(s.id)} onAsk={setAsking} onConvert={() => convert(s)}
                       />
@@ -231,13 +243,14 @@ export default function Library() {
           </div>
         </motion.div>
         <InfoBox
-          score={open} state={open ? stateOf(open) : null} docked={docked} onClose={() => setSelected(null)}
-          onAsk={setAsking} onConvert={convert} convertMsg={open ? convertMsg[open.id] : undefined}
+          score={open} state={open ? stateOf(open) : null} share={open ? shareOf(open) : null} docked={docked} onClose={() => setSelected(null)}
+          onAsk={setAsking} onConvert={convert} convertMsg={open ? convertMsg[open.id] : undefined} onShare={openShare}
         />
       </div>
       </LayoutGroup>
       <StaffQuestion job={asking} open={!!asking} onClose={() => setAsking(null)} />
       <GroupSheet open={groupOpen} face={groupFace} onFace={setFace} onClose={closeGroups} onOpened={onOpened} />
+      <ShareSheet score={sharing ? live.find(s => s.id === sharing) ?? null : null} open={shareOpen && live.some(s => s.id === sharing)} onClose={() => setShareOpen(false)} />
     </Screen>
   )
 }
@@ -249,17 +262,27 @@ function StatusBadge({ score: s, partName }: { score: Score; partName?: string }
   return null
 }
 
-function Cover({ score: s, state, selected, onSelect, onInfo, onAsk, onConvert }: {
-  score: Score; state: BookState; selected: boolean; onSelect: () => void; onInfo: () => void; onAsk: (j: AskJob) => void; onConvert: () => void
+/** "Smoke Quartet", "Smoke Quartet and Trio", "3 groups": the groups an owner's book is shared with. */
+function groupNames(ids: string[], names: Record<string, string>): string {
+  const xs = ids.map(id => names[id] ?? 'a group')
+  return xs.length > 2 ? `${xs.length} groups` : xs.join(' and ')
+}
+
+function Cover({ score: s, state, share, selected, onSelect, onInfo, onAsk, onConvert }: {
+  score: Score; state: BookState; share: BookShare; selected: boolean; onSelect: () => void; onInfo: () => void; onAsk: (j: AskJob) => void; onConvert: () => void
 }) {
-  const { context, partsById } = useStore()
+  const { context, partsById, world } = useStore()
   const mine = context.membership.role === 'player' ? s.partIds.map(id => partsById[id]).find(p => p && p.name === context.persona.instrument) : undefined
   const myPart = mine ? partShort[mine.name] ?? mine.name : undefined
   const dot = dotOf(state)
+  // The owner's own cover, in their library, carries a small mark when the book is shared; a group's shelf says who shared it.
+  const markShared = !share.sharedHere && share.sharedWith.length > 0
+  const sharedWith = markShared ? groupNames(share.sharedWith, Object.fromEntries(world.ensembles.map(e => [e.id, e.name]))) : ''
   const said = [
     s.title, s.composer, state.kinds.map(k => bookWord[k]).join(' and '),
     state.busy === 'converting' ? 'converting to Digital' : s.status === 'ready' ? '' : statusWord[s.status],
     dot === 'ask' ? 'the librarian has a question' : dot === 'fail' && s.status !== 'failed' ? 'the conversion stopped' : '',
+    share.sharedHere && share.sharedBy ? `shared by ${share.sharedBy}` : markShared ? `shared with ${sharedWith}` : '',
   ].filter(Boolean).join(', ')
   return (
     // The whole book lifts when chosen: cover, dot, ring and menu move as one.
@@ -270,7 +293,12 @@ function Cover({ score: s, state, selected, onSelect, onInfo, onAsk, onConvert }
         {/* The title is the one thing the information box takes from the cover: it travels there and back. */}
         <motion.span className="cover-title" layoutId={`cover-title-${s.id}`} layout="position" transition={SPRING_LAYOUT}>{s.title}</motion.span>
         <span className="cover-work">{s.work}</span>
-        <span className="cover-foot"><StatusBadge score={s} partName={myPart} /><span className="cover-tags"><BookTags kinds={state.kinds} /></span></span>
+        {share.sharedHere && share.sharedBy && <span className="cover-by">Shared by {share.sharedBy}</span>}
+        <span className="cover-foot">
+          <StatusBadge score={s} partName={myPart} />
+          {markShared && <span className="cover-shared" aria-hidden="true"><IPeople size={16} /></span>}
+          <span className="cover-tags"><BookTags kinds={state.kinds} /></span>
+        </span>
       </button>
       <StatusDot state={state} className="cover-dot" />
       <BookMenu score={s} state={state} onInfo={onInfo} onAsk={onAsk} onConvert={onConvert} className="cover-more" />
@@ -282,9 +310,10 @@ function Cover({ score: s, state, selected, onSelect, onInfo, onAsk, onConvert }
 function BookMenu({ score: s, state, onInfo, onAsk, onConvert, className = '' }: {
   score: Score; state: BookState; onInfo?: () => void; onAsk: (j: AskJob) => void; onConvert: () => void; className?: string
 }) {
-  const { contextFor } = useStore()
+  const { canEditBook } = useStore()
   const [open, setOpen] = useState(false)
-  const canEdit = (contextFor(s.ensembleId)?.membership.role ?? 'player') !== 'player'
+  // Someone else's book read through a share opens and nothing more, whatever the reader's role in the group.
+  const canEdit = canEditBook(s)
   useEffect(() => {
     if (!open) return
     // Capture phase, so Escape closes this menu and leaves a sheet under it open.
@@ -322,20 +351,21 @@ function BookMenu({ score: s, state, onInfo, onAsk, onConvert, className = '' }:
 }
 
 /** The information box as a sheet. Stays mounted with no score so the sheet can leave. */
-function InfoBox({ score, state, docked, onClose, onAsk, onConvert, convertMsg }: {
-  score: Score | null; state: BookState | null; docked: boolean; onClose: () => void; onAsk: (j: AskJob) => void; onConvert: (s: Score) => void; convertMsg?: string
+function InfoBox({ score, state, share, docked, onClose, onAsk, onConvert, convertMsg, onShare }: {
+  score: Score | null; state: BookState | null; share: BookShare | null; docked: boolean; onClose: () => void; onAsk: (j: AskJob) => void; onConvert: (s: Score) => void; convertMsg?: string
+  onShare: (scoreId: string) => void
 }) {
   return (
     <Sheet open={!!score} docked={docked} onClose={onClose} label={score ? `${score.title}, information` : 'Information'} className="info">
-      {score && state && <InfoBody score={score} state={state} onClose={onClose} onAsk={onAsk} onConvert={() => onConvert(score)} convertMsg={convertMsg} />}
+      {score && state && share && <InfoBody score={score} state={state} share={share} onClose={onClose} onAsk={onAsk} onConvert={() => onConvert(score)} convertMsg={convertMsg} onShare={() => onShare(score.id)} />}
     </Sheet>
   )
 }
 
-function InfoBody({ score: s, state: st, onClose, onAsk, onConvert, convertMsg }: {
-  score: Score; state: BookState; onClose: () => void; onAsk: (j: AskJob) => void; onConvert: () => void; convertMsg?: string
+function InfoBody({ score: s, state: st, share, onClose, onAsk, onConvert, convertMsg, onShare }: {
+  score: Score; state: BookState; share: BookShare; onClose: () => void; onAsk: (j: AskJob) => void; onConvert: () => void; convertMsg?: string; onShare: () => void
 }) {
-  const { context, practiceUI, partsById, contextFor } = useStore()
+  const { context, practiceUI, partsById, canEditBook, world } = useStore()
   const { membership, persona, ensemble } = context
   const parts = s.partIds.map(id => partsById[id]).filter(Boolean)
   // A seat is a part name on the membership; the holder of a part is the member whose seat matches.
@@ -343,7 +373,10 @@ function InfoBody({ score: s, state: st, onClose, onAsk, onConvert, convertMsg }
   const myPart = membership.role === 'player' ? parts.find(p => p.name === persona.instrument) : undefined
   const ready = s.status === 'ready'
   const digital = s.book === 'digital'
-  const canEdit = (contextFor(s.ensembleId)?.membership.role ?? 'player') !== 'player'
+  const canEdit = canEditBook(s)
+  // Someone else's book, read here through a share: open it, nothing more (no split, convert, export, pages).
+  const borrowed = share.sharedHere && !share.mine
+  const sharedWith = share.mine ? groupNames(share.sharedWith, Object.fromEntries(world.ensembles.map(e => [e.id, e.name]))) : ''
   const flags = s.flags
   const flagText = flags && (flags.pagesUnreadable || flags.barsDoubtful)
     ? [flags.pagesUnreadable ? `${flags.pagesUnreadable} ${flags.pagesUnreadable === 1 ? 'page' : 'pages'} unreadable` : null,
@@ -383,6 +416,9 @@ function InfoBody({ score: s, state: st, onClose, onAsk, onConvert, convertMsg }
         <div>
           <motion.h2 className="info-title" layoutId={`cover-title-${s.id}`} layout="position" transition={SPRING_LAYOUT}>{s.title}</motion.h2>
           <p className="info-sub">{[s.composer, s.work].filter(Boolean).join(' · ')}</p>
+          {share.sharedHere && share.sharedBy && (
+            <p className="info-by">{borrowed ? `Shared by ${share.sharedBy} from their own library` : 'Shared by you from your library'}</p>
+          )}
         </div>
 
         <Identity score={s} digital={digital} />
@@ -427,7 +463,7 @@ function InfoBody({ score: s, state: st, onClose, onAsk, onConvert, convertMsg }
             {st.question && <span>{st.question}</span>}
             {st.ask && canEdit
               ? <button type="button" className="btn btn-solid is-small" onClick={() => onAsk(st.ask!)}>Answer</button>
-              : !canEdit && <span className="flags">The admin answers it.</span>}
+              : !canEdit && <span className="flags">{borrowed ? 'Its owner answers it.' : 'The admin answers it.'}</span>}
           </div>
         )}
         {st.failed && !st.asking && (
@@ -476,7 +512,7 @@ function InfoBody({ score: s, state: st, onClose, onAsk, onConvert, convertMsg }
           </div>
         )}
 
-        <PartsPanel score={s} />
+        {!borrowed && <PartsPanel score={s} />}
 
         <div className="info-actions">
           {ready && isPractice && (
@@ -484,13 +520,22 @@ function InfoBody({ score: s, state: st, onClose, onAsk, onConvert, convertMsg }
               Practise {partsById[practice.partId]?.name}{practiceUI.loop ? `, loop ${barRange(practiceUI.loop.from, practiceUI.loop.to)}` : ''}
             </Link>
           )}
-          {ready && exportPath && (
+          {ready && exportPath && !borrowed && (
             <button type="button" className="btn btn-line" disabled={exporting} onClick={exportBook}>
               <IExport size={18} />{exporting ? 'Exporting' : 'Export MusicXML'}
             </button>
           )}
-          {s.status === 'ordering' && <Link to="/scan" className="btn btn-solid">Order pages</Link>}
-          {s.status === 'failed' && fromCamera && <Link to="/scan" className="btn btn-solid"><ICamera size={18} />Retake pages</Link>}
+          {/* A personal book's owner lets a group read it from here; by reference, so nothing is copied. */}
+          {share.mine && (
+            <>
+              <button type="button" className="btn btn-line" onClick={onShare} aria-haspopup="dialog">
+                <IPeople size={18} />Share with a group
+              </button>
+              {sharedWith && <p className="info-shared"><IPeople size={15} />Shared with {sharedWith}</p>}
+            </>
+          )}
+          {s.status === 'ordering' && !borrowed && <Link to="/scan" className="btn btn-solid">Order pages</Link>}
+          {s.status === 'failed' && fromCamera && !borrowed && <Link to="/scan" className="btn btn-solid"><ICamera size={18} />Retake pages</Link>}
         </div>
       </div>
     </>
