@@ -94,7 +94,7 @@ export interface Score {
 /** The one tag every book carries. "MusicXML" names the file format, on import and export only; the book is Digital. */
 export type BookKind = 'pdf' | 'digital'
 
-export type AnnotationKind = 'marking' | 'cut' | 'voice' | 'text' | 'dynamic' | 'bowing' | 'breath'
+export type AnnotationKind = 'marking' | 'cut' | 'voice' | 'text' | 'dynamic' | 'bowing' | 'breath' | 'highlight'
 
 export interface Annotation {
   id: string

@@ -161,7 +161,7 @@ export const partShort: Record<string, string> = {
 }
 
 export const kindLabel: Record<Annotation['kind'], string> = {
-  marking: 'Pencil', cut: 'Cut', voice: 'Voice note', text: 'Note', dynamic: 'Dynamic', bowing: 'Bowing', breath: 'Breath',
+  marking: 'Pencil', cut: 'Cut', voice: 'Voice note', text: 'Note', dynamic: 'Dynamic', bowing: 'Bowing', breath: 'Breath', highlight: 'Highlight',
 }
 
 /** Difficulty is one word per part, never a number (decided 2026-10-26). */

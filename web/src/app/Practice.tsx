@@ -6,8 +6,11 @@ import { Ruler } from './Ruler'
 import { Pop, Sheet } from './Sheet'
 import { spanRects, type Geo } from './geometry'
 import { CutLayer, PinLayer } from './marks'
-import { TODAY, barRange, fmtDay, useStore, type Span } from './store'
+import { TODAY, barRange, firstName, fmtDay, useStore, type Span } from './store'
 import { IClose, IEar, IHistory, IMetronome, IMinus, IParts, IPause, IPlay, IPlus, IRepeat } from './icons'
+import { useBarMarks, useScribbles, type BarMark, type Me, type PenColor } from './ink'
+import { BarSelection, HighlightLayer, MarkMenu, useBarMenu } from './MarkMenu'
+import { InkBar, InkLayer, type InkTool } from './InkLayer'
 
 const score = scoresById[practice.scoreId]
 const part = partsById[practice.partId]
@@ -52,13 +55,22 @@ function Toggle({ icon, label, value, on, onClick, keys, children }: {
   )
 }
 
+/** The practice screen reads the mock world: its marks and ink stay on this device for the session. */
+const ME: Me = { userId: null, memberId: 'me', ensemble: true, admin: false }
+
 const cuts = (anns: { kind: string; barFrom: number; barTo: number; scoreId: string }[]) =>
   anns.filter(a => a.kind === 'cut' && a.scoreId === score.id).map(a => ({ from: a.barFrom, to: a.barTo }))
 
 export default function Practice() {
   const vp = useViewport()
   const reduced = useReducedMotion()
-  const { practiceUI: p, setPracticeUI: setP, annotations } = useStore()
+  const { practiceUI: p, setPracticeUI: setP, annotations, membersById } = useStore()
+  const quick = useBarMarks(score.id, ME)
+  const ink = useScribbles(score.id, part.name, ME)
+  const menu = useBarMenu()
+  const [scribble, setScribble] = useState(false)
+  const [inkTool, setInkTool] = useState<InkTool>('pen')
+  const [inkColor, setInkColor] = useState<PenColor>('ink')
   // History floats over the stage at every width, so the part never re-engraves for it; it opens on demand (H).
   const [historyOpen, setHistoryOpen] = useState(false)
   const [focus, setFocus] = useState({ bar: p.loop?.from ?? p.bar, key: 0 })
@@ -66,7 +78,7 @@ export default function Practice() {
   const [pin, setPin] = useState<string | null>(null)
   const [spot, setSpot] = useState<TroubleSpot | null>(null)
   const tall = vp.wide
-  const cutSpans = useMemo(() => cuts(annotations), [annotations])
+  const cutSpans = useMemo(() => cuts([...annotations, ...quick.marks]), [annotations, quick.marks])
   const lostTimer = useRef<number | undefined>(undefined)
 
   // Playback: the beat clock. Wraps at the loop end and skips the cut.
@@ -132,7 +144,22 @@ export default function Practice() {
   const listenWord = !p.listenOn ? 'not listening' : lost ? 'lost' : 'following'
   const listenTone = !p.listenOn ? 'off' : lost ? 'lost' : 'following'
   const playhead = p.bar + (p.beat - 1) / BEATS
-  const pins = annotations.filter(a => a.scoreId === score.id && (a.partId === null || a.partId === part.id))
+  const marks: BarMark[] = [
+    ...annotations.filter(a => a.scoreId === score.id).map(a => ({ ...a, mine: false, removable: false, audience: a.partId ? 'part' as const : 'ensemble' as const })),
+    ...quick.marks,
+  ].filter(a => a.partId === null || a.partId === part.id)
+  const pins = marks
+
+  // A tap on a bar opens its quick menu (Highlight, Note, Scribble, Loop from here); the ruler still seeks.
+  const menuBar = menu.menu?.bar ?? null
+  const onMenuBar = menuBar == null ? [] : marks.filter(a => a.kind !== 'cut' && a.barFrom <= menuBar && menuBar <= a.barTo)
+  const onBarTap = (bar: number) => { if (pin) setPin(null); else menu.tap(bar) }
+  const loopFromHere = (bar: number) => {
+    const len = p.loop ? p.loop.to - p.loop.from + 1 : 4
+    setLoop({ from: bar, to: Math.min(score.bars, bar + len - 1) })
+    seek(bar)
+    menu.close()
+  }
 
   const underlay = (g: Geo) => (
     <>
@@ -143,6 +170,8 @@ export default function Practice() {
         <div key={`h${t.barFrom}-${r.first}`} className="u-heat" style={{ left: r.x, top: r.y + r.h + 9, width: r.w, opacity: 0.35 + t.severity * 0.65 }} />
       )))}
       <CutLayer geo={g} cuts={cutSpans} />
+      <HighlightLayer geo={g} bars={marks.filter(a => a.kind === 'highlight').map(a => a.barFrom)} />
+      {!scribble && <BarSelection geo={g} bar={menuBar} />}
     </>
   )
 
@@ -172,6 +201,18 @@ export default function Practice() {
           />
         )}
         <PinLayer geo={g} items={pins} selected={pin} onSelect={setPin} />
+        <InkLayer geo={g} rows={ink.rows} uid={ink.uid} active={scribble} tool={inkTool} color={inkColor} onStroke={ink.addStroke} onErase={ink.erase} />
+        <MarkMenu
+          geo={g} state={scribble ? null : menu.menu} marks={onMenuBar} nameOf={m => firstName(membersById[m.authorId]?.name ?? 'Someone')}
+          highlighted={onMenuBar.some(a => a.kind === 'highlight' && a.mine)}
+          onHighlight={() => { if (menuBar != null) void quick.toggleHighlight(menuBar, part.name); menu.close() }}
+          onNote={() => menu.setMenu(m => (m ? { ...m, note: !m.note } : m))}
+          onSaveNote={text => { if (menuBar != null) void quick.add({ kind: 'text', barFrom: menuBar, text, audience: 'self', part: part.name }); menu.close() }}
+          onScribble={() => { menu.close(); setPin(null); setScribble(true) }}
+          onLoop={() => { if (menuBar != null) loopFromHere(menuBar) }}
+          onRemove={id => void quick.remove(id)}
+          onClose={menu.close}
+        />
       </>
     )
   }
@@ -284,8 +325,13 @@ export default function Practice() {
           follow={p.playing ? p.bar : undefined}
           underlay={underlay}
           overlay={overlay}
-          onBarTap={seek}
+          onBarTap={onBarTap}
+          onEmptyTap={() => setPin(null)}
           label={`${part.name} part, ${score.title}`}
+        />
+        <InkBar
+          open={scribble} tool={inkTool} color={inkColor} status="local"
+          onTool={setInkTool} onColor={setInkColor} onDone={() => setScribble(false)}
         />
         {/* History is a sprung sheet over the stage (never docked: the part must not re-engrave for it). */}
         <Sheet open={historyOpen} onClose={() => setHistoryOpen(false)} label="Practice history" docked={false}>

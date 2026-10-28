@@ -25,6 +25,8 @@ interface Props {
   underlay?: (g: Geo) => ReactNode
   overlay?: (g: Geo) => ReactNode
   onBarTap?: (bar: number) => void
+  /** A tap that lands on no bar (the margin, the gap between systems). */
+  onEmptyTap?: () => void
   /** Long press on a bar (500 ms without moving), for annotating from the music itself. */
   onBarHold?: (bar: number) => void
   onView?: (v: StageView) => void
@@ -45,7 +47,7 @@ function nearest(xs: number[], v: number) {
  * window resize, settled), or the part changed. Chrome never resizes it: panels and the composer float over it.
  * The reader's place survives every engrave as a bar number (the anchor), never as a page number.
  */
-export function ScoreStage({ src, instruments, scale, focus, follow, underlay, overlay, onBarTap, onBarHold, onView, margin, label }: Props) {
+export function ScoreStage({ src, instruments, scale, focus, follow, underlay, overlay, onBarTap, onEmptyTap, onBarHold, onView, margin, label }: Props) {
   const stageRef = useRef<HTMLDivElement>(null)
   const hostRef = useRef<HTMLDivElement>(null)
   const osmdRef = useRef<OpenSheetMusicDisplay | null>(null)
@@ -256,7 +258,8 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
     return null
   }
 
-  // One pointer gesture, three outcomes: a tap selects a bar, a hold annotates it, a horizontal swipe turns the page.
+  // One pointer gesture, three outcomes: a tap on a bar opens its quick menu, a hold opens the composer on it, a
+  // horizontal swipe turns the page. While scribbling the ink surface takes the pointer and none of these fire.
   const gesture = useRef<{ x: number; y: number; t: number; hold?: number; done: boolean } | null>(null)
   const onPointerDown = (e: PointerEvent) => {
     if (e.button > 0 || (e.target as HTMLElement).closest('button, a, [role="dialog"]')) return
@@ -284,9 +287,10 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
     const dy = e.clientY - g.y
     const dt = performance.now() - g.t
     if (Math.abs(dx) >= SWIPE_PX && Math.abs(dy) < Math.abs(dx) * 0.6 && dt < 700) { turn(dx < 0 ? 1 : -1); return }
-    if (Math.hypot(dx, dy) < 10 && onBarTap) {
+    if (Math.hypot(dx, dy) < 10) {
       const bar = barAt(e.clientX, e.clientY)
-      if (bar != null) onBarTap(bar)
+      if (bar != null) onBarTap?.(bar)
+      else onEmptyTap?.()
     }
   }
   const onPointerCancel = () => { window.clearTimeout(gesture.current?.hold); gesture.current = null }

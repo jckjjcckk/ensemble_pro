@@ -5,6 +5,7 @@ import { barRange, firstName, fmtDateTime, kindLabel } from './store'
 import { IClose, IMic, IPause, IPencil, IPlay, IScissors } from './icons'
 import { spanRects, type Geo } from './geometry'
 import { Pop } from './Sheet'
+import { IHighlight } from './MarkIcons'
 
 export function pinText(a: Annotation, authorName = ''): string {
   const author = { name: authorName }
@@ -14,6 +15,7 @@ export function pinText(a: Annotation, authorName = ''): string {
     case 'marking': return (a.text ?? 'Pencil').replace(/^Pencil:\s*/, '')
     case 'cut': return `Cut ${barRange(a.barFrom, a.barTo)}`
     case 'breath': return 'Breath'
+    case 'highlight': return 'Highlight'
     default: return (a.text ?? '').length > 30 ? `${(a.text ?? '').slice(0, 29)}…` : a.text ?? ''
   }
 }
@@ -22,6 +24,7 @@ export function KindIcon({ kind, size = 16 }: { kind: Annotation['kind']; size?:
   if (kind === 'voice') return <IMic size={size} />
   if (kind === 'cut') return <IScissors size={size} />
   if (kind === 'dynamic') return <span className="glyph-dyn" aria-hidden="true">p</span>
+  if (kind === 'highlight') return <IHighlight size={size} on />
   return <IPencil size={size} />
 }
 
@@ -79,7 +82,8 @@ export function PinLayer({ geo, items, selected, onSelect }: {
 }) {
   const byBar = new Map<number, Annotation[]>()
   for (const a of items) {
-    if (a.kind === 'cut' || !geo.bars.has(a.barFrom)) continue
+    // A cut is hatching and a highlight is a wash on the bar itself: neither needs a pin.
+    if (a.kind === 'cut' || a.kind === 'highlight' || !geo.bars.has(a.barFrom)) continue
     byBar.set(a.barFrom, [...(byBar.get(a.barFrom) ?? []), a])
   }
   const open = items.find(a => a.id === selected)
