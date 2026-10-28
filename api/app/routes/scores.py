@@ -24,6 +24,11 @@ def assert_can_edit(user: User, score_id: str) -> dict:
     raise HTTPException(403, "Only the owner or an admin can change this score")
 
 
+class PartsBody(BaseModel):
+    instruments: list[str]          # the parts to export together, e.g. ["Soprano", "Alto"]
+    pages: list[int] | None = None  # 1-based into the source's page order; every page when omitted
+
+
 class ImportBody(BaseModel):
     path: str                       # object key inside the scores bucket: {score_id}/source.musicxml
     filename: str | None = None     # the file's own name, for the title when the MusicXML has none
@@ -39,3 +44,25 @@ def import_score(score_id: str, body: ImportBody, user: BudgetedUser) -> dict:
     job = db().table("jobs").insert({"kind": "import_musicxml", "score_id": score_id, "created_by": user.id, "payload": {"score_id": score_id, "source_id": src["id"]}}).execute().data[0]
     db().table("scores").update({"status": "processing", "progress": 0}).eq("id", score_id).execute()
     return {"source_id": src["id"], "job_id": job["id"]}
+
+
+@router.post("/scores/{score_id}/parts")
+def cut_parts(score_id: str, body: PartsBody, user: BudgetedUser) -> dict:
+    """Queue a part cut (feature 008): the chosen instruments' staves out of the scanned pages, one strip per system.
+    Owner or admin only. Returns the job row; the browser watches it (a parked question lands in result.question)."""
+    assert_can_edit(user, score_id)
+    instruments: list[str] = []
+    for name in body.instruments:
+        name = (name or "").strip()
+        if name and name not in instruments:
+            instruments.append(name)
+    if not instruments:
+        raise HTTPException(400, "Name at least one instrument")
+    pages = sorted({int(n) for n in (body.pages or []) if int(n) >= 1}) or None
+    src = db().table("sources").select("id").eq("score_id", score_id).in_("kind", ["pdf", "images"]).limit(1).execute().data
+    if not src:
+        raise HTTPException(400, "This score has no scanned pages to cut from")
+    payload: dict = {"score_id": score_id, "instruments": instruments}
+    if pages:
+        payload["pages"] = pages
+    return db().table("jobs").insert({"kind": "part_cut", "score_id": score_id, "created_by": user.id, "payload": payload}).execute().data[0]

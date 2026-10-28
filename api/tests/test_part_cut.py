@@ -26,7 +26,9 @@ RECHECK_PIANO = text(json.dumps({"instrument": "Pno.", "confidence": "high", "wh
 RECHECK_VIOLIN = text(json.dumps({"instrument": "Violins", "confidence": "medium", "why": "two treble staves"}))
 
 
-def synth_page(staves: int = 6, w: int = 1300, h: int = 1700) -> bytes:
+def synth_page(staves: int = 6, w: int = 1300, h: int = 1700, vocal_gap: bool = False) -> bytes:
+    """Six staves, a systemic line, four barlines, a brace on staves 4-5 (the "Piano"). `vocal_gap` leaves the
+    barlines out of the gap between staves 1 and 2, as a choir's lyric gap does."""
     im = Image.new("L", (w, h), 255)
     d = ImageDraw.Draw(im)
     sp, x0, x1, y = 8, 120, 1200, 150
@@ -42,6 +44,8 @@ def synth_page(staves: int = 6, w: int = 1300, h: int = 1700) -> bytes:
     top, bot = tops[0], tops[-1] + 4 * sp
     for bx in (x0, x0 + 300, x0 + 600, x0 + 900, x1):
         d.line([(bx, top), (bx, bot)], fill=0, width=3)
+        if vocal_gap and bx != x0:
+            d.line([(bx, tops[0] + 4 * sp + 2), (bx, tops[1] - 2)], fill=255, width=5)
     d.line([(x0 - 14, tops[3]), (x0 - 14, tops[4] + 4 * sp)], fill=0, width=4)   # brace on staves 4-5
     buf = io.BytesIO()
     im.save(buf, format="PNG")
@@ -63,11 +67,19 @@ class Query:
     def limit(self, n): return self
     def single(self): self._single = True; return self
 
+    @staticmethod
+    def get(row: dict, key: str):
+        """A column, or a JSON field as PostgREST spells it (`payload->>resume_from`)."""
+        if "->>" in key:
+            col, field = key.split("->>", 1)
+            return (row.get(col) or {}).get(field)
+        return row.get(key)
+
     def execute(self):
         rows = self.db.rows.setdefault(self.table, [])
         self.db.ops.append((self.table, self.op, self.rows, dict(self.filters)))
         if self.op == "select":
-            out = [r for r in rows if all(r.get(k) == v for k, v in self.filters.items())]
+            out = [r for r in rows if all(self.get(r, k) == v for k, v in self.filters.items())]
             return type("R", (), {"data": (out[0] if out else None) if self._single else out})
         if self.op in ("insert", "upsert"):
             new = [dict(r, id=r.get("id") or str(uuid.uuid4())) for r in (self.rows if isinstance(self.rows, list) else [self.rows])]
@@ -100,7 +112,7 @@ class Ctx(JobContext):
     def storage_upload(self, path, data, content_type): self.uploads[path] = data
 
 
-def world(n_pages: int, payload_extra: dict[str, Any] | None = None, db: FakeDB | None = None) -> tuple[Job, Ctx, FakeDB]:
+def world(n_pages: int, payload_extra: dict[str, Any] | None = None, db: FakeDB | None = None, page: bytes | None = None) -> tuple[Job, Ctx, FakeDB]:
     db = db or FakeDB()
     score = "11111111-1111-1111-1111-111111111111"
     if not db.rows.get("sources"):
@@ -111,7 +123,7 @@ def world(n_pages: int, payload_extra: dict[str, Any] | None = None, db: FakeDB 
         db.rows["measure_placements"] = [{"interpretation_id": "intake1", "measure_id": f"m{i}", "page": 1, "system": 1, "box": {}, "confidence": "high", "flag": None, "rehearsal_mark": None} for i in range(3)]
     job = Job(str(uuid.uuid4()), "part_cut", {"score_id": score, "instrument": "Piano", **(payload_extra or {})}, score, "u1", 1, 3)
     db.rows.setdefault("jobs", []).append({"id": job.id, "result": {}})
-    png = synth_page()
+    png = page or synth_page()
     ctx = Ctx(job, db, {f"{score}/pages/{i}.png": png for i in range(1, n_pages + 1)})
     return job, ctx, db
 
@@ -146,7 +158,7 @@ async def test_happy_path_three_pages():
 async def test_refusal_then_correct_retry():
     script = [tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), LABEL,
               commit(1, [4]),                       # count mismatch: refused before any model call
-              commit(1, [3, 4]), RECHECK_VIOLIN,    # geometry passes, the recheck says violins: refused
+              commit(1, [3, 4]),                    # one staff off the labels' [4, 5]: refused before any model call
               commit(1, [4, 5]), RECHECK_PIANO, tool("finish", {})]
     client, t = fake_client(script)
     job, ctx, db = world(1)
@@ -154,7 +166,9 @@ async def test_refusal_then_correct_retry():
     assert out["systems_cut"] == 1
     results = [json.loads(c["content"]) for body in t.calls for c in (body["messages"][-1]["content"] if isinstance(body["messages"][-1]["content"], list) else []) if c.get("type") == "tool_result"]
     errors = [r["error"] for r in results if "error" in r]
-    assert any("2 staves per system" in e for e in errors) and any("Violins" in e for e in errors)
+    assert any("2 staves per system" in e for e in errors)
+    assert any("the labels put Piano on [4, 5] in system 1; the block [3, 4] adds staff [3]" in e for e in errors)
+    assert len(t.calls) == 9                                                  # the two refusals cost no model call
     assert ctx.result["agent"]["refusals"] == {}                               # the counter reset on the good commit
 
 
@@ -230,7 +244,7 @@ async def test_header_from_overlay_drives_the_proposal():
     assert sc["log"][0].startswith("Header: Flauti I. II. (1), Oboi (1), Corni in F (1), Pianoforte (2), Violini I. (1); 6 staves")
     label_prompt = t.calls[4]["messages"][0]["content"][1]["text"]
     assert "by order the wanted instrument is staff [4, 5]" in label_prompt and "(2 staves per system" in label_prompt
-    assert sc["pages"]["1"]["proposal"] == [{"system": 1, "staves": [4, 5], "status": "by-order"}]
+    assert sc["pages"]["1"]["proposal"] == [{"system": 1, "staves": [4, 5], "blocks": [[4, 5]], "per_instrument": {"Piano (solo)": [4, 5]}, "status": "by-order"}]
     assert "no 'systems' list" in sc["pages"]["1"]["summary"]["notes"] and sc["cost_usd"] > 0
     assert len(t.calls) == 1 + 2 + 1 + 2 + 1 + 1 + 1 and len(ctx.charges) == len(t.calls)
 
@@ -267,3 +281,188 @@ async def test_absent_refused_when_the_labels_propose_staves():
     assert out["systems_cut"] == 1 and out["absent"] == 0
     fb = json.loads(t.calls[5]["messages"][-1]["content"][0]["content"])
     assert "proposed staves [4, 5]" in fb["error"]
+
+
+# ---------------------------------------------------------------- several instruments at once (the multi-part contract)
+
+def multi_label(**staves_by_instrument):
+    return text(json.dumps({"systems": [{"index": 1, "wanted": [{"instrument": k, "staves": v, "status": "playing" if v else "absent"} for k, v in staves_by_instrument.items()]}],
+                            "confidence": "high"}))
+
+
+def recheck(name: str):
+    return text(json.dumps({"instrument": name, "confidence": "high", "why": "label"}))
+
+
+@pytest.mark.asyncio
+async def test_two_blocks_are_cut_separately_and_stacked():
+    """Flute (staff 1) and Horn (staff 3) skip the oboe: each run is its own block, rechecked on its own, and the
+    strip is the two blocks stacked with a gap. A recheck that names the wrong instrument for one block refuses the
+    whole commit."""
+    from app.librarian.cut import cut_system, page_geometry
+    script = [tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), multi_label(Flute=[1], Horn=[3]),
+              tool("commit_system", {"page": 1, "system": 1, "blocks": [[1], [3]]}), recheck("Fl."), RECHECK_VIOLIN,   # block 2 is not a horn: refused
+              tool("commit_system", {"page": 1, "system": 1, "staves": [1, 3]}), recheck("Flauti"), recheck("Cor."),   # same cut given as staves
+              tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(1, {"instruments": ["Flute", "Horn"]})
+    del job.payload["instrument"]
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1 and out["questions"] == 0
+    key = f"{job.score_id}/parts/flute+horn/p001-s1.png"
+    assert key in ctx.uploads
+    fb = json.loads(t.calls[7]["messages"][-1]["content"][0]["content"])
+    assert "block of staves [3]" in fb["error"] and "'Violins'" in fb["error"] and "'Horn'" in fb["error"]
+    # the strip is block [1] over block [3] with a gap of 1.5 staff spaces (12 px at spacing 8)
+    geom, bw, im = page_geometry(synth_page())
+    crop1, _, _ = cut_system(bw, im, geom, geom["systems"][0], [1])
+    crop3, _, _ = cut_system(bw, im, geom, geom["systems"][0], [3])
+    strip = Image.open(io.BytesIO(ctx.uploads[key]))
+    assert strip.size == (max(crop1.width, crop3.width), crop1.height + 12 + crop3.height)
+    assert strip.crop((0, crop1.height, strip.width, crop1.height + 12)).convert("L").getextrema() == (255, 255)   # the gap is white
+    imgs = [c["messages"][0]["content"][0]["source"]["data"] for c in t.calls[8:10]]                               # one recheck per block
+    assert imgs[0] != imgs[1]
+    derived = [r for r in db.rows["sources"] if r["kind"] == "part_images"][0]
+    assert derived["meta"]["instruments"] == ["Flute", "Horn"] and derived["meta"]["instrument"] == "Flute + Horn" and derived["meta"]["slug"] == "flute+horn"
+    assert derived["meta"]["systems"] == [{"page": 1, "system": 1, "staves": [1, 3], "blocks": [[1], [3]], "key": key, "bars": derived["meta"]["systems"][0]["bars"]}]
+    sc = ctx.result["agent"]["scratch"]
+    assert sc["pages"]["1"]["proposal"] == [{"system": 1, "staves": [1, 3], "blocks": [[1], [3]], "per_instrument": {"Flute": [1], "Horn": [3]}, "status": "playing"}]
+    assert sc["commits"]["1:1"]["blocks"] == [[1], [3]] and len(sc["commits"]["1:1"]["verify"]) == 2 and len(sc["commits"]["1:1"]["boxes"]) == 2
+    assert any("2 blocks stacked" in line for line in sc["log"])
+    assert [r["name"] for r in db.rows["parts"]] == ["Flute + Horn"]
+    label_prompt = t.calls[3]["messages"][0]["content"][1]["text"]
+    assert 'Instruments wanted: "Flute" (1 staves per system according to the header), "Horn" (1 staves' in label_prompt
+    assert label_prompt.count("Score header (read from the first page)") == 1 and '"Flute" is printed as' in label_prompt and '"Horn" is printed as' in label_prompt
+
+
+@pytest.mark.asyncio
+async def test_adjacent_instruments_are_one_block():
+    """Flute and Oboe sit on staves 1 and 2: one block, one clean pass, one recheck (which may name either)."""
+    script = [tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), multi_label(Flute=[1], Oboe=[2]),
+              commit(1, [1, 2]), recheck("Oboi"), tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(1, {"instruments": ["Flute", "Oboe"]})
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1
+    assert len(t.calls) == 7 and len(ctx.charges) == 7                                  # one recheck for the one block
+    key = f"{job.score_id}/parts/flute+oboe/p001-s1.png"
+    assert key in ctx.uploads
+    derived = [r for r in db.rows["sources"] if r["kind"] == "part_images"][0]
+    assert derived["meta"]["systems"][0]["blocks"] == [[1, 2]] and derived["meta"]["systems"][0]["staves"] == [1, 2]
+    sc = ctx.result["agent"]["scratch"]
+    assert sc["commits"]["1:1"]["blocks"] == [[1, 2]] and len(sc["commits"]["1:1"]["verify"]) == 1
+    assert any("(one block)" in line for line in sc["log"])
+    header_result = json.loads(t.calls[2]["messages"][-1]["content"][0]["content"])
+    assert header_result["staves_total"] == 2 and header_result["staves_per_system"] == {"Flute": 1, "Oboe": 1}
+    # a commit that names only one of the two instruments' staves is refused with the per-instrument counts
+    client2, t2 = fake_client([tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), multi_label(Flute=[1], Oboe=[2]),
+                               commit(1, [1]), commit(1, [1, 2]), recheck("Fl."), tool("finish", {})])
+    job2, ctx2, _ = world(1, {"instruments": ["Flute", "Oboe"]})
+    await part_cut(job2, ctx2, client=client2)
+    fb = json.loads(t2.calls[5]["messages"][-1]["content"][0]["content"])
+    assert "Flute + Oboe has 2 staves per system according to the header (Flute 1, Oboe 1); you named 1" in fb["error"]
+
+
+@pytest.mark.asyncio
+async def test_recheck_is_per_block_and_blocks_must_agree_with_the_labels():
+    """The recheck must name the block's own instrument (another instrument of the export is not enough: Beethoven 9
+    S+T run 2 shipped alto + tenor that way), and a block one staff off the labels is refused before any model call."""
+    script = [tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), multi_label(Flute=[1], Horn=[3]),
+              tool("commit_system", {"page": 1, "system": 1, "blocks": [[2, 3]]}),      # staff 2 is nobody's by the labels: no model call
+              commit(1, [1, 3]), recheck("Cor."),                                       # the flute block named as the horn: refused
+              commit(1, [1, 3]), recheck("Fl."), recheck("Horn"), tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(1, {"instruments": ["Flute", "Horn"]})
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1 and out["questions"] == 0
+    fb = json.loads(t.calls[5]["messages"][-1]["content"][0]["content"])
+    assert "the labels put Horn on [3] in system 1; the block [2, 3] adds staff [2] that the labels give to no wanted instrument" in fb["error"]
+    fb = json.loads(t.calls[7]["messages"][-1]["content"][0]["content"])
+    assert "block of staves [1] alone, the model calls it 'Cor.', not 'Flute'" in fb["error"]
+    assert len(t.calls) == 11
+
+
+@pytest.mark.asyncio
+async def test_vocal_pair_passes_barlines_per_staff():
+    """A choir's barlines stop at each staff: the whole-span check fails on the pair, every staff passes alone, and
+    the commit goes through with the fallback recorded."""
+    from app.librarian.cut import cut_system, page_geometry
+    page = synth_page(vocal_gap=True)
+    geom, bw, im = page_geometry(page)
+    _, _, checks = cut_system(bw, im, geom, geom["systems"][0], [1, 2])
+    assert not checks["pass"] and not checks["barlines_present"]["pass"] and checks["staves_in_crop"]["pass"]   # the plain verify refuses the pair
+    script = [tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), multi_label(Flute=[1], Oboe=[2]),
+              commit(1, [1, 2]), recheck("Flauti"), tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(1, {"instruments": ["Flute", "Oboe"]}, page=page)
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1 and out["questions"] == 0
+    v = ctx.result["agent"]["scratch"]["commits"]["1:1"]["verify"][0]
+    assert v["barlines_present"]["pass"] and v["barlines_present"]["per_staff"] is True and v["pass"]
+
+
+@pytest.mark.asyncio
+async def test_absent_for_every_chosen_instrument():
+    script = [tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), multi_label(Soprano=[], Alto=[]),
+              tool("commit_system", {"page": 1, "system": 1, "blocks": "absent"}), tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(1, {"instruments": ["Soprano", "Alto"]})
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 0 and out["absent"] == 1
+    sc = ctx.result["agent"]["scratch"]
+    assert sc["pages"]["1"]["proposal"] == [{"system": 1, "staves": [], "blocks": [], "per_instrument": {"Soprano": [], "Alto": []}, "status": "absent"}]
+    assert sc["commits"]["1:1"] == {"staves": "absent", "blocks": [], "key": None, "verify": None}
+    derived = [r for r in db.rows["sources"] if r["kind"] == "part_images"][0]
+    assert derived["storage_paths"] == [] and derived["meta"]["systems"] == [{"page": 1, "system": 1, "staves": "absent", "blocks": [], "key": None, "bars": None}]
+
+
+@pytest.mark.asyncio
+async def test_question_and_answer_carry_blocks():
+    """Three refused commits park the run; the question names the instruments and the proposal's blocks; the admin's
+    `{"blocks": [[1], [3]]}` is applied as a commit without a recheck."""
+    client, t = fake_client([tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), multi_label(Flute=[1], Horn=[3]),
+                             commit(1, [1]), commit(1, [1, 2, 3]), tool("commit_system", {"page": 1, "system": 1, "blocks": [[1], [9]]})])   # all refused before any model call
+    job, ctx, db = world(1, {"instruments": ["Flute", "Horn"]})
+    out = await part_cut(job, ctx, client=client)
+    q = out["question_payload"]
+    assert q["kind"] == "choose_staves" and q["instruments"] == ["Flute", "Horn"] and q["instrument"] == "Flute + Horn"
+    assert q["proposal"] == [1, 3] and q["blocks"] == [{"staves": [1], "instruments": ["Flute"]}, {"staves": [3], "instruments": ["Horn"]}]
+    assert q["last_attempt"] == [[1], [9]] and q["staves_per_instrument"] == {"Flute": 1, "Horn": 1} and q["allowed"]["blocks"]
+    assert "staves [9] are not in system 1" in q["feedback"]
+    assert "Which staves on page 1, system 1 are Flute + Horn's?" in out["question"]
+    db.rows["jobs"][-1]["result"] = out
+    client2, t2 = fake_client([tool("finish", {})])
+    job2, ctx2, _ = world(1, {"instruments": ["Flute", "Horn"], "answer": {"blocks": [[1], [3]]}, "resume_from": job.id}, db=db)
+    out2 = await part_cut(job2, ctx2, client=client2)
+    assert out2["systems_cut"] == 1 and out2["questions"] == 1 and len(t2.calls) == 1
+    assert f"{job.score_id}/parts/flute+horn/p001-s1.png" in ctx2.uploads
+    assert "admin decided page 1 system 1: [1, 3]" in t2.calls[0]["messages"][-1]["content"]
+    assert ctx2.result["agent"]["scratch"]["commits"]["1:1"]["blocks"] == [[1], [3]]
+
+
+@pytest.mark.asyncio
+async def test_admin_answer_is_final_even_against_the_header_count():
+    """The geometry may have missed a staff: the admin's `{"staves": [2]}` for a two-instrument export is applied
+    without the count, verify or recheck refusals (011: answers are the admin's words)."""
+    client, t = fake_client([tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), multi_label(Flute=[1], Horn=[3]),
+                             commit(1, [1]), commit(1, [1, 2, 3]), commit(1, [9])])
+    job, ctx, db = world(1, {"instruments": ["Flute", "Horn"]})
+    out = await part_cut(job, ctx, client=client)
+    assert out["agent"]["status"] == "needs_review"
+    db.rows["jobs"][-1]["result"] = out
+    client2, t2 = fake_client([tool("finish", {})])
+    job2, ctx2, _ = world(1, {"instruments": ["Flute", "Horn"], "answer": {"staves": [2]}, "resume_from": job.id}, db=db)
+    out2 = await part_cut(job2, ctx2, client=client2)
+    assert out2["systems_cut"] == 1 and len(t2.calls) == 1
+    assert ctx2.result["agent"]["scratch"]["commits"]["1:1"]["staves"] == [2] and f"{job.score_id}/parts/flute+horn/p001-s1.png" in ctx2.uploads
+
+
+def test_instruments_payload_forms():
+    from app.librarian.part_cut import instruments_of, parse_answer, runs
+    assert instruments_of({"instrument": "Piano"}) == ["Piano"]
+    assert instruments_of({"instruments": ["Soprano", " Alto ", "Soprano", ""]}) == ["Soprano", "Alto"]
+    assert instruments_of({"instruments": "Tenor"}) == ["Tenor"] and instruments_of({}) == []
+    assert runs([12, 11, 14, 15, 17]) == [[11, 12], [14, 15], [17]] and runs([]) == []
+    assert parse_answer({"staves": [11, 12]}) == [11, 12] and parse_answer({"blocks": [[13], [11]]}) == [11, 13]
+    assert parse_answer({"staves": "absent"}) == "absent" and parse_answer("absent") == "absent" and parse_answer({"blocks": "absent"}) == "absent"
+    assert parse_answer("11, 12") == [11, 12] and parse_answer('{"blocks": [[3], [1]]}') == [1, 3] and parse_answer({"staves": []}) == "absent"

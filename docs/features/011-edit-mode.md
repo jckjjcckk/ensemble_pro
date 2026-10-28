@@ -1,6 +1,6 @@
 # 011 Edit mode: structural fixes with a typed Question/Answer contract
 
-Status: designed (the contract exists in `part_cut` and `process_pages`; no route, no screen) | Meta model: Muse Spark 1.3 raises the questions through the agent loop (006); the answer is human.
+Status: designed (the contract exists in `part_cut` and `process_pages`; the answer route `POST /jobs/{id}/answer` exists for `part_cut` (008); no screen) | Meta model: Muse Spark 1.3 raises the questions through the agent loop (006); the answer is human.
 
 ## Purpose
 
@@ -19,7 +19,7 @@ where the thing may simply not be printed. The Answer is a small JSON in the sha
 
 | kind | from | payload | answer |
 |---|---|---|---|
-| `choose_staves` | `part_cut` (008) | `page, system, instrument, interpretation_id, proposal, last_attempt, feedback, staff_boxes [{index, y_top, y_bottom, x0, x1}], image_key, allowed {staves, absent: true}, answer_format` | `{staves: [11, 12]}` or `{staves: "absent"}` |
+| `choose_staves` | `part_cut` (008) | `page, system, instrument ("Soprano + Alto"), instruments [..], interpretation_id, proposal, blocks [{staves, instruments}], staves_per_instrument, last_attempt, feedback, staff_boxes [{index, y_top, y_bottom, x0, x1}], image_key, allowed {staves, blocks, absent: true}, answer_format` | `{staves: [11, 12]}`, `{blocks: [[11], [13]]}` or `{staves: "absent"}` |
 | parts on a page (unnamed) | `process_pages` (004) | the page and what Spark saw | part names top to bottom, list or comma-separated |
 
 Planned: `set_page_order` (continuity check failed), `assign_parts(page, parts)`, a part name conflict, a
@@ -43,7 +43,9 @@ paying for the pages already read. The loop's refusal counter is cleared on resu
 
 ## Open issues (asks from the intelligence thread to the app thread)
 
-- A route that answers a parked job (queue the same kind with `answer` and `resume_from`).
+- ~~A route that answers a parked job~~: `POST /jobs/{id}/answer` (008, 2026-10-28) queues the same kind with
+  `answer`, `resume_from` and the question's `interpretation_id`; only for a job `done` with
+  `result.question`, owner or admin, once.
 - A waiting state for the score badge (`scores.status` lacks `needs_review`; read `interpretations.status`).
 - Nullable `measure_placements.page` for measures a reprocess does not find.
 - The information box reading `summary` fields (`pages, systems, measures, first_measure, last_measure, title,
@@ -52,5 +54,5 @@ paying for the pages already read. The loop's refusal counter is cleared on resu
 
 ## Next steps
 
-1. The answer route and the badge state (app thread).
+1. The badge state (app thread); the answer route is in.
 2. The `choose_staves` screen on the iPad, then the parts-on-a-page kind.
