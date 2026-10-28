@@ -221,7 +221,6 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         if not (staves == "absent" or (isinstance(staves, list) and staves)):
             raise Refusal('staves must be a non-empty list of staff numbers or "absent"')
         out = await do_commit(n, int(args["system"]), staves)
-        st.refusals.pop("commit_system", None)   # a good commit resets the count (docs/agent-loop.md); the loop itself does not yet
         return out
 
     @box.tool("finish", "Finish the cut. Refuses while any page or system is uncommitted.", {"properties": {}}, commit=True)
