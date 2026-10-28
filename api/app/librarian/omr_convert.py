@@ -286,6 +286,8 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
     if pages and pages[-1] > page_count:
         await _fail(ctx, RuntimeError(f"This PDF has {page_count} pages; page {pages[-1]} was asked for"))
     n_pages = len(pages) if pages else page_count
+    if n_pages > MAX_PAGES:
+        await _fail(ctx, RuntimeError(f"This PDF has {n_pages} pages; Convert to Digital takes at most {MAX_PAGES} for now"))
     budget = Budget(float(p.get("max_cost_usd") or USD_PER_PAGE * n_pages))
     t_kinds = time.time()
     kinds = await page_kinds(ctx, client, model, book_pages, pages, budget)

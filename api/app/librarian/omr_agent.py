@@ -232,8 +232,14 @@ class PdfPages:
     geometry (`cut.page_geometry`). Only what `page_kinds` looks at is rendered."""
 
     def __init__(self, pdf: bytes):
-        from .import_pdf import open_pdf
-        self.doc = open_pdf(pdf)
+        import pymupdf
+        if b"%PDF-" not in pdf[:1024]:
+            raise ValueError("not a PDF")
+        self.doc = pymupdf.open(stream=pdf, filetype="pdf")     # no page cap here: a page subset of a long book is fine
+        if self.doc.needs_pass:
+            raise ValueError("the PDF is locked with a password")
+        if self.doc.page_count == 0:
+            raise ValueError("the PDF has no pages")
         self._png: dict[int, bytes] = {}
 
     @property
@@ -380,6 +386,10 @@ def normalize_items(raw: Any, numbers: list[int], n_staves: int) -> tuple[list[d
             digits = re.findall(r"[1-5]", text)
             if not digits or len(digits) > 5:
                 dropped.append({"item": it, "why": f"fingering {text!r} is not digits 1 to 5"})
+                continue
+            if bar == numbers[0] and (note or 1) == 1 and text.strip() == str(numbers[0]):
+                # the measure number engraved at the left of a system (Chopin p25: "4" at bar 4 read as a fingering)
+                dropped.append({"item": it, "why": f"fingering {text!r} on the first note of bar {bar} is the printed bar number"})
                 continue
             text = " ".join(digits)
         if kind == "pedal":

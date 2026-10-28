@@ -77,6 +77,8 @@ def text_of(scores) -> dict[int, list[str]]:
                     if isinstance(el, dynamics.Dynamic):
                         out.setdefault(m.number + off, []).append(el.value)
                     elif isinstance(el, expressions.TextExpression):
+                        if str(getattr(el.style, "fontWeight", "") or "").lower() == "bold":
+                            continue                       # a tempo heading (v2 writes it bold on bar 1): not text in the ground truth
                         out.setdefault(m.number + off, []).extend(el.content.split())
     return out
 

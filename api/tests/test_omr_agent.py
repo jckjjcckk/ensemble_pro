@@ -38,6 +38,7 @@ def test_normalize_items_keeps_the_five_kinds_anchored_in_the_system():
            {"kind": "words", "text": "f", "bar": 4, "staff": 1, "note": 1},            # a dynamic called a word
            {"kind": "fingering", "text": "5 2", "bar": 4, "staff": 1, "note": 3},
            {"kind": "fingering", "text": "x", "bar": 4, "staff": 1, "note": 3},
+           {"kind": "fingering", "text": "3", "bar": 3, "staff": 2, "note": 1},        # the engraved bar number, not a finger
            {"kind": "pedal", "text": "Ped.", "bar": 3, "staff": 2, "note": 1}, {"kind": "pedal", "text": "*", "bar": 4, "staff": 2, "note": 2},
            {"kind": "ornament", "text": "tr", "bar": 4, "staff": 1, "note": 1}, {"kind": "ornament", "text": "wiggle", "bar": 4, "staff": 1, "note": 1},
            {"kind": "words", "text": "dolce", "bar": 9, "staff": 1, "note": 1},         # not in this system
@@ -47,7 +48,7 @@ def test_normalize_items_keeps_the_five_kinds_anchored_in_the_system():
     assert [(i["kind"], i["text"], i["number"], i["staff"], i["note"]) for i in items] == [
         ("dynamic", "mf", 3, 1, 2), ("words", "cresc.", 3, 2, 1), ("dynamic", "f", 4, 1, 1), ("fingering", "5 2", 4, 1, 3),
         ("pedal", "start", 3, 2, 1), ("pedal", "stop", 4, 2, 2), ("ornament", "trill", 4, 1, 1), ("words", "legato", 3, 2, 2)]
-    assert [d["why"][:12] for d in dropped] == ["fingering 'x", "ornament 'wi", "bar 9 is not", "not an objec"]
+    assert [d["why"][:12] for d in dropped] == ["fingering 'x", "fingering '3", "ornament 'wi", "bar 9 is not", "not an objec"]
 
 
 class KindModel:

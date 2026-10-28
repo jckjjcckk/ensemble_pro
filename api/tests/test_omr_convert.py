@@ -288,6 +288,15 @@ async def test_a_book_of_front_matter_only_fails_before_the_box():
     assert box.runs == []
 
 
+async def test_a_long_book_is_refused_before_the_box_unless_a_page_set_is_chosen():
+    db, box = pdf_book(), FakeBox()
+    with pytest.raises(RuntimeError, match="at most 40"):
+        await run(db, box, pdf=FakePdf(count=41))
+    assert box.runs == []
+    out, _ = await run(db, box, payload={"pages": [3]}, pdf=FakePdf(count=49))
+    assert out["pages"] == [3]
+
+
 async def test_a_chosen_page_set_is_sorted_too():
     db, box = pdf_book(), FakeBox()
     out, _ = await run(db, box, payload={"pages": [2, 3]}, pdf=FakePdf())
