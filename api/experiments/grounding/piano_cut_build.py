@@ -13,15 +13,17 @@ The cut itself is piano_cut_clean.clean_crop (a wide band with the neighbours' i
 piano's own ink) unless run with --no-clean, which keeps the plain fixed-margin crop (crop_box) for comparison.
 With cleaning on, clean-compare.html shows the plain crop above the cleaned one for every system.
 
-Verify (no model): on the crop, geometry must find exactly 2 staves, a brace or bracket at the left of the
-pair, and every system barline (x positions from geom-p<NN>.json) as a vertical dark run through the pair
-within +-4 px. The bar count is inherited from the system, not re-detected: re-detection inside a dense piano
+Verify (no model): on the crop, geometry must find exactly the instrument's staff count (header.json, else
+the number Spark named), a brace or bracket at the left of a multi-staff block (informational, skipped for a
+single staff), and every system barline (x positions from geom-p<NN>.json) as a vertical dark run through the
+block within +-4 px. The bar count is inherited from the system, not re-detected: re-detection inside a dense piano
 system found beams and aligned stems as extra barlines (p. 3 s1, p. 4 s1 and s2) and failed honest cuts.
-If out/piano-cut/recheck-p<NN>-s<k>.json exists (piano_cut_recheck.py: Spark looks at the crop alone and names
-the instrument) it is the fourth check. edge_ink_top / edge_ink_bottom (clean mode) flag kept ink on the
+If recheck-p<NN>-s<k>.json exists in the run folder (piano_cut_recheck.py: Spark looks at the crop alone and
+names the instrument) it is the fourth check. Reads geometry from the score folder, labels from the run folder
+(common.PIANO_CUT_RUN), writes everything else to the run folder. edge_ink_top / edge_ink_bottom (clean mode) flag kept ink on the
 crop's first or last row: the band itself clipped it, so something is still cut; informational, not a fail.
 
-Usage (from api/):  uv run experiments/grounding/piano_cut_build.py [--score <pdf stem>] [--no-clean] [page ...]
+Usage (from api/):  uv run experiments/grounding/piano_cut_build.py [--score <pdf stem>] [--instrument "..."] [--no-clean] [page ...]
 Writes crop-p<NN>-s<k>.png, clean-debug-p<NN>-s<k>.png, highlight-p<NN>.png, part-p<NN>.png, strip.png,
 results.json, piano-cut.html, clean-compare.html
 """
@@ -38,10 +40,14 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-from common import PIANO_CUT_TITLE
+from common import PIANO_CUT_INSTRUMENT, PIANO_CUT_RUN, PIANO_CUT_TITLE
 from fallback_cv import binarise, rotate, vertical_cover
 from piano_cut_clean import clean_crop
 from piano_cut_geometry import PC, PAGES_DIR, DEFAULT_PAGES
+from piano_cut_label import instrument_staves
+
+RUN = PIANO_CUT_RUN
+INSTRUMENT = PIANO_CUT_INSTRUMENT
 
 
 def font(size: int):
@@ -72,7 +78,7 @@ def crop_box(geom: dict, system: dict, wanted: list[int]) -> dict:
     return {"x0": 0, "y0": int(max(0, y0)), "x1": int(min(w - 1, system["box"]["x1"] + 2 * sp)), "y1": int(min(h - 1, y1))}
 
 
-def verify(crop: Image.Image, geom: dict, system: dict, wanted: list[int], box: dict) -> dict:
+def verify(crop: Image.Image, geom: dict, system: dict, wanted: list[int], box: dict, expect_staves: int | None = None) -> dict:
     """Geometric checks on the crop as shipped (its own binarisation, so erased ink is really gone)."""
     staves = {s["index"]: s for s in geom["staves"]}
     inside = [s for s in geom["staves"] if s["y_top"] >= box["y0"] and s["y_bottom"] <= box["y1"]]
@@ -83,18 +89,23 @@ def verify(crop: Image.Image, geom: dict, system: dict, wanted: list[int], box: 
     oy, ox = box["y0"], box["x0"]
     ya, yb = a["y_top"] - oy, b["y_bottom"] - oy
     x_left = int(min(s["x0"] for s in ss)) - ox
-    # brace or bracket: a vertical dark run left of the staves spanning both staves and the gap between them
-    brace_cols = [x for x in range(max(0, x_left - int(5 * sp)), x_left - 1)
-                  if vertical_cover(cbw, x, ya, yb, tol=2) >= 0.9]
-    # every system barline must cross the pair (a piano's barlines run through the gap between its staves)
+    expect = expect_staves or len(wanted)
+    # brace or bracket (multi-staff blocks only): a vertical dark run left of the staves spanning them all
+    if expect >= 2:
+        brace_cols = [x for x in range(max(0, x_left - int(5 * sp)), x_left - 1)
+                      if vertical_cover(cbw, x, ya, yb, tol=2) >= 0.9]
+        brace = {"value": bool(brace_cols), "pass": bool(brace_cols), "informational": True}
+    else:
+        brace = {"value": None, "pass": True, "informational": True, "note": "single staff: not checked"}
+    # every system barline must cross the block (a piano's barlines run through the gap between its staves)
     tol = 4
     present = []
     for bx0, bx1 in system["barlines"]:
         cols = range(max(0, bx0 - tol - ox), min(cbw.shape[1], bx1 + tol + 1 - ox))
         present.append(any(vertical_cover(cbw, x, ya, yb, tol=1) >= 0.9 for x in cols))
     checks = {
-        "staves_in_crop": {"value": len(inside), "expect": 2, "pass": len(inside) == 2},
-        "brace_or_bracket": {"value": bool(brace_cols), "pass": bool(brace_cols), "informational": True},
+        "staves_in_crop": {"value": len(inside), "expect": expect, "pass": len(inside) == expect},
+        "brace_or_bracket": brace,
         "barlines_present": {"system_x": system["barlines"], "present": present,
                              "missing": [bl for bl, ok in zip(system["barlines"], present) if not ok],
                              "pass": all(present)},
@@ -124,7 +135,9 @@ def jpeg_data_uri(im: Image.Image, max_w: int, quality: int = 82) -> str:
 
 def build_page(n: int, clean: bool = True) -> dict:
     geom = json.loads((PC / f"geom-p{n:02d}.json").read_text())
-    label = json.loads((PC / f"label-p{n:02d}.json").read_text())
+    label = json.loads((RUN / f"label-p{n:02d}.json").read_text())
+    instrument = label.get("instrument") or INSTRUMENT
+    expect_staves = instrument_staves(instrument)
     page_im = Image.open(PAGES_DIR / f"p{n:02d}.png").convert("RGB")
     w, h = page_im.size
     gray = cv2.imread(str(PAGES_DIR / f"p{n:02d}.png"), cv2.IMREAD_GRAYSCALE)
@@ -146,13 +159,13 @@ def build_page(n: int, clean: bool = True) -> dict:
         wanted = [i for i in (ans.get("wanted_staves") or []) if i in system["staff_indices"]]
         status = ans.get("status") or ("absent" if not wanted else "playing")
         rec = {"system": system["index"], "wanted_staves": wanted, "status": status, "n_measures": system["n_measures"]}
-        recheck_path = PC / f"recheck-p{n:02d}-s{system['index']}.json"
+        recheck_path = RUN / f"recheck-p{n:02d}-s{system['index']}.json"
         if wanted:
             plain_box = crop_box(geom, system, wanted)
             plain = deskewed.crop((plain_box["x0"], plain_box["y0"], plain_box["x1"] + 1, plain_box["y1"] + 1))
             if clean:
                 crop, box, cstats, dbg = clean_crop(bw, deskewed, geom, system, wanted, debug=True)
-                dbg.save(PC / f"clean-debug-p{n:02d}-s{system['index']}.png")
+                dbg.save(RUN / f"clean-debug-p{n:02d}-s{system['index']}.png")
                 cstats.pop("detail", None)
                 rec["clean"] = cstats
                 rec["crop_box_plain"] = plain_box
@@ -160,10 +173,10 @@ def build_page(n: int, clean: bool = True) -> dict:
             else:
                 crop, box = plain, plain_box
             rec["crop_box"] = box
-            crop_path = PC / f"crop-p{n:02d}-s{system['index']}.png"
+            crop_path = RUN / f"crop-p{n:02d}-s{system['index']}.png"
             crop.save(crop_path)
             rec["crop"] = crop_path.name
-            rec["verify"] = verify(crop, geom, system, wanted, box)
+            rec["verify"] = verify(crop, geom, system, wanted, box, expect_staves)
             if clean:
                 rec["verify"]["edge_ink"] = {"top": cstats["edge_ink_top"], "bottom": cstats["edge_ink_bottom"],
                                              "cols": cstats["edge_ink_cols"], "erased": cstats["erased"], "kept": cstats["kept"],
@@ -171,15 +184,17 @@ def build_page(n: int, clean: bool = True) -> dict:
                                              "informational": True}
             if recheck_path.exists():
                 rc = json.loads(recheck_path.read_text())
-                said = (rc.get("parsed") or {}).get("instrument") or ""
-                rec["verify"]["spark_recheck"] = {"instrument": said, "is_piano": (rc.get("parsed") or {}).get("is_piano"),
+                rp = rc.get("parsed") or {}
+                said = rp.get("instrument") or ""
+                is_wanted = rp.get("is_wanted", rp.get("is_piano"))  # older recheck files say is_piano
+                rec["verify"]["spark_recheck"] = {"instrument": said, "is_wanted": is_wanted,
                                                   "cost_usd": rc.get("cost_usd"), "latency_s": rc.get("latency_s"),
-                                                  "pass": bool((rc.get("parsed") or {}).get("is_piano"))}
+                                                  "pass": bool(is_wanted)}
             rec["verify"]["pass"] = all(c["pass"] for k, c in rec["verify"].items()
                                         if isinstance(c, dict) and not c.get("informational"))
             hd.rectangle([box["x0"], box["y0"], box["x1"], box["y1"]], fill=(255, 170, 0, 70), outline=(230, 120, 0, 255), width=4)
             if status == "resting":
-                blocks.append(tacet_image(crop.width, f"p. {n}, system {system['index']}: piano rests (staves printed, rests only)"))
+                blocks.append(tacet_image(crop.width, f"p. {n}, system {system['index']}: {instrument} rests (staves printed, rests only)"))
             if not rec["verify"]["pass"]:
                 # the loop's outcome: a cut that fails verification is shipped flagged, never silently
                 failed = [k for k, c in rec["verify"].items() if isinstance(c, dict) and not c.get("informational") and not c["pass"]]
@@ -189,9 +204,9 @@ def build_page(n: int, clean: bool = True) -> dict:
                                           + (f" (crop re-read as '{said}')" if said else "")))
             blocks.append(crop)
         else:
-            blocks.append(tacet_image(w, f"p. {n}, system {system['index']}: piano tacet (staves not printed)"))
+            blocks.append(tacet_image(w, f"p. {n}, system {system['index']}: {instrument} tacet (staves not printed)"))
         systems_out.append(rec)
-    highlight_path = PC / f"highlight-p{n:02d}.png"
+    highlight_path = RUN / f"highlight-p{n:02d}.png"
     highlight.save(highlight_path)
     # part page: the blocks stacked
     gap = 24
@@ -202,12 +217,13 @@ def build_page(n: int, clean: bool = True) -> dict:
     for b in blocks:
         part.paste(b, (0, y))
         y += b.height + gap
-    part_path = PC / f"part-p{n:02d}.png"
+    part_path = RUN / f"part-p{n:02d}.png"
     part.save(part_path)
     return {"page": n, "image_px": [w, h], "skew_deg": geom["skew_deg"], "n_staves": len(geom["staves"]),
             "grouping": geom["grouping"], "spark": {"latency_s": label["latency_s"], "cost_usd": label["cost_usd"],
             "page_status": parsed.get("page_status"), "confidence": parsed.get("confidence"),
             "json_repaired": label.get("json_repaired"), "parse_error": label.get("parse_error")},
+            "instrument": instrument, "expect_staves": expect_staves,
             "systems": systems_out, "highlight": highlight_path.name, "part": part_path.name, "blocks": blocks,
             "label_parsed": parsed, "compare": compare, "clean": clean}
 
@@ -222,15 +238,16 @@ def build_html(results: list[dict]) -> None:
     .pass{color:#1a7f37;font-weight:600} .fail{color:#b42318;font-weight:600} .info{color:#666} .warn{color:#b35c00;font-weight:600}
     table{border-collapse:collapse;font-size:13px;background:#fff} td,th{border:1px solid #d6d0c4;padding:4px 8px;text-align:left}
     """
-    parts = [f"<!doctype html><meta charset='utf-8'><title>Piano cut, {html.escape(PIANO_CUT_TITLE)}</title><style>{css}</style>",
-             f"<h1>Piano cut, no OMR: {html.escape(PIANO_CUT_TITLE)} full score</h1>",
-             "<div class='sub'>Left: source page (deskewed) with the staves Spark named as “Piano (solo)” highlighted. "
+    instrument = results[0]["instrument"] if results else INSTRUMENT
+    parts = [f"<!doctype html><meta charset='utf-8'><title>Part cut: {html.escape(instrument)}, {html.escape(PIANO_CUT_TITLE)}</title><style>{css}</style>",
+             f"<h1>Part cut, no OMR: “{html.escape(instrument)}” from the {html.escape(PIANO_CUT_TITLE)} full score</h1>",
+             f"<div class='sub'>Left: source page (deskewed) with the staves Spark named as “{html.escape(instrument)}” highlighted. "
              "Right: the cut, then Spark's answer and the verify result. OpenCV finds staves, systems and barlines; "
              "Muse Spark 1.3 (effort low) names the staves on a numbered overlay; the verify step re-measures the crop. "
-             + ("Cut: wide band, neighbours' ink erased, fitted to the piano's ink (piano_cut_clean.py; see clean-compare.html)."
+             + ("Cut: wide band, neighbours' ink erased, fitted to the instrument's own ink (piano_cut_clean.py; see clean-compare.html)."
                 if results and results[0].get("clean") else "Cut: plain fixed-margin crop (--no-clean).") + "</div>"]
     total_cost = sum(r["spark"]["cost_usd"] for r in results)
-    parts.append("<table><tr><th>page</th><th>staves</th><th>systems (bars)</th><th>Spark: piano staves per system</th>"
+    parts.append(f"<table><tr><th>page</th><th>staves</th><th>systems (bars)</th><th>Spark: {html.escape(instrument)} staves per system</th>"
                  "<th>status</th><th>latency</th><th>cost</th><th>verify</th></tr>")
     for r in results:
         sysdesc = ", ".join(f"{s['system']}: {s['wanted_staves'] or '—'} ({s['status']})" for s in r["systems"])
@@ -243,7 +260,7 @@ def build_html(results: list[dict]) -> None:
     for r in results:
         n = r["page"]
         parts.append(f"<h2>Page {n}</h2><div class='page'>")
-        parts.append(f"<div><img src='{jpeg_data_uri(Image.open(PC / r['highlight']), 900)}' alt='page {n}'></div>")
+        parts.append(f"<div><img src='{jpeg_data_uri(Image.open(RUN / r['highlight']), 900)}' alt='page {n}'></div>")
         parts.append("<div class='crops'>")
         for b in r["blocks"]:
             parts.append(f"<img src='{jpeg_data_uri(b, 1100)}' alt='cut'>")
@@ -265,7 +282,7 @@ def build_html(results: list[dict]) -> None:
             lines.append("</ul>")
             parts.append("".join(lines))
         parts.append("</div></div>")
-    (PC / "piano-cut.html").write_text("\n".join(parts))
+    (RUN / "piano-cut.html").write_text("\n".join(parts))
 
 
 def build_compare(results: list[dict]) -> None:
@@ -277,17 +294,21 @@ def build_compare(results: list[dict]) -> None:
     .warn{color:#b35c00;font-weight:600} .ok{color:#1a7f37;font-weight:600}
     table{border-collapse:collapse;font-size:13px;background:#fff;margin-bottom:20px} td,th{border:1px solid #d6d0c4;padding:4px 8px;text-align:left}
     """
-    parts = [f"<!doctype html><meta charset='utf-8'><title>Piano cut: plain crop vs cleaned crop</title><style>{css}</style>",
-             "<h1>Piano cut, before / after the clean-and-extend pass</h1>",
-             "<div class='sub'>Per system: the plain fixed-margin crop (two staves + ~1.5 spaces), then the cleaned crop "
-             "(wide band between the neighbouring staves, neighbour ink erased, fitted to the piano's own ink), then the band "
-             "with every ink component tinted by class: <span style='color:#28a046'>green</span> piano (overlaps the staff region), "
+    instrument = results[0]["instrument"] if results else INSTRUMENT
+    parts = [f"<!doctype html><meta charset='utf-8'><title>Part cut ({html.escape(instrument)}): plain crop vs cleaned crop</title><style>{css}</style>",
+             f"<h1>Part cut (“{html.escape(instrument)}”), before / after the clean-and-extend pass</h1>",
+             "<div class='sub'>Per system: the plain fixed-margin crop (the staves + ~1.5 spaces), then the cleaned crop "
+             "(wide band between the neighbouring staves, neighbour ink erased, fitted to the instrument's own ink), then the band "
+             "with every ink component tinted by class: <span style='color:#28a046'>green</span> target (overlaps the staff region), "
              "<span style='color:#dc3232'>red</span> neighbour (erased), <span style='color:#be28be'>magenta</span> both "
-             "(piano ink that also reaches the neighbour's region, kept and logged), <span style='color:#0096c8'>blue</span> gap ink "
-             "resolved to the piano by nearest ink, <span style='color:#f08c00'>orange</span> gap ink resolved to the neighbour (erased). "
+             "(target ink that also reaches the neighbour's region, kept and logged), <span style='color:#0096c8'>blue</span> gap ink "
+             "resolved to the target by nearest ink or as the next word of a kept text line, <span style='color:#f08c00'>orange</span> gap ink resolved to the neighbour (erased), "
+             "<span style='color:#a03c00'>brown</span> gap/margin ink over a bar where the target has only rests (erased), "
+             "<span style='color:#78003c'>plum</span> floating pieces of a kept component over resting bars (ledger notes, sf: erased). "
+             "Resting bars (own ink inside the staff lines below the floor) are shaded grey. "
              "Blue horizontal lines mark the final crop. edge_ink_top/bottom = kept ink on the crop's first/last row (still cut).</div>"]
     parts.append("<table><tr><th>page</th><th>system</th><th>plain crop (y0..y1)</th><th>clean crop (y0..y1)</th><th>extended px top / bottom (vs plain)</th>"
-                 "<th>components</th><th>erased</th><th>kept</th><th>both</th><th>edge ink top</th><th>edge ink bottom</th></tr>")
+                 "<th>components</th><th>erased</th><th>kept</th><th>both</th><th>resting bars</th><th>rest-bar erased</th><th>pieces erased</th><th>edge ink top</th><th>edge ink bottom</th></tr>")
     for r in results:
         for c in r["compare"]:
             st = c["stats"]
@@ -296,6 +317,7 @@ def build_compare(results: list[dict]) -> None:
             parts.append(f"<tr><td>{r['page']}</td><td>{c['system']}</td><td>{pb['y0']}..{pb['y1']}</td><td>{cb['y0']}..{cb['y1']}</td>"
                          f"<td>{pb['y0'] - cb['y0']:+d} / {cb['y1'] - pb['y1']:+d}</td><td>{st['components']}</td>"
                          f"<td>{st['erased']}</td><td>{st['kept']}</td><td>{len(st['both'])}</td>"
+                         f"<td>{st.get('rest_bars')}</td><td>{st.get('erased_rest_bar')}</td><td>{st.get('erased_pieces')}</td>"
                          f"<td class='{'warn' if st['edge_ink_top'] else 'ok'}'>{st['edge_ink_top']}</td>"
                          f"<td class='{'warn' if st['edge_ink_bottom'] else 'ok'}'>{st['edge_ink_bottom']}</td></tr>")
     parts.append("</table>")
@@ -306,11 +328,13 @@ def build_compare(results: list[dict]) -> None:
             parts.append(f"<div class='lbl'>plain crop</div><img src='{jpeg_data_uri(c['plain'], 1200)}' alt='plain'>")
             parts.append(f"<div class='lbl'>cleaned crop</div><img src='{jpeg_data_uri(c['clean'], 1200)}' alt='clean'>")
             parts.append(f"<div class='lbl'>band, components by class</div><img src='{jpeg_data_uri(c['debug'], 1200)}' alt='debug'>")
-            slim = {k: v for k, v in st.items() if k not in ("both", "gap_resolved")}
+            slim = {k: v for k, v in st.items() if k not in ("both", "gap_resolved", "bars", "pieces")}
+            slim["bars"] = [f"{'REST' if b['resting'] else 'play'} x{b['x']} {b['ink_sp2']} sp²" for b in st.get("bars", [])]
+            slim["pieces"] = [f"{p['bbox']} {p['area']} px of {p['of']} ({p['how']})" for p in st.get("pieces", [])]
             slim["both"] = st["both"]
             slim["gap_resolved"] = [f"{g['class']} {g['bbox']} ({g['how']})" for g in st["gap_resolved"]]
             parts.append(f"<div class='stats'><pre style='margin:0;white-space:pre-wrap'>{html.escape(json.dumps(slim, indent=1))}</pre></div>")
-    (PC / "clean-compare.html").write_text("\n".join(parts))
+    (RUN / "clean-compare.html").write_text("\n".join(parts))
 
 
 def main(pages: list[int], clean: bool = True) -> None:
@@ -324,12 +348,12 @@ def main(pages: list[int], clean: bool = True) -> None:
     for b in blocks:
         strip.paste(b, (0, y))
         y += b.height + gap
-    strip.save(PC / "strip.png")
+    strip.save(RUN / "strip.png")
     build_html(results)
     if clean:
         build_compare(results)
     slim = [{k: v for k, v in r.items() if k not in ("blocks", "label_parsed", "compare")} for r in results]
-    (PC / "results.json").write_text(json.dumps(slim, indent=2))
+    (RUN / "results.json").write_text(json.dumps(slim, indent=2))
     for r in slim:
         print(json.dumps({"page": r["page"], "systems": [{k: v for k, v in s.items() if k in ("system", "wanted_staves", "status", "n_measures")}
                           | ({"verify": {k: (c["pass"] if isinstance(c, dict) else c) for k, c in s["verify"].items()}} if s.get("verify") else {})
@@ -342,4 +366,5 @@ if __name__ == "__main__":
     ap.add_argument("--no-clean", action="store_true", help="plain fixed-margin crop (the old behaviour), no clean-compare.html")
     ap.add_argument("pages", nargs="*", type=int, default=DEFAULT_PAGES)
     a = ap.parse_args()
+    RUN.mkdir(parents=True, exist_ok=True)
     main(a.pages, clean=not a.no_clean)

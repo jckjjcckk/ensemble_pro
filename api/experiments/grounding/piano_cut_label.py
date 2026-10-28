@@ -13,7 +13,9 @@ output_config.effort, max_tokens >= 1024); the client code is mirrored here beca
 Keeps a running spend tally in out/piano-cut/spend.json and refuses to call once the cap is reached.
 
 Usage (from api/):  uv run experiments/grounding/piano_cut_label.py [--score <pdf stem>] [--instrument "Piano (solo)"] [page ...]
-Writes out/piano-cut/label-p<NN>.json
+Writes label-p<NN>.json into the run folder (common.PIANO_CUT_RUN: the score folder for "Piano (solo)", else
+out/piano-cut/<stem>/<instrument-slug>/). The instrument is any name; header.json (score_header.py) tells the
+prompt how many staves it has, its clefs and its place in the score order.
 """
 
 from __future__ import annotations
@@ -30,7 +32,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from common import PIANO_CUT_OUT, PIANO_CUT_TITLE, PRICE, load_env  # noqa: E402
+from common import PIANO_CUT_INSTRUMENT, PIANO_CUT_OUT, PIANO_CUT_RUN, PIANO_CUT_TITLE, PRICE, load_env  # noqa: E402
 
 MODEL = "muse-spark-1.3"
 
@@ -92,7 +94,8 @@ def model_name() -> str:
     return MODEL
 
 
-PC = PIANO_CUT_OUT
+PC = PIANO_CUT_OUT  # score folder: pages, geometry, overlays, header, spend
+RUN = PIANO_CUT_RUN  # run folder: labels, crops, rechecks, results, html, strip
 SPEND = PC / "spend.json"
 CAP_USD = 1.50  # per score folder
 GLOBAL_SPEND = PC.parent / "spend-global.json" if PC.name != "piano-cut" else PC / "spend-global.json"
@@ -105,7 +108,7 @@ PROMPT = """This is page {page} of a scanned orchestral full score ({title}). A 
 
 Instrument wanted: "{instrument}".
 {header_context}
-Read the margin labels (full names on a first page, abbreviations such as "Pno.", "Fl.", "Cor." on later pages; some pages carry no labels at all, then use the clefs, the brace, the position in the score order and the music itself). A piano part is a pair of staves joined by a curly brace, normally treble over bass, placed between the brass/timpani and the strings.
+Read the margin labels (full names on a first page, abbreviations such as "Pno.", "Fl.", "Cor.", "Vl. I" on later pages; some pages carry no labels at all, then use the clefs, the braces and brackets, the position in the score order and the music itself). {instrument_desc} When the wanted player shares one staff with another player (e.g. "Flauti I. II." written on one staff, or "Violoncello e Basso"), that shared staff is the answer; a player written on its own staff ("Violino I") never shares.
 
 Answer, for each system:
 - the staff numbers that belong to "{instrument}" (an empty list if its staves are not printed in that system),
@@ -137,7 +140,7 @@ def extract_json(text: str) -> tuple[dict, bool]:
         return json.loads(body), False
     except json.JSONDecodeError:
         pass
-    stray = r"(?<=[\]\}])\s*-?[A-Za-z_]+(?=\s*[,\]\}])"
+    stray = r"(?<=[\]\}])\s*-?[A-Za-z_]+(?:=\d+)?(?=\s*[,\]\}])"  # `}-math]`, `]} apron,`, `]} responsibility=0,`
     # the stray word sometimes stands where a closing bracket should have been (`]} apron,` for `]],`)
     for repl in ("", "]", "}"):
         try:
@@ -183,22 +186,117 @@ def parse(text: str) -> tuple[dict | None, str | None, bool]:
 
 def reparse(n: int) -> None:
     """Re-run only the parser on a saved answer (no model call)."""
-    path = PC / f"label-p{n:02d}.json"
+    path = RUN / f"label-p{n:02d}.json"
     out = json.loads(path.read_text())
     out["parsed"], out["parse_error"], out["json_repaired"] = parse(out["raw_text"])
     path.write_text(json.dumps(out, indent=2, ensure_ascii=False))
     print(json.dumps({"page": n, "reparsed": True, "parse_error": out["parse_error"], "json_repaired": out["json_repaired"]}))
 
 
+# instrument names as editions print them (Italian, German, French, English, abbreviations), lower case, no dots
+SYNONYMS = {
+    "piano": ["piano", "pianoforte", "klavier", "pfte", "pno", "p-no", "cembalo", "clavier"],
+    "violin": ["violin", "violino", "violini", "violine", "violinen", "violon", "violons", "vl", "vn", "viol"],
+    "viola": ["viola", "viole", "bratsche", "bratschen", "alto", "altos", "va", "vla"],
+    "cello": ["cello", "celli", "violoncello", "violoncelli", "violoncelle", "vc", "vcl", "vcll"],
+    "bass": ["contrabass", "contrabasso", "contrabassi", "kontrabass", "kontrabaß", "contrebasse", "basso", "bassi", "cb", "kb", "k-b"],
+    "flute": ["flute", "flutes", "flauto", "flauti", "flöte", "flöten", "floete", "fl"],
+    "piccolo": ["piccolo", "flauto piccolo", "kleine flöte", "picc"],
+    "oboe": ["oboe", "oboi", "oboen", "hautbois", "ob"],
+    "english horn": ["english horn", "corno inglese", "englisch horn", "englisches horn", "cor anglais", "c ingl"],
+    "clarinet": ["clarinet", "clarinets", "clarinetto", "clarinetti", "klarinette", "klarinetten", "clarinette", "cl", "klar"],
+    "bassoon": ["bassoon", "bassoons", "fagotto", "fagotti", "fagott", "fagotte", "basson", "fag", "fg", "bsn"],
+    "horn": ["horn", "horns", "corno", "corni", "hörner", "horner", "cor", "cors", "hr"],
+    "trumpet": ["trumpet", "trumpets", "tromba", "trombe", "trompete", "trompeten", "trompette", "tr", "trb", "tromp", "trbe"],
+    "trombone": ["trombone", "trombones", "tromboni", "posaune", "posaunen", "trbni", "trbne", "pos"],
+    "tuba": ["tuba", "basstuba", "tb"],
+    "timpani": ["timpani", "pauken", "timbales", "timp", "pk", "pauk"],
+    "harp": ["harp", "arpa", "harfe", "harpe"],
+    "soprano": ["soprano", "soprani", "sopran", "sopr", "canto", "discant"],
+    "alto": ["alto", "alti", "alt", "contralto"],
+    "tenor": ["tenor", "tenore", "tenori", "ten"],
+    "bass": ["bass", "basso", "bassi", "bässe"],
+    "chorus": ["chorus", "coro", "chor", "choir"],
+}
+VOICES = {"soprano", "alto", "tenor", "bass", "chorus", "mezzo", "baritone", "voice"}
+ROMAN = {"i": 1, "ii": 2, "iii": 3, "iv": 4, "1": 1, "2": 2, "3": 3, "4": 4, "1st": 1, "2nd": 2}
+
+
+def _tokens(text: str) -> list[str]:
+    return [t for t in re.split(r"[^a-z0-9äöüß-]+", (text or "").lower()) if t]
+
+
+def match_instrument(instruments: list[dict], wanted: str) -> dict | None:
+    """The header entry for the wanted instrument ("Violin I", "Flute I", "Piano (solo)"): the family word is
+    matched through the synonym table against the label and abbreviations (as a whole word, so "Fl." matches
+    "flute" but not "Flautino"), and a numeral in the wanted name must appear in the label ("Violino I." has
+    it, "Violini II." does not, "Flauti I. II." has both: a shared staff). Without a numeral the first entry
+    of that family wins."""
+    wtok = _tokens(wanted.split(" (")[0])
+    numerals = [ROMAN[t] for t in wtok if t in ROMAN]
+    words = [t for t in wtok if t not in ROMAN and t not in ("solo",)]
+    if not words:
+        return None
+    family = " ".join(words)
+    names = set(SYNONYMS.get(family, [])) | {family}
+    for key, syns in SYNONYMS.items():
+        if family in syns:
+            names |= set(syns) | {key}
+    voice = family in VOICES
+    best: tuple[int, int, dict] | None = None
+    for k, inst in enumerate(instruments):
+        label_toks = _tokens(inst.get("label") or "")
+        abbr_toks = [t for a in (inst.get("abbreviations") or []) for t in _tokens(a)]
+        label_text = " ".join(label_toks)
+        hit = any(n in label_toks or n in abbr_toks or (" " in n and n in label_text) for n in names)
+        if not hit and family == "piano" and inst.get("family") == "keyboard":
+            hit = True
+        if not hit:
+            continue
+        label_nums = [ROMAN[t] for t in label_toks + abbr_toks if t in ROMAN]
+        if numerals and label_nums and not all(n in label_nums for n in numerals):
+            continue
+        # "Alto" must find the choir's alto ("CORO Alto", family voice), not "Tromboni Alto e Tenore" or the
+        # Viola: a voice name prefers a voice-family entry, then the entry whose label starts with the name
+        inst_family = (inst.get("family") or "").lower()
+        score = (2 if voice and inst_family in ("voice", "vocal", "choir", "chorus") else 0) + \
+                (1 if label_toks and label_toks[0] in names else 0) + (-2 if voice and inst_family in ("brass", "strings", "woodwind") and not any(x in label_toks for x in ("coro", "chor", "chorus", "choir")) else 0)
+        if best is None or score > best[0]:
+            best = (score, k, inst)
+    return best[2] if best else None
+
+
+def header_instruments() -> list[dict]:
+    path = PC / "header.json"
+    if not path.exists():
+        return []
+    return json.loads(path.read_text()).get("instruments") or []
+
+
+def instrument_desc(instrument: str) -> str:
+    """One sentence for the prompts about the wanted instrument, from the header when it knows it."""
+    inst = match_instrument(header_instruments(), instrument)
+    if inst is None:
+        return (f'The header of this edition does not list "{instrument}"; if it is not on the page, answer "absent" for every system. '
+                f"If it is there, it is a single staff unless it is a keyboard or harp part (two staves joined by a curly brace).")
+    ns = int(inst.get("staves") or 1)
+    clefs = ", ".join(inst.get("clefs") or [])
+    return (f'In this edition "{instrument}" is printed as "{inst.get("label")}" (abbreviated {", ".join(inst.get("abbreviations") or []) or "variously"}), '
+            f"{ns} staff{'s' if ns != 1 else ''}" + (f" ({clefs} clef{'s' if ns != 1 else ''})" if clefs else "")
+            + (", joined by a curly brace" if ns == 2 and inst.get("family") == "keyboard" else "")
+            + f", family {inst.get('family')}.")
+
+
+def instrument_staves(instrument: str) -> int | None:
+    inst = match_instrument(header_instruments(), instrument)
+    return int(inst.get("staves") or 1) if inst else None
+
+
 def header_context(geom: dict, instrument: str) -> str:
     """Score order from header.json (score_header.py) as prompt context, plus the by-order guess per system:
     when a system has exactly the header's staff count, staff k is the k-th staff of the list; when it has fewer,
     some instruments are not printed (cut-away) or a staff was missed, and Spark decides from labels and clefs."""
-    path = PC / "header.json"
-    if not path.exists():
-        return ""
-    hdr = json.loads(path.read_text())
-    inst = hdr.get("instruments") or []
+    inst = header_instruments()
     if not inst:
         return ""
     order, k = [], 1
@@ -209,15 +307,13 @@ def header_context(geom: dict, instrument: str) -> str:
     total = k - 1
     lines = [f"Score header (read from the first page): {total} staves per full system, in this order (position: instrument): "
              + "; ".join(order) + "."]
-    want = instrument.lower().split(" (")[0]
-    cand = [i for i in inst if want in (i.get("label") or "").lower() or any(want in a.lower() for a in i.get("abbreviations") or [])
-            or (want == "piano" and i.get("family") == "keyboard")]
+    cand = match_instrument(inst, instrument)
     pos = None
     if cand:
         k = 1
         for i in inst:
             ns = int(i.get("staves") or 1)
-            if i is cand[0]:
+            if i is cand:
                 pos = list(range(k, k + ns))
                 break
             k += ns
@@ -242,7 +338,7 @@ async def run_page(n: int, instrument: str, effort: str) -> dict:
         f"system {s['index']} = staves {s['staff_indices'][0]}..{s['staff_indices'][-1]}" for s in geom["systems"])
     prompt = PROMPT.format(title=PIANO_CUT_TITLE, page=n, first=geom["staves"][0]["index"], last=geom["staves"][-1]["index"],
                            n_systems=len(geom["systems"]), systems_desc=systems_desc, instrument=instrument,
-                           header_context=header_context(geom, instrument))
+                           header_context=header_context(geom, instrument), instrument_desc=instrument_desc(instrument))
     t0 = time.perf_counter()
     text, charge, parsed, parse_error, retries = await complete_json(
         prompt, system=SYSTEM, effort=effort, max_tokens=8000, image_png_b64=base64.b64encode(png).decode())
@@ -252,7 +348,8 @@ async def run_page(n: int, instrument: str, effort: str) -> dict:
     out = {"page": n, "instrument": instrument, "model": model_name(), "effort": effort,
            "latency_s": round(dt, 1), "cost_usd": round(cost, 5), "charge": charge, "retries": retries,
            "prompt": prompt, "raw_text": text, "parsed": parsed, "parse_error": parse_error, "json_repaired": repaired}
-    (PC / f"label-p{n:02d}.json").write_text(json.dumps(out, indent=2, ensure_ascii=False))
+    RUN.mkdir(parents=True, exist_ok=True)
+    (RUN / f"label-p{n:02d}.json").write_text(json.dumps(out, indent=2, ensure_ascii=False))
     total = spend_add({"page": n, "cost_usd": round(cost, 5), "latency_s": round(dt, 1), "model": model_name(),
                        "retries": len(retries)})
     summary = {"page": n, "latency_s": round(dt, 1), "cost_usd": round(cost, 4), "running_total_usd": total,
@@ -266,7 +363,7 @@ async def run_page(n: int, instrument: str, effort: str) -> dict:
 
 async def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--instrument", default="Piano (solo)")
+    ap.add_argument("--instrument", default=PIANO_CUT_INSTRUMENT, help="also read by common.py from the command line")
     ap.add_argument("--effort", default="low")
     ap.add_argument("--reparse", action="store_true", help="only re-parse saved answers, no model call")
     ap.add_argument("pages", nargs="*", type=int, default=DEFAULT_PAGES)

@@ -49,6 +49,33 @@ PIANO_CUT_PDF = HERE.parent.parent / "fixtures" / "pdf" / f"{PIANO_CUT_SCORE}.pd
 PIANO_CUT_OUT = OUT / "piano-cut" / ("" if PIANO_CUT_SCORE == PIANO_CUT_DEFAULT else PIANO_CUT_SCORE)
 PIANO_CUT_TITLE = PIANO_CUT_TITLES.get(PIANO_CUT_SCORE, PIANO_CUT_SCORE)
 
+# Which instrument to cut: `--instrument "Violin I"` on any script's command line (removed from sys.argv like
+# --score) or PIANO_CUT_INSTRUMENT=. The score folder keeps what does not depend on the instrument (pages,
+# geometry, overlays, header.json, spend.json); the default "Piano (solo)" keeps writing its labels, crops and
+# results there too (the existing layout), any other instrument gets out/piano-cut/<stem>/<instrument-slug>/.
+PIANO_CUT_DEFAULT_INSTRUMENT = "Piano (solo)"
+
+
+def piano_cut_instrument() -> str:
+    import sys
+
+    argv = sys.argv
+    if "--instrument" in argv:
+        i = argv.index("--instrument")
+        os.environ["PIANO_CUT_INSTRUMENT"] = argv[i + 1]
+        del argv[i : i + 2]
+    return os.environ.get("PIANO_CUT_INSTRUMENT", PIANO_CUT_DEFAULT_INSTRUMENT)
+
+
+def instrument_slug(name: str) -> str:
+    import re
+
+    return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+
+
+PIANO_CUT_INSTRUMENT = piano_cut_instrument()
+PIANO_CUT_RUN = PIANO_CUT_OUT / ("" if PIANO_CUT_INSTRUMENT == PIANO_CUT_DEFAULT_INSTRUMENT else instrument_slug(PIANO_CUT_INSTRUMENT))
+
 # Prices from dev.meta.ai pricing page (see README for the values and date).
 PRICE = {
     "muse-spark-1.3": {"input_per_m": 1.25, "output_per_m": 4.25},  # dev.meta.ai pricing, 2026-10-27
