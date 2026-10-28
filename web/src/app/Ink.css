@@ -162,3 +162,28 @@
   .fo .doc-hint { display: none; }
   .fo .qm-act { min-width: 64px; padding: 6px 6px; }
 }
+
+/* ---------------------------------------------------------------- live marks and presence (item 5) */
+
+/* A mark, cut or stroke from another stand arrives with a quiet 200 ms fade: nothing moves, nothing bounces. */
+@keyframes fo-arrive { from { opacity: 0; } }
+.fo .is-arriving { animation: fo-arrive 200ms var(--ease) both; }
+
+/* The admin's face is filled ink, in the header, on the stage and in the panel. */
+.fo .face.is-lead .face-i, .fo .readers .is-lead .face-i, .fo .o-face.is-lead { background: var(--ink); border-color: var(--ink); color: var(--sheet); }
+.fo .face.is-lead.is-off .face-i { background: transparent; border-color: var(--ink-3); color: var(--ink-3); }
+.fo .presence-more { align-self: center; padding: 0 6px; font-size: 12.5px; color: var(--ink-3); }
+
+/* Follow: green while the pages turn with the admin (green means following, nothing else); a hollow green ring while
+   waiting for the admin to open the score. */
+.fo .follow { gap: 8px; }
+.fo .follow-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid currentColor; flex: none; transition: background-color 160ms var(--ease), border-color 160ms var(--ease); }
+.fo .follow[aria-pressed='true'] .follow-dot { background: var(--green); border-color: var(--green); }
+.fo .follow[aria-pressed='true'].is-waiting .follow-dot { background: transparent; border-color: var(--green); }
+@media (max-width: 779px) {
+  .fo .ph .btn-quiet.follow .follow-label, .fo .ph .btn-quiet.follow .follow-dot { display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fo .is-arriving { animation: none; }
+  .fo .follow-dot { transition: none; }
+}

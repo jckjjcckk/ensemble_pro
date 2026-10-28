@@ -19,10 +19,12 @@ const SIGN_MS = 6000
  * also takes the pointer over the whole stage (Pencil or finger, `touch-action: none` only then): the pen draws a
  * stroke, the eraser removes whole strokes it touches. Once a Pencil has drawn, a resting palm or finger does not.
  */
-export function InkLayer({ geo, rows, uid, active, tool, color, onStroke, onErase }: {
+export function InkLayer({ geo, rows, uid, active, tool, color, onStroke, onErase, arriving }: {
   geo: Geo
   rows: ScribbleRow[]
   uid: string
+  /** Strokes that just arrived from another stand: they fade in. */
+  arriving?: ReadonlySet<string>
   active: boolean
   tool: InkTool
   color: PenColor
@@ -127,7 +129,7 @@ export function InkLayer({ geo, rows, uid, active, tool, color, onStroke, onEras
   return (
     <>
       <svg className={`ink-svg ${active ? 'is-active' : ''}`} aria-hidden="true">
-        {placed.filter(s => !s.mine).map(s => <path key={s.id} className={`ink-path is-${s.color} is-faint`} d={s.d} />)}
+        {placed.filter(s => !s.mine).map(s => <path key={s.id} className={`ink-path is-${s.color} is-faint${arriving?.has(s.id) ? ' is-arriving' : ''}`} d={s.d} />)}
         {placed.filter(s => s.mine).map(s => <path key={s.id} className={`ink-path is-${s.color}`} d={s.d} />)}
         <path ref={live} className={`ink-path is-${color}`} />
         <circle ref={ring} className="ink-ring" r={0} />

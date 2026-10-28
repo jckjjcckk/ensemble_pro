@@ -173,12 +173,12 @@ export function MarkMenu({ geo, state, marks, highlighted, nameOf, onHighlight, 
 }
 
 /** Highlights on the score: one wash per marked bar, under the notes like a highlighter on paper. */
-export function HighlightLayer({ geo, bars }: { geo: Geo; bars: Iterable<number> }) {
+export function HighlightLayer({ geo, bars, arriving }: { geo: Geo; bars: Iterable<number>; /** Bars whose highlight just arrived from another stand. */ arriving?: ReadonlySet<number> }) {
   return (
     <>
       {[...new Set(bars)].map(bar => {
         const b = geo.bars.get(bar)
-        return b ? <div key={`hl${bar}`} className="u-mark" style={{ left: b.x - 2, top: b.y - 8, width: b.w + 4, height: b.h + 16 }} /> : null
+        return b ? <div key={`hl${bar}`} className={`u-mark${arriving?.has(bar) ? ' is-arriving' : ''}`} style={{ left: b.x - 2, top: b.y - 8, width: b.w + 4, height: b.h + 16 }} /> : null
       })}
     </>
   )

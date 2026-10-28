@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { AnimatePresence, motion } from 'motion/react'
-import type { Annotation, AnnotationKind } from '../mock'
+import type { Annotation, AnnotationKind, Member } from '../mock'
 import { Screen, useReducedMotion, useViewport } from './layout'
 import { ScoreStage, type StageView } from './ScoreStage'
 import { Ruler, type RulerMark } from './Ruler'
@@ -13,7 +13,8 @@ import { barRange, firstName, initials, kindLabel, partShort, useStore, type Spa
 import { IClose, IList, IMic, IMinus, IPencil, IPlus, IScissors } from './icons'
 import { useAuth } from './auth'
 import { MY_LIBRARY } from './data'
-import { useBarMarks, useScribbles, type BarMark, type Me, type PenColor } from './ink'
+import { isSyncedScore, useBarMarks, useScribbles, type BarMark, type Me, type PenColor } from './ink'
+import { usePresence } from './presence'
 import { BarSelection, HighlightLayer, MarkMenu, useBarMenu } from './MarkMenu'
 import { InkBar, InkLayer, type InkTool } from './InkLayer'
 
@@ -67,37 +68,39 @@ function Unavailable({ title, detail }: { title: string; detail?: string }) {
 function Doc({ scoreId }: { scoreId: string }) {
   const vp = useViewport()
   const reduced = useReducedMotion()
-  const { contextFor, annotations, addAnnotation, scoresById, partsById, membersById, stripsFor, world } = useStore()
+  const { contextFor, markGroupFor, annotations, addAnnotation, scoresById, partsById, membersById, stripsFor, world } = useStore()
   const { session } = useAuth()
   const score = scoresById[scoreId]
-  // A digital book's split (`?split=`) reads on this stage with only its instruments: the part visibility OSMD already has.
+  const userId = session?.user.id ?? null
   const [search] = useSearchParams()
+  // The mark layer (score_shares): null on a group's own book and for the owner's private marks in their own library;
+  // the group's id when a shared book is open from that group's shelf. The group the book is read in follows it.
+  const layer = markGroupFor(score)
+  const groupId = layer ?? (score.ensembleId !== MY_LIBRARY ? score.ensembleId : null)
+  // A digital book's split (`?split=`) reads on this stage with only its instruments: the part visibility OSMD already has.
   const splitId = search.get('split')
   const split = splitId ? stripsFor(score.id).find(x => x.id === splitId && x.kind === 'musicxml') : undefined
   const splitSel = split ? `split:${split.id}` : null
-  // Standing comes from the membership in the ensemble that owns the score, not from which library is open.
-  const ctx = contextFor(score.ensembleId)
+  // Standing comes from the membership in the group the book is read in, not from which library is open.
+  const ctx = (groupId ? contextFor(groupId) : undefined) ?? contextFor(score.ensembleId)
   const role = ctx?.membership.role ?? 'player'
   const persona = ctx?.persona ?? world.ensembles[0].members[0]
   const canCut = role !== 'player'
   const parts = score.partIds.map(id => partsById[id]).filter(Boolean)
-  const ensemble = world.ensembles.find(e => e.id === score.ensembleId)
-  const hasPresence = false
-  const performers = hasPresence ? (ensemble?.members ?? []).filter(m => m.role === 'leader' || m.role === 'player') : []
-  const leader = performers.find(m => m.role === 'leader' && m.online)
-  const groupBar = leader?.atBar ?? 1
+  const ensemble = world.ensembles.find(e => e.id === groupId)
+  const memberId = ctx?.membership.memberId ?? persona.id
 
   const seat = parts.find(p => p.name === persona.instrument)?.id
   const defaultPart = splitSel ?? (role === 'player' && seat ? seat : 'full')
   const [partSel, setPartSel] = useState<string>(defaultPart)
   useEffect(() => { setPartSel(defaultPart) }, [defaultPart])
-  const [focus, setFocus] = useState({ bar: groupBar, key: 0 })
+  const [focus, setFocus] = useState({ bar: 1, key: 0 })
   const [view, setView] = useState<StageView | null>(null)
   const [pin, setPin] = useState<string | null>(null)
   // The Markings panel floats over the stage at every width, so the score never re-engraves for it; it opens on demand.
   const [listOpen, setListOpen] = useState(false)
   const [tool, setTool] = useState<Tool>(null)
-  const [draftBar, setDraftBar] = useState(groupBar)
+  const [draftBar, setDraftBar] = useState(1)
   const [draftSpan, setDraftSpan] = useState<Span>({ from: 260, to: 267 })
   const [draftKind, setDraftKind] = useState<AnnotationKind>('dynamic')
   const [draftText, setDraftText] = useState('')
@@ -133,14 +136,39 @@ function Doc({ scoreId }: { scoreId: string }) {
   // A split engraves its own pages, so its scribbles are their own layer rather than the full score's.
   const inkPart = isSplit && split ? `split:${split.id}` : partName
 
-  // Quick marks and scribbles (012): synced rows for a score in Supabase, memory for the mock world.
-  const userId = session?.user.id ?? null
-  const memberId = ctx?.membership.memberId ?? persona.id
-  const inEnsemble = score.ensembleId !== MY_LIBRARY
+  // Quick marks and scribbles (012): synced rows for a score in Supabase, kept live over Realtime, read and written in
+  // the book's mark layer (`layer`); memory for the mock world.
+  const inEnsemble = groupId != null
   const me = useMemo<Me>(() => ({ userId, memberId, ensemble: inEnsemble, admin: canCut }), [userId, memberId, inEnsemble, canCut])
   const partIdByName = useMemo(() => Object.fromEntries(score.partIds.map(id => partsById[id]).filter(Boolean).map(p => [p.name, p.id])), [score.partIds, partsById])
-  const quick = useBarMarks(score.id, me, { partIdByName, ensembleId: score.ensembleId })
-  const ink = useScribbles(score.id, inkPart, me)
+  const quick = useBarMarks(score.id, me, { partIdByName, ensembleId: groupId ?? score.ensembleId, layer })
+  const ink = useScribbles(score.id, inkPart, me, layer)
+
+  // Presence (item 5): who in the group is reading this score and on which bar; the reader's own place is written as
+  // they turn pages. Only for a score read in a group, signed in.
+  const presenceMe = useMemo(
+    () => (groupId && userId && isSyncedScore(score.id) && ctx?.ensemble.id === groupId ? { memberId: ctx.membership.memberId, userId } : null),
+    [groupId, userId, score.id, ctx],
+  )
+  const presence = usePresence(score.id, presenceMe, view ? { bar: view.first, part: partName } : null)
+  const hasPresence = !!presenceMe
+  const performers = useMemo<Member[]>(() => {
+    if (!hasPresence) return []
+    const at = new Map(presence.rows.map(p => [p.memberId, p.bar]))
+    return (ensemble?.members ?? [])
+      .filter(m => m.id !== presenceMe?.memberId)
+      .map(m => ({ ...m, online: at.has(m.id), atBar: at.get(m.id) }))
+      // The admin first, then whoever is reading, then the rest; the group's own order inside each.
+      .sort((a, b) => Number(b.role === 'leader') - Number(a.role === 'leader') || Number(b.online) - Number(a.online))
+  }, [hasPresence, presence.rows, ensemble, presenceMe?.memberId])
+  const leader = performers.find(m => m.role === 'leader' && m.online)
+  const faceRoom = vp.narrow ? 3 : 6
+
+  // Follow the conductor (players): the spread follows the admin's bar. Any page turn of the reader's own switches it
+  // off; while the quick menu, the scribble tools or the composer are open, the page holds still.
+  const [following, setFollowing] = useState(false)
+  const canFollow = hasPresence && role === 'player'
+  const followBar = canFollow && following && !menu.menu && !scribble && !tool ? leader?.atBar : undefined
   // Words go to the outer margin when there is room for one beside each page; otherwise the Markings panel carries them.
   // Depends on the viewport only: the panel floating over a margin must not change the engraving.
   const marginW = vp.w >= 1180 ? 184 : 0
@@ -155,10 +183,11 @@ function Doc({ scoreId }: { scoreId: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [annotations, quick.marks, score.id, isFull, isSplit, splitKey, partSel],
   )
-  const cuts = visible.filter(a => a.kind === 'cut').map(a => ({ from: a.barFrom, to: a.barTo, label: `Cut ${barRange(a.barFrom, a.barTo)} · ${a.text ?? ''}`.replace(/ · $/, '') }))
+  const cuts = visible.filter(a => a.kind === 'cut').map(a => ({ from: a.barFrom, to: a.barTo, arriving: a.arriving, label: `Cut ${barRange(a.barFrom, a.barTo)} · ${a.text ?? ''}`.replace(/ · $/, '') }))
   const marks: RulerMark[] = visible.filter(a => a.kind !== 'cut').map(a => ({ id: a.id, bar: a.barFrom, kind: a.kind === 'voice' ? 'voice' : 'mark', label: kindLabel[a.kind] }))
 
-  const jump = (bar: number) => setFocus(f => ({ bar, key: f.key + 1 }))
+  /** The reader asked for a bar (ruler, a face, a marking): their own move, so Follow lets go. */
+  const jump = (bar: number) => { setFollowing(false); setFocus(f => ({ bar, key: f.key + 1 })) }
   const openNote = (id: string) => {
     const a = visible.find(x => x.id === id)
     if (!a) return
@@ -183,7 +212,7 @@ function Doc({ scoreId }: { scoreId: string }) {
     setTool(t)
     setDraftText('')
     setRec({ on: false, sec: 0 })
-    const start = view?.first ?? groupBar
+    const start = view?.first ?? 1
     setDraftBar(start)
     if (t === 'cut') setDraftSpan({ from: start, to: Math.min(score.bars, start + 7) })
   }
@@ -228,6 +257,7 @@ function Doc({ scoreId }: { scoreId: string }) {
   const endScribble = () => { void ink.flush(); setScribble(false) }
 
   const presenceAt = (bar: number) => performers.filter(m => m.online && m.atBar === bar)
+  const arrivingBars = new Set(visible.filter(a => a.kind === 'highlight' && a.arriving).map(a => a.barFrom))
 
   const underlay = (g: Geo) => (
     <>
@@ -235,7 +265,7 @@ function Doc({ scoreId }: { scoreId: string }) {
       {tool === 'cut' && spanRects(g, draftSpan.from, draftSpan.to).map(r => (
         <div key={`d${r.first}`} className="u-cut is-draft" style={{ left: r.x, top: r.y - 10, width: r.w, height: r.h + 20 }} />
       ))}
-      <HighlightLayer geo={g} bars={visible.filter(a => a.kind === 'highlight').map(a => a.barFrom)} />
+      <HighlightLayer geo={g} bars={visible.filter(a => a.kind === 'highlight').map(a => a.barFrom)} arriving={arrivingBars} />
       {!tool && !scribble && <BarSelection geo={g} bar={menuBar} />}
       {(tool === 'marking' || tool === 'voice') && g.bars.get(draftBar) && (() => {
         const b = g.bars.get(draftBar)!
@@ -251,8 +281,8 @@ function Doc({ scoreId }: { scoreId: string }) {
         if (!b) return null
         const who = presenceAt(bar)
         return (
-          <span key={`p${bar}`} className="o-presence" style={{ left: b.x + b.w - 4, top: b.y - 30 }} title={who.map(m => m.name).join(', ')}>
-            {who.map(m => <span key={m.id} className="o-face">{initials(m.name)}</span>)}
+          <span key={`p${bar}`} className="o-presence" style={{ left: b.x + b.w - 4, top: b.y - 30 }} title={who.map(memberName).join(', ')}>
+            {who.map(m => <span key={m.id} className={`o-face ${m.role === 'leader' ? 'is-lead' : ''}`}>{faceLabel(m)}</span>)}
           </span>
         )
       })}
@@ -260,7 +290,7 @@ function Doc({ scoreId }: { scoreId: string }) {
       {marginW > 0 && <MarginLayer geo={g} items={visible.filter(inMargin)} width={marginW} selected={pin} onSelect={setPin} />}
       <InkLayer
         geo={g} rows={ink.rows} uid={ink.uid} active={scribble} tool={inkTool} color={inkColor}
-        onStroke={ink.addStroke} onErase={ink.erase}
+        onStroke={ink.addStroke} onErase={ink.erase} arriving={ink.arriving}
       />
       <MarkMenu
         geo={g} state={scribble || tool ? null : menu.menu} marks={onMenuBar} highlighted={highlighted} nameOf={nameOf}
@@ -281,20 +311,31 @@ function Doc({ scoreId }: { scoreId: string }) {
         <p>{score.composer.split(' ').slice(-1)[0]} · {score.work}</p>
       </div>
       <div className="grow" />
-      {hasPresence && !vp.narrow && <span className="presence-sum">{performers.filter(m => m.online).length} online</span>}
-      {hasPresence && (
+      {hasPresence && !vp.narrow && <span className="presence-sum">{performers.filter(m => m.online).length} reading</span>}
+      {hasPresence && performers.length > 0 && (
         <ul className="presence" aria-label="Who is reading">
-          {performers.map(m => (
-            <li key={m.id}>
-              <button type="button" className={`face ${m.online ? '' : 'is-off'}`} disabled={!m.online || !m.atBar} onClick={() => m.atBar && jump(m.atBar)}
-                aria-label={m.online ? `${m.name}, ${m.instrument}, at bar ${m.atBar}` : `${m.name}, ${m.instrument}, offline`}
-                title={m.online ? `${m.name} · bar ${m.atBar}` : `${m.name} · offline`}>
-                <span className="face-i">{initials(m.name)}</span>
-                <span className="face-bar num">{m.online ? m.atBar : 'off'}</span>
-              </button>
-            </li>
-          ))}
+          {performers.slice(0, faceRoom).map(m => {
+            const who = `${memberName(m)}${m.role === 'leader' ? ', leads' : ''}`
+            return (
+              <li key={m.id}>
+                <button type="button" className={`face ${m.online ? '' : 'is-off'} ${m.role === 'leader' ? 'is-lead' : ''}`} disabled={!m.online || !m.atBar} onClick={() => m.atBar && jump(m.atBar)}
+                  aria-label={m.online ? `${who}, at bar ${m.atBar}. Show bar ${m.atBar}` : `${who}, not reading`}
+                  title={m.online ? `${who} · bar ${m.atBar}` : `${who} · not reading`}>
+                  <span className="face-i">{faceLabel(m)}</span>
+                  <span className="face-bar num">{m.online ? m.atBar : 'off'}</span>
+                </button>
+              </li>
+            )
+          })}
+          {performers.length > faceRoom && <li className="presence-more num" aria-label={`${performers.length - faceRoom} more in the Markings panel`}>+{performers.length - faceRoom}</li>}
         </ul>
+      )}
+      {canFollow && (
+        <button type="button" className={`btn btn-quiet follow ${following && !leader ? 'is-waiting' : ''}`} aria-pressed={following}
+          onClick={() => setFollowing(v => !v)}
+          title={!leader ? 'Turn your pages with the admin once they are reading this score' : following ? `Following ${memberName(leader)}, bar ${leader.atBar}` : `Turn your pages with ${memberName(leader)}`}>
+          <span className="follow-dot" aria-hidden="true" /><span className="follow-label">Follow</span>
+        </button>
       )}
       <button type="button" className="btn btn-quiet" aria-pressed={listOpen} onClick={() => setListOpen(v => !v)}>
         <IList size={20} /><span>Markings</span><span className="count">{visible.length}</span>
@@ -424,6 +465,8 @@ function Doc({ scoreId }: { scoreId: string }) {
           instruments={instruments}
           scale={scale}
           focus={focus}
+          follow={followBar}
+          onUserTurn={() => setFollowing(false)}
           underlay={underlay}
           overlay={overlay}
           onBarTap={onBarTap}
@@ -456,15 +499,15 @@ function Doc({ scoreId }: { scoreId: string }) {
                   </li>
                 ))}
               </ol>
-              {hasPresence && (
+              {hasPresence && performers.length > 0 && (
                 <>
                   <h3 className="side-h">Reading now</h3>
                   <ul className="readers">
                     {performers.map(m => (
-                      <li key={m.id} className={m.online ? '' : 'is-off'}>
-                        <span className="face-i">{initials(m.name)}</span>
-                        <span>{firstName(m.name)} <span className="muted">{m.instrument}</span></span>
-                        <span className="num">{m.online ? `bar ${m.atBar}` : 'offline'}</span>
+                      <li key={m.id} className={`${m.online ? '' : 'is-off'} ${m.role === 'leader' ? 'is-lead' : ''}`}>
+                        <span className="face-i">{faceLabel(m)}</span>
+                        <span>{memberName(m)} <span className="muted">{m.role === 'leader' ? `${m.instrument || 'Admin'}, leads` : m.instrument}</span></span>
+                        <span className="num">{m.online ? `bar ${m.atBar}` : 'not reading'}</span>
                       </li>
                     ))}
                   </ul>
@@ -476,3 +519,8 @@ function Doc({ scoreId }: { scoreId: string }) {
     </Screen>
   )
 }
+
+/** A member without a display name (a fresh account) is named by their seat. */
+const unnamed = (m: Member) => !m.name || m.name === 'A member'
+const memberName = (m: Member) => (unnamed(m) ? m.instrument || 'A member' : firstName(m.name))
+const faceLabel = (m: Member) => (unnamed(m) ? partShort[m.instrument] ?? initials(m.instrument || '?') : initials(m.name))

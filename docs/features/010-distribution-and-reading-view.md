@@ -62,6 +62,13 @@ window.
   stay private, the group's marks live in the group's layer and are kept when the book is unshared. The reader writes
   and filters the layer from `useStore().markGroupFor(score)`; the scribble upsert's `onConflict` gains
   `ensemble_id` (rules and contract in 001 and in `20261028200000_score_shares.sql`).
+- **Every stand live (2026-10-28, build-queue item 5, details and numbers in 012).** Marks, cuts and scribbles from
+  other members arrive on the open score as Realtime row changes and are drawn with a 200 ms fade; the stage never
+  re-engraves for them. The header's presence faces are the real members of the group the book is read in, each with
+  the bar they are on; the admin's face is filled ink; a tap on a face shows that bar (touch.md line 8). A player
+  has **Follow** in the header: the spread turns with the admin's bar, and any turn of the player's own (swipe, the
+  turn buttons, arrow keys, the ruler, a face, a marking) switches it off; it holds still while the quick menu,
+  the scribble tools or the composer are open. Default off.
 - Bound's facing-pages book view (`engraving.tsx`: `useEngraving`, `segments`, `Book`, in
   `docs/design/explorations/4.md`) is a stretch display setting after Nov 1.
 - Acceptance: `docs/acceptance/touch.md` lines 3 to 8 and 12 (not yet run on the iPad).
@@ -92,4 +99,4 @@ window.
 
 1. `measure_placements` overlays on the page reader (tap a bar = select a bar, as in the tap test).
 2. Open Digital on a converted book once `omr_convert` lands (005); check the transcription engraves.
-3. Real iPad pass of `touch.md`.
+3. Real iPad pass of `touch.md`, including line 8 (tap a face) and Follow between two iPads.

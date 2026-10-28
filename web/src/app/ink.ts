@@ -3,8 +3,9 @@
  *  Marks are `annotations` rows on stable `measures.id` (the same record the collaboration item pushes live);
  *  scribbles are `scribbles` rows, one per (score, page as drawn, part, author). A score that is not in Supabase
  *  (the mock world, the practice screen) keeps both in memory for the session, behind the same functions. */
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { supabase } from '../lib/supabase'
+import { isMissingLayer, layerColumn, newId, useArrivals, useLiveRows, type Change } from './presence'
 import type { Annotation, AnnotationKind } from '../mock'
 import type { Geo, Rect } from './geometry'
 
@@ -29,6 +30,8 @@ export type BarMark = Annotation & {
   removable: boolean
   /** Who it is for: everyone, one part, or the author alone (a personal note). */
   audience: 'ensemble' | 'part' | 'member'
+  /** Just arrived from another reader: drawn with a quiet entrance. */
+  arriving?: boolean
 }
 
 /** Who a new mark is for. `self` is a private note (the owner alone in a personal library). */
@@ -64,55 +67,134 @@ let seq = 0
 const tempId = (p: string) => `${p}-${Date.now().toString(36)}-${(seq++).toString(36)}`
 
 // ---------------------------------------------------------------- marks
-
-interface Row {
-  id: string; score_id: string; kind: AnnotationKind; body: string | null; payload: Record<string, unknown> | null
-  audience: 'ensemble' | 'part' | 'member'; audience_part: string | null; author_id: string; status: string; created_at: string
-  mf: { number: number } | null; mt: { number: number } | null
-}
-
-const SELECT = 'id,score_id,kind,body,payload,audience,audience_part,author_id,status,created_at,mf:measures!annotations_measure_from_fkey(number),mt:measures!annotations_measure_to_fkey(number)'
+// ---------------------------------------------------------------- marks
 
 /**
- * The marks on one score: loaded with the score, refetched when any row of it changes (Realtime as a
- * notification; the database is truth), written optimistically. `partIdByName` maps a part audience back to the
- * app's part ids; `ensembleId` lets authors be named by their member rows.
+ * The mark layer a reader is in (`ensemble_id`, migration 20261028200000_score_shares, `useStore().markGroupFor`):
+ * `null` on a group's own book (null means the book's group) and for the owner's private marks in their own library;
+ * a group id for that group's layer on a shared personal book; `undefined` where nothing is layered (practice).
+ * Marks and scribbles are read, written and applied from Realtime in that layer only: an owner of a shared book can
+ * read every layer, so an unfiltered read would mix them.
  */
-export function useBarMarks(scoreId: string, me: Me | null, opts: { partIdByName?: Record<string, string>; ensembleId?: string } = {}) {
+export type Layer = string | null | undefined
+
+/** An annotation as the reader holds it: the stored record, its bars resolved to numbers. */
+interface Rec {
+  id: string; scoreId: string; kind: AnnotationKind; body: string | null
+  audience: 'ensemble' | 'part' | 'member'; audiencePart: string | null
+  authorId: string; createdAt: string; barFrom: number; barTo: number
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Row = Record<string, any>
+
+const COLS = 'id,score_id,kind,body,payload,audience,audience_part,author_id,status,created_at,measure_from,measure_to'
+const BARS = 'mf:measures!annotations_measure_from_fkey(number),mt:measures!annotations_measure_to_fkey(number)'
+const markSelect = () => `${COLS}${layerColumn.missing ? '' : ',ensemble_id'},${BARS}`
+
+const posInt = (v: unknown) => (typeof v === 'number' && Number.isInteger(v) && v > 0 ? v : null)
+
+/** A row from a query (bars embedded) or from Realtime (bars from the measure cache or the payload); null when its
+ *  bars cannot be told yet. Learns measure numbers into `bars` as it goes. */
+function toRec(r: Row, bars: Map<string, number>): Rec | null {
+  if (r.mf?.number) bars.set(r.measure_from, r.mf.number)
+  if (r.mt?.number) bars.set(r.measure_to, r.mt.number)
+  const from = posInt(r.mf?.number) ?? bars.get(r.measure_from) ?? posInt(r.payload?.bar)
+  if (from == null) return null
+  const to = posInt(r.mt?.number) ?? bars.get(r.measure_to) ?? posInt(r.payload?.bar_to) ?? from
+  return {
+    id: r.id, scoreId: r.score_id, kind: r.kind, body: r.body ?? null, audience: r.audience,
+    audiencePart: r.audience_part ?? null, authorId: r.author_id, createdAt: r.created_at ?? new Date().toISOString(),
+    barFrom: from, barTo: to,
+  }
+}
+
+const inLayer = (r: Row, layer: Layer) => layer === undefined || layerColumn.missing || (r.ensemble_id ?? null) === layer
+
+/**
+ * The marks on one score: loaded with the score, then kept live from Realtime row changes (an insert, update or
+ * delete by anyone is applied to this list as it arrives, without a refetch), written optimistically with ids made
+ * here, so a mark and its own Realtime echo are one row. On every (re)join of the channel the score's rows are
+ * fetched once and reconciled: nothing lost during a wifi drop, nothing doubled. `partIdByName` maps a part audience
+ * back to the app's part ids; `ensembleId` lets authors be named by their member rows.
+ */
+export function useBarMarks(scoreId: string, me: Me | null, opts: { partIdByName?: Record<string, string>; ensembleId?: string; layer?: Layer } = {}) {
   const synced = !!me?.userId && isSyncedScore(scoreId)
   const local = useSyncExternalStore(localMarks.subscribe, () => localMarks.get(scoreId))
-  const [rows, setRows] = useState<BarMark[]>([])
+  const [recs, setRecs] = useState<Rec[]>([])
   const [authors, setAuthors] = useState<Record<string, string>>({})
   const [error, setError] = useState<string | null>(null)
-  const meRef = useRef(me)
-  useEffect(() => { meRef.current = me })
+  const arrivals = useArrivals()
+  const markArrival = arrivals.mark
+  const layer = opts.layer
   const partIds = opts.partIdByName
-  const partIdsRef = useRef(partIds)
-  useEffect(() => { partIdsRef.current = partIds })
+  const meRef = useRef(me)
+  const layerRef = useRef(layer)
+  useLayoutEffect(() => { meRef.current = me; layerRef.current = layer })
+  const recsRef = useRef(recs)
+  useLayoutEffect(() => { recsRef.current = recs })
+  /** measures.id → bar number, learnt from every row fetched. */
+  const bars = useRef(new Map<string, number>())
+  /** Written here and not yet confirmed; removed here and not yet confirmed. A refetch keeps the first, drops the second. */
+  const pending = useRef(new Set<string>())
+  const removing = useRef(new Set<string>())
+  /** Changes that arrive while a refetch is in flight wait for it, then apply on top of its snapshot. */
+  const syncing = useRef(0)
+  const held = useRef<Change[]>([])
 
-  const toMark = useCallback((r: Row, who: Record<string, string>): BarMark => {
-    const m = meRef.current
-    const bar = r.mf?.number ?? Number(r.payload?.bar ?? 0)
-    const mine = r.author_id === m?.userId
-    return {
-      id: r.id, scoreId: r.score_id, kind: r.kind,
-      partId: r.audience === 'part' && r.audience_part ? partIdsRef.current?.[r.audience_part] ?? r.audience_part : null,
-      authorId: mine ? m!.memberId : who[r.author_id] ?? r.author_id,
-      barFrom: bar, barTo: r.mt?.number ?? bar,
-      text: r.body ?? undefined, createdAt: r.created_at,
-      mine, removable: mine || !!m?.admin, audience: r.audience,
-    }
+  const upsert = useCallback((rec: Rec) => {
+    if (removing.current.has(rec.id)) return
+    setRecs(xs => {
+      const i = xs.findIndex(x => x.id === rec.id)
+      return i < 0 ? [...xs, rec] : xs.map((x, j) => (j === i ? rec : x))
+    })
   }, [])
 
-  const authorsRef = useRef(authors)
-  useEffect(() => { authorsRef.current = authors })
+  const fetchOne = useCallback(async (id: string) => {
+    const { data } = await supabase.from('annotations').select(markSelect()).eq('id', id).maybeSingle()
+    const rec = data ? toRec(data as Row, bars.current) : null
+    if (rec) upsert(rec)
+    else setRecs(xs => xs.filter(x => x.id !== id)) // no longer visible to this reader
+  }, [upsert])
+
+  const apply = useCallback((c: Change) => {
+    if (syncing.current) { held.current.push(c); return }
+    if (c.eventType === 'DELETE') {
+      const id = String(c.old.id)
+      setRecs(xs => (xs.some(x => x.id === id) ? xs.filter(x => x.id !== id) : xs))
+      return
+    }
+    const r = c.new
+    if (r.score_id !== scoreId || !inLayer(r, layerRef.current)) return
+    const rec = c.errors ? null : toRec(r, bars.current)
+    if (!rec) { void fetchOne(String(r.id)); return }
+    if (pending.current.has(rec.id)) return // our own write's echo: the insert's answer replaces the optimistic row
+    if (c.eventType === 'INSERT' && rec.authorId !== meRef.current?.userId) markArrival([rec.id])
+    upsert(rec)
+  }, [scoreId, fetchOne, upsert, markArrival])
 
   const refetch = useCallback(async () => {
-    const { data, error: e } = await supabase.from('annotations').select(SELECT).eq('score_id', scoreId).order('created_at')
-    if (e) { setError(e.message); return }
-    setError(null)
-    setRows((data as unknown as Row[]).map(r => toMark(r, authorsRef.current)))
-  }, [scoreId, toMark])
+    syncing.current++
+    const run = () => {
+      let q = supabase.from('annotations').select(markSelect()).eq('score_id', scoreId)
+      if (layer !== undefined && !layerColumn.missing) q = layer === null ? q.is('ensemble_id', null) : q.eq('ensemble_id', layer)
+      return q.order('created_at')
+    }
+    let res = await run()
+    if (res.error && isMissingLayer(res.error)) { layerColumn.missing = true; res = await run() }
+    syncing.current--
+    if (res.error) setError(res.error.message)
+    else {
+      setError(null)
+      const fresh = ((res.data ?? []) as unknown as Row[]).map(r => toRec(r, bars.current)).filter((x): x is Rec => !!x)
+      const ids = new Set(fresh.map(x => x.id))
+      setRecs(prev => [
+        ...fresh.filter(x => !removing.current.has(x.id)),
+        ...prev.filter(x => pending.current.has(x.id) && !ids.has(x.id)),
+      ])
+    }
+    if (!syncing.current) { const h = held.current; held.current = []; h.forEach(apply) }
+  }, [scoreId, layer, apply])
 
   // Who wrote what: account ids to the member ids the screens name.
   const ensembleId = opts.ensembleId
@@ -127,20 +209,22 @@ export function useBarMarks(scoreId: string, me: Me | null, opts: { partIdByName
   }, [synced, ensembleId])
 
   useEffect(() => {
-    if (!synced) { setRows([]); return }
-    void refetch()
-    let timer: number | undefined
-    const ch = supabase.channel(`marks:${scoreId}:${tempId('c')}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'annotations', filter: `score_id=eq.${scoreId}` }, () => {
-        window.clearTimeout(timer)
-        timer = window.setTimeout(() => void refetch(), 150)
-      })
-      .subscribe()
-    return () => { window.clearTimeout(timer); void supabase.removeChannel(ch) }
-  }, [synced, scoreId, refetch])
+    setRecs([])
+    if (synced) void refetch()
+  }, [synced, refetch])
+  const status = useLiveRows(synced ? scoreId : null, ['annotations'], apply, () => void refetch())
 
-  // A late author map re-labels what is already loaded.
-  useEffect(() => { if (synced && Object.keys(authors).length) void refetch() }, [authors, synced, refetch])
+  const rows = useMemo<BarMark[]>(() => recs.map(r => {
+    const mine = r.authorId === me?.userId
+    return {
+      id: r.id, scoreId: r.scoreId, kind: r.kind,
+      partId: r.audience === 'part' && r.audiencePart ? partIds?.[r.audiencePart] ?? r.audiencePart : null,
+      authorId: mine ? me!.memberId : authors[r.authorId] ?? r.authorId,
+      barFrom: r.barFrom, barTo: r.barTo, text: r.body ?? undefined, createdAt: r.createdAt,
+      mine, removable: mine || !!me?.admin, audience: r.audience,
+      ...(arrivals.ids.has(r.id) ? { arriving: true } : {}),
+    }
+  }), [recs, me, authors, partIds, arrivals.ids])
 
   const marks = synced ? rows : local
 
@@ -148,43 +232,66 @@ export function useBarMarks(scoreId: string, me: Me | null, opts: { partIdByName
     const m = meRef.current
     const barTo = n.barTo ?? n.barFrom
     const aud = n.audience
-    const temp: BarMark = {
-      id: tempId('m'), scoreId, kind: n.kind, partId: typeof n.audience === 'object' ? partIdsRef.current?.[n.audience.part] ?? null : null,
-      authorId: m?.memberId ?? LOCAL_AUTHOR, barFrom: n.barFrom, barTo, text: n.text, createdAt: new Date().toISOString(),
-      mine: true, removable: true,
-      audience: aud === 'self' ? (m?.ensemble === false ? 'ensemble' : 'member') : aud === 'ensemble' ? 'ensemble' : 'part',
+    const id = newId()
+    const audience = aud === 'self' ? (m?.ensemble === false ? 'ensemble' : 'member') : aud === 'ensemble' ? 'ensemble' : 'part'
+    if (!synced) {
+      const temp: BarMark = {
+        id, scoreId, kind: n.kind, partId: typeof aud === 'object' ? partIds?.[aud.part] ?? null : null,
+        authorId: m?.memberId ?? LOCAL_AUTHOR, barFrom: n.barFrom, barTo, text: n.text, createdAt: new Date().toISOString(),
+        mine: true, removable: true, audience,
+      }
+      localMarks.set(scoreId, [...localMarks.get(scoreId), temp])
+      return
     }
-    if (!synced) { localMarks.set(scoreId, [...localMarks.get(scoreId), temp]); return }
-    setRows(xs => [...xs, temp])
+    pending.current.add(id)
+    upsert({
+      id, scoreId, kind: n.kind, body: n.text ?? null, audience, audiencePart: typeof aud === 'object' ? aud.part : null,
+      authorId: m!.userId!, createdAt: new Date().toISOString(), barFrom: n.barFrom, barTo,
+    })
     try {
       const nums = [...new Set([n.barFrom, barTo])]
       const { data: ids, error: e1 } = await supabase.rpc('measure_ids', { p_score: scoreId, p_numbers: nums })
       if (e1) throw e1
       const idOf = new Map((ids as { number: number; id: string }[]).map(r => [r.number, r.id]))
-      const audience = aud === 'self'
+      for (const [num, mid] of idOf) bars.current.set(mid, num)
+      const who = aud === 'self'
         ? (m!.ensemble ? { audience: 'member', audience_member_id: m!.memberId } : { audience: 'ensemble' })
         : aud === 'ensemble' ? { audience: 'ensemble' } : { audience: 'part', audience_part: aud.part }
-      const { data, error: e2 } = await supabase.from('annotations').insert({
-        score_id: scoreId, kind: n.kind, measure_from: idOf.get(n.barFrom), measure_to: idOf.get(barTo),
+      const lay = layerRef.current
+      const row: Row = {
+        id, score_id: scoreId, kind: n.kind, measure_from: idOf.get(n.barFrom), measure_to: idOf.get(barTo),
         author_id: m!.userId, body: n.text ?? null, payload: { bar: n.barFrom, bar_to: barTo, part: n.part ?? null, via: 'quick' },
-        ...audience,
-      }).select(SELECT).single()
-      if (e2) throw e2
-      setRows(xs => xs.map(x => (x.id === temp.id ? toMark(data as unknown as Row, authorsRef.current) : x)))
+        ...who,
+        // Every mark names its layer; a stack without the column takes the write without it (retried below).
+        ...(lay !== undefined && !layerColumn.missing ? { ensemble_id: lay } : {}),
+      }
+      let res = await supabase.from('annotations').insert(row).select(markSelect()).single()
+      if (res.error && isMissingLayer(res.error)) {
+        layerColumn.missing = true
+        delete row.ensemble_id
+        res = await supabase.from('annotations').insert(row).select(markSelect()).single()
+      }
+      if (res.error) throw res.error
+      pending.current.delete(id)
+      const rec = toRec(res.data as unknown as Row, bars.current)
+      if (rec) upsert(rec)
       setError(null)
     } catch (e) {
-      setRows(xs => xs.filter(x => x.id !== temp.id))
+      pending.current.delete(id)
+      setRecs(xs => xs.filter(x => x.id !== id))
       setError(e instanceof Error ? e.message : String((e as { message?: string })?.message ?? e))
     }
-  }, [scoreId, synced, toMark])
+  }, [scoreId, synced, partIds, upsert])
 
   const remove = useCallback(async (id: string): Promise<void> => {
     if (!synced) { localMarks.set(scoreId, localMarks.get(scoreId).filter(x => x.id !== id)); return }
-    let removed: BarMark | undefined
-    setRows(xs => { removed = xs.find(x => x.id === id); return xs.filter(x => x.id !== id) })
+    const was = recsRef.current.find(x => x.id === id)
+    removing.current.add(id)
+    setRecs(xs => xs.filter(x => x.id !== id))
     const { error: e } = await supabase.from('annotations').delete().eq('id', id)
-    if (e) { setError(e.message); if (removed) setRows(xs => [...xs, removed!]) }
-  }, [scoreId, synced])
+    removing.current.delete(id)
+    if (e) { setError(e.message); if (was) upsert(was) }
+  }, [scoreId, synced, upsert])
 
   /** Highlight is a toggle of the reader's own highlight on that bar; other people's stay. */
   const toggleHighlight = useCallback((bar: number, part: string | null) => {
@@ -193,7 +300,7 @@ export function useBarMarks(scoreId: string, me: Me | null, opts: { partIdByName
     return add({ kind: 'highlight', barFrom: bar, audience: 'ensemble', part })
   }, [marks, add, remove])
 
-  return { marks, add, remove, toggleHighlight, synced, error }
+  return { marks, add, remove, toggleHighlight, synced, error, live: status }
 }
 
 // ---------------------------------------------------------------- scribbles
@@ -220,6 +327,8 @@ export interface Stroke {
 }
 
 export interface ScribbleRow {
+  /** The stored row's id, once it has one (a Realtime delete names only this). */
+  id?: string
   page: number
   /** parts.name on screen, null for the full score. */
   part: string | null
@@ -230,52 +339,90 @@ export interface ScribbleRow {
 const LOCAL_USER = 'local'
 const localInk = memory<ScribbleRow>()
 const SAVE_EVERY_MS = 3000
+const INK_KEY = 'score_id,page,part,user_id'
+
+const toInk = (r: Row): ScribbleRow => ({
+  id: r.id, page: r.page as number, part: (r.part as string | null) ?? null, userId: r.user_id as string,
+  strokes: (r.strokes as Stroke[]) ?? [],
+})
 
 /**
  * Everyone's strokes on one score and part, plus the reader's own edits. Loaded with the score (rows are small;
- * strokes are placed by bar, so every page on screen draws from the same set), refetched on any change. The
+ * strokes are placed by bar, so every page on screen draws from the same set), then kept live: another reader's
+ * saved page arrives as a row change and replaces that page, its new strokes fading in. A page the reader is still
+ * editing keeps its local strokes until saved. On every (re)join the rows are fetched once and reconciled. The
  * reader's pages save every few seconds while they draw, and at once on `flush` (Done) and on leaving.
  */
-export function useScribbles(scoreId: string, part: string | null, me: Me | null) {
+export function useScribbles(scoreId: string, part: string | null, me: Me | null, layer?: Layer) {
   const synced = !!me?.userId && isSyncedScore(scoreId)
   const uid = synced ? me!.userId! : LOCAL_USER
   const localKey = `${scoreId}|${part ?? ''}`
   const local = useSyncExternalStore(localInk.subscribe, () => localInk.get(localKey))
   const [remote, setRemote] = useState<ScribbleRow[]>([])
   const [state, setState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const arrivals = useArrivals()
+  const markArrival = arrivals.mark
   /** Pages of the reader's own ink edited since the last save. */
   const dirty = useRef(new Set<number>())
   const timer = useRef<number | undefined>(undefined)
   const remoteRef = useRef(remote)
-  useEffect(() => { remoteRef.current = remote })
+  useLayoutEffect(() => { remoteRef.current = remote })
+  const layerRef = useRef(layer)
+  useLayoutEffect(() => { layerRef.current = layer })
 
   const refetch = useCallback(async () => {
-    let q = supabase.from('scribbles').select('page,part,user_id,strokes').eq('score_id', scoreId)
-    q = part === null ? q.is('part', null) : q.eq('part', part)
-    const { data, error } = await q
-    if (error) { console.warn('scribbles', error.message); return }
-    const fresh = (data ?? []).map(r => ({ page: r.page as number, part: (r.part as string | null) ?? null, userId: r.user_id as string, strokes: (r.strokes as Stroke[]) ?? [] }))
+    const run = () => {
+      let q = supabase.from('scribbles').select(`id,page,part,user_id,strokes${layerColumn.missing ? '' : ',ensemble_id'}`).eq('score_id', scoreId)
+      q = part === null ? q.is('part', null) : q.eq('part', part)
+      if (layer !== undefined && !layerColumn.missing) q = layer === null ? q.is('ensemble_id', null) : q.eq('ensemble_id', layer)
+      return q
+    }
+    let res = await run()
+    if (res.error && isMissingLayer(res.error)) { layerColumn.missing = true; res = await run() }
+    if (res.error) { console.warn('scribbles', res.error.message); return }
+    const fresh = ((res.data ?? []) as Row[]).map(toInk)
     // Pages the reader is still editing keep their local strokes until saved.
     setRemote(prev => {
       const keep = prev.filter(r => r.userId === uid && dirty.current.has(r.page))
       return [...fresh.filter(r => !(r.userId === uid && dirty.current.has(r.page))), ...keep]
     })
-  }, [scoreId, part, uid])
+  }, [scoreId, part, uid, layer])
+
+  const refetchSoon = useRef<number | undefined>(undefined)
+  const apply = useCallback((c: Change) => {
+    if (c.eventType === 'DELETE') {
+      const id = String(c.old.id)
+      setRemote(xs => (xs.some(x => x.id === id) ? xs.filter(x => x.id !== id) : xs))
+      return
+    }
+    const r = c.new
+    if (r.score_id !== scoreId || (r.part ?? null) !== part || !inLayer(r, layerRef.current)) return
+    if (c.errors || !Array.isArray(r.strokes)) {
+      // Too large to travel: read it from the database instead.
+      window.clearTimeout(refetchSoon.current)
+      refetchSoon.current = window.setTimeout(() => void refetch(), 150)
+      return
+    }
+    const row = toInk(r)
+    if (row.userId === uid && dirty.current.has(row.page)) return
+    if (row.userId !== uid) {
+      const had = new Set(remoteRef.current.find(x => x.userId === row.userId && x.page === row.page)?.strokes.map(s => s.id))
+      markArrival(row.strokes.filter(s => !had.has(s.id)).map(s => s.id))
+    }
+    setRemote(xs => {
+      const i = xs.findIndex(x => x.userId === row.userId && x.page === row.page)
+      return i < 0 ? [...xs, row] : xs.map((x, j) => (j === i ? row : x))
+    })
+  }, [scoreId, part, uid, refetch, markArrival])
 
   useEffect(() => {
     setRemote([])
     if (!synced) return
     dirty.current.clear()
     void refetch()
-    let t: number | undefined
-    const ch = supabase.channel(`ink:${scoreId}:${tempId('c')}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'scribbles', filter: `score_id=eq.${scoreId}` }, () => {
-        window.clearTimeout(t)
-        t = window.setTimeout(() => void refetch(), 200)
-      })
-      .subscribe()
-    return () => { window.clearTimeout(t); void supabase.removeChannel(ch) }
-  }, [synced, scoreId, refetch])
+    return () => window.clearTimeout(refetchSoon.current)
+  }, [synced, refetch])
+  useLiveRows(synced ? scoreId : null, ['scribbles'], apply, () => void refetch())
 
   const rows = synced ? remote : local
 
@@ -287,11 +434,16 @@ export function useScribbles(scoreId: string, part: string | null, me: Me | null
     dirty.current.clear()
     setState('saving')
     const own = remoteRef.current.filter(r => r.userId === uid)
-    const payload = pages.map(page => ({
+    const lay = layerRef.current
+    const payload = (withLayer: boolean) => pages.map(page => ({
       score_id: scoreId, page, part, user_id: uid,
       strokes: own.find(r => r.page === page)?.strokes ?? [],
+      ...(withLayer && lay !== undefined ? { ensemble_id: lay } : {}),
     }))
-    const { error } = await supabase.from('scribbles').upsert(payload, { onConflict: 'score_id,page,part,user_id' })
+    // With the share migration the unique key carries the layer (`ensemble_id`); without it, it does not.
+    const put = () => supabase.from('scribbles').upsert(payload(!layerColumn.missing), { onConflict: layerColumn.missing ? INK_KEY : `${INK_KEY},ensemble_id` })
+    let { error } = await put()
+    if (error && isMissingLayer(error)) { layerColumn.missing = true; ({ error } = await put()) }
     if (error) {
       pages.forEach(p => dirty.current.add(p))
       setState('error')
@@ -310,7 +462,7 @@ export function useScribbles(scoreId: string, part: string | null, me: Me | null
     const apply = (xs: ScribbleRow[]) => {
       const i = xs.findIndex(r => r.userId === uid && r.page === page)
       const cur = i >= 0 ? xs[i].strokes : []
-      const next = { page, part, userId: uid, strokes: fn(cur) }
+      const next = { ...(i >= 0 ? xs[i] : {}), page, part, userId: uid, strokes: fn(cur) }
       return i >= 0 ? xs.map((r, j) => (j === i ? next : r)) : [...xs, next]
     }
     if (!synced) { localInk.set(localKey, apply(localInk.get(localKey))); return }
@@ -326,7 +478,7 @@ export function useScribbles(scoreId: string, part: string | null, me: Me | null
     pages.forEach(p => edit(p, xs => xs.filter(s => !ids.has(s.id))))
   }, [rows, uid, edit])
 
-  return { rows, uid, addStroke, erase, flush: save, synced, state }
+  return { rows, uid, addStroke, erase, flush: save, synced, state, arriving: arrivals.ids }
 }
 
 // ---------------------------------------------------------------- stroke geometry

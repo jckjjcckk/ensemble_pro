@@ -22,6 +22,8 @@ interface Props {
   focus: { bar: number; key: number }
   /** Keep this bar on screen: turns the page when it leaves the spread. */
   follow?: number
+  /** The reader turned the page themselves (swipe, the turn buttons, the arrow keys). */
+  onUserTurn?: () => void
   underlay?: (g: Geo) => ReactNode
   overlay?: (g: Geo) => ReactNode
   onBarTap?: (bar: number) => void
@@ -47,7 +49,7 @@ function nearest(xs: number[], v: number) {
  * window resize, settled), or the part changed. Chrome never resizes it: panels and the composer float over it.
  * The reader's place survives every engrave as a bar number (the anchor), never as a page number.
  */
-export function ScoreStage({ src, instruments, scale, focus, follow, underlay, overlay, onBarTap, onEmptyTap, onBarHold, onView, margin, label }: Props) {
+export function ScoreStage({ src, instruments, scale, focus, follow, onUserTurn, underlay, overlay, onBarTap, onEmptyTap, onBarHold, onView, margin, label }: Props) {
   const stageRef = useRef<HTMLDivElement>(null)
   const hostRef = useRef<HTMLDivElement>(null)
   const osmdRef = useRef<OpenSheetMusicDisplay | null>(null)
@@ -214,7 +216,7 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
   const spreads = geo ? Math.max(1, Math.ceil(geo.pageCount / n)) : 1
   const spread = geo ? Math.max(0, Math.min(spreads - 1, Math.floor((geo.barPage.get(anchor) ?? 0) / n))) : 0
 
-  // Follow a moving bar (practice playhead): turn when it leaves the spread.
+  // Follow a moving bar (the practice playhead, the conductor's place): turn when it leaves the spread.
   useEffect(() => {
     if (!geo || follow == null) return
     const p = geo.barPage.get(follow)
@@ -238,7 +240,7 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
     const next = Math.max(0, Math.min(spreads - 1, spread + d))
     if (next === spread) return
     const first = geo.pageBars[next * n]?.[0]
-    if (Number.isFinite(first)) setAnchor(first)
+    if (Number.isFinite(first)) { setAnchor(first); onUserTurn?.() }
   }
 
   const onKeyDown = (e: KeyboardEvent) => {

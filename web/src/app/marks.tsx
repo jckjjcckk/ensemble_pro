@@ -7,6 +7,9 @@ import { spanRects, type Geo } from './geometry'
 import { Pop } from './Sheet'
 import { IHighlight } from './MarkIcons'
 
+/** A mark that just arrived from another stand draws a quiet entrance (`.is-arriving` in Ink.css). */
+const arriving = (a: Annotation) => ((a as Annotation & { arriving?: boolean }).arriving ? ' is-arriving' : '')
+
 export function pinText(a: Annotation, authorName = ''): string {
   const author = { name: authorName }
   switch (a.kind) {
@@ -107,7 +110,7 @@ export function PinLayer({ geo, items, selected, onSelect }: {
           <div key={bar} className="pins" style={{ left: b.x, top: b.y - 34 }}>
             {list.map(a => (
               <button
-                key={a.id} type="button" className={`pin is-${a.kind}`} aria-expanded={selected === a.id}
+                key={a.id} type="button" className={`pin is-${a.kind}${arriving(a)}`} aria-expanded={selected === a.id}
                 onClick={e => { e.stopPropagation(); onSelect(selected === a.id ? null : a.id) }}
               >
                 <KindIcon kind={a.kind} size={14} />
@@ -137,11 +140,11 @@ export function PinLayer({ geo, items, selected, onSelect }: {
 }
 
 /** The cut, drawn on the score as hatching over the skipped bars. */
-export function CutLayer({ geo, cuts }: { geo: Geo; cuts: { from: number; to: number; label?: string }[] }) {
+export function CutLayer({ geo, cuts }: { geo: Geo; cuts: { from: number; to: number; label?: string; arriving?: boolean }[] }) {
   return (
     <>
       {cuts.map(c => spanRects(geo, c.from, c.to).map((r, i) => (
-        <div key={`${c.from}-${r.first}`} className="u-cut" style={{ left: r.x, top: r.y - 10, width: r.w, height: r.h + 20 }}>
+        <div key={`${c.from}-${c.to}-${r.first}`} className={`u-cut${c.arriving ? ' is-arriving' : ''}`} style={{ left: r.x, top: r.y - 10, width: r.w, height: r.h + 20 }}>
           {i === 0 && <span className="u-cut-label">{c.label ?? `Cut ${barRange(c.from, c.to)}`}</span>}
         </div>
       )))}
@@ -210,7 +213,7 @@ export function MarginLayer({ geo, items, width, selected, onSelect }: {
         const author = membersById[p.a.authorId]
         const sel = selected === p.a.id
         return (
-          <div key={p.a.id} className={`m-note is-${p.side} ${sel ? 'is-sel' : ''}`} style={{ left, top: p.top, width: noteW }} data-mnote={p.a.id}>
+          <div key={p.a.id} className={`m-note is-${p.side} ${sel ? 'is-sel' : ''}${arriving(p.a)}`} style={{ left, top: p.top, width: noteW }} data-mnote={p.a.id}>
             <span className="m-tick" aria-hidden="true" style={{ top: p.y - p.top + 6 }} />
             <button type="button" className="m-body" aria-pressed={sel} onClick={e => { e.stopPropagation(); onSelect(sel ? null : p.a.id) }}>
               <span className="m-meta"><KindIcon kind={p.a.kind} size={13} />{firstName(author?.name ?? '')} · <span className="num">bar {barRange(p.a.barFrom, p.a.barTo)}</span></span>

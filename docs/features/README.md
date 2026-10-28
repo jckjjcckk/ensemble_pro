@@ -19,7 +19,7 @@ only the roadmap, status per feature, the decisions log, CK's to-do and the setu
 | 009 | [OMR engine comparison](009-omr-engine-comparison.md) | working | none |
 | 010 | [Distribution and reading view](010-distribution-and-reading-view.md) | prototype | none |
 | 011 | [Edit mode](011-edit-mode.md) | designed | Spark (asks) |
-| 012 | [Symbols layer](012-symbols-layer.md) | designed | Spark (proposes) |
+| 012 | [Symbols layer](012-symbols-layer.md) | prototype | Spark (proposes) |
 | 013 | [Collaboration intelligence](013-collaboration-intelligence.md) | designed | Voice Transcribe + Spark |
 | 014 | [Rehearsal tools](014-rehearsal-tools.md) | idea | none |
 | 015 | [iOS wrapper](015-ios-wrapper.md) | idea | none |
