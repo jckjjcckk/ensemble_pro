@@ -137,7 +137,7 @@ def main() -> None:
     sh = sub.add_parser("show", help="print the score, interpretations, parts and placements")
     sh.add_argument("--score", required=True)
     sh.set_defaults(fn=cmd_show)
-    for kind in ("process_pages", "import_musicxml", "transcribe_voice", "brief", "part_cut"):
+    for kind in ("process_pages", "import_musicxml", "transcribe_voice", "brief", "part_cut", "part_split"):
         r = sub.add_parser(kind, help=f"run the {kind} handler on a score")
         r.add_argument("--score", required=True)
         r.add_argument("--source")

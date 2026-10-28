@@ -1,6 +1,7 @@
 # 008 Part extraction by cutting, no OMR
 
-Status: prototype (experiment pipeline works on 6 scores; `part_cut` handler merged on main, runs end to end on the local stack with Spark on Rach 1 pages 1 to 5 (2026-10-28, see "Live runs"); migration applied locally, not hosted; the multi-part contract below is implemented in the handler with the two routes, run on Beethoven 9 pages 172 to 176, 2026-10-28 evening) | Meta model: Muse Spark 1.3 (labels the target staves per system on a numbered overlay, re-reads each crop alone; reads the header, feature 003). SAM 3.1 not used.
+Status: prototype (experiment pipeline works on 6 scores; `part_cut` handler merged on main, runs end to end on the local stack with Spark on Rach 1 pages 1 to 5 (2026-10-28, see "Live runs"); migration applied locally, not hosted; the multi-part contract below is implemented in the handler with the two routes, run on Beethoven 9 pages 172 to 176, 2026-10-28 evening; the same route splits a Digital book's MusicXML by
+instrument with music21, no model, about a second, 2026-10-28 night) | Meta model: Muse Spark 1.3 (labels the target staves per system on a numbered overlay, re-reads each crop alone; reads the header, feature 003). SAM 3.1 not used.
 
 ## Purpose
 
@@ -29,12 +30,50 @@ with `+` (`soprano+alto`), keys stay `{score_id}/parts/{slug}/p{page:03}-s{k}.pn
 Routes (`api/app/routes/scores.py`, `api/app/routes/jobs.py`):
 
 - `POST /scores/{id}/parts` body `{instruments: [string], pages?: [int]}`, owner or ensemble admin, budget
-  checked; refuses an empty list (400) and a score without a `pdf`/`images` source (400); inserts a
-  `part_cut` job `{score_id, instruments, pages?}` and returns the job row.
+  checked; refuses an empty list (400) and a score with neither a `pdf`/`images` source nor an imported
+  `musicxml` source (400). A PDF book (a `pdf`/`images` source) gets a `part_cut` job `{score_id, instruments,
+  pages?}` and the queued row back. A Digital book gets the split below, finished inside the request.
 - `POST /jobs/{id}/answer` body = the answer payload (`{staves: [...] | "absent"}` or `{blocks: [[...], ...] |
   "absent"}`), only for a job that is `done` with `result.question` set and whose score the caller may edit
   (409 otherwise, 409 when already answered, 404 unknown); inserts a job of the same kind with the parked
   job's payload plus `answer`, `resume_from` and the question's `interpretation_id`, returns the new row.
+
+## Split by instrument for a Digital book (`api/app/librarian/part_split.py`, 2026-10-28 night)
+
+CK: every book is tagged "PDF" or "Digital" (Digital = imported MusicXML), and "Split by instrument" is one action
+for both; for a Digital book it is trivial and instant, no model. Same route, same payload:
+
+- The route sees no `pdf`/`images` source and an imported `musicxml` source (one whose `meta` has no
+  `split_from`). The names must be the score's `parts.name` rows, else 400 with the parts named in the detail
+  string: `Not in this score: Flute. The parts are Violin I, Violin II, Viola, Cello.` (`pages` is ignored).
+- It inserts a `part_split` job as `running` (attempts 1, `locked_at` now), runs the handler in the request
+  through the worker's own `run_one` and returns the row, `done` with `result = {source_id, instruments,
+  storage_path, bytes, seconds, note}`. If the process died mid-split, the stale sweep would queue the row again
+  for the worker. No usage event, no spend.
+- The handler loads the stored MusicXML with music21, keeps the chosen parts in score order (`instruments` in the
+  result is score order, whatever the payload's order), every staff of a part (a piano on two staves is one part
+  "Piano", with a brace; an original bracket survives when two or more of its parts do), renames a one-staff part
+  to the app's name ("Violoncello" prints as "Cello", the first "Violin" as "Violin I"), and writes a new MusicXML
+  to `{score_id}/parts/{slug}.musicxml` (slug as the part cut's: `violin-i+cello`). A `sources` row of kind
+  `musicxml` records it: `storage_paths = [key]`, `meta = {instruments, split_from: <source id>, slug}`. The same
+  selection again replaces the file and updates that row. Measure numbers are the source's. No `parts` row is
+  written (the web reads splits from `sources`; a joined label in `parts` would become a selectable name).
+- Names: `import_musicxml.part_groups` is the one place that groups music21 parts into the app's parts (PartStaff
+  pairs from one `<part>` with `<staves>2`, and `part_names`' two-"Piano"-parts rule); the import writes
+  `parts.name` from it and the split accepts exactly those names. No schema change: `sources.kind` already
+  admits `musicxml`.
+
+Live on the local stack (Beethoven Op. 18 No. 1 i, score `b4fe666c`, 313 bars, four parts), through the route
+with FastAPI's TestClient as the ensemble admin: Viola + Violin II returned `done` in 1.08 s (handler 0.76 s,
+747 KB, written as Violin II, Viola with 313 measures each on re-read); Cello alone 0.52 s (345 KB); Violin I +
+Flute 400 with the four names; through `run.py part_split`, Violin I + Cello 0.78 s (845 KB). Zero usage events.
+Not checked: how OSMD renders the written files in the reading view (web thread).
+
+Tests `api/tests/test_part_split.py` (fixtures in `web/public/fixtures/`): the names the grouping gives for the
+quartet, the Chopin piano and the Bach chorale; score order, 313 measures and the title kept; the piano's two
+staves and brace; the chorale bracket over S + T and none over A alone; unknown names; the handler's upload,
+content type, row and re-use; the route's `done` row, its 400 detail, a PDF book still queuing `part_cut`, and a
+book whose only MusicXML is itself a split refused.
 
 ## Pipeline (`api/experiments/grounding/`, run from `api/` with `uv run experiments/grounding/<script>.py`)
 

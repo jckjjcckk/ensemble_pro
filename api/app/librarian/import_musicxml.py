@@ -2,7 +2,8 @@
 
 Writes interpretation v(n+1) with engine 'musicxml', the parts (names disambiguated: two "Violin" parts
 become "Violin I" and "Violin II"; "Violoncello" becomes "Cello"), one stable measure row per measure
-number, and the score's facts (key, meter, bars, tempo, duration, pages estimate). Difficulty is a rough
+number, and the score's facts (key and meter in the canonical forms of `signature.py`, "F# minor" and "4/4"; bars,
+tempo, duration, pages estimate). Parts are named by `part_groups`, which `part_split` uses too. Difficulty is a rough
 density heuristic until the `brief` job (Spark) replaces it.
 """
 from __future__ import annotations
@@ -10,9 +11,10 @@ from __future__ import annotations
 import io
 import time
 
-from music21 import converter, key as m21key, meter as m21meter, tempo as m21tempo
+from music21 import converter, key as m21key, meter as m21meter, stream, tempo as m21tempo
 
 from . import Job, JobContext, handler
+from .signature import canonical_key, canonical_meter
 
 CANON = {"Violoncello": "Cello", "Contrabass": "Double bass", "Pianoforte": "Piano"}
 ROMAN = ["I", "II", "III", "IV", "V", "VI"]
@@ -33,12 +35,31 @@ def part_names(raw: list[str]) -> list[str]:
     return out
 
 
-def difficulty_of(part) -> int:
-    """1..5 from note density and range. A placeholder the brief job overwrites."""
-    notes = list(part.flatten().notes)
+def part_groups(s) -> list[tuple[str, list]]:
+    """The score's parts as the app names them, each with the music21 parts that print it, in score order. A part
+    written on two staves (music21 splits it into PartStaff objects "P1-Staff1", "P1-Staff2") is one part, and so is
+    a piano exported as two "Piano" parts (`part_names`). These names are the `parts.name` rows the import writes
+    and the names a split (`part_split`) accepts."""
+    groups: list[tuple[list, str | None]] = []
+    for p in s.parts:
+        sid = str(p.id).rsplit("-Staff", 1)[0] if isinstance(p, stream.PartStaff) and "-Staff" in str(p.id) else None
+        if sid and groups and groups[-1][1] == sid:
+            groups[-1][0].append(p)
+        else:
+            groups.append(([p], sid))
+    names = part_names([g[0].partName or "" for g, _ in groups])
+    if len(names) < len(groups):   # part_names merged a two-part piano
+        return [(names[0], [p for g, _ in groups for p in g])]
+    return [(n, g) for n, (g, _) in zip(names, groups)]
+
+
+def difficulty_of(parts) -> int:
+    """1..5 from note density and range, over a part's staves. A placeholder the brief job overwrites."""
+    parts = parts if isinstance(parts, list) else [parts]
+    notes = [n for part in parts for n in part.flatten().notes]
     if not notes:
         return 1
-    ql = float(part.duration.quarterLength) or 1.0
+    ql = max(float(part.duration.quarterLength) for part in parts) or 1.0
     density = len(notes) / ql
     pitches = [p.midi for n in notes for p in (n.pitches if hasattr(n, "pitches") else [])]
     span = (max(pitches) - min(pitches)) if pitches else 0
@@ -58,7 +79,8 @@ async def import_musicxml(job: Job, ctx: JobContext) -> dict:
     s = converter.parse(io.BytesIO(data).read(), format="musicxml")
 
     await ctx.progress(0.3, "Finding parts and measures")
-    names = part_names([p.partName or "" for p in s.parts])
+    groups = part_groups(s)
+    names = [n for n, _ in groups]
     p0 = s.parts[0]
     measures = list(p0.getElementsByClass("Measure"))
     numbers = sorted({m.number for p in s.parts for m in p.getElementsByClass("Measure")})
@@ -87,9 +109,8 @@ async def import_musicxml(job: Job, ctx: JobContext) -> dict:
 
     await ctx.progress(0.5, "Writing parts")
     part_rows = []
-    for i, name in enumerate(names):
-        p = s.parts[i] if len(names) == len(s.parts) else s
-        part_rows.append({"score_id": score_id, "name": name, "position": i, "difficulty": difficulty_of(p), "storage_path": path})
+    for i, (name, staves) in enumerate(groups):
+        part_rows.append({"score_id": score_id, "name": name, "position": i, "difficulty": difficulty_of(staves), "storage_path": path})
     ctx.db.table("parts").upsert(part_rows, on_conflict="score_id,name").execute()
 
     await ctx.progress(0.7, f"Writing {len(numbers)} measures")
@@ -110,7 +131,8 @@ async def import_musicxml(job: Job, ctx: JobContext) -> dict:
 
     facts = {
         "status": "ready", "progress": 1.0, "failure_reason": None,
-        "bars": len(numbers), "key_sig": ks[0].asKey(mode).name if ks else None, "meter": ts[0].ratioString if ts else None,
+        "bars": len(numbers), "key_sig": canonical_key(ks[0].asKey(mode).name) if ks else None,
+        "meter": canonical_meter(ts[0].ratioString) if ts else None,
         "tempo_bpm": bpm, "duration_sec": duration, "pages": max(1, round(len(measures) / 24)),
         "current_interpretation_id": interp["id"],
     }

@@ -39,11 +39,10 @@ from anthropic import AsyncAnthropic
 from PIL import Image
 
 from ..agent import AgentState, Refusal, Stop, ToolBox, run_agent
-from ..llm import _client as default_client, model_name as default_model, price
-from ..settings import settings
-from ..spend import Charge
+from ..llm import _client as default_client, model_name as default_model
 from . import Job, JobContext, handler
 from . import header as hdr
+from .ask import ASK_SYSTEM, NoJSON, ask_model  # noqa: F401  (re-exported: the benchmark imports ASK_SYSTEM from here)
 from .cut import cut_system, overlay_png, page_geometry, to_png, verify
 from .header import same_instrument  # noqa: F401  (re-exported: the matcher lives with the header)
 from .process_pages import page_paths
@@ -52,10 +51,6 @@ ENGINE = "part-cut-agent"
 STACK_GAP_SPACES = 1.5   # white gap between stacked blocks, in staff spaces
 RECHECK_MAX_TOKENS = 4000   # Spark's reasoning counts against max_tokens; 3 of 9 rechecks on Dvořák ran out at 2048 (GENERAL.md)
 SYSTEM = """You are an orchestral librarian cutting the chosen instruments' staves out of a scanned full score. Geometry has already found every staff, system and barline; you only decide which numbered staves belong to the wanted instruments on each system, then commit them. Work page by page: read_header once, then for each page read_page and commit_system for every system (the staff numbers of every wanted instrument, or "absent" when none of their staves are printed in that system), then finish. Trust the margin labels first, then clefs, brace and score order. Call exactly one tool per turn, no prose."""
-
-# The in-tool calls (header, labels, recheck) are not agent turns: with the agent's SYSTEM ("call exactly one tool
-# per turn") Spark sometimes answers a label request with a pretend read_header call instead of the JSON asked for.
-ASK_SYSTEM = "You are an orchestral librarian reading a scanned page of a full score. Answer with strict JSON only, no prose."
 
 LABEL_PROMPT = """Page {page} of a scanned full score. Every staff has a blue box and a yellow tag with its number ({first}..{last}, top to bottom); grey boxes mark the systems: {systems_desc}. Instrument wanted: "{instrument}" ({staves} staves per system according to the header).
 {header_context}For each system give the staff numbers that belong to the wanted instrument (empty if its staves are not printed in that system) and whether it is "playing", "resting" or "absent". Return only JSON: {{"systems": [{{"index": 1, "wanted_staves": [11, 12], "status": "playing"}}], "confidence": "high|medium|low", "notes": ""}}"""
@@ -108,48 +103,6 @@ def stack_crops(crops: list[Image.Image], gap: int) -> Image.Image:
         out.paste(c.convert("RGB"), (0, y))
         y += c.height + gap
     return out
-
-
-class NoJSON(ValueError):
-    """Every attempt of an in-tool call failed to give the JSON asked for; carries what the attempts cost."""
-    def __init__(self, msg: str, cost_usd: float):
-        super().__init__(msg)
-        self.cost_usd = cost_usd
-
-
-async def ask_model(ctx: JobContext, client: AsyncAnthropic, model: str, prompt: str, png: bytes, *, max_tokens: int = 2048,
-                    effort: str = "low", retries: int = 1, require: str | None = None) -> dict[str, Any]:
-    """One image+text call outside the loop (header, labels, recheck), charged like a turn. The answer is parsed with
-    the JSON repair; a reply cut off at max_tokens or one that does not parse is asked again (`retries` times,
-    every attempt charged); so is JSON without the `require`d list. `_cost_usd` is the sum, `_retries` the reasons;
-    raises when no attempt parsed."""
-    content = [{"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": ctx.png_b64(png)}}, {"type": "text", "text": prompt}]
-    is_meta = settings.llm_provider == "meta" or model.startswith("muse")
-    total, why, data, err = 0.0, [], None, None
-    for _ in range(retries + 1):
-        res = await client.messages.create(model=model, max_tokens=max(max_tokens, 1024) if is_meta else max_tokens, system=ASK_SYSTEM,
-                                           messages=[{"role": "user", "content": content}], output_config={"effort": effort})
-        u = res.usage
-        cost = price(res.model or model, u.input_tokens, u.output_tokens)
-        ctx.charge(Charge("meta" if is_meta else "anthropic", res.model or model, "spark" if is_meta else "claude", cost, u.input_tokens, u.output_tokens))
-        total += float(cost)
-        text = "".join(b.text for b in res.content if b.type == "text")
-        truncated = res.stop_reason == "max_tokens"
-        try:
-            data, repaired = hdr.parse_json(text)
-            data["_repaired"] = repaired
-            err = None
-            if require and not isinstance(data.get(require), list):
-                raise ValueError(f"no {require!r} list in {text.strip()[:160]!r}")
-        except (ValueError, json.JSONDecodeError) as e:
-            data, err = None, e
-        if data is not None and not truncated:
-            break
-        why.append(f"truncated at {u.output_tokens} output tokens" if truncated else f"unparseable: {err}")
-    if data is None:
-        raise NoJSON(f"no JSON after {len(why)} attempt(s): {'; '.join(why)}", total)
-    data["_cost_usd"], data["_retries"] = total, why
-    return data
 
 
 def parse_answer(answer: Any) -> list[int] | str:

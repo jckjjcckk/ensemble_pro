@@ -1,6 +1,6 @@
 # 004 PDF to bar-numbered pages
 
-Status: working (`process_pages` handler; acceptance passes on the local stack; CK says this is close to closed) | Meta model: Muse Spark 1.3 labels what geometry found (first measure number, parts, rehearsal marks, title, composer, key, meter, difficulty, brief).
+Status: working (`process_pages` handler; acceptance passes on the local stack; CK says this is close to closed; signature read added 2026-10-28 night) | Meta model: Muse Spark 1.3 labels what geometry found (first measure number, parts, rehearsal marks, title, composer, difficulty, brief) and reads the key and time signature of page 1's first system (closed question).
 
 ## Purpose
 
@@ -42,6 +42,47 @@ Reprocessing keeps every id. This is build-queue item 6's engine (Path B).
   approved the cleanup and it was done the same evening (score, images, usage events deleted; both spend
   counters back to 0).
 - Web: `scores.status` processing → ready by Realtime; the library cover shows the meter.
+
+## The signature read: the book's key and meter (2026-10-28 night)
+
+CK: a book's identity in the app is musical, its key, meter and length. `bars` was already written; `key_sig`
+and `meter` came from the page labels' free text ("G major") and were missing or loose for scans. Now one
+closed question fills them (`api/app/librarian/signature.py`, Muse Spark 1.3):
+
+- When: first in `process_pages`, before the page loop, once per interpretation (kept in
+  `interpretations.params.state.signature`, so a resumed run never pays for it again). The score row gets
+  `key_sig` and `meter` at once, so the cover shows them even while the run waits on a parts question; the
+  final facts write the same values. The labels' own key and meter are no longer used for the score.
+- What Spark sees: the first system of page 1, cut by the geometry (`cut.page_geometry` at the working
+  resolution, `cut.cut_system` over all its staves: cleaned, the next system's ink erased, never widened),
+  uploaded for audit to `{score_id}/signature/p001-s1.png`. Spark never places a staff or a bar here.
+- What it is asked (JSON-only system prompt, effort low, 8000-token budget, one retry through `ask.ask_model`,
+  which moved out of `part_cut.py` so both handlers share it): the key signature as "sharps" / "flats" / "none"
+  and a count 0 to 7, read on non-transposing staves (clarinets, horns, trumpets and timpani ignored, cancelling
+  naturals not counted); major / minor / unsure from the opening music; the time signature as digits, "common",
+  "cut" or "none"; a confidence for each, "low" rather than a guess.
+- Canonical storage, which the web parses: `key_sig` = `"<Tonic> <mode>"`, the tonic a capital letter with `#`
+  or `-` (music21 spelling: "E- major", "F# minor", "C major"), computed from the count and the mode
+  (`key_from_signature`), not from Spark's prose; `meter` = `"<num>/<den>"`, common time "4/4", cut time "2/2".
+  Null when Spark says low, when the mode is unsure, when its key name contradicts its own count, when no time
+  signature is printed at the start of the system, and when the call never returns JSON or page 1 has no
+  system; never a guess. The reason lands in `summary.signature.why` and the log says "left blank".
+- `import_musicxml` writes the same forms (music21's "f# minor" becomes "F# minor"; `canonical_key`,
+  `canonical_meter`), and names parts through `part_groups` (008).
+- The interpretation summary carries `key_sig`, `meter` and `signature` {read, why, crop, crop_key, cost_usd}.
+
+Live on the local stack, page 1 only of each (2026-10-28 night, seeded fresh as one-page scores):
+
+| Score | Truth (by eye) | Read | Signature call | Whole run |
+|---|---|---|---|---|
+| Rach 1 Gutheil p1 (`e8c80b5f`), 17 staves | F# minor (3 sharps), C = 4/4 | F# minor, 4/4, both high | $0.0123 | $0.0260; parked on the parts question (the 004 geometry splits the system at the dotted line into 10 + 7 staves), key and meter on the score anyway |
+| Beethoven 9 p172 (`a72c18a4`, printed 168), 16 staves | G major (naturals cancel D, 1 sharp), 3/2, Andante maestoso | G major, 3/2, both high; noted the clarinets' transposed flat | $0.0113 | $0.0300; `ready`, but `bars` = 2 where the part-cut geometry finds 8 (the 004 geometry on this scan, unchanged here) |
+
+Spend $0.056 of the $2 cap, 4 calls. The B9 page is not D major 2/2: this page opens "Seid umschlungen".
+
+Tests `api/tests/test_signature.py`: the key and meter tables, nulls for every unsure case, the request (image,
+JSON-only system prompt, 8000 budget, effort low), no JSON and a blank page, `process_pages` writing the read and
+not the labels' guess, one call across a parked question, and the import's canonical forms on two fixtures.
 
 ## Records
 

@@ -2,7 +2,9 @@
 
 Meta models: **Muse Spark 1.3** (one labelling call per page through `ctx.complete`, effort low, about
 $0.008 a page: first measure number, part names per system, rehearsal marks, doubtful bars, title, composer,
-key, meter, difficulty per part, a two-sentence brief). SAM 3.1 is not used: the experiment showed geometry
+key, meter, difficulty per part, a two-sentence brief), plus one closed question on page 1's first system for the
+book's key and time signature (`signature.py`; that read, not the page labels', fills `scores.key_sig` and
+`scores.meter` in the canonical forms "F# minor" and "4/4", null when Spark is unsure). SAM 3.1 is not used: the experiment showed geometry
 finds systems in 30 ms without a network call, and SAM never sees a barline.
 
 Per page: download the PNG the browser rasterised, `geometry.measures_on_page` (OpenCV staff and barline
@@ -24,9 +26,13 @@ import time
 from decimal import Decimal
 from typing import Any
 
+from anthropic import AsyncAnthropic
+
+from ..llm import _client as default_client, model_name as default_model
 from . import Job, JobContext, handler
 from .geometry import measures_on_page
 from .labels import PageLabels, canon_part, label_page
+from .signature import read_signature
 
 ENGINE = "opencv-geometry+spark-labels"
 LEVELS = ["high", "medium", "low"]
@@ -97,7 +103,7 @@ def apply_answer(geo_systems: list[dict[str, Any]], parts: list[str]) -> list[di
 
 
 @handler("process_pages")
-async def process_pages(job: Job, ctx: JobContext) -> dict:
+async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None = None, model: str | None = None) -> dict:
     t0 = time.time()
     score_id = job.payload["score_id"]
     source_id = job.payload.get("source_id")
@@ -148,6 +154,31 @@ async def process_pages(job: Job, ctx: JobContext) -> dict:
     def save_state() -> None:
         ctx.db.table("interpretations").update({"params": {**interp["params"], "state": state}}).eq("id", interp_id).execute()
 
+    pngs: dict[int, bytes] = {}
+
+    def page_png(i: int) -> bytes:
+        if i not in pngs:
+            pngs[i] = ctx.storage_download(paths[i - 1])
+        return pngs[i]
+
+    # ---------------------------------------------------------------- the book's key and meter: page 1, first system
+    if "signature" not in state:
+        await ctx.progress(0.03, "Reading the key and time signature")
+        title = (ctx.db.table("scores").select("title").eq("id", score_id).single().execute().data or {}).get("title") or ""
+        sig = await read_signature(ctx, page_png(1), client or default_client(), model or default_model(), title=title)
+        crop_png = sig.pop("crop_png", None)
+        if crop_png:
+            sig["crop_key"] = f"{score_id}/signature/p001-s1.png"
+            ctx.storage_upload(sig["crop_key"], crop_png, "image/png")
+        state["signature"] = sig
+        state["cost_usd"] = float(Decimal(str(state["cost_usd"])) + Decimal(str(sig["cost_usd"])))
+        said = ", ".join(x for x in (sig["key_sig"], sig["meter"]) if x)
+        state["log"].append(f"Page 1, first system: {said}" if said else "Page 1, first system: key and meter left blank (not sure)")
+        save_state()
+        # the identity shows on the cover even while the run waits on a question
+        ctx.db.table("scores").update({"key_sig": sig["key_sig"], "meter": sig["meter"]}).eq("id", score_id).execute()
+    signature = state["signature"]
+
     # ---------------------------------------------------------------- per page: geometry, then Spark labels
     for i, path in enumerate(paths, start=1):
         key = str(i)
@@ -155,7 +186,7 @@ async def process_pages(job: Job, ctx: JobContext) -> dict:
         if done and not done.get("ambiguous"):
             continue
         await ctx.progress(0.05 + 0.75 * (i - 1) / n_pages, f"Reading page {i} of {n_pages}")
-        png = ctx.storage_download(path)
+        png = page_png(i)
         geo = measures_on_page(png)
         if not geo.readable:
             state["pages"][key] = {"unreadable": True, "geometry": geo.as_dict(), "labels": None, "parts": [], "ambiguous": None}
@@ -264,7 +295,8 @@ async def process_pages(job: Job, ctx: JobContext) -> dict:
     summary = {
         "pages": n_pages, "systems": systems_total, "measures": len(placements), "first_measure": first, "last_measure": n - 1,
         "title": title, "composer": composer, "parts": part_names, "difficulty": {p: difficulty.get(p) for p in part_names},
-        "key_sig": first_labels.key_signature, "meter": first_labels.time_signature,
+        "key_sig": signature["key_sig"], "meter": signature["meter"],
+        "signature": {k: signature.get(k) for k in ("key_sig", "meter", "read", "why", "crop", "crop_key", "cost_usd", "error") if signature.get(k) is not None},
         "flagged": {"pages_unreadable": unreadable, "bars_doubtful": doubtful},
         "models": {"geometry": "opencv", "labels": next((PageLabels.from_dict(state["pages"][k]["labels"]).model for k in pages_read), None)},
         "log": state["log"],
@@ -277,7 +309,7 @@ async def process_pages(job: Job, ctx: JobContext) -> dict:
 
     facts: dict[str, Any] = {
         "status": "ready", "progress": 1.0, "failure_reason": None, "pages": n_pages, "bars": len(placements),
-        "key_sig": first_labels.key_signature, "meter": first_labels.time_signature, "current_interpretation_id": interp_id,
+        "key_sig": signature["key_sig"], "meter": signature["meter"], "current_interpretation_id": interp_id,
     }
     if brief:
         facts["brief"] = brief
