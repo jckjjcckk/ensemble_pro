@@ -1,0 +1,164 @@
+/* Quick marks and scribbles (MarkMenu.tsx, InkLayer.tsx). Builds on the tokens in styles.css.
+
+   Three tokens of the reader's own: the highlighter wash and two pen colours. They are marks a person made,
+   not interface states, so they sit outside "colour means one thing": green, amber and heat keep their meanings. */
+
+.fo {
+  --mark: oklch(0.91 0.15 102 / 0.55);
+  --mark-swatch: oklch(0.86 0.16 100);
+  --pen-red: oklch(0.55 0.2 27);
+  --pen-blue: oklch(0.5 0.16 258);
+}
+@media (prefers-color-scheme: dark) {
+  .fo:not([data-theme='light']) {
+    --mark: oklch(0.78 0.13 100 / 0.24);
+    --mark-swatch: oklch(0.82 0.14 100);
+    --pen-red: oklch(0.72 0.17 25);
+    --pen-blue: oklch(0.74 0.12 250);
+  }
+}
+.fo[data-theme='dark'] {
+  --mark: oklch(0.78 0.13 100 / 0.24);
+  --mark-swatch: oklch(0.82 0.14 100);
+  --pen-red: oklch(0.72 0.17 25);
+  --pen-blue: oklch(0.74 0.12 250);
+}
+/* Bound: a warmer highlighter on the leaf; vermilion, not oxblood (oxblood means failure there). */
+.fo[data-tokens='bound'] {
+  --mark: oklch(0.88 0.13 95 / 0.55);
+  --mark-swatch: oklch(0.84 0.14 92);
+  --pen-red: #a3322a;
+  --pen-blue: #2e4f86;
+}
+@media (prefers-color-scheme: dark) {
+  .fo[data-tokens='bound']:not([data-theme='light']) {
+    --mark: oklch(0.78 0.12 92 / 0.24);
+    --pen-red: #e07a68;
+    --pen-blue: #8fb0e3;
+  }
+}
+.fo[data-tokens='bound'][data-theme='dark'] {
+  --mark: oklch(0.78 0.12 92 / 0.24);
+  --pen-red: #e07a68;
+  --pen-blue: #8fb0e3;
+}
+
+/* ---------------------------------------------------------------- on the score */
+
+/* A highlight is a wash under the notes, like a highlighter on paper; the tapped bar is washed in ink. */
+.fo .u-mark { position: absolute; background: var(--mark); border-radius: 3px; }
+.fo .u-sel { position: absolute; background: var(--wash); border-radius: 5px; box-shadow: inset 0 0 0 1.5px var(--rule-2); }
+
+/* ---------------------------------------------------------------- the quick menu */
+
+.fo .qm {
+  position: absolute; z-index: 5; pointer-events: auto; width: max-content; max-width: calc(100% - 16px);
+  background: var(--sheet); color: var(--ink);
+  border: 1px solid var(--rule-2); border-radius: 14px; box-shadow: var(--shadow);
+  -webkit-touch-callout: none;
+}
+.fo .qm-in { display: flex; flex-direction: column; padding: 6px; }
+
+.fo .qm-acts { display: flex; align-items: stretch; gap: 2px; }
+.fo .qm-bar {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 50px;
+  padding: 0 8px 0 4px; margin-right: 4px; border-right: 1px solid var(--rule);
+  font-size: 17px; color: var(--ink); line-height: 1.1; user-select: none; -webkit-user-select: none;
+}
+.fo .qm-bar-k { font-size: 11.5px; font-weight: 600; color: var(--ink-3); letter-spacing: 0.02em; }
+.fo .qm-act {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  min-width: 76px; min-height: 60px; padding: 6px 10px; border: 0; border-radius: 10px;
+  background: transparent; color: var(--ink); font-size: 13px; font-weight: 600; white-space: nowrap;
+  transition: background-color 160ms var(--ease), transform 120ms var(--ease);
+}
+.fo .qm-act svg { color: var(--ink-2); }
+.fo .qm-act[aria-pressed='true'], .fo .qm-act[aria-expanded='true'] { background: var(--wash); }
+.fo .qm-act[aria-pressed='true'] svg, .fo .qm-act[aria-expanded='true'] svg { color: var(--ink); }
+.fo .i-wash[fill='currentColor'] { fill: var(--mark-swatch); }
+.fo .qm-act:active { background: var(--wash-2); transform: scale(0.97); transition-duration: 40ms; }
+
+.fo .qm-marks {
+  display: flex; flex-direction: column; max-height: 196px; overflow-y: auto; overscroll-behavior: contain;
+  padding: 0 4px 6px 6px; margin-bottom: 6px; border-bottom: 1px solid var(--rule);
+}
+.fo .qm-mark { display: flex; align-items: center; gap: 10px; min-height: 48px; }
+.fo .qm-kind { flex: none; display: grid; place-items: center; width: 26px; color: var(--ink-2); }
+.fo .qm-mark-body { flex: 1; min-width: 0; display: flex; flex-direction: column; max-width: 300px; }
+.fo .qm-mark-text { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; user-select: text; -webkit-user-select: text; }
+.fo .qm-mark-by { font-size: 13px; color: var(--ink-3); }
+.fo .qm-remove { flex: none; }
+
+.fo .qm-note { display: flex; gap: 8px; padding: 8px 2px 2px; margin-top: 6px; border-top: 1px solid var(--rule); }
+/* 16 px keeps Safari from zooming the page when the field takes focus. */
+.fo .qm-input {
+  flex: 1; min-width: 0; min-height: 44px; padding: 0 12px; border: 1px solid var(--rule-2); border-radius: 8px;
+  background: var(--raised); color: var(--ink); font-size: 16px;
+}
+/* The note gets room for a phrase even when the menu above it is short (no Loop in document mode). */
+.fo .qm-note .qm-input { min-width: min(300px, 60vw); }
+.fo .qm-input::placeholder { color: var(--ink-3); }
+.fo .qm-input:focus { outline: 2px solid var(--ink); outline-offset: 0; border-color: transparent; }
+
+/* ---------------------------------------------------------------- ink */
+
+.fo .ink-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.fo .ink-path { fill: var(--ink); stroke: none; }
+.fo .ink-path.is-red { fill: var(--pen-red); }
+.fo .ink-path.is-blue { fill: var(--pen-blue); }
+/* Everyone else's ink is a faint layer under the reader's own. */
+.fo .ink-path.is-faint { opacity: 0.32; }
+.fo .ink-ring { fill: none; stroke: var(--ink-3); stroke-width: 1.5; stroke-dasharray: 3 3; }
+
+/* The drawing surface exists only while scribbling, and only then does it keep the page from panning. */
+.fo .ink-surface {
+  position: absolute; inset: 0; pointer-events: auto; touch-action: none; cursor: crosshair;
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+.fo .ink-surface.is-eraser { cursor: cell; }
+
+/* The scribble tools: a small graphite bar floating at the foot of the stage (where Markup keeps its palette), in
+   the dock's material. It covers the page count, never a system's first bars. */
+.fo .inkbar {
+  position: absolute; z-index: 6; bottom: 8px; left: 0; right: 0; margin: 0 auto; width: max-content; max-width: calc(100% - 24px);
+  display: flex; align-items: center; gap: 8px; padding: 6px;
+  border-radius: 14px; background: var(--dk); color: var(--dk-ink);
+  box-shadow: 0 2px 4px oklch(0 0 0 / 0.18), 0 14px 32px -10px oklch(0 0 0 / 0.5);
+  -webkit-touch-callout: none; user-select: none; -webkit-user-select: none;
+}
+.fo .inkbar-seg { display: flex; gap: 2px; padding: 2px; border-radius: 11px; background: var(--dk-2); }
+.fo .inkbar-btn {
+  display: grid; place-items: center; width: 48px; height: 48px; border: 0; border-radius: 9px;
+  background: transparent; color: var(--dk-ink-3);
+  transition: background-color 160ms var(--ease), color 160ms var(--ease), transform 120ms var(--ease);
+}
+.fo .inkbar-btn[aria-checked='true'] { background: var(--dk-3); color: var(--dk-ink); }
+.fo .inkbar-btn:active { background: var(--dk-3); transform: scale(0.95); transition-duration: 40ms; }
+.fo .inkbar-swatch { width: 20px; height: 20px; border-radius: 50%; box-shadow: 0 0 0 1.5px var(--dk-ink-3); }
+.fo .inkbar-btn[aria-checked='true'] .inkbar-swatch { box-shadow: 0 0 0 2px var(--dk-3), 0 0 0 3.5px var(--dk-ink); }
+.fo .inkbar-swatch.is-ink { background: var(--ink); }
+.fo .inkbar-swatch.is-red { background: var(--pen-red); }
+.fo .inkbar-swatch.is-blue { background: var(--pen-blue); }
+.fo .inkbar-status { min-width: 0; padding: 0 4px; font-size: 13px; color: var(--dk-ink-3); white-space: nowrap; }
+.fo .inkbar-status:empty { display: none; }
+.fo .inkbar-status.is-error { color: var(--dk-amber); }
+.fo .inkbar-done { min-height: 48px; }
+
+/* A mark that did not save says so, over the page foot, and the optimistic mark is taken back. */
+.fo .mark-error {
+  position: absolute; z-index: 6; left: 0; right: 0; bottom: 34px; margin: 0 auto; width: max-content; max-width: calc(100% - 24px);
+  padding: 10px 14px; border-radius: 10px; background: var(--dk); color: var(--dk-amber); font-size: 14px; font-weight: 600;
+  box-shadow: 0 12px 32px -8px oklch(0 0 0 / 0.5); pointer-events: none;
+}
+
+/* The player's dock says what a tap does, once, quietly. */
+.fo .doc-hint { min-width: 0; font-size: 14px; color: var(--dk-ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+@media (hover: hover) {
+  .fo .qm-act:hover { background: var(--wash); }
+  .fo .inkbar-btn:hover { color: var(--dk-ink); }
+}
+@media (max-width: 779px) {
+  .fo .doc-hint { display: none; }
+  .fo .qm-act { min-width: 64px; padding: 6px 6px; }
+}

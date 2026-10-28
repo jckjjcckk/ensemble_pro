@@ -77,7 +77,7 @@ export interface Score {
   flags?: ReadFlags
 }
 
-export type AnnotationKind = 'marking' | 'cut' | 'voice' | 'text' | 'dynamic' | 'bowing' | 'breath'
+export type AnnotationKind = 'marking' | 'cut' | 'voice' | 'text' | 'dynamic' | 'bowing' | 'breath' | 'highlight'
 
 export interface Annotation {
   id: string
