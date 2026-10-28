@@ -5,6 +5,7 @@ import { useAuth } from './auth'
 import { MY_LIBRARY, importMusicXml } from './data'
 import { Screen, useViewport } from './layout'
 import { DisplayButton } from './Display'
+import { PartsPanel } from './Parts'
 import { barRange, difficultyWord, fmtDateTime, partShort, useStore } from './store'
 import { ICamera, IClose, IImport, IRepeat, IWarning } from './icons'
 
@@ -260,6 +261,8 @@ function InfoBox({ score: s, onClose }: { score: Score; onClose: () => void }) {
             <blockquote className="info-brief">{s.brief}</blockquote>
           </div>
         )}
+
+        <PartsPanel score={s} />
 
         <div className="info-actions">
           {ready && <Link to={`/score/${s.id}`} className="btn btn-solid">Open score</Link>}
