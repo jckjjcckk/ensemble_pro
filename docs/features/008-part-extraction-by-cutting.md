@@ -216,7 +216,19 @@ family (defaults keep the old behaviour).
   call, `wanted: [{instrument, staves, status}]` per system), one per block inside `commit_system` (recheck,
   4000-token budget).
 - `api/app/librarian/cut.py`: the geometry, overlay, clean-and-extend crop and verify ported from the
-  experiment (no model).
+  experiment (no model). Since 2026-10-28 night also the header-driven staff recovery (003): `load_page`
+  passes the header's `expected_staves` to `page_geometry` on every page read after `read_header`, and page 1
+  is read again with it (the first read, before the header exists, only serves the overlay the header call
+  sees); the header's families set the lyric rule's `voice` / `voice_above` per block (`voice_flags`: the
+  block's instruments through the header entry's family, else the name; the staff above by score order when
+  the system is full, else the header entry printed above the block's first instrument, or the last entry of
+  the header when the block opens a system under a full one); the commit records `voices` per block with the
+  lyric lines kept or erased.
+- Recheck context (`recheck_context`): the prompt carries what the header says about the block, the staff
+  count and clefs expected there and, for voices, that these are chorus staves with their lyrics underneath,
+  how C clefs tell the voices apart, and this edition's voice parts with their clefs; the rule stays strict
+  (one of the block's instruments or "chorus"). A geometric C-clef reader as a tie-break was tried and
+  dropped (003, "Clef reading by geometry").
 - Tools: `read_header` (once, first), `list_pages`, `read_page(page)` (geometry + proposal, overlay uploaded
   to `{score_id}/parts/{slug}/overlay-p{page:03}.png`), `commit_system(page, system, staves | blocks |
   "absent")` (commit: staves exist in the system, total count matches the header's sum over the chosen
@@ -306,18 +318,46 @@ band runs to the page edge and the strip holds half the system (p. 173 holds Vn 
 and the basses) and on p. 173 the soprano has no box at all. That is the staff recovery the experiment had
 and `cut.py` lacks (003).
 
+### Live runs: Beethoven 9, after the recovery port (2026-10-28 night, Muse Spark 1.3, effort low)
+
+Same local score (150-dpi renders, 3153 x 4000), branch `worktree-agent-adcd9e203eadda81c`. The header came back
+16 staves first try with the voices clefed right (CORO Soprano soprano, Alto alto, Tenore tenor, Basso bass;
+"Alto e Tenore Tromboni" tenor). Geometry per page, the same on both exports: p172 16/16 found; p173 12 found,
+4 recovered (9 Vn I, 10 Vn II, 14 Tenore, 16 Vc/Cb) = 16/16; p174 15 found, 1 recovered (9 Vn I) = 16/16; p175
+16/16; p176 17/17 (Vc and Cb apart); one system per page, 8 / 5 / 9 / 6 / 5 bars. Soprano = staff 12, Alto = 13
+everywhere (13 and 14 on p176). `voice` true on every block, `voice_above` false (the viola is above the soprano).
+
+| Run | Outcome | Questions / refusals | Cost (usage_events) |
+|---|---|---|---|
+| S+A | p172 [12, 13] committed; parked on p173: the pair fails `barlines_present` over its span (expected, choir barlines) and the per-staff fallback failed too, because the soprano's fifth barline covers 0.83 of the staff at 1 px tolerance (the scan's barlines drift a px or two over a staff at 150 dpi; 1.0 at 2 px). Fix: the verify tolerance scales with the spacing (`max(1, round(sp / 8))`: 1 px on the tuned scans, 2 on B9). | 3 refusals, 1 question | $0.056 |
+| S+A resumed `{"staves": [12, 13]}` (what the run would have committed) | `done`: 5 of 5 systems cut as [12, 13], p174 to p176 committed first try, every recheck accepted | 0 | $0.053 |
+| S | this header call read every choir clef as "treble" (Spark varies between calls; the S+A run read them right), so the recheck context said treble and could not help. p172 [12] committed ("Coro Soprano", low); p173 [12] committed as "chorus" (accepted for a voice block); parked on p174: "alto solo", (one `absent` attempt, refused by the labels), "Alto Solo", "Tenore Solo", "Coro Alto" | 5 refusals, 1 question | $0.166 |
+| S resumed `{"staves": [12]}` x3 (p174, p175, p176) | parked on p175 ("Coro Tenore" x3) and p176 ("Coro Tenore", "Coro Alto" x2), then `done`: 5 of 5 systems cut as [12] | 6 refusals, 2 questions | $0.095 |
+
+Total of the night's runs: $0.370 over 65 calls (S+A $0.109, S $0.261). The labels were right on all 10
+systems and the geometry on all 10; the single-staff soprano recheck is the one weak step left (the C clef read
+as alto or tenor on 3 of 5 pages; the pair passes because the recheck says "Soprano" or "chorus" for it).
+
+Strips by eye (S): p172 the resting staff; p173 "Seyd um_schlungen Mil_li_o_nen! die_sen", p174 "Kuss der
+FF gan_zen Welt!", p175 "Brü_der ü_bern Ster_nen_zelt", p176 "muss ein lie_ber Va_ter woh_nen." all complete,
+each strip the soprano staff alone with the alto's noteheads and words gone, no page-edge band.
+
+Strips by eye (S+A): p172 both voices rest, clean; p173 S "Seyd um_schlungen Mil_li_o_nen! die_sen" complete,
+A has no text on the page; p174 S "Kuss der FF gan_zen Welt!" complete, A "Kuss der FF"; p175 S "Brü_der ü_bern
+Ster_nen_zelt" complete, A "ü_bern ... muss"; p176 S "muss ein lie_ber Va_ter woh_nen." complete. Every strip
+is the whole S+A pair and nothing else: the page-edge bands are gone and p173 and p174 are whole systems (the
+earlier runs held half the page there). Left: the grey gutter strip at the far left of each crop, and the "CORO"
+margin label cut to "R O." on p172.
+
 ## Open issues
 
-- Geometry on the Beethoven 9 choir pages: `cut.find_staves` finds 8 of 15 staves on p. 173 and 12 of 18 on
-  p. 174 where the experiment's `piano_cut_geometry.py` (with the header's staff recovery, 003) found them
-  all; the port in `cut.py` has no recovery step, so the undetected neighbours leave half a page in the
-  strip (see "Live runs: Beethoven 9").
-- Lyric rule for vocal staves; page-edge fake staves; recheck false alarms on unlabelled pages (consider
-  giving the recheck the header's clef expectations, or trusting by-order labels when the system is full).
-  On the Beethoven 9 choir pages the recheck called the soprano's C-clef staff "Tenor" (or Viola, Oboe,
-  Organ when resting) on every unlabelled system: a two-voice export of S+T or S+A parks once per page.
-  A cheaper second opinion for voices may be the clef itself (soprano C-clef on line 1, alto on line 3,
-  tenor on line 4), which geometry can read without a model.
+- Geometry on the Beethoven 9 choir pages: fixed 2026-10-28 night (recovery ported, the gutter `x0` fix,
+  003); see "Live runs: Beethoven 9, after the recovery port" for the counts.
+- Recheck false alarms on unlabelled pages: the prompt now carries the header's clefs and the chorus
+  context; the geometric C-clef tie-break was tried and dropped (003). Still open: trusting by-order labels
+  when the system is full, or a glyph-level clef reader.
+- The grey gutter strip (cols 148 to 257 at 150 dpi) is still in every crop's left edge, faint; the bar-aware
+  rest rule is still not ported to `cut.py`.
 - Cross-page continuity; bar numbers on the strip (barlines already found, 004); "absent" as a first-class
   answer in the UI (011); orchestral cues for a concerto soloist (adjacent staves at reduced size).
 - Spark JSON: malformed on about half the page calls at low effort; stray-token repair (`}-math]`,

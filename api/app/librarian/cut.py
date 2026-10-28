@@ -7,7 +7,9 @@ cleaned crop of the wanted staves (band between the neighbours, their ink erased
 Pixel thresholds assume a staff spacing of about 6-8 px (150 dpi renders of the tuned scans, or a 19th-century
 scan at its native resolution); `prepare_page` masks the dark page-edge shadows of a book scan before anything
 else and upscales a page whose staff spacing is under SPACING_MIN. Lyrics under a vocal staff are kept or erased
-as whole text lines (`text_lines`, the `voice` / `voice_above` flags of `clean_crop`).
+as whole text lines (`text_lines`, the `voice` / `voice_above` flags of `clean_crop`). With the score header's staff
+count (`page_geometry(expected_staves=)`) a short system is searched again in column strips for the staves the
+page-wide profile missed, and a hole between two found staves is filled (`recover_staves`, HARDEN.md).
 """
 from __future__ import annotations
 
@@ -62,16 +64,147 @@ def find_staves(bw: np.ndarray) -> list[dict]:
         if len(lines) == 5:
             y0, y1 = int(round(lines[0])), int(round(lines[-1]))
             band = opened[max(0, y0 - 2): y1 + 3]
-            cols = np.where(band.sum(axis=0) >= 3)[0]
-            if len(cols) and cols.max() - cols.min() >= w * 0.5:
+            span = staff_extent(np.where(band.sum(axis=0) >= 3)[0], sp)
+            if span and span[1] - span[0] >= w * 0.5:
                 for j in idxs:
                     used[j] = True
                 staves.append({"index": len(staves) + 1, "y_top": y0, "y_bottom": y1, "lines": [int(round(c)) for c in lines],
-                               "spacing": (lines[-1] - lines[0]) / 4, "x0": int(cols.min()), "x1": int(cols.max())})
+                               "spacing": (lines[-1] - lines[0]) / 4, "x0": span[0], "x1": span[1]})
                 i = idxs[-1] + 1
                 continue
         i += 1
     return staves
+
+
+def staff_extent(cols: np.ndarray, sp: float) -> tuple[int, int] | None:
+    """x0, x1 of a staff from the columns where 3 or more of its rows carry a long run: the longest group of
+    such columns (groups closer than 8 spaces are one). A full-height ink strip elsewhere on the page (the grey
+    gutter texture of a book scan next to the masked edge band, 110 px wide at 150 dpi, which the opening keeps on
+    every row) is its own group and no longer drags x0 to the page edge, where the systemic-line search then
+    finds no line and every staff becomes its own system (Beethoven 9 p172, p174, p176 at 150 dpi)."""
+    if not len(cols):
+        return None
+    groups: list[list[int]] = [[int(cols[0]), int(cols[0])]]
+    for c in cols[1:]:
+        if c - groups[-1][1] <= 8 * sp:
+            groups[-1][1] = int(c)
+        else:
+            groups.append([int(c), int(c)])
+    x0, x1 = max(groups, key=lambda g: g[1] - g[0])
+    return x0, x1
+
+
+# ---------------------------------------------------------------- staff recovery from the header (003, HARDEN.md)
+
+def find_staves_strips(bw: np.ndarray, y0: int, y1: int, x0: int, x1: int, sp: float, n_strips: int = 12,
+                       min_votes: int = 4) -> list[dict]:
+    """Relaxed staff search in rows y0..y1, columns x0..x1: the row profile per column strip (a bowed staff is
+    straight within a strip), peaks at >= 0.5 of the strip width after a short opening, groups of 5 peaks at
+    k * sp (+-35%) from a start peak (4 of 5 allowed, the missing line interpolated). Clusters of groups across
+    strips (same line rows within 0.35 sp for >= 3 lines) with >= min_votes strips are staves."""
+    if y1 - y0 < 5 * sp or x1 - x0 < n_strips * 20:
+        return []
+    region = bw[y0: y1 + 1, x0: x1 + 1]
+    sw = region.shape[1] // n_strips
+    tol = 0.35 * sp
+    groups: list[tuple[int, list[float | None]]] = []
+    for k in range(n_strips):
+        strip = region[:, k * sw: (k + 1) * sw]
+        opened = cv2.morphologyEx(strip, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (max(12, sw // 3), 1)))
+        frac = opened.sum(axis=1) / strip.shape[1]
+        peaks = [int(r) for r in np.where(frac >= 0.5)[0] if frac[r] >= frac[max(0, r - 2): r + 3].max()]
+        peaks = [p for i, p in enumerate(peaks) if i == 0 or p - peaks[i - 1] > 2]
+        used: set[int] = set()
+        for want in (5, 4):
+            for p0 in peaks:
+                if p0 in used:
+                    continue
+                lines: list[float | None] = [float(p0)]
+                for j in range(1, 5):
+                    cand = [p for p in peaks if p not in used and abs(p - (p0 + j * sp)) <= tol]
+                    lines.append(float(min(cand, key=lambda p: abs(p - (p0 + j * sp)))) if cand else None)
+                if sum(l is not None for l in lines) >= want:
+                    used.update(int(l) for l in lines if l is not None)
+                    groups.append((k, lines))
+    clusters: list[list[tuple[int, list[float | None]]]] = []
+    for g in groups:
+        for cl in clusters:
+            ref = cl[0][1]
+            if sum(1 for a, b in zip(ref, g[1]) if a is not None and b is not None and abs(a - b) <= tol) >= 3:
+                cl.append(g)
+                break
+        else:
+            clusters.append([g])
+    staves: list[dict] = []
+    for cl in clusters:
+        strips = {k for k, _ in cl}
+        if len(strips) < min_votes:
+            continue
+        lines = []
+        for j in range(5):
+            vals = [l[j] for _, l in cl if l[j] is not None]
+            lines.append(float(np.median(vals)) if vals else None)
+        if any(l is None for l in lines):
+            known = [(j, l) for j, l in enumerate(lines) if l is not None]
+            step = (known[-1][1] - known[0][1]) / (known[-1][0] - known[0][0])
+            lines = [l if l is not None else known[0][1] + (j - known[0][0]) * step for j, l in enumerate(lines)]
+        ly = [int(round(l)) + y0 for l in lines]
+        staves.append({"y_top": ly[0], "y_bottom": ly[-1], "lines": ly, "spacing": (ly[-1] - ly[0]) / 4,
+                       "x0": x0, "x1": x1, "recovered": True, "fit": f"{len(strips)}/{n_strips} strips"})
+    return staves
+
+
+def recover_staves(bw: np.ndarray, staves: list[dict], systems: list[list[int]], expected: int) -> tuple[list[dict], list[list[int]], list[dict]]:
+    """For every system short of `expected` (the header's staff count), search its vertical extent (between the
+    neighbouring systems' edge staves) in column strips for staves the page-wide profile missed, and force them
+    into that system; the header count is a maximum, a cut-away system stays short when nothing is found. Then
+    hole filling on every system of 3 or more staves: two consecutive staves about two staff pitches apart are a
+    hole (a system's staves are evenly spaced; a cut-away system is simply shorter), searched alone at 3 of 12
+    strip votes and accepted only where the pitch predicts a staff (+-0.5 pitch), header count or not (Beethoven
+    9 p176 has 17 staves against the header's 16). Returns the re-indexed staves, the systems as index lists into
+    them, and the recovered staves."""
+    h, w = bw.shape
+    sp = float(np.median([s["spacing"] for s in staves])) if staves else 7.0
+    recovered: list[dict] = []
+    members: list[list[dict]] = [[staves[i] for i in sysd] for sysd in systems]
+    for si, ss in enumerate(members):
+        if len(ss) >= expected:
+            continue
+        above = members[si - 1][-1]["y_bottom"] + 1.5 * sp if si > 0 else 0
+        below = members[si + 1][0]["y_top"] - 1.5 * sp if si + 1 < len(members) else h - 1
+        x0, x1 = int(np.median([s["x0"] for s in ss])), int(np.median([s["x1"] for s in ss]))
+        for f in find_staves_strips(bw, int(above), int(below), x0, x1, sp):
+            if any(abs(f["y_top"] - s["y_top"]) < 2 * sp or (f["y_top"] < s["y_bottom"] and f["y_bottom"] > s["y_top"]) for s in ss):
+                continue
+            if len(ss) >= expected:
+                break
+            ss.append(f)
+            recovered.append(f)
+        ss.sort(key=lambda s: s["y_top"])
+    for ss in members:
+        if len(ss) < 3:
+            continue
+        x0, x1 = int(np.median([s["x0"] for s in ss])), int(np.median([s["x1"] for s in ss]))
+        pitches = sorted(b["y_top"] - a["y_top"] for a, b in zip(ss, ss[1:]))
+        pitch = float(np.median(pitches[: max(1, len(pitches) // 2 + 1)]))   # the typical (small) step
+        for a, b in list(zip(ss, ss[1:])):
+            n_missing = int(round((b["y_top"] - a["y_top"]) / pitch)) - 1
+            if n_missing < 1:
+                continue
+            found = find_staves_strips(bw, int(a["y_bottom"] + sp), int(b["y_top"] - sp), x0, x1, sp, min_votes=3)
+            for k in range(1, n_missing + 1):
+                want = a["y_top"] + k * pitch
+                cand = [f for f in found if abs(f["y_top"] - want) <= 0.5 * pitch and not any(abs(f["y_top"] - s["y_top"]) < 2 * sp for s in ss)]
+                if cand:
+                    f = min(cand, key=lambda f: abs(f["y_top"] - want))
+                    f["fit"] += " (hole)"
+                    ss.append(f)
+                    recovered.append(f)
+        ss.sort(key=lambda s: s["y_top"])
+    all_staves = sorted((s for ss in members for s in ss), key=lambda s: s["y_top"])
+    for i, s in enumerate(all_staves, start=1):
+        s["index"] = i
+    return all_staves, [[all_staves.index(s) for s in ss] for ss in members], recovered
 
 
 def group_systems(bw: np.ndarray, staves: list[dict]) -> tuple[list[list[int]], str]:
@@ -218,10 +351,13 @@ def prepare_page(gray: np.ndarray) -> tuple[np.ndarray, np.ndarray, dict]:
     return gray, bw, {"edge_shadows": edges, "spacing_native": sp, "scale": scale}
 
 
-def page_geometry(png: bytes) -> tuple[dict[str, Any], np.ndarray, Image.Image]:
+def page_geometry(png: bytes, expected_staves: int | None = None) -> tuple[dict[str, Any], np.ndarray, Image.Image]:
     """Geometry dict (staves, systems with barlines and bar counts), the deskewed binary page, the deskewed RGB page.
     Both pages are the working page: page-edge shadows masked, upscaled when the staff spacing is under SPACING_MIN
-    (geom["prepare"] says what was done; geom["image_px"] is the working size)."""
+    (geom["prepare"] says what was done; geom["image_px"] is the working size). With `expected_staves` (the score
+    header's count per full system) a system short of it is searched again for the staves the page-wide profile
+    missed (`recover_staves`); they carry `recovered` and `fit`, and geom lists them under `recovered` with the
+    per-system counts before under `staves_before_recovery`."""
     raw = cv2.imdecode(np.frombuffer(png, np.uint8), cv2.IMREAD_GRAYSCALE)
     if raw is None:
         raise ValueError("page image could not be decoded")
@@ -233,6 +369,10 @@ def page_geometry(png: bytes) -> tuple[dict[str, Any], np.ndarray, Image.Image]:
         bw, gray = rotate(bw, skew, 0), rotate(gray, skew, 255)
     staves = find_staves(bw)
     systems_idx, method = group_systems(bw, staves) if staves else ([], "none")
+    before = [len(idxs) for idxs in systems_idx]
+    recovered: list[dict] = []
+    if expected_staves and any(len(idxs) < expected_staves for idxs in systems_idx):
+        staves, systems_idx, recovered = recover_staves(bw, staves, systems_idx, int(expected_staves))
     systems = []
     for si, idxs in enumerate(systems_idx, start=1):
         ss = [staves[i] for i in idxs]
@@ -245,6 +385,9 @@ def page_geometry(png: bytes) -> tuple[dict[str, Any], np.ndarray, Image.Image]:
                         "barlines": bars, "n_measures": count_measures(bars, x0, x1, sp)})
     geom = {"image_px": [w, h], "skew_deg": round(float(skew), 2), "grouping": method, "prepare": prep,
             "staves": [{k: (round(v, 2) if isinstance(v, float) else v) for k, v in s.items()} for s in staves], "systems": systems}
+    if expected_staves:
+        geom.update({"expected_staves": int(expected_staves), "staves_before_recovery": before,
+                     "recovered": [{"index": r["index"], "y_top": r["y_top"], "y_bottom": r["y_bottom"], "fit": r["fit"]} for r in recovered]})
     return geom, bw, Image.fromarray(gray).convert("RGB")
 
 
@@ -256,7 +399,7 @@ def _font(size: int):
 
 
 def overlay_png(page: Image.Image, geom: dict) -> bytes:
-    """The page with every staff boxed in blue and tagged with its number, systems in grey."""
+    """The page with every staff boxed in blue (recovered ones orange) and tagged with its number, systems in grey."""
     im = page.convert("RGB").copy()
     d = ImageDraw.Draw(im, "RGBA")
     font = _font(26)
@@ -265,7 +408,8 @@ def overlay_png(page: Image.Image, geom: dict) -> bytes:
         d.rectangle([b["x0"], b["y0"], b["x1"], b["y1"]], outline=(120, 120, 120, 255), width=2)
     for st in geom["staves"]:
         pad = int(st["spacing"] * 1.2)
-        d.rectangle([st["x0"], st["y_top"] - pad, st["x1"], st["y_bottom"] + pad], outline=(0, 110, 220, 255), width=2)
+        colour = (235, 110, 0, 255) if st.get("recovered") else (0, 110, 220, 255)
+        d.rectangle([st["x0"], st["y_top"] - pad, st["x1"], st["y_bottom"] + pad], outline=colour, width=2)
         tx, ty = st["x0"] + 4, st["y_top"] - pad - 2
         d.rectangle([tx, ty, tx + 46, ty + 30], fill=(255, 235, 60, 230), outline=(0, 0, 0, 255))
         d.text((tx + 6, ty + 1), str(st["index"]), fill=(0, 0, 0, 255), font=font)
@@ -564,9 +708,10 @@ def verify(crop: Image.Image, geom: dict, system: dict, wanted: list[int], box: 
     x_left = int(min(s["x0"] for s in ss)) - ox
     brace = any(vertical_cover(cbw, x, ya, yb, tol=2) >= 0.9 for x in range(max(0, x_left - int(5 * sp)), max(0, x_left - 1)))
     present = []
+    tol = max(1, int(round(sp / 8)))   # a barline drifts a px or two over a staff on a 150-dpi render of a scan (B9: 0.83 cover at 1 px, 1.0 at 2)
     for bx0, bx1 in system["barlines"]:
         cols = range(max(0, bx0 - 4 - ox), min(cbw.shape[1], bx1 + 5 - ox))
-        present.append(any(vertical_cover(cbw, x, ya, yb, tol=1) >= 0.9 for x in cols))
+        present.append(any(vertical_cover(cbw, x, ya, yb, tol=tol) >= 0.9 for x in cols))
     return {"staves_in_crop": {"value": inside, "expect": sorted(wanted), "pass": sorted(inside) == sorted(wanted)},
             "brace_or_bracket": {"value": brace, "pass": brace, "informational": True},
             "barlines_present": {"present": present, "missing": [bl for bl, ok in zip(system["barlines"], present) if not ok], "pass": all(present)},

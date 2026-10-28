@@ -5,7 +5,9 @@ Meta model: **Muse Spark 1.3** through the agent loop (`app.agent.run_agent`): o
 call inside `read_header` (the instrument list from page 1's numbered overlay, `header.py`), one inside `read_page`
 (Spark labels the numbered staff overlay: which staves are each wanted instrument's, per system) and one per block
 inside `commit_system` (Spark re-reads the block alone and names the instrument; it must name one of the block's).
-Geometry and the cut are OpenCV (`cut.py`), no model.
+Geometry and the cut are OpenCV (`cut.py`), no model; the header's staff count drives the staff recovery on every
+page read after it, the header's families set the lyric rule's `voice` / `voice_above` flags per block, and the
+recheck prompt carries the header's clefs for the block (and, for voices, that these are chorus staves).
 
 A part export is a selection of instruments (CK, 2026-10-28): per system the chosen staves are kept together in score
 order as one block when they are adjacent; when the chosen set skips a staff in the middle (soprano and tenor without
@@ -61,7 +63,7 @@ LABEL_PROMPT = """Page {page} of a scanned full score. Every staff has a blue bo
 LABEL_PROMPT_MULTI = """Page {page} of a scanned full score. Every staff has a blue box and a yellow tag with its number ({first}..{last}, top to bottom); grey boxes mark the systems: {systems_desc}. Instruments wanted: {wanted_desc}.
 {header_context}For each system give, for each wanted instrument, the staff numbers that belong to it (empty if its staves are not printed in that system) and whether it is "playing", "resting" or "absent". Return only JSON: {{"systems": [{{"index": 1, "wanted": [{example}]}}], "confidence": "high|medium|low", "notes": ""}}"""
 
-RECHECK_PROMPT = """This image is a block of staves cut from a scanned full score. The left margin may carry the instrument label; otherwise judge from the clefs, brace or bracket and the writing. Which instrument or section is this block? Return only JSON: {"instrument": "short name", "confidence": "high|medium|low", "why": "one sentence"}"""
+RECHECK_PROMPT = """This image is a block of staves cut from a scanned full score. The left margin may carry the instrument label; otherwise judge from the clefs, brace or bracket and the writing.{context} Which instrument or section is this block? Return only JSON: {{"instrument": "short name", "confidence": "high|medium|low", "why": "one sentence"}}"""
 
 
 def slug(name: str) -> str:
@@ -209,16 +211,63 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
     cache: dict[int, tuple[Any, Any, Any]] = {}   # page -> (geom, bw, page image), not persisted
 
     def load_page(n: int):
+        """Geometry of a page, with the header's staff count driving the staff recovery once the header is read
+        (page 1 is read once before the header exists, for the overlay the header call sees, and again after)."""
         if n not in cache:
             png = ctx.storage_download(paths[n - 1])
-            cache[n] = page_geometry(png)
+            cache[n] = page_geometry(png, expected_staves=(sc["header"] or {}).get("expected_staves"))
         return cache[n]
 
+    def header_entry(instrument: str) -> dict | None:
+        return hdr.match_instrument((sc["header"] or {}).get("instruments") or [], instrument)
+
     def header_staves(instrument: str) -> int:
-        inst = hdr.match_instrument((sc["header"] or {}).get("instruments") or [], instrument)
+        inst = header_entry(instrument)
         if inst is not None:
             return max(1, int(inst.get("staves") or 1))
         return 2 if hdr.family(instrument) in ("piano", "harp", "organ") else 1
+
+    def voice_flags(page: int, sysd: dict, block: list[int]) -> tuple[bool, bool]:
+        """(the block is vocal, the staff above it is vocal), for the lyric rule of the clean pass: the block's
+        instruments through the header's family (else the name); the staff above by score order when the system is
+        full, else the header entry printed above the block's first instrument (the local order of a choir block),
+        or the last entry of the header when the block opens a system under a full one."""
+        insts = block_instruments(page, sysd["index"], block)
+        voice = any(hdr.is_voice(header_entry(i), i) for i in insts)
+        idxs = sysd["staff_indices"]
+        pos = idxs.index(min(block))
+        above: dict | None = None
+        if pos > 0:
+            above = hdr.at_position(sc["header"], sysd, idxs[pos - 1])
+            if above is None:
+                first = min((i for i in insts if header_entry(i) is not None), key=lambda i: header_entry(i).get("position", 0), default=None)
+                above = hdr.previous_entry(sc["header"], first) if first else None
+        else:
+            geom = load_page(page)[0]
+            prev_sys = next((s for s in geom["systems"] if s["index"] == sysd["index"] - 1), None)
+            if prev_sys:
+                above = hdr.at_position(sc["header"], prev_sys, prev_sys["staff_indices"][-1])
+        return voice, hdr.is_voice(above) if above else False
+
+    def recheck_context(page: int, system: int, block: list[int]) -> str:
+        """What the header says about the block, for the recheck: the clefs expected on its staves and, for voices,
+        that these are chorus staves with their lyrics underneath and how this edition's voice parts are clefed."""
+        insts = block_instruments(page, system, block)
+        entries = [header_entry(i) for i in insts]
+        if not any(entries):
+            return ""
+        clefs = [c for e in entries if e for c in (e.get("clefs") or [])]
+        voice = any(hdr.is_voice(e, i) for e, i in zip(entries, insts))
+        n = sum(header_staves(i) for i in insts)
+        out = f" According to the score header this block holds {n} staff{'s' if n != 1 else ''}" + (f" in the {', '.join(clefs)} clef{'s' if len(clefs) != 1 else ''}" if clefs else "") + "."
+        if voice:
+            parts = [f"{e.get('label') or e.get('name')} ({', '.join(e.get('clefs') or []) or 'clef unknown'})"
+                     for e in ((sc["header"] or {}).get("instruments") or []) if hdr.is_voice(e)]
+            out += (" These are voice staves of the chorus: the words under the notes are their lyrics, and the C clefs tell the voices apart"
+                    " (a soprano clef sits on the bottom line, an alto clef on the middle line, a tenor clef on the fourth line from the bottom)."
+                    + (f" The chorus parts in this edition: {'; '.join(parts)}." if parts else "")
+                    + ' Name the voice part, or "chorus" when the block holds several voices.')
+        return out
 
     def want_total() -> int:
         return sum(header_staves(i) for i in instruments)
@@ -319,9 +368,13 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         if recheck:
             for block in blocks:
                 check_against_labels(page, system, block)
-        crops, boxes, verifies = [], [], []
+        crops, boxes, verifies, voices = [], [], [], []
         for block in blocks:
-            crop, box, checks = cut_system(bw, im, geom, sysd, block)
+            voice, voice_above = voice_flags(page, sysd, block)
+            voices.append({"voice": voice, "voice_above": voice_above})
+            crop, box, checks = cut_system(bw, im, geom, sysd, block, voice=voice, voice_above=voice_above)
+            if voice or voice_above:
+                voices[-1]["lyric_lines"] = [(l["class"], l["words"]) for l in (checks.get("clean") or {}).get("lyric_lines", [])]
             if not checks["pass"] and len(block) > 1 and checks["staves_in_crop"]["pass"] and not checks["barlines_present"]["pass"]:
                 # vocal staves: barlines stop at each staff and do not cross the lyric gap, so no barline runs through
                 # the whole block; the block is sound when every staff of it has its barlines on its own
@@ -335,11 +388,14 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
             crops.append(crop)
             boxes.append(box)
             verifies.append({k: v for k, v in checks.items() if k != "clean"})
+        rechecks: list[dict] = []
         if recheck:
             for block, crop in zip(blocks, crops):
                 expected = block_instruments(page, system, block)
-                said = await ask_model(ctx, c, m, RECHECK_PROMPT, to_png(crop), max_tokens=RECHECK_MAX_TOKENS)
+                prompt = RECHECK_PROMPT.format(context=recheck_context(page, system, block))
+                said = await ask_model(ctx, c, m, prompt, to_png(crop), max_tokens=RECHECK_MAX_TOKENS)
                 sc["cost_usd"] = sc.get("cost_usd", 0.0) + said.pop("_cost_usd", 0.0)
+                rechecks.append({"block": block, "instrument": said.get("instrument"), "confidence": said.get("confidence"), "why": said.get("why")})
                 if not names_block(str(said.get("instrument", "")), expected):
                     raise Refusal(f"re-reading the block of staves {block} alone, the model calls it {said.get('instrument')!r}, "
                                   f"not {' / '.join(expected)!r} ({said.get('why', '')})")
@@ -348,7 +404,7 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         storage_key = f"{score_id}/parts/{part_slug}/p{page:03}-s{system}.png"
         ctx.storage_upload(storage_key, png, "image/png")
         sc["commits"][key] = {"staves": staves, "blocks": blocks, "key": storage_key, "boxes": boxes, "verify": verifies, "bars": sysd["n_measures"],
-                              "modes": [v["mode"] for v in verifies]}
+                              "modes": [v["mode"] for v in verifies], "voices": voices, "rechecks": rechecks}
         how = f"{len(blocks)} blocks stacked" if len(blocks) > 1 else "one block"
         sc["log"].append(f"Page {page} system {system}: staves {staves} cut ({how}), {sysd['n_measures']} bars")
         return {"committed": key, "staves": staves, "blocks": blocks, "storage_key": storage_key, "bars": sysd["n_measures"]}
@@ -374,6 +430,7 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
             sc["cost_usd"] = sc.get("cost_usd", 0.0) + data.pop("_cost_usd", 0.0)
             retries = data.pop("_retries", [])
             sc["header"] = {**hdr.reconcile(data, geom), "retries": retries, "json_repaired": data.pop("_repaired", False)}
+            cache.pop(1, None)   # page 1 is read again with the header's count driving the staff recovery
             h = sc["header"]
             sc["log"].append(f"Header: {', '.join(f'{i['name']} ({i['staves']})' for i in h['instruments'])}; {h['expected_staves']} staves"
                              + ("" if h["validation"]["match"] else f", geometry found {h['validation']['geometry_staves_system1']} in system 1")

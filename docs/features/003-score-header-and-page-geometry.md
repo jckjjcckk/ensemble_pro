@@ -88,6 +88,17 @@ strip votes for 5 (or 4 of 5) peaks at the known spacing +-35 %; clusters with 4
 drawn orange. The header count is a maximum: cut-away systems stay short when nothing is found. Recovery
 runs only when `header.json` exists.
 
+Ported to the app (2026-10-28 night): `cut.page_geometry(png, expected_staves=)` runs `recover_staves` (the
+strip search and the hole filling, same thresholds) when any system is short of the count; the geom carries
+`expected_staves`, `staves_before_recovery` and `recovered`, recovered staves are orange on the overlay. The
+part-cut handler passes the header's count on every page read after `read_header` and re-reads page 1 with it.
+On the app's 150-dpi renders of Beethoven 9 (3153 x 4000, spacing 15 to 16): p172 16/16 found; p173 12 found,
+4 recovered (Vn I 4/12 strips, Vn II 6/12, Tenore 4/12, Vc/Cb 9/12) = 16/16; p174 15 found, 1 recovered (Vn I
+8/12) = 16/16; p175 16/16; p176 17/17; one system per page. Regression at 150 dpi: Rach 1 p1 to 5 geometry
+identical with and without the count; PC3 p1 to 5 identical without, and with the count only the two HARDEN.md
+staves come back (p4 s2 5/12, p5 s2 7/12). Tests: `tests/test_cut.py` (a bowed staff on a synthetic page; seven
+staves against a header of six, the hole filled).
+
 | score | page | before | after | recovered |
 |---|---|---|---|---|
 | PC3 | 4 | 11, 8 | 11, 9 | s2 Vcll. u. K.-B. (5/12 strips) |
@@ -110,6 +121,24 @@ reads 16 (was 18), one system per page. Recovery gained hole filling (`recover_s
 pitches apart are searched at 3 of 12 strip votes, not capped by the header count. Regression: Rach 1 p1 to 5
 and PC3 p1 to 5 geometry and crops pixel-identical. The "drop a staff whose x range is the whole page" idea was
 not needed once the bands are masked.
+
+**The gutter at 150 dpi (2026-10-28 night).** The app renders Beethoven 9 at 150 dpi (3153 px wide, every pixel
+interpolated), not at the scan's resolution as the experiment does. With the left shadow masked, the grey gutter
+texture next to it (cols 148 to 257, not uniform enough for the mask) binarises to a full-height ink strip 110
+px wide, wider than the 78-px opening kernel, so it counted as a "long run" on every row and `find_staves` put
+every staff's `x0` at 147: the systemic-line search then looked at the gutter instead of the bracket at x 1030,
+found no line, and p172, p174 and p176 came out as 8 to 10 one-staff systems (p173 and p175, gutter on the
+right, were fine). `staff_extent` now takes `x0`/`x1` from the longest group of long-run columns (groups closer
+than 8 spaces are one); nothing changes on the tuned scans. The strip itself is still in every crop's left edge
+(the band starts at x 0), faint grey.
+
+**Clef reading by geometry: tried, not cheap here (2026-10-28 night).** The idea was to read the C clef's line
+from its shape (a thick vertical bar plus curls centred on the line) as a tie-break when the recheck names the
+wrong voice. On the Schott Beethoven 9 the chorus bracket and the opening barline are drawn over the staff lines
+right of `x0` (the staff lines run under the bracket), so the first thick vertical bar on every chorus staff,
+the bass included, is the bracket, not a clef, and a slur from the staff above crosses the clef zone on p172;
+the soprano clef's own bar is engraved from the top line down past the staff, taller than its curls. Dropped;
+a glyph-level reader (components right of the bracket, the curls' centroid) is the next attempt if wanted.
 
 ## What still breaks
 
@@ -139,8 +168,8 @@ PEP 723 inline deps): `fallback_cv.py`, `piano_cut_geometry.py`, `score_header.p
 `grade.py`, `ground_truth.json`, `common.py` (`--score <pdf stem>` / `PIANO_CUT_SCORE=`, `--instrument`).
 Outputs (gitignored except the item-0 JSON/HTML): `out/cv-*.json`, `out/final-*.{json,html,png}`,
 `out/piano-cut[/<stem>]/pages/p<NN>.png` (150 dpi), `geom-p<NN>.json`, `overlay-p<NN>.png` (what Spark
-sees), `header.json`. In the app: `api/app/librarian/geometry.py`, `cut.py` (`page_geometry`,
-`overlay_png`, `cut_system`). Unmerged branch `claude/grounding-experiment-e8ae10` (commit 0700c49): 14 more
+sees), `header.json`. In the app: `api/app/librarian/geometry.py`, `cut.py` (`page_geometry(expected_staves=)`,
+`recover_staves`, `staff_extent`, `overlay_png`, `cut_system`). Unmerged branch `claude/grounding-experiment-e8ae10` (commit 0700c49): 14 more
 pages through geometry + Spark labels and `build_gallery.py` → `out/gallery.html`.
 
 ## Next steps

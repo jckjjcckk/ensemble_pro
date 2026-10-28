@@ -95,6 +95,64 @@ def test_working_scale_leaves_the_tuned_spacing_alone():
     assert geom["prepare"]["scale"] == 1 and geom["image_px"] == [800, 1000]
 
 
+# ---------------------------------------------------------------- staff recovery from the header count
+
+def draw_bowed_staff(page: np.ndarray, y_top: int, sp: int, x0: int, x1: int, drift: int = 10) -> dict:
+    """A staff whose lines sag `drift` px across the page (a bowed Breitkopf scan): the page-wide row profile
+    never holds five peaks, a column strip does."""
+    for k in range(5):
+        for x in range(x0, x1 + 1):
+            y = y_top + k * sp + round(drift * (x - x0) / (x1 - x0))
+            page[y: y + 2, x] = INK
+    return {"y_top": y_top, "y_bottom": y_top + 4 * sp}
+
+
+def system_page(bowed: set[int], n: int = 6, pitch: int = 110) -> tuple[np.ndarray, list[dict]]:
+    page = blank()
+    staves = []
+    for k in range(n):
+        y = 150 + pitch * k
+        staves.append(draw_bowed_staff(page, y, 7, 120, 700) if k + 1 in bowed else draw_staff(page, y, 7, 120, 700))
+    page[150: 150 + pitch * (n - 1) + 4 * 7 + 2, 116: 119] = INK   # the systemic line joins every staff
+    return page, staves
+
+
+def test_recovery_finds_the_bowed_staff_the_page_profile_missed():
+    page, staves = system_page(bowed={4})
+    geom, _, _ = cut.page_geometry(png_bytes(page))
+    assert len(geom["staves"]) == 5 and [len(s["staff_indices"]) for s in geom["systems"]] == [5], "the page-wide profile misses the bowed staff"
+    geom, _, _ = cut.page_geometry(png_bytes(page), expected_staves=6)
+    assert geom["staves_before_recovery"] == [5] and len(geom["staves"]) == 6
+    assert [s["index"] for s in geom["staves"]] == [1, 2, 3, 4, 5, 6] and geom["systems"][0]["staff_indices"] == [1, 2, 3, 4, 5, 6]
+    rec = geom["staves"][3]
+    assert rec["recovered"] and rec["fit"].endswith("strips") and abs(rec["y_top"] - (staves[3]["y_top"] + 5)) <= 3   # the median of the sag
+    assert [r["index"] for r in geom["recovered"]] == [4]
+    assert all("recovered" not in s for s in geom["staves"] if s["index"] != 4)
+
+
+def test_recovery_is_capped_by_the_header_count_but_hole_filling_is_not():
+    """Seven evenly spaced staves, two bowed, header says six (Beethoven 9 p176: 17 against 16): the strip search
+    stops at six, the hole between the two found neighbours brings the seventh back."""
+    page, staves = system_page(bowed={3, 6}, n=7)
+    geom, _, _ = cut.page_geometry(png_bytes(page), expected_staves=6)
+    assert geom["staves_before_recovery"] == [5] and len(geom["staves"]) == 7
+    fits = {r["index"]: r["fit"] for r in geom["recovered"]}
+    assert set(fits) == {3, 6} and sum("(hole)" in f for f in fits.values()) == 1
+    assert [abs(s["y_top"] - t["y_top"]) <= 8 for s, t in zip(geom["staves"], staves)] == [True] * 7
+
+
+def test_a_full_height_ink_strip_does_not_drag_x0_to_the_page_edge():
+    """The grey gutter texture of a book scan binarises to a full-height strip wider than the opening kernel; with
+    x0 taken from the longest column group the systemic line is still found and the staves stay one system."""
+    page, _ = system_page(bowed=set(), n=4)
+    page[:, 10: 50] = INK
+    geom, _, _ = cut.page_geometry(png_bytes(page))
+    assert all(118 <= s["x0"] <= 122 and 698 <= s["x1"] <= 702 for s in geom["staves"]), [s["x0"] for s in geom["staves"]]
+    assert [len(s["staff_indices"]) for s in geom["systems"]] == [4] and geom["grouping"] == "systemic-line"
+    assert cut.staff_extent(np.array([10, 11, 12, 300, 301, 302, 303, 304]), 7.0) == (300, 304)
+    assert cut.staff_extent(np.array([100, 101, 140, 141]), 7.0) == (100, 141)   # a gap under 8 spaces is one staff
+
+
 # ---------------------------------------------------------------- lyrics
 
 def lyric_fixture(sp: int = 7, scratch: bool = False):

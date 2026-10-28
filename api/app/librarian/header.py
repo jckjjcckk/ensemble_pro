@@ -202,6 +202,42 @@ def positions(instruments: list[dict], cand: dict | None) -> list[int] | None:
     return None
 
 
+def at_position(header: dict | None, system: dict, staff_index: int) -> dict | None:
+    """The header entry printed on a staff of a system, by score order; only when the system has the header's
+    full staff count (a cut-away system drops resting instruments, so position says nothing there)."""
+    inst = (header or {}).get("instruments") or []
+    idxs = system["staff_indices"]
+    if not inst or staff_index not in idxs or len(idxs) != sum(int(i.get("staves") or 1) for i in inst):
+        return None
+    k = idxs.index(staff_index) + 1
+    for i in inst:
+        ns = int(i.get("staves") or 1)
+        if k <= ns:
+            return i
+        k -= ns
+    return None
+
+
+def previous_entry(header: dict | None, instrument: str) -> dict | None:
+    """The header entry printed above the wanted instrument in score order (None for the first, or when the
+    instrument is not in the header)."""
+    inst = (header or {}).get("instruments") or []
+    cand = match_instrument(inst, instrument)
+    if cand is None:
+        return None
+    k = next((i for i, x in enumerate(inst) if x is cand), 0)
+    return inst[k - 1] if k > 0 else None
+
+
+def is_voice(entry: dict | None, name: str | None = None) -> bool:
+    """A vocal staff: the header entry's family says voice (or chorus), else the name itself is a voice ("Soprano",
+    "CORO Alto"; "Bass" alone is a voice too, the header's family tells a double bass apart)."""
+    fam = str((entry or {}).get("family") or "").lower()
+    if fam:
+        return fam in ("voice", "vocal", "choir", "chorus", "voices")
+    return family(name or "") in VOICES
+
+
 def by_order(header: dict | None, instrument: str, system: dict) -> list[int] | None:
     """When a system has exactly the header's full staff count, the wanted instrument's staves by score order."""
     inst = (header or {}).get("instruments") or []

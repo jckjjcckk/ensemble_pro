@@ -457,6 +457,59 @@ async def test_admin_answer_is_final_even_against_the_header_count():
     assert ctx2.result["agent"]["scratch"]["commits"]["1:1"]["staves"] == [2] and f"{job.score_id}/parts/flute+horn/p001-s1.png" in ctx2.uploads
 
 
+HEADER_CHOIR = text(json.dumps({"instruments": [
+    {"label": "Flauti", "staves": 1, "clefs": ["treble"], "family": "woodwind"}, {"label": "Oboi", "staves": 1, "clefs": ["treble"], "family": "woodwind"},
+    {"label": "CORO Soprano", "staves": 1, "clefs": ["soprano"], "family": "voice"}, {"label": "CORO Alto", "staves": 1, "clefs": ["alto"], "family": "voice"},
+    {"label": "CORO Tenore", "staves": 1, "clefs": ["tenor"], "family": "voice"}, {"label": "Violini I", "staves": 1, "clefs": ["treble"], "family": "strings"}]}))
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("wanted,block,flags,above_text", [
+    (["Alto"], [4], (True, True), "voice staves of the chorus"),       # under the soprano: both flags, the lyric rule on both sides
+    (["Soprano"], [3], (True, False), "voice staves of the chorus"),   # under the oboe
+    (["Flute"], [1], (False, False), None),                            # an orchestral staff: the old rules, no chorus text
+])
+async def test_voice_flags_reach_cut_system_and_the_recheck_gets_the_header_clefs(monkeypatch, wanted, block, flags, above_text):
+    """The header's families decide `voice` / `voice_above` for the clean pass (the staff above by score order when
+    the system is full), the commit records them, and the recheck prompt carries the header's clef for the block
+    and, for voices, that these are chorus staves."""
+    import app.librarian.part_cut as pc
+    seen: list[dict] = []
+    real = pc.cut_system
+
+    def spy(bw, page, geom, system, staves, **kw):
+        seen.append({"staves": staves, **kw})
+        return real(bw, page, geom, system, staves, **kw)
+    monkeypatch.setattr(pc, "cut_system", spy)
+    script = [tool("read_header", {}), HEADER_CHOIR, tool("read_page", {"page": 1}), multi_label(**{wanted[0]: block}),
+              commit(1, block), recheck(wanted[0]), tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(1, {"instruments": wanted})
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1
+    assert seen == [{"staves": block, "voice": flags[0], "voice_above": flags[1]}]
+    sc = ctx.result["agent"]["scratch"]
+    assert sc["commits"]["1:1"]["voices"][0]["voice"] is flags[0] and sc["commits"]["1:1"]["voices"][0]["voice_above"] is flags[1]
+    assert sc["pages"]["1"]["geometry"]["expected_staves"] == 6 and sc["pages"]["1"]["geometry"]["staves_before_recovery"] == [6]   # page 1 re-read with the header
+    prompt = t.calls[5]["messages"][0]["content"][1]["text"]
+    assert "According to the score header this block holds 1 staff in the" in prompt
+    if above_text:
+        assert above_text in prompt and "CORO Soprano (soprano)" in prompt and "CORO Alto (alto)" in prompt and 'or "chorus"' in prompt
+    else:
+        assert "chorus" not in prompt and "treble clef" in prompt
+
+
+def test_header_position_helpers():
+    from app.librarian.header import at_position, is_voice, previous_entry
+    h = {"instruments": [{"label": "Flauti", "staves": 1, "family": "woodwind", "position": 1}, {"label": "Pianoforte", "staves": 2, "family": "keyboard", "position": 2},
+                         {"label": "CORO Soprano", "staves": 1, "family": "voice", "position": 3}, {"label": "Bassi", "staves": 1, "family": "strings", "position": 4}]}
+    full = {"staff_indices": [1, 2, 3, 4, 5]}
+    assert at_position(h, full, 1)["label"] == "Flauti" and at_position(h, full, 3)["label"] == "Pianoforte" and at_position(h, full, 4)["label"] == "CORO Soprano"
+    assert at_position(h, {"staff_indices": [1, 2, 3]}, 2) is None and at_position(h, full, 9) is None       # short system, unknown staff
+    assert previous_entry(h, "Soprano")["label"] == "Pianoforte" and previous_entry(h, "Flute") is None and previous_entry(h, "Timpani") is None
+    assert is_voice(h["instruments"][2]) and not is_voice(h["instruments"][3], "Bass") and is_voice(None, "Bass") and not is_voice(None, "Viola")
+
+
 def test_instruments_payload_forms():
     from app.librarian.part_cut import instruments_of, parse_answer, runs
     assert instruments_of({"instrument": "Piano"}) == ["Piano"]
