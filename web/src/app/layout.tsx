@@ -1,7 +1,41 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router'
 import { BASE, WORDMARK, useStore } from './store'
-import { ILibrary, IPractice, IScore } from './icons'
+import { IChevronLeft, ILibrary, IPractice, IScore } from './icons'
+
+/**
+ * The on-screen keyboard. Safari does not shrink the layout for it; the visual viewport shrinks instead.
+ * `--kb` on the document is the keyboard's overlap in px (0 when it is down), and the dock rides above it
+ * (styles.css). When the keyboard goes away, any scroll Safari made to expose the input is undone.
+ */
+function installKeyboardLift() {
+  const vv = window.visualViewport
+  if (!vv) return
+  let last = 0
+  const measure = () => {
+    const kb = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop))
+    if (kb === last) return
+    last = kb
+    document.documentElement.style.setProperty('--kb', `${kb}px`)
+    if (kb === 0) window.scrollTo(0, 0)
+  }
+  vv.addEventListener('resize', measure)
+  vv.addEventListener('scroll', measure)
+}
+if (typeof window !== 'undefined') installKeyboardLift()
+
+/** Opened from the home screen: no browser chrome, so pushed screens draw their own way back. */
+export function useStandalone(): boolean {
+  const q = '(display-mode: standalone)'
+  const [standalone, setStandalone] = useState(() => window.matchMedia(q).matches || (navigator as Navigator & { standalone?: boolean }).standalone === true)
+  useEffect(() => {
+    const m = window.matchMedia(q)
+    const on = () => setStandalone(m.matches)
+    m.addEventListener('change', on)
+    return () => m.removeEventListener('change', on)
+  }, [])
+  return standalone
+}
 
 export interface Viewport { w: number; h: number; /** landscape with room for a tall control surface */ wide: boolean; narrow: boolean }
 
@@ -88,10 +122,23 @@ interface ScreenProps {
   className?: string
 }
 
+/** Screens reached by a push (scan, a score opened from a cover) rather than by the area nav. */
+function isPushed(path: string): boolean {
+  return path.startsWith(`${BASE}/scan`) || path.startsWith(`${BASE}/score`)
+}
+
 export function Screen({ header, children, ruler, dock, tall = false, className = '' }: ScreenProps) {
+  const standalone = useStandalone()
+  const { pathname } = useLocation()
+  const back = standalone && isPushed(pathname)
   return (
     <div className={`scr ${className}`}>
       <header className="hdr">
+        {back && (
+          <Link to="/" className="back" aria-label="Back to the library">
+            <IChevronLeft size={24} />
+          </Link>
+        )}
         <Wordmark />
         <div className="hdr-body">{header}</div>
       </header>

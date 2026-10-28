@@ -2,9 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover lets the page run under the status bar and home indicator so env(safe-area-inset-*) is real;
+         interactive-widget=resizes-content asks browsers that support it to shrink the layout for the keyboard. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
     <title>Folio</title>
+    <meta name="description" content="One score for the whole ensemble" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#e6e8eb" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d0e10" />
+    <!-- Home-screen app on iPad: standalone, translucent status bar (the header pads itself by the top inset). -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Folio" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   </head>
   <body>
     <div id="root"></div>
