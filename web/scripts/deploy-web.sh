@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Build web/ with the hosted values and deploy dist/ as the Cloudflare Worker `folio-app` (static assets, wrangler.jsonc).
-#   npm run deploy:web      (this script)
-# Needs `npx wrangler login` once (CK's Cloudflare account). The custom domain is added in the dashboard: deploy/README.md.
+# OPTIONAL local path, not the plan: the Worker `folio-app` is built and deployed by Workers Builds from GitHub (deploy/README.md).
+# This builds web/ with the hosted values and deploys dist/ from this Mac; needs `npx wrangler login` once.
+#   npm run deploy:web
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 npm run build:hosted

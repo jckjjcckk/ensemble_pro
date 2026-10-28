@@ -17,30 +17,31 @@ every Cloudflare login and dashboard step; nothing here logs in or deploys on it
 cd web && npm run build:hosted
 ```
 
-`scripts/build-hosted.sh` builds `web/dist` with the hosted values passed as real environment variables:
-`VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` from `web/.env` (the hosted project; public values)
-and `VITE_API_URL=https://api.folio.jckjjcckk.com`. `web/.env.local` points the dev server at the local
-Docker stack and is never read here, because Vite ranks environment variables above every `.env` file. The
-script refuses to build when `web/.env` holds a local Supabase URL. The same build goes into the iPad shell
+`scripts/build-hosted.sh` builds `web/dist` with the hosted values passed as real environment variables.
+`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` and `VITE_API_URL` are taken from the environment when
+set (Workers Builds' build variables), otherwise from `web/.env` (the hosted project; public values), with
+`VITE_API_URL` defaulting to `https://api.folio.jckjjcckk.com`. `web/.env.local` points the dev server at
+the local Docker stack and is never read here, because Vite ranks environment variables above every `.env`
+file. The script refuses a local Supabase or API URL. The same build goes into the iPad shell
 (`npm run build:ios`).
 
-## Web app: a Worker with static assets
+## Web app: a Worker with static assets (dashboard only)
 
 `web/wrangler.jsonc` names the Worker `folio-app`, serves `./dist` and answers unknown paths with
-`index.html` (React Router). Deploying is one command after the build:
+`index.html` (React Router). CK builds and deploys from the dashboard (Workers Builds); nothing on this Mac
+logs in to Cloudflare.
 
-```bash
-cd web && npm run deploy:web        # build:hosted, then npx wrangler deploy
-```
+1. Workers & Pages → Create → **Import a repository** → `jckjjcckk/ensemble_pro`, branch `main`: project name
+   `folio-app`, root directory `web`, build command `npm run build:hosted`, deploy command
+   `npx wrangler deploy`. Build variables, values taken from `web/.env` on the Mac: `VITE_SUPABASE_URL`,
+   `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_API_URL=https://api.folio.jckjjcckk.com`. The build script
+   prefers these over `web/.env` (which is gitignored and absent in the build), and never reads
+   `web/.env.local`.
+2. `folio-app` → Settings → Domains & Routes → Add → Custom domain → `app.folio.jckjjcckk.com`. Cloudflare
+   writes the DNS record and the certificate itself. Every later push to `main` redeploys.
 
-Steps for CK, in order:
-
-1. `cd web && npx wrangler login` (opens the browser; approve once). **Stop here until this is done.**
-2. `npm run deploy:web`. The first deploy creates the Worker; the output ends with its `workers.dev` URL.
-3. Dashboard → Workers & Pages → `folio-app` → Settings → Domains & Routes → Add → Custom domain →
-   `app.folio.jckjjcckk.com`. Cloudflare writes the DNS record and the certificate itself; live within a
-   minute. (Workers Builds from GitHub can replace step 2 later: root `web`, build `npm run build:hosted`,
-   deploy `npx wrangler deploy`, with the three `VITE_*` as build variables.)
+Optional, local path (not the plan): `cd web && npm run deploy:web` builds with the hosted values and runs
+`npx wrangler deploy` from this Mac; it needs `npx wrangler login` once.
 
 ## API: the Mac behind the named tunnel
 

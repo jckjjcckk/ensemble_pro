@@ -65,22 +65,31 @@ sources, `Info.plist` or the asset catalog, so edits there are safe. Rerun the a
 - Safe areas: `viewport-fit=cover` is kept and `contentInset: never` stops the webview adding its own inset.
 - Origin: `capacitor://localhost`. The API's `CORS_ORIGINS` lists it (`deploy/README.md`).
 
-## The hosted app: a Worker with static assets (dashboard steps)
+## The hosted app: a Worker with static assets (dashboard only)
 
-The reviewer and the testers use the same hosted stack as the web app. `deploy/README.md` is the runbook;
-the Cloudflare part in short:
+The reviewer and the testers use the same hosted stack as the web app. CK deploys from the Cloudflare
+dashboard; nothing on this Mac logs in to Cloudflare. `deploy/README.md` is the runbook.
 
-1. `cd web && npx wrangler login` (once; the browser asks CK to approve).
-2. `npm run deploy:web`: builds with the hosted values and runs `npx wrangler deploy`, which creates the
-   Worker `folio-app` from `web/wrangler.jsonc` (assets directory `dist`, unknown paths → `index.html`).
-3. Dashboard → Workers & Pages → `folio-app` → Settings → Domains & Routes → Add custom domain
-   `app.folio.jckjjcckk.com`.
-4. Later, Workers Builds from GitHub: root directory `web`, build command `npm run build:hosted`, deploy
-   command `npx wrangler deploy`, variables `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`,
-   `VITE_API_URL=https://api.folio.jckjjcckk.com`.
-5. The API: Zero Trust → Networks → Tunnels → `macbook_pro_m4` → public hostname `api.folio.jckjjcckk.com` →
+1. Dashboard → Workers & Pages → Create → **Import a repository** → `jckjjcckk/ensemble_pro`, branch
+   `main`. Build settings:
+   - Project name `folio-app`
+   - Root directory `web`
+   - Build command `npm run build:hosted`
+   - Deploy command `npx wrangler deploy`
+   - Build variables (values from `web/.env` on the Mac; never written into a doc or the repo):
+     `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and `VITE_API_URL` set to
+     `https://api.folio.jckjjcckk.com`.
+   `build:hosted` reads those variables first and falls back to `web/.env` only when they are absent, so
+   the dashboard's values win and `web/.env.local` is never involved. `web/wrangler.jsonc` tells wrangler
+   to serve `dist` as static assets with unknown paths → `index.html`.
+2. `folio-app` → Settings → Domains & Routes → Add → Custom domain → `app.folio.jckjjcckk.com`. Cloudflare
+   writes the DNS record and the certificate; live within a minute. Later pushes to `main` redeploy.
+3. The API: Zero Trust → Networks → Tunnels → `macbook_pro_m4` → public hostname `api.folio.jckjjcckk.com` →
    `http://localhost:8000`; save the connector token to `~/.cloudflared/folio-tunnel.token`; then
    `./install.sh --serve` from the main checkout.
+
+Optional, local only: `cd web && npm run deploy:web` builds and runs `npx wrangler deploy` from this Mac
+(needs `npx wrangler login` once). Not part of the plan; the dashboard build is the model.
 
 ## What CK does in Xcode (once)
 
