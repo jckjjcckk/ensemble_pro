@@ -1,0 +1,200 @@
+/* Books and groups (Library.tsx, Groups.tsx, Pages.tsx, the dock in layout.tsx): the status dot and the busy ring,
+   the book's "…" menu, the two ways into a book, the group sheets, the PDF page reader. Tokens from styles.css;
+   sheets from Sheet.tsx (sheet.css). */
+
+/* ---------------------------------------------------------------- the status dot and the busy ring */
+
+/* One dot per book at most: yellow, the librarian has a question; red, the run failed. Nothing when all is well. */
+.fo .dot { display: inline-block; flex: none; width: 10px; height: 10px; border-radius: 50%; }
+.fo .dot.is-ask { background: var(--ask); }
+.fo .dot.is-fail { background: var(--fail); }
+
+/* Reading or converting: a quiet ring that breathes, never a spinner. */
+@keyframes fo-ring { from { opacity: 0.18; } to { opacity: 0.85; } }
+.fo .busy-ring {
+  flex: none; display: inline-block; width: 14px; height: 14px; border-radius: 50%;
+  border: 1.5px solid currentColor; animation: fo-ring 1.6s var(--ease) infinite alternate;
+}
+
+/* ---------------------------------------------------------------- covers */
+
+.fo .covers > li { position: relative; }
+/* An open menu rises above the neighbouring covers (each cover is its own layer while it can move). */
+.fo .covers > li:has(.book-menu [aria-expanded='true']) { z-index: 10; }
+.fo .cover-wrap { position: relative; }
+.fo .cover-wrap .cover { width: 100%; }
+/* Room at the foot's end for the "…", which sits over the cover (a button cannot hold a button). */
+.fo .cover-wrap .cover-foot { padding-right: 34px; }
+.fo .cover-tags { margin-left: auto; display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; min-width: 0; }
+.fo .cover-tags .book-tag { margin-left: 0; }
+.fo .cover-dot { position: absolute; top: 11px; right: 11px; z-index: 2; box-shadow: 0 0 0 2.5px var(--sheet); pointer-events: none; }
+.fo .book-menu.cover-more { position: absolute; right: 2px; bottom: 2px; z-index: 2; }
+.fo .cover-more > .btn-icon { color: var(--ink-3); }
+.fo .cover-ring {
+  position: absolute; inset: -6px; z-index: 0; border-radius: 9px; pointer-events: none;
+  box-shadow: 0 0 0 1.5px var(--ink-3); animation: fo-ring 1.6s var(--ease) infinite alternate;
+}
+
+/* ---------------------------------------------------------------- the book's "…" menu */
+
+.fo .book-menu { position: relative; flex: none; }
+.fo .menu {
+  position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; width: 300px; padding: 6px;
+  display: flex; flex-direction: column;
+  background: var(--sheet); color: var(--ink); border: 1px solid var(--rule-2); border-radius: 12px; box-shadow: var(--shadow);
+}
+.fo .menu-item {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 0 12px;
+  border: 0; border-radius: 8px; background: transparent; color: var(--ink); font-size: 15px; font-weight: 550; text-align: left;
+  transition: background-color 120ms var(--ease);
+}
+.fo .menu-item > svg { flex: none; color: var(--ink-2); }
+.fo .menu-item > svg:last-child:not(:first-child) { margin-left: auto; color: var(--ink-3); }
+.fo .menu-item .dot { margin: 0 2px; }
+/* The state leads the menu and stands apart from the ways to open the book. */
+.fo .menu-item.is-status { font-weight: 650; margin-bottom: 6px; position: relative; }
+.fo .menu-item.is-status::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: -4px; border-bottom: 1px solid var(--rule); }
+.fo .menu-item.is-status:last-child { margin-bottom: 0; }
+.fo .menu-item.is-status:last-child::after { display: none; }
+.fo .menu-item.is-busy { color: var(--ink-2); cursor: default; }
+.fo .menu-item.is-busy .busy-ring { margin: 0 0 0 -1px; }
+
+/* ---------------------------------------------------------------- the book page: two ways in */
+
+.fo .modes { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.fo .modes.is-pair { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.fo .mode {
+  display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 10px 14px;
+  border-radius: 10px; background: var(--sheet); color: var(--ink); box-shadow: inset 0 0 0 1px var(--rule-2), 0 1px 2px oklch(0.2 0.01 255 / 0.06);
+  transition: background-color 120ms var(--ease), transform 120ms var(--ease);
+}
+.fo .mode > svg { flex: none; color: var(--ink); }
+.fo .mode-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.fo .mode-text b { font-size: 16px; font-weight: 650; }
+.fo .mode-text span { font-size: 13px; color: var(--ink-3); }
+.fo .mode.is-off { color: var(--ink-3); box-shadow: inset 0 0 0 1px var(--rule); background: transparent; }
+.fo .mode.is-off > svg { color: var(--ink-3); }
+.fo .convert { display: flex; flex-direction: column; gap: 8px; margin-top: -6px; }
+.fo .convert .btn { width: 100%; min-height: 48px; }
+.fo .btn.is-busy:disabled { color: var(--ink-2); border-color: var(--rule-2); }
+
+/* The book's state in its page: a question waiting (yellow), a stop (red), digitalising (the ring). */
+.fo .info-state .reason { display: flex; align-items: center; gap: 8px; }
+.fo .info-state.is-ask { background: color-mix(in oklch, var(--ask) 16%, transparent); }
+.fo .info-state.is-ask .reason, .fo .info-state .reason.is-busy { color: var(--ink); }
+.fo .info-state.is-failed { background: color-mix(in oklch, var(--fail) 9%, transparent); }
+.fo .info-state.is-failed .reason { color: var(--ink); }
+.fo .info-state .btn { align-self: flex-start; }
+.fo .info .side-head { gap: 6px; }
+.fo .info .side-head .dot { margin-right: 4px; }
+
+/* An import that failed: said in place, not in an alert box. */
+.fo .lib-msg {
+  display: flex; align-items: center; gap: 10px; margin-top: 16px; padding: 4px 4px 4px 14px; border-radius: 10px;
+  background: color-mix(in oklch, var(--fail) 9%, transparent); font-size: 14.5px; line-height: 1.4;
+}
+.fo .lib-msg > svg { flex: none; color: var(--fail); }
+.fo .lib-msg > span { flex: 1; min-width: 0; }
+
+/* ---------------------------------------------------------------- the group shelf and the group sheets */
+
+.fo .g-people .num { font-size: 14px; }
+.fo .btn-line.is-danger { color: var(--fail); border-color: color-mix(in oklch, var(--fail) 45%, transparent); }
+.fo .btn-solid.is-danger { background: var(--fail); color: var(--sheet); }
+
+.fo .g-code {
+  display: flex; flex-direction: column; gap: 8px; padding: 16px 18px 18px;
+  border-radius: 10px; background: var(--sheet); box-shadow: inset 0 0 0 1px var(--sheet-edge);
+}
+.fo .g-code h3, .fo .g-h { font-size: 13px; font-weight: 650; color: var(--ink-2); }
+/* Large enough to read out across a rehearsal room, in the measurement face. */
+.fo .g-digits { font-size: 54px; line-height: 1.05; letter-spacing: 0.03em; font-variation-settings: 'wdth' 100; color: var(--ink); user-select: text; -webkit-user-select: text; white-space: nowrap; }
+.fo .g-note { font-size: 14px; color: var(--ink-3); line-height: 1.45; }
+.fo .g-h { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+.fo .g-h .num { font-weight: 400; color: var(--ink-3); }
+.fo .g-members li {
+  display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 52px; gap: 10px; align-items: center;
+  min-height: 48px; border-top: 1px solid var(--rule); font-size: 15px;
+}
+.fo .g-members li:first-child { border-top: 0; }
+.fo .g-name { display: flex; align-items: center; gap: 8px; min-width: 0; font-weight: 600; }
+.fo .g-name .badge { min-height: 20px; padding: 0 6px; font-size: 11.5px; }
+.fo .g-part { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fo .g-part.is-none { color: var(--ink-3); font-style: italic; }
+.fo .g-role { font-size: 13px; color: var(--ink-3); }
+
+/* One confirmation box per destructive action, in place of the sheet's foot. */
+.fo .g-confirm {
+  width: 100%; display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 12px;
+  background: color-mix(in oklch, var(--fail) 7%, var(--sheet)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--fail) 28%, transparent);
+}
+.fo .g-confirm-q { font-size: 16px; font-weight: 650; }
+.fo .g-confirm-why { font-size: 14px; color: var(--ink-2); line-height: 1.45; }
+.fo .g-confirm-acts { display: flex; gap: 8px; margin-top: 6px; }
+.fo .g-confirm-acts .btn { flex: 1; min-height: 48px; }
+
+/* `.field.` so these win over the field rule in styles.css, which loads after this file. */
+.fo .field.g-code-field input { min-height: 64px; font-size: 30px; letter-spacing: 0.08em; text-align: center; }
+.fo .field.g-code-field input::placeholder { color: var(--rule-2); }
+
+/* A solid button that cannot act yet reads as such (the sheets' main actions before a choice is made). */
+.fo .btn.btn-solid:disabled { background: var(--wash-2); color: var(--ink-3); }
+
+.fo .g-list { display: flex; flex-direction: column; }
+.fo .g-open {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 0 4px; border: 0; border-top: 1px solid var(--rule);
+  background: transparent; color: var(--ink); text-align: left; font-size: 16px; transition: background-color 120ms var(--ease);
+}
+.fo .g-list li:first-child .g-open { border-top: 0; }
+.fo .g-open > svg { flex: none; color: var(--ink-2); }
+.fo .g-open-name { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fo .g-open-role { font-size: 13.5px; color: var(--ink-3); }
+.fo .g-start { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.fo .g-choice {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-height: 120px; padding: 16px;
+  border: 0; border-radius: 12px; background: var(--sheet); color: var(--ink); text-align: left;
+  box-shadow: inset 0 0 0 1px var(--rule-2); transition: background-color 120ms var(--ease);
+}
+.fo .g-choice > span { display: flex; flex-direction: column; gap: 3px; }
+.fo .g-choice b { font-size: 16px; font-weight: 650; }
+.fo .g-choice > span > span { font-size: 13.5px; color: var(--ink-3); line-height: 1.4; }
+
+/* ---------------------------------------------------------------- the dock's places and the reader's mode toggle */
+
+.fo .area.is-off { opacity: 0.4; cursor: default; }
+.fo .book-modes { flex: none; }
+
+/* ---------------------------------------------------------------- Open PDF: the pages as printed */
+
+.fo .leaves { height: 100%; overflow-y: auto; scroll-snap-type: y mandatory; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.fo .spread { height: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 14px 16px 30px; scroll-snap-align: start; }
+.fo .leaf { position: relative; height: 100%; min-width: 0; flex: 0 1 auto; display: flex; align-items: center; justify-content: center; }
+.fo .leaves.is-facing .leaf { max-width: calc(50% - 6px); }
+.fo .leaf img { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; background: var(--sheet); border-radius: 2px; box-shadow: var(--shadow); }
+.fo .leaf-wait { display: block; height: 100%; aspect-ratio: 1 / 1.414; max-width: 100%; border-radius: 2px; background: var(--sheet); box-shadow: var(--shadow); animation: fo-breathe 1.6s ease-in-out infinite alternate; }
+.fo .leaf figcaption { position: absolute; bottom: -22px; left: 0; right: 0; text-align: center; font-size: 12px; color: var(--ink-3); pointer-events: none; }
+@media (prefers-color-scheme: dark) {
+  .fo:not([data-theme='light']) .leaf img, .fo:not([data-theme='light']) .sq-page img { filter: invert(0.93) hue-rotate(180deg); }
+}
+.fo[data-theme='dark'] .leaf img, .fo[data-theme='dark'] .sq-page img { filter: invert(0.93) hue-rotate(180deg); }
+
+/* The reader's page question: the page as the librarian saw it. */
+.fo .sq-page { max-height: 42vh; overflow-y: auto; border-radius: 6px; background: var(--sheet); border: 1px solid var(--sheet-edge); flex: none; }
+.fo .sq-page img { display: block; width: 100%; height: auto; }
+
+/* ---------------------------------------------------------------- pressed and hover (styles.css rules, extended) */
+
+.fo .menu-item:active:not([aria-disabled='true']), .fo .g-open:active, .fo .g-choice:active, .fo .mode:active:not(.is-off) { background: var(--wash-2); transition-duration: 40ms; }
+.fo .mode:active:not(.is-off), .fo .g-choice:active { transform: scale(0.98); }
+.fo .btn-solid.is-danger:active:not(:disabled) { background: color-mix(in oklch, var(--fail), var(--ink) 25%); }
+@media (hover: hover) {
+  .fo .menu-item:hover:not([aria-disabled='true']), .fo .g-open:hover, .fo .g-choice:hover, .fo .mode:hover:not(.is-off) { background: var(--wash); }
+}
+
+@media (max-width: 779px) {
+  .fo .g-digits { font-size: 44px; }
+  .fo .g-start { grid-template-columns: minmax(0, 1fr); }
+  /* Create and Join keep one row with the library switcher: their icons only (each still 44 pt, named for VoiceOver). */
+  .fo .ctx .btn:has(.g-act-word) { width: 44px; padding: 0; }
+  .fo .g-act-word { display: none; }
+}

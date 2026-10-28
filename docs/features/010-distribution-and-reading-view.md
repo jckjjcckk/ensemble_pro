@@ -38,6 +38,23 @@ window.
   said only on Import MusicXML and Export MusicXML (a digital book's stored file, or a digital split's).
 - Digital splits (008) read on the stage with only their instruments: `/score/{id}?split={source_id}` adds
   the split as a choice in the part switcher and selects it.
+- **Two ways into a book (2026-10-28, CK).** Below the identity block the book page has mode buttons: **Open PDF**
+  (the pages as printed) and **Open Digital** (the engraving, part by part). A book with only a `pdf`/`images`
+  source shows Open PDF and, for its owner or admin once it is read, a secondary **Convert to Digital**
+  (`POST /scores/{id}/convert`, an `omr_convert` job, 005; a 404 reads "Converting to Digital is not available
+  yet."). While it runs the button shows the breathing ring and "Digitalising", and the book's "…" menu says
+  "Digitalising in progress". When the transcription lands (a `musicxml` source with `meta.transcribed_from`, plus
+  `parts` rows) the book carries both tags, PDF and Digital (`Score.kinds`), both buttons are active, Open Digital
+  reads the transcription on the stage (the score's file falls back to the transcription when no part has a
+  file of its own) and Export MusicXML exports it. A book imported from MusicXML shows only Open Digital.
+  Split by instrument and Export stay where they were.
+- **Open PDF** is `/score/{id}/pages` (`web/src/app/Pages.tsx`): the rendered pages `{score_id}/pages/{n}.png`
+  (listed from the bucket, so pages appear as the import renders them) or a camera intake's photographs in
+  `page_order`; one page per screen in portrait, facing pages in landscape with page 1 alone as a right-hand
+  page, snapping spread by spread, dark themes invert the paper like the strips. The dock offers the PDF file
+  itself (signed, the iPad's own viewer) and Open Digital when there is one. Verified on three repo page images
+  through the temporary harness at 1024x768; not seen with a real import's pages.
+- The reader is reached through the dock's Book place, and Read / Practise is a toggle in its header (001).
 - Bound's facing-pages book view (`engraving.tsx`: `useEngraving`, `segments`, `Book`, in
   `docs/design/explorations/4.md`) is a stretch display setting after Nov 1.
 - Acceptance: `docs/acceptance/touch.md` lines 3 to 8 and 12 (not yet run on the iPad).
@@ -59,13 +76,13 @@ window.
 
 ## Open issues
 
-- Reading view for page images and strips (today only MusicXML renders).
+- The page reader shows pages only: no bar overlays, no markings, no swipe turn beyond native scroll-snap.
 - Highlighted staff band on the original page.
 - Pages take long to engrave; consider caching OSMD output per part.
 - Chrome hide/show on tap in document mode not built.
 
 ## Next steps
 
-1. Image reading view with `measure_placements` overlays (tap a bar = select a bar, as in the tap test).
-2. Strip reading view for `part_images` sources.
+1. `measure_placements` overlays on the page reader (tap a bar = select a bar, as in the tap test).
+2. Open Digital on a converted book once `omr_convert` lands (005); check the transcription engraves.
 3. Real iPad pass of `touch.md`.

@@ -98,6 +98,29 @@ An orchestral or two-piano PDF whose systems change shape mid-page parks at the 
 the parts answer: automatic reading holds today for books whose systems keep the same parts on a page (keyboard,
 chamber music without dropped staves).
 
+### The browser half (web, 2026-10-28)
+
+- The library's Import (dock, and the empty state) is "Import PDF or MusicXML"; the file input takes `.pdf` too.
+  `importPdf` in `web/src/app/data.tsx` does steps 1-4 above (title from the file name, folder "Imported", body
+  `{path, filename, kind: 'pdf'}`); MusicXML goes through `importMusicXml` as before. A refused import is said in a
+  line above the covers (no `window.alert`). Photograph pages (`/scan`) stays for the camera only and gates nothing.
+- Each book's state is derived in one place, `web/src/app/book.ts` (`bookState`): **busy** = `processing` with no
+  question, or an `omr_convert` job queued or running; **waiting** (yellow dot) = a parked job on the book
+  (`process_pages`, `part_cut`, any kind whose `result.question` is set and not yet answered) or the newest
+  interpretation `needs_review`; **failed** (red dot) = `failed`, or the last conversion failed with no
+  transcription; else nothing. Jobs other than `part_cut` load as `world.bookJobs` (chained like part jobs by
+  `payload.resume_from`); Realtime now also watches `sources` and `ensembles`.
+- On the cover: busy is a quiet ring around the book that breathes (opacity 0.18 to 0.85 over 1.6 s, no spinner,
+  static under reduced motion); the dot sits in the top corner; the progress meter and "Needs pages" badge are gone.
+  Tokens `--ask` and `--fail` per token set and theme (styles.css).
+- Every cover and the book page have a "…" menu: its first item is the state ("The librarian has a question",
+  which opens the confirmation sheet; "Digitalising in progress" while a read or a conversion runs; "Reading
+  stopped"), then Open PDF, Open Digital, Convert to Digital and, on the cover, Book page.
+- The confirmation sheet (`StaffQuestion.tsx`) answers both kinds: `choose_staves` as before, and the reader's page
+  question: the page image (`{score_id}/pages/{n}.png`, signed), the sentence, `options` (with `spark_parts` and
+  `known_parts`) as tappable rows, a free line, posted as `{answer: "Piano I, Piano II"}`.
+- Verified on fake data only (temporary `?view=harness`, removed). Not run end to end with a real PDF upload.
+
 ## Rules and decisions
 
 - Storage keys are bucket-relative `{score_id}/...`; never `scores/{score_id}/...`.
@@ -109,12 +132,10 @@ chamber music without dropped staves).
 
 ## Open issues
 
-- PDF import, browser half: the Import action accepting `.pdf`, the three steps above, the busy state and the dot.
-  Not built (the API side is).
-- `scores.status` has no waiting value, so a parked PDF reads `processing` on the score; the dot must look at the
-  interpretation. A `needs_review` status (feature 001) would make it one read.
-- The parked question on a whole PDF has no answer screen yet (011 answers part_cut's staves, not
-  process_pages' part names), and Spark's parts answer on a page whose systems differ is the 004 rule's limit.
+- PDF import, browser half: built (above), not yet run signed in against the local stack with a real PDF.
+- `scores.status` has no waiting value, so a parked PDF reads `processing` on the score; the dot looks at the
+  interpretation and the parked job (`book.ts`). A `needs_review` status (feature 001) would make it one read.
+- Spark's parts answer on a page whose systems differ is the 004 rule's limit; the page question now has a sheet.
 - `PDF_MAX_PAGES` = 40 is a guess at cost and time; CK to set it.
 - PyMuPDF is AGPL-3.0; fine for this public repo, a question if Folio is ever closed-source (pypdfium2 is the
   permissive alternative).
@@ -126,7 +147,7 @@ chamber music without dropped staves).
 
 ## Next steps
 
-1. Web: Import accepts PDF (the contract above), the busy state and the coloured dot.
+1. Run a real PDF import signed in on the local stack and on the iPad; answer a parked page question there.
 2. Scan screen on real data: rasterise, upload `{score_id}/pages/{n}.png`, commit `page_order`, queue
    `process_pages` (004).
 3. Apply migration `20261028090000` when feature 008's handler is wired to a route.

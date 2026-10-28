@@ -49,3 +49,19 @@ export const IDisplay = (p: P) => <Svg {...p}><circle cx="12" cy="12" r="8.5" />
 export const IInfo = (p: P) => <Svg {...p}><circle cx="12" cy="12" r="8.5" /><path d="M12 11v5.2" /><circle cx="12" cy="7.9" r="0.45" fill="currentColor" /></Svg>
 export const IExport = (p: P) => <Svg {...p}><path d="M12 14.5v-11" /><path d="m8 7.5 4-4 4 4" /><path d="M4.5 15.5v3.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5v-3.5" /></Svg>
 export const IImport = (p: P) => <Svg {...p}><path d="M12 3.5v11" /><path d="m8 10.5 4 4 4-4" /><path d="M4.5 15.5v3.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5v-3.5" /></Svg>
+export const IPeople = (p: P) => <Svg {...p}><circle cx="9" cy="8.5" r="3.2" /><path d="M3.5 19.5c.4-3.2 2.6-5.2 5.5-5.2s5.1 2 5.5 5.2" /><path d="M15.2 5.6a3 3 0 0 1 0 5.8M17.4 14.6c1.7.6 2.8 2.3 3.1 4.9" /></Svg>
+export const IMore = (p: P) => (
+  <Svg {...p} stroke="none">
+    {[6, 12, 18].map(x => <circle key={x} cx={x} cy="12" r="1.6" fill="currentColor" />)}
+  </Svg>
+)
+export const IBook = (p: P) => <Svg {...p}><path d="M5 4.5h10.5a2 2 0 0 1 2 2v13H7a2 2 0 0 1-2-2z" /><path d="M5 17.5a2 2 0 0 1 2-2h10.5" /></Svg>
+/** A notehead on a staff: the Digital form of a book (engraved from notation). */
+export const INote = (p: P) => <Svg {...p}><path d="M3.5 7h17M3.5 10.5h17M3.5 14h17" strokeWidth={1.2} /><ellipse cx="10" cy="17" rx="2.6" ry="1.9" transform="rotate(-20 10 17)" fill="currentColor" /><path d="M12.4 16.2V4.5" /></Svg>
+/** A keypad: joining with a code. */
+export const IKeypad = (p: P) => (
+  <Svg {...p} stroke="none">
+    {[6.5, 12, 17.5].map(y => [6.5, 12, 17.5].map(x => <circle key={`${x}-${y}`} cx={x} cy={y} r="1.7" fill="currentColor" />))}
+  </Svg>
+)
+export const IPlusCircle = (p: P) => <Svg {...p}><circle cx="12" cy="12" r="8.5" /><path d="M12 8v8M8 12h8" /></Svg>

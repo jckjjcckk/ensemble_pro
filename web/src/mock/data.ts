@@ -81,6 +81,14 @@ export interface Score {
   /** The stored notation file of a digital book (bucket-relative), and the name it was imported under. */
   sourcePath?: string
   sourceName?: string
+  /** Every form the book exists in: a PDF book with a finished transcription (feature 005) is both. */
+  kinds?: BookKind[]
+  /** A PDF book's pages: the PDF file itself, or photographed pages in reading order (1-based `order` into `paths`). */
+  pageSource?: { kind: 'pdf' | 'images'; paths: string[]; order?: number[] | null }
+  /** The MusicXML transcribed from a PDF book's pages (a `musicxml` source with `meta.transcribed_from`). */
+  transcriptionPath?: string
+  /** The reading run is parked on a question (the latest interpretation is `needs_review`). */
+  review?: { question?: string }
 }
 
 /** The one tag every book carries. "MusicXML" names the file format, on import and export only; the book is Digital. */

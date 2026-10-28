@@ -6,7 +6,7 @@ Folio's committed visual world. Written 2026-10-27 when exploration 5 (Instrumen
 
 ## Thesis
 
-The score sits above a control surface the right hand can find without looking. One graphite dock, always at the bottom, carries the three areas (Library, Score, Practice) and, in practice, grows into the instrument's panel with tempo as the largest number on screen. The signature shape is a bracket: drawn on the bar ruler, echoed in the score at the loop's ends, reused as the drop slot when ordering scan pages. The music is never crowded by chrome.
+The score sits above a control surface the right hand can find without looking. One graphite dock, always at the bottom, carries the three places (Library, Book, Group; Read and Practise are a toggle in the book's header) and, in practice, grows into the instrument's panel with tempo as the largest number on screen. The signature shape is a bracket: drawn on the bar ruler, echoed in the score at the loop's ends, reused as the drop slot when ordering scan pages. The music is never crowded by chrome.
 
 ## One layout, two token sets
 
@@ -31,7 +31,7 @@ OSMD draws black ink; `.osmd svg` is repainted from `--ink` so dark themes inver
 
 ## Colour means one thing
 
-Green means only "following" and the metronome pulse. Amber (oxblood in Bound) means only lost, warnings and failure. Heat is trouble spots and scan warnings. Selection, the current bar, the loop tint and cuts are drawn in ink and ink washes, never in a colour.
+Green means only "following" and the metronome pulse. Amber (oxblood in Bound) means only lost, warnings and failure. Heat is trouble spots and scan warnings. A book's one status dot is yellow (`--ask`) while the librarian has a question and red (`--fail`) when its run failed; a book being read or converted wears a breathing ink ring, never a spinner. Selection, the current bar, the loop tint and cuts are drawn in ink and ink washes, never in a colour.
 
 ## Density
 

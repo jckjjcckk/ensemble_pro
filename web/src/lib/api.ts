@@ -57,8 +57,15 @@ export const cutParts = (scoreId: string, body: CutPartsBody, token: string) =>
  *  `answer_format` gives; for `choose_staves` that is `{staves: [11, 12]}` or `{staves: "absent"}`. The API queues
  *  the follow-up job (same kind, `answer` and `resume_from` set) and returns it. */
 export type ChooseStavesAnswer = { staves: number[] | 'absent' }
-export const answerJob = (jobId: string, answer: ChooseStavesAnswer, token: string) =>
+/** The reader's question on a page (004, `process_pages`): the part names on that page, top to bottom. */
+export type FreeAnswer = { answer: unknown }
+export const answerJob = (jobId: string, answer: ChooseStavesAnswer | FreeAnswer, token: string) =>
   request<JobRow>(`/jobs/${jobId}/answer`, token, answer)
+
+/** Feature 005: Convert to Digital. `POST /scores/{id}/convert` queues an `omr_convert` job on a PDF book and returns
+ *  its row; when it is done a `musicxml` source with `meta.transcribed_from` and the `parts` rows appear. */
+export const convertToDigital = (scoreId: string, token: string) =>
+  request<JobRow>(`/scores/${scoreId}/convert`, token, {})
 
 /** The words for a failed call, in the product's voice. A 404 means the route is not on this server yet. */
 export function apiFailure(e: unknown, what: string): string {

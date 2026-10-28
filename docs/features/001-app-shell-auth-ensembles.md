@@ -109,6 +109,36 @@ behind one confirmation box in the UI. Migration `supabase/migrations/2026102815
   delete refused for a player and a non-member, cascade to members and a score, anon refused, a direct insert
   still gets a code, the check and unique constraints, codes spread. 3 tests, pass.
 
+### Groups in the app (web, 2026-10-28)
+
+"Ensemble" is "group" on every screen; tables and code keep `ensembles`. `web/src/app/Groups.tsx` (+ `groups.css`),
+the RPC wrappers `createGroup`, `joinGroup`, `leaveGroup`, `deleteGroup` in `data.tsx` (a refusal with a `hint`
+shows its `message` as is; anything else, such as a signed-out call or a missing function, becomes a sentence).
+
+- **The group shelf** (the library switcher row, when a group is open) carries a people control, "5 people", that
+  opens `/group`: the group sheet. It shows the group's name, the join code in two groups of four digits at 54 px
+  (the measurement face, read out across a room; from `ensembles.join_code`, loaded with `select('*')` so a stack
+  without the column still works), the members with their parts and Admin, then Leave group and, for an admin,
+  Delete group. Each opens one confirmation box in place of the sheet's foot (Cancel / the red action), and the
+  RPC's sentence shows in that box when it refuses (last admin, not admin). Leaving or deleting returns the library
+  to My library.
+- **The library's top level** carries Create a group (a name, then the new code large with "Read it out") and Join a
+  group (one field, `inputMode="numeric"`, digits only, shown as "4820 1937"; the button wakes at eight digits).
+  A group made or joined opens as soon as the reloaded world has it. Below 780 px both show as 44 pt icons.
+- **The Group place** in the dock (`/group`) opens the open group's sheet, or, from My library, a start sheet: your
+  groups (tap to open one), Create, Join.
+- Verified on fake data only (a temporary `?view=harness` route, removed): sheet faces, the confirmation box, the
+  refusal sentence for a signed-out call, 1024x768 light and 768x1024 dark. Not seen against a signed-in account.
+
+### Three places (web, 2026-10-28)
+
+CK: Library, Book, Group; not five tabs. The dock's area nav (`layout.tsx`) is Library `/`, Book (the last book
+opened, kept in `localStorage` `folio.book`: a score, its PDF pages or practice; else the first readable book here;
+dimmed until there is one) and Group `/group`. Read and Practise are a segmented toggle at the right of the reader's
+header (`BookModes`, shown on `/score/:id` and `/practice`; it replaces the history entry). Practise goes to
+`/practice?score={id}`; the practice screen still reads its mock state, the id is there for it. The standalone back
+control, 44 pt targets, pressed states and sheet springs are unchanged.
+
 ## Rules and decisions
 
 - Secrets only in `api/.env`; the browser gets only `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`,
@@ -119,15 +149,15 @@ behind one confirmation box in the UI. Migration `supabase/migrations/2026102815
 
 ## Open issues
 
-- Groups: the migration is local only; the UI (create, join by code, show the code to the admin, leave, delete,
-  one confirmation each) is not built. Join codes have no attempt limit: 10^8 codes, so guessing one takes
-  millions of signed-in calls, but a rate limit would close it.
+- Groups: the migration is local only; the UI is built but not yet run signed in (create, join, leave, delete on the
+  local stack). Join codes have no attempt limit: 10^8 codes, so guessing one takes millions of signed-in calls, but
+  a rate limit would close it. The admin cannot yet give a member a part or make them admin from the sheet.
+- `auth.tsx` still says "the ensemble's admin" on the sign-in card (left alone by CK's rule: no auth changes).
 
 - Not checked on a real iPad yet (CK runs `touch.md`). Not checked on the hosted project from the UI (CK
   signs in at :5173 and imports `web/public/fixtures/beethoven-op18no1-mv1.musicxml` into Hart House).
 - Not built: chrome hide/show on tap with a visible handle in document mode (PRODUCT.md rule 7).
 - Still mock: annotations, practice state, scan draft, presence. Practice and Scan read mock score ids.
-- `scores.status` lacks `needs_review`: the badge should read `interpretations.status` or the check extended.
 - Teammates: nobody yet; onboarding = add a Supabase user, share the repo; each claims their own $150 credits.
 
 ## Next steps

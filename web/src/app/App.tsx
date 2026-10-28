@@ -7,6 +7,7 @@ import Library from './Library'
 import Scan from './Scan'
 import ScoreDoc from './ScoreDoc'
 import Practice from './Practice'
+import Pages from './Pages'
 import './styles.css'
 
 /** Each token set brings its own faces. A set's fonts load the first time it is shown and stay for the session. */
@@ -51,8 +52,10 @@ function Shell() {
     <div className="fo" data-tokens={display.tokens} data-theme={display.theme === 'system' ? undefined : display.theme}>
       <Routes>
         <Route index element={<Library />} />
+        <Route path="group" element={<Library />} />
         <Route path="scan" element={<Scan />} />
         <Route path="score/:scoreId" element={<ScoreDoc />} />
+        <Route path="score/:scoreId/pages" element={<Pages />} />
         <Route path="practice" element={<Practice />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
