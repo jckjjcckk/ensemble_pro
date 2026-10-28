@@ -253,11 +253,12 @@ function partJobs(rows: Row[]): PartJob[] {
 function chainedBookJobs(rows: Row[]): BookJob[] {
   const answered = new Set(rows.map(r => r.payload?.resume_from as string | undefined).filter(Boolean))
   return rows
-    .filter(r => !answered.has(r.id) && r.score_id)
+    // An `omr_convert` job carries its score only in the payload, so a failed transcription never marks the book failed.
+    .filter(r => !answered.has(r.id) && (r.score_id || r.payload?.score_id))
     .map(r => {
       const parked = r.status === 'done' && !!r.question
       return {
-        id: r.id, scoreId: r.score_id, kind: r.kind, status: (parked ? 'needs_review' : r.status) as PartJobStatus, progress: Number(r.progress ?? 0),
+        id: r.id, scoreId: (r.score_id ?? r.payload?.score_id) as string, kind: r.kind, status: (parked ? 'needs_review' : r.status) as PartJobStatus, progress: Number(r.progress ?? 0),
         error: r.error ?? undefined, question: parked ? r.question : undefined,
         questionPayload: parked ? (r.question_payload as Record<string, unknown> | null) ?? {} : undefined, createdAt: r.created_at,
       }
