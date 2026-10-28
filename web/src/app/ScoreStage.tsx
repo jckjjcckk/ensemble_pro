@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import { OpenSheetMusicDisplay } from 'opensheetmusicdisplay'
 import { measureGeo, readModel, type Geo } from './geometry'
 import { IChevronLeft, IChevronRight } from './icons'
+import { Fade } from './Sheet'
 
 /** Page shapes the stage may ask OSMD for. Few buckets, so a small resize re-engraves at the same shape. */
 const ASPECTS = [0.72, 0.82, 0.94, 1.06, 1.2, 1.414]
@@ -185,10 +186,13 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
     }
     let frame: number | undefined
     let timer: number | undefined
-    if (drawnRef.current) {
+    // A part switch at the same shape re-engraves at once; a size change is a burst and waits for it to settle.
+    const partSwitch = drawnRef.current && engravedRef.current?.startsWith(`${src} ${layout.format} ${layout.zoom} `)
+    if (drawnRef.current && !partSwitch) {
       timer = window.setTimeout(engrave, RESIZE_SETTLE_MS)
     } else {
-      // After the next paint when frames come; on a timer when they do not (a background tab gets no frames).
+      // After the next paint when frames come (so the skeleton is on screen first); on a timer when they do not
+      // (a background tab gets no frames).
       frame = window.requestAnimationFrame(() => { timer = window.setTimeout(engrave, 0) })
       timer = window.setTimeout(engrave, 120)
     }
@@ -287,12 +291,13 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
   }
   const onPointerCancel = () => { window.clearTimeout(gesture.current?.hold); gesture.current = null }
 
-  // The host exists before the size is known so the score can start loading at once; it shows once settled.
+  // The host exists before the size is known so the score can start loading at once. It fades in once settled; while
+  // a re-engrave is pending the old drawing dims under the skeleton rather than cutting to nothing.
   const hostStyle: CSSProperties = layout ? {
     left: layout.padX, top: layout.padY, width: layout.availW,
     '--pw': `${layout.pw}px`, '--gap': `${layout.gap}px`,
-    visibility: settled ? 'visible' : 'hidden',
-  } as CSSProperties : { left: 0, top: 0, width: '100%', visibility: 'hidden' }
+    opacity: settled ? 1 : geo ? 0.4 : 0, transition: 'opacity 200ms var(--ease)',
+  } as CSSProperties : { left: 0, top: 0, width: '100%', opacity: 0 }
   const state = error ? 'error' : settled ? 'ready' : 'loading'
 
   return (
@@ -312,15 +317,16 @@ export function ScoreStage({ src, instruments, scale, focus, follow, underlay, o
         </div>
       </div>
       <div className="stage-over">{settled && geo && overlay?.(geo)}</div>
-      {layout && !settled && !error && (
-        <div className="stage-skeleton" style={{ left: layout.padX, top: layout.padY, width: layout.availW, gap: layout.gap }} aria-label="Engraving score" role="status">
-          {Array.from({ length: layout.perView }, (_, i) => (
-            <div key={i} className="skeleton-page" style={{ width: layout.pw, height: layout.ph }}>
-              {Array.from({ length: 6 }, (_, j) => <span key={j} />)}
-            </div>
-          ))}
-        </div>
-      )}
+      <Fade
+        show={!!layout && !settled && !error} className="stage-skeleton" aria-label="Engraving score" role="status"
+        style={layout ? { left: layout.padX, top: layout.padY, width: layout.availW, gap: layout.gap } : undefined}
+      >
+        {layout && Array.from({ length: layout.perView }, (_, i) => (
+          <div key={i} className="skeleton-page" style={{ width: layout.pw, height: layout.ph }}>
+            {Array.from({ length: 6 }, (_, j) => <span key={j} />)}
+          </div>
+        ))}
+      </Fade>
       {view && (
         <>
           <button type="button" className="turn turn-prev" onClick={() => turn(-1)} disabled={spread === 0} aria-label="Previous pages">

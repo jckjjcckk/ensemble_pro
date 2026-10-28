@@ -3,6 +3,7 @@ import { partsById, practice, scoresById, type TroubleSpot } from '../mock'
 import { Screen, useReducedMotion, useViewport } from './layout'
 import { ScoreStage } from './ScoreStage'
 import { Ruler } from './Ruler'
+import { Pop, Sheet } from './Sheet'
 import { spanRects, type Geo } from './geometry'
 import { CutLayer, PinLayer } from './marks'
 import { TODAY, barRange, fmtDay, useStore, type Span } from './store'
@@ -197,19 +198,22 @@ export default function Practice() {
         cuts={cutSpans} playhead={playhead} playTone={listenTone} onSeek={seek} compact={!tall}
         label={`Bar ruler, bars 1 to ${score.bars}. Drag the bracket ends to set the loop.`}
       />
-      {spot && (
-        <div className="spot-card" role="dialog" aria-label={`Trouble spot, bars ${barRange(spot.barFrom, spot.barTo)}`}>
-          <span className="spot-heat" style={{ opacity: 0.35 + spot.severity * 0.65 }} aria-hidden="true" />
-          <div>
-            <p className="spot-bars num">bars {barRange(spot.barFrom, spot.barTo)}</p>
-            <p className="spot-note">{spot.note}</p>
-          </div>
-          <button type="button" className="dbtn" onClick={() => { setLoop({ from: spot.barFrom, to: spot.barTo }); setSpot(null) }}>
-            <IRepeat size={18} /><span>Loop these bars</span>
-          </button>
-          <button type="button" className="dbtn is-icon" onClick={() => setSpot(null)} aria-label="Close"><IClose size={18} /></button>
-        </div>
-      )}
+      {/* The trouble-spot card grows out of the ruler's heat mark; another spot swaps the card. */}
+      <Pop open={!!spot} id={spot ? String(spot.barFrom) : undefined} origin="bottom left" className="spot-card" role="dialog" aria-label={spot ? `Trouble spot, bars ${barRange(spot.barFrom, spot.barTo)}` : undefined}>
+        {spot && (
+          <>
+            <span className="spot-heat" style={{ opacity: 0.35 + spot.severity * 0.65 }} aria-hidden="true" />
+            <div>
+              <p className="spot-bars num">bars {barRange(spot.barFrom, spot.barTo)}</p>
+              <p className="spot-note">{spot.note}</p>
+            </div>
+            <button type="button" className="dbtn" onClick={() => { setLoop({ from: spot.barFrom, to: spot.barTo }); setSpot(null) }}>
+              <IRepeat size={18} /><span>Loop these bars</span>
+            </button>
+            <button type="button" className="dbtn is-icon" onClick={() => setSpot(null)} aria-label="Close"><IClose size={18} /></button>
+          </>
+        )}
+      </Pop>
     </div>
   )
 
@@ -283,7 +287,10 @@ export default function Practice() {
           onBarTap={seek}
           label={`${part.name} part, ${score.title}`}
         />
-        {historyOpen && <HistoryPanel onClose={() => setHistoryOpen(false)} onLoop={s => { setLoop(s) }} loop={p.loop} />}
+        {/* History is a sprung sheet over the stage (never docked: the part must not re-engrave for it). */}
+        <Sheet open={historyOpen} onClose={() => setHistoryOpen(false)} label="Practice history" docked={false}>
+          <HistoryPanel onClose={() => setHistoryOpen(false)} onLoop={s => { setLoop(s) }} loop={p.loop} />
+        </Sheet>
       </div>
     </Screen>
   )
@@ -299,7 +306,7 @@ function HistoryPanel({ onClose, onLoop, loop }: { onClose: () => void; onLoop: 
   const py = (bpm: number) => 14 + (1 - (bpm - lo) / (hi - lo)) * (Hh - 40)
   const path = sessions.map((s, i) => `${i ? 'L' : 'M'}${px(i)} ${py(s.reachedBpm)}`).join(' ')
   return (
-    <aside className="side" aria-label="Practice history">
+    <>
       <div className="side-head">
         <h2>Practice history</h2>
         <button type="button" className="btn-icon" onClick={onClose} aria-label="Close history"><IClose size={20} /></button>
@@ -361,6 +368,6 @@ function HistoryPanel({ onClose, onLoop, loop }: { onClose: () => void; onLoop: 
         </ul>
         <p className="side-foot">Keys: Space play · − + tempo · M metronome · O other parts · L listening · H history</p>
       </div>
-    </aside>
+    </>
   )
 }

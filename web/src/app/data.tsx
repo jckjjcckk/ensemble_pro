@@ -81,6 +81,11 @@ export const MY_LIBRARY = 'me'
 
 type Row = Record<string, any>
 
+const SIGN_SEC = 3600
+/** A signed URL is re-signed this long before it expires, so a score opened late in the hour still loads. */
+const SIGN_KEEP_MARGIN_SEC = 600
+const signedUrls = new Map<string, { url: string; until: number }>()
+
 async function load(session: Session): Promise<Omit<World, 'reload'>> {
   const uid = session.user.id
   const [mem, sc, pa, prof, jb, src, itp] = await Promise.all([
@@ -122,11 +127,14 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
   ]
 
   // One signed URL per ready score: the file OSMD renders (the whole score for now; parts come from it).
+  // A URL is kept across reloads while it has time left: the stage treats a new URL as a new score and engraves again.
   const ready = scoreRows.filter(s => s.status === 'ready')
   const firstPath = (s: Row) => partRows.find(p => p.score_id === s.id && p.storage_path)?.storage_path as string | undefined
-  const paths = [...new Set(ready.map(firstPath).filter((p): p is string => !!p))]
-  const signed = paths.length ? (await supabase.storage.from('scores').createSignedUrls(paths, 3600)).data ?? [] : []
-  const urlFor = (path?: string) => (path ? signed.find(u => u.path === path)?.signedUrl ?? '' : '')
+  const now = Date.now()
+  const paths = [...new Set(ready.map(firstPath).filter((p): p is string => !!p && (signedUrls.get(p)?.until ?? 0) <= now))]
+  const signed = paths.length ? (await supabase.storage.from('scores').createSignedUrls(paths, SIGN_SEC)).data ?? [] : []
+  for (const u of signed) if (u.path && u.signedUrl) signedUrls.set(u.path, { url: u.signedUrl, until: now + (SIGN_SEC - SIGN_KEEP_MARGIN_SEC) * 1000 })
+  const urlFor = (path?: string) => (path ? signedUrls.get(path)?.url ?? '' : '')
 
   const parts: Part[] = partRows.map(p => ({
     id: p.id, scoreId: p.score_id, name: p.name, fixture: urlFor(p.storage_path), pages: 0,

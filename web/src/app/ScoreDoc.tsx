@@ -5,6 +5,7 @@ import type { Annotation, AnnotationKind } from '../mock'
 import { Screen, useReducedMotion, useViewport } from './layout'
 import { ScoreStage, type StageView } from './ScoreStage'
 import { Ruler, type RulerMark } from './Ruler'
+import { Sheet } from './Sheet'
 import Strips from './Strips'
 import { spanRects, type Geo } from './geometry'
 import { CutLayer, KindIcon, MarginLayer, NoteBody, PinLayer, inMargin } from './marks'
@@ -349,8 +350,8 @@ function Doc({ scoreId }: { scoreId: string }) {
           margin={marginW || undefined}
           label={`${scoreParts}, ${score.title}`}
         />
-        {listOpen && (
-          <aside className="side" aria-label="Markings">
+        {/* The Markings panel is a sprung sheet over the stage (never docked: the score must not re-engrave for it). */}
+        <Sheet open={listOpen} onClose={() => setListOpen(false)} label="Markings" docked={false}>
             <div className="side-head">
               <h2>Markings <span className="count">{visible.length}</span></h2>
               <button type="button" className="btn-icon" onClick={() => setListOpen(false)} aria-label="Close markings"><IClose size={20} /></button>
@@ -382,8 +383,7 @@ function Doc({ scoreId }: { scoreId: string }) {
                 </>
               )}
             </div>
-          </aside>
-        )}
+        </Sheet>
       </div>
     </Screen>
   )

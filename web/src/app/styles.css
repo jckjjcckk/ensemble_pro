@@ -387,6 +387,8 @@
 .fo .stage-under, .fo .stage-over { position: absolute; inset: 0; pointer-events: none; }
 .fo .stage-under { z-index: 1; }
 .fo .stage-host { position: absolute; z-index: 2; }
+/* On its own layer: Chromium blanks the engraving for a frame when a popover's composited layer above it goes away. */
+.fo .stage-host { will-change: transform; }
 .fo .stage-over { z-index: 3; }
 .fo .sheet { position: absolute; background: var(--sheet); border-radius: 3px; box-shadow: var(--shadow); }
 
@@ -482,7 +484,7 @@
   display: flex; flex-direction: column; background: var(--raised); border-left: 1px solid var(--rule);
   box-shadow: -18px 0 40px -24px oklch(0.1 0.01 255 / 0.4);
 }
-.fo .work.side-docked .side { position: relative; width: auto; box-shadow: none; }
+.fo .work.side-docked .side, .fo .lib-work.side-docked .side { position: relative; width: auto; box-shadow: none; }
 .fo .side-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 10px 10px 20px; border-bottom: 1px solid var(--rule); }
 .fo .side-head h2 { font-family: var(--font-title); font-size: calc(16px * var(--title-scale)); font-weight: var(--title-weight); display: flex; align-items: center; gap: 8px; }
 .fo .side-scroll { flex: 1; overflow-y: auto; padding: 16px 20px 28px; overscroll-behavior: contain; }
@@ -870,7 +872,7 @@
 }
 
 /* A score that fails to load says so instead of breathing forever. */
-.fo .stage-host:has(.osmd[data-score-state='error']) { visibility: visible !important; }
+.fo .stage-host:has(.osmd[data-score-state='error']) { opacity: 1 !important; }
 .fo .stage:has(.osmd[data-score-state='error']) .stage-skeleton { display: none; }
 
 /* ---------------------------------------------------------------- margin notes (words beside the page, level with their bar) */
