@@ -2,12 +2,12 @@
 `{score_id, instrument, interpretation_id?, pages?: [int], answer?, resume_from?}`.
 
 Meta model: **Muse Spark 1.3** through the agent loop (`app.agent.run_agent`): one model call per turn, plus one
-call inside `read_header` (the instrument list on page 1), one inside `read_page` (Spark labels the numbered
+call inside `read_header` (the instrument list from page 1's numbered overlay, `header.py`), one inside `read_page` (Spark labels the numbered
 staff overlay: which staves are the instrument's, per system) and one inside `commit_system` (Spark re-reads
 the crop alone and names the instrument; it must agree). Geometry and the cut are OpenCV (`cut.py`), no model.
 
 The loop carries the guarantees: `commit_system` is a commit tool whose checks (staves exist in the system,
-count matches the header, crop verify, model recheck) the model cannot skip; after `max_refusals` the run
+count matches the header, crop verify, model recheck; "absent" only where the labels say so) the model cannot skip; after `max_refusals` the run
 parks with `needs_review` and a typed question `{kind: "choose_staves", page, system, proposal, staff_boxes,
 image_key, allowed}`; the admin's answer `{staves: [...] | "absent"}` is applied as if the commit succeeded and
 the run resumes. `finish` refuses while a page is uncommitted.
@@ -32,16 +32,20 @@ from ..llm import _client as default_client, model_name as default_model, price
 from ..settings import settings
 from ..spend import Charge
 from . import Job, JobContext, handler
+from . import header as hdr
 from .cut import cut_system, overlay_png, page_geometry, to_png
-from .labels import extract_json
+from .header import same_instrument  # noqa: F401  (re-exported: the matcher lives with the header)
 from .process_pages import page_paths
 
 ENGINE = "part-cut-agent"
 SYSTEM = """You are an orchestral librarian cutting one instrument's part out of a scanned full score. Geometry has already found every staff, system and barline; you only decide which numbered staves belong to the instrument on each system, then commit them. Work page by page: read_header once, then for each page read_page and commit_system for every system (staves, or "absent" when the instrument's staves are not printed in that system), then finish. Trust the margin labels first, then clefs, brace and score order. Call exactly one tool per turn, no prose."""
 
-HEADER_PROMPT = """This is the first page of a scanned full score. List the instruments of the score in order from top to bottom as printed in the left margin, with the number of staves each one uses on this page and their clefs, and the key and time signature. Return only JSON: {"instruments": [{"name": "Flute", "staves": 1, "clefs": ["treble"]}], "key": "C major", "time": "4/4"}"""
+# The in-tool calls (header, labels, recheck) are not agent turns: with the agent's SYSTEM ("call exactly one tool
+# per turn") Spark sometimes answers a label request with a pretend read_header call instead of the JSON asked for.
+ASK_SYSTEM = "You are an orchestral librarian reading a scanned page of a full score. Answer with strict JSON only, no prose."
 
-LABEL_PROMPT = """Page {page} of a scanned full score. Every staff has a blue box and a yellow tag with its number ({first}..{last}, top to bottom); grey boxes mark the systems: {systems_desc}. Instrument wanted: "{instrument}" ({staves} staves per system according to the header). For each system give the staff numbers that belong to the wanted instrument (empty if its staves are not printed in that system) and whether it is "playing", "resting" or "absent". Return only JSON: {{"systems": [{{"index": 1, "wanted_staves": [11, 12], "status": "playing"}}], "confidence": "high|medium|low", "notes": ""}}"""
+LABEL_PROMPT = """Page {page} of a scanned full score. Every staff has a blue box and a yellow tag with its number ({first}..{last}, top to bottom); grey boxes mark the systems: {systems_desc}. Instrument wanted: "{instrument}" ({staves} staves per system according to the header).
+{header_context}For each system give the staff numbers that belong to the wanted instrument (empty if its staves are not printed in that system) and whether it is "playing", "resting" or "absent". Return only JSON: {{"systems": [{{"index": 1, "wanted_staves": [11, 12], "status": "playing"}}], "confidence": "high|medium|low", "notes": ""}}"""
 
 RECHECK_PROMPT = """This image is a block of staves cut from a scanned full score. The left margin may carry the instrument label; otherwise judge from the clefs, brace or bracket and the writing. Which instrument or section is this block? Return only JSON: {"instrument": "short name", "confidence": "high|medium|low", "why": "one sentence"}"""
 
@@ -50,33 +54,45 @@ def slug(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or "part"
 
 
-ALIASES = {"pno": "piano", "pf": "piano", "pfte": "piano", "pianoforte": "piano", "klavier": "piano", "cemb": "harpsichord", "cembalo": "harpsichord",
-           "vn": "violin", "vln": "violin", "vl": "violin", "violino": "violin", "violini": "violin", "vla": "viola", "vc": "cello", "vcl": "cello",
-           "violoncello": "cello", "cb": "bass", "kb": "bass", "contrabass": "bass", "fl": "flute", "ob": "oboe", "cl": "clarinet", "fg": "bassoon",
-           "bn": "bassoon", "cor": "horn", "hn": "horn", "tr": "trumpet", "tpt": "trumpet", "tbn": "trombone", "timp": "timpani", "org": "organ"}
+class NoJSON(ValueError):
+    """Every attempt of an in-tool call failed to give the JSON asked for; carries what the attempts cost."""
+    def __init__(self, msg: str, cost_usd: float):
+        super().__init__(msg)
+        self.cost_usd = cost_usd
 
 
-def same_instrument(a: str, b: str) -> bool:
-    """'Piano (solo)' ~ 'Pno.' ~ 'Pianoforte' ~ 'piano': first word, letters only, aliases, then prefix (3+ letters)."""
-    def norm(s: str) -> str:
-        w = re.sub(r"[^a-z]", "", s.lower().split()[0]) if s.split() else ""
-        return ALIASES.get(w, w)
-    x, y = norm(a), norm(b)
-    return len(x) >= 3 and len(y) >= 3 and (x.startswith(y) or y.startswith(x))
-
-
-async def ask_model(ctx: JobContext, client: AsyncAnthropic, model: str, prompt: str, png: bytes, *, max_tokens: int = 2048) -> dict[str, Any]:
-    """One image+text call outside the loop (header, labels, recheck), charged like a turn."""
+async def ask_model(ctx: JobContext, client: AsyncAnthropic, model: str, prompt: str, png: bytes, *, max_tokens: int = 2048,
+                    effort: str = "low", retries: int = 1, require: str | None = None) -> dict[str, Any]:
+    """One image+text call outside the loop (header, labels, recheck), charged like a turn. The answer is parsed with
+    the JSON repair; a reply cut off at max_tokens or one that does not parse is asked again (`retries` times,
+    every attempt charged); so is JSON without the `require`d list. `_cost_usd` is the sum, `_retries` the reasons;
+    raises when no attempt parsed."""
     content = [{"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": ctx.png_b64(png)}}, {"type": "text", "text": prompt}]
     is_meta = settings.llm_provider == "meta" or model.startswith("muse")
-    res = await client.messages.create(model=model, max_tokens=max(max_tokens, 1024) if is_meta else max_tokens, system=SYSTEM,
-                                       messages=[{"role": "user", "content": content}], output_config={"effort": "low"})
-    u = res.usage
-    cost = price(res.model or model, u.input_tokens, u.output_tokens)
-    ctx.charge(Charge("meta" if is_meta else "anthropic", res.model or model, "spark" if is_meta else "claude", cost, u.input_tokens, u.output_tokens))
-    text = "".join(b.text for b in res.content if b.type == "text")
-    data = extract_json(text)
-    data["_cost_usd"] = float(cost)
+    total, why, data, err = 0.0, [], None, None
+    for _ in range(retries + 1):
+        res = await client.messages.create(model=model, max_tokens=max(max_tokens, 1024) if is_meta else max_tokens, system=ASK_SYSTEM,
+                                           messages=[{"role": "user", "content": content}], output_config={"effort": effort})
+        u = res.usage
+        cost = price(res.model or model, u.input_tokens, u.output_tokens)
+        ctx.charge(Charge("meta" if is_meta else "anthropic", res.model or model, "spark" if is_meta else "claude", cost, u.input_tokens, u.output_tokens))
+        total += float(cost)
+        text = "".join(b.text for b in res.content if b.type == "text")
+        truncated = res.stop_reason == "max_tokens"
+        try:
+            data, repaired = hdr.parse_json(text)
+            data["_repaired"] = repaired
+            err = None
+            if require and not isinstance(data.get(require), list):
+                raise ValueError(f"no {require!r} list in {text.strip()[:160]!r}")
+        except (ValueError, json.JSONDecodeError) as e:
+            data, err = None, e
+        if data is not None and not truncated:
+            break
+        why.append(f"truncated at {u.output_tokens} output tokens" if truncated else f"unparseable: {err}")
+    if data is None:
+        raise NoJSON(f"no JSON after {len(why)} attempt(s): {'; '.join(why)}", total)
+    data["_cost_usd"], data["_retries"] = total, why
     return data
 
 
@@ -119,11 +135,10 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         return cache[n]
 
     def header_staves() -> int:
-        h = sc["header"] or {}
-        for inst in h.get("instruments") or []:
-            if same_instrument(str(inst.get("name", "")), instrument):
-                return max(1, int(inst.get("staves") or 1))
-        return 2 if "piano" in instrument.lower() else 1
+        inst = hdr.match_instrument((sc["header"] or {}).get("instruments") or [], instrument)
+        if inst is not None:
+            return max(1, int(inst.get("staves") or 1))
+        return 2 if hdr.family(instrument) in ("piano", "harp", "organ") else 1
 
     async def do_commit(page: int, system: int, staves: list[int] | str, *, recheck: bool = True) -> dict:
         key = f"{page}:{system}"
@@ -132,6 +147,11 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         if sysd is None:
             raise Refusal(f"page {page} has no system {system}; it has systems {[s['index'] for s in geom['systems']]}")
         if staves == "absent":
+            prop = next((q for q in (sc["pages"].get(str(page)) or {}).get("proposal", []) if q["system"] == system), None)
+            if recheck and (prop is None or prop["staves"]):   # an absent commit has no crop to check; the labels must agree
+                said = "did not cover this system" if prop is None else f"proposed staves {prop['staves']} ({prop['status']})"
+                raise Refusal(f"the labels for page {page} {said}; commit \"absent\" only for a system where {instrument}'s staves are not printed, "
+                              f"otherwise commit its staves (system {system} has staves {sysd['staff_indices']})")
             sc["commits"][key] = {"staves": "absent", "key": None, "verify": None}
             sc["log"].append(f"Page {page} system {system}: {instrument} absent")
             return {"committed": key, "status": "absent"}
@@ -165,12 +185,31 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
     @box.tool("read_header", "Read the score header on page 1: instruments in order, staves each, clefs, key, time. Call once, first.", {"properties": {}})
     async def read_header(args, st):
         if sc["header"] is None:
-            geom, bw, im = load_page(pages[0])
-            data = await ask_model(ctx, c, m, HEADER_PROMPT, to_png(im))
+            geom, bw, im = load_page(1)
+            if not geom["staves"]:
+                raise RuntimeError("page 1 has no staves the geometry could find; the header cannot be read")
+            ov = overlay_png(im, geom)
+            ctx.storage_upload(f"{score_id}/parts/{part_slug}/overlay-p001.png", ov, "image/png")
+            score = ctx.db.table("scores").select("title,composer").eq("id", score_id).single().execute().data or {}
+            title = ", ".join(x for x in (score.get("composer"), score.get("title")) if x)
+            try:
+                data = await ask_model(ctx, c, m, hdr.prompt(1, geom, title), ov, max_tokens=hdr.HEADER_MAX_TOKENS, effort="low",
+                                       require="instruments")
+            except NoJSON as e:
+                sc["cost_usd"] = sc.get("cost_usd", 0.0) + e.cost_usd
+                raise
             sc["cost_usd"] = sc.get("cost_usd", 0.0) + data.pop("_cost_usd", 0.0)
-            sc["header"] = data
-            sc["log"].append(f"Header: {', '.join(str(i.get('name')) for i in data.get('instruments') or [])}")
-        return {"header": sc["header"], "instrument": instrument, "staves_per_system": header_staves()}
+            retries = data.pop("_retries", [])
+            sc["header"] = {**hdr.reconcile(data, geom), "retries": retries, "json_repaired": data.pop("_repaired", False)}
+            h = sc["header"]
+            sc["log"].append(f"Header: {', '.join(f'{i['name']} ({i['staves']})' for i in h['instruments'])}; {h['expected_staves']} staves"
+                             + ("" if h["validation"]["match"] else f", geometry found {h['validation']['geometry_staves_system1']} in system 1")
+                             + (f"; {len(retries)} retry: {retries}" if retries else ""))
+        h = sc["header"]
+        match = hdr.match_instrument(h.get("instruments") or [], instrument)
+        return {"header": {k: v for k, v in h.items() if k not in ("retries", "json_repaired")}, "instrument": instrument,
+                "matched": match and {"label": match["label"], "position": match["position"], "staves": match["staves"]},
+                "staves_per_system": header_staves()}
 
     @box.tool("list_pages", "The pages to cut and what is committed on each.", {"properties": {}})
     def list_pages(args, st):
@@ -198,19 +237,30 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         ov_key = f"{score_id}/parts/{part_slug}/overlay-p{n:03}.png"
         ctx.storage_upload(ov_key, ov, "image/png")
         desc = "; ".join(f"system {s['index']} = staves {s['staff_indices'][0]}..{s['staff_indices'][-1]} ({s['n_measures']} bars)" for s in geom["systems"])
-        prompt = LABEL_PROMPT.format(page=n, first=1, last=len(geom["staves"]), systems_desc=desc, instrument=instrument, staves=header_staves())
-        lab = await ask_model(ctx, c, m, prompt, ov)
+        prompt = LABEL_PROMPT.format(page=n, first=1, last=len(geom["staves"]), systems_desc=desc, instrument=instrument, staves=header_staves(),
+                                     header_context=hdr.context(sc["header"], instrument, geom))
+        try:
+            lab = await ask_model(ctx, c, m, prompt, ov, max_tokens=8000, require="systems")
+        except NoJSON as e:   # no labels: the header's score order still proposes the full systems
+            lab = {"systems": [], "confidence": "low", "notes": f"label call failed ({e}); proposal by score order only", "_cost_usd": e.cost_usd}
         sc["cost_usd"] = sc.get("cost_usd", 0.0) + lab.pop("_cost_usd", 0.0)
+        label_retries = lab.pop("_retries", [])
         proposal = [{"system": int(s.get("index", i + 1)), "staves": [int(x) for x in (s.get("wanted_staves") or [])], "status": s.get("status", "absent")}
                     for i, s in enumerate(lab.get("systems") or []) if isinstance(s, dict)]
+        for s in geom["systems"]:   # a system the labels left out: the header's order, when the system is the full set
+            guess = hdr.by_order(sc["header"], instrument, s)
+            if guess and not any(q["system"] == s["index"] for q in proposal):
+                proposal.append({"system": s["index"], "staves": guess, "status": "by-order"})
+        proposal.sort(key=lambda q: q["system"])
         summary = {"page": n, "staves": len(geom["staves"]),
                    "systems": [{"index": s["index"], "staves": s["staff_indices"], "bars": s["n_measures"]} for s in geom["systems"]],
                    "proposal": proposal, "confidence": lab.get("confidence"), "notes": lab.get("notes", "")}
         sc["pages"][str(n)] = {"geometry": geom, "proposal": proposal, "overlay_key": ov_key, "summary": summary}
-        sc["log"].append(f"Page {n}: {len(geom['staves'])} staves, {len(geom['systems'])} systems; proposal {[(q['system'], q['staves'] or q['status']) for q in proposal]}")
+        sc["log"].append(f"Page {n}: {len(geom['staves'])} staves, {len(geom['systems'])} systems; proposal {[(q['system'], q['staves'] or q['status']) for q in proposal]}"
+                         + (f"; label retries: {label_retries}" if label_retries else ""))
         return summary
 
-    @box.tool("commit_system", "Commit which staves of a system are the instrument's (or \"absent\"). Checked: staves exist, count matches the header, crop verify, model recheck.",
+    @box.tool("commit_system", "Commit which staves of a system are the instrument's (or \"absent\"). Checked: staves exist, count matches the header, crop verify, model recheck; \"absent\" must agree with the page labels.",
               {"properties": {"page": {"type": "integer"}, "system": {"type": "integer"}, "staves": {"description": "staff numbers, or the string \"absent\"", "anyOf": [{"type": "array", "items": {"type": "integer"}}, {"type": "string", "enum": ["absent"]}]}},
                "required": ["page", "system", "staves"]}, commit=True)
     async def commit_system(args, st):

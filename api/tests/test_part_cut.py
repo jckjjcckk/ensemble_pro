@@ -13,8 +13,9 @@ from typing import Any
 import pytest
 from PIL import Image, ImageDraw
 
-from app.agent.fake import fake_client, text, tool
+from app.agent.fake import fake_client, text, tool, truncated
 from app.librarian import Job, JobContext
+from app.librarian.header import match_instrument, same_instrument
 from app.librarian.part_cut import part_cut
 
 HEADER = text(json.dumps({"instruments": [{"name": "Flute", "staves": 1}, {"name": "Oboe", "staves": 1}, {"name": "Horn", "staves": 1},
@@ -193,3 +194,76 @@ async def test_absent_page_and_finish_refuses_uncommitted():
     derived = [r for r in db.rows["sources"] if r["kind"] == "part_images"][0]
     assert derived["storage_paths"] == [f"{job.score_id}/parts/piano/p002-s1.png"]
     assert [s["staves"] for s in derived["meta"]["systems"]] == ["absent", [4, 5]]
+
+
+OVERLAY_HEADER = {"instruments": [
+    {"label": "Flauti I. II.", "abbreviations": ["Fl."], "boxes": [1], "staves": 2, "clefs": ["treble"], "family": "woodwind"},  # a pair on one staff
+    {"label": "Oboi", "abbreviations": ["Ob."], "boxes": [2], "staves": 1, "clefs": ["treble"], "family": "woodwind"},
+    {"label": "Corni in F", "abbreviations": ["Cor."], "boxes": [3], "staves": 1, "clefs": ["treble"], "family": "brass"},
+    {"label": "Pianoforte", "abbreviations": ["Pfte."], "boxes": [4, 5], "staves": 2, "clefs": ["treble", "bass"], "family": "keyboard"},
+    {"label": "Violini I.", "abbreviations": ["Vl. I"], "boxes": [6], "staves": 1, "clefs": ["treble"], "family": "strings"}],
+    "staff_total": 7, "key": "F# minor", "time": "4/4", "tempo": "Vivace"}
+
+
+@pytest.mark.asyncio
+async def test_header_from_overlay_drives_the_proposal():
+    """The header is read from page 1's numbered overlay with an 8k budget, retried once when cut off, reconciled
+    against the boxes (the flute pair is 1 staff), and the page's proposal follows from it by score order when the
+    label call gives nothing usable."""
+    script = [tool("read_header", {}), truncated(text('{"instruments": [{"label": "Flauti')), text(json.dumps(OVERLAY_HEADER)),
+              tool("read_page", {"page": 1}), text('{"confidence": "high"}'), text("still no JSON"),   # JSON without systems counts as a miss
+              commit(1, [4, 5]), RECHECK_PIANO, tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(1, {"instrument": "Piano (solo)"})
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1 and out["questions"] == 0
+    for call in t.calls[1:3]:
+        assert call["max_tokens"] >= 8000 and call["output_config"]["effort"] == "low"
+        img = call["messages"][0]["content"][0]["source"]["data"]
+        assert img == ctx.png_b64(ctx.uploads[f"{job.score_id}/parts/piano-solo/overlay-p001.png"])     # the numbered overlay
+        assert "yellow box numbers" in call["messages"][0]["content"][1]["text"]
+        assert "strict JSON" in call["system"] and "tool" not in call["system"]          # not the agent's system prompt
+    sc = ctx.result["agent"]["scratch"]
+    h = sc["header"]
+    assert [(i["name"], i["staves"]) for i in h["instruments"]] == [("Flauti I. II.", 1), ("Oboi", 1), ("Corni in F", 1), ("Pianoforte", 2), ("Violini I.", 1)]
+    assert h["expected_staves"] == 6 and h["validation"]["match"] and h["key"] == "F# minor" and len(h["retries"]) == 1
+    assert sc["log"][0].startswith("Header: Flauti I. II. (1), Oboi (1), Corni in F (1), Pianoforte (2), Violini I. (1); 6 staves")
+    label_prompt = t.calls[4]["messages"][0]["content"][1]["text"]
+    assert "by order the wanted instrument is staff [4, 5]" in label_prompt and "(2 staves per system" in label_prompt
+    assert sc["pages"]["1"]["proposal"] == [{"system": 1, "staves": [4, 5], "status": "by-order"}]
+    assert "no 'systems' list" in sc["pages"]["1"]["summary"]["notes"] and sc["cost_usd"] > 0
+    assert len(t.calls) == 1 + 2 + 1 + 2 + 1 + 1 + 1 and len(ctx.charges) == len(t.calls)
+
+
+@pytest.mark.parametrize("wanted,label", [
+    ("Piano", "Pianoforte"), ("Piano (solo)", "Pianoforte"), ("Pno.", "Pianoforte"),
+    ("Violin I", "Violini I."), ("Vn. I", "Violini I."), ("Violini I", "Violini I."), ("Violin II", "Violini II."), ("Violin", "Violini I."),
+    ("Flute 1", "Flauti I. II."), ("Flute", "Flauti I. II."), ("Cello", "Violoncelli"), ("Contrabass", "Contrabassi"), ("Double Bass", "Contrabassi"),
+    ("Horn", "Corni in F"), ("Trumpet", "Trombe in B"), ("Trombone", "Tromboni"), ("Timpani", "Timpani"), ("Viola", "Viole"),
+    ("Soprano", "Soprano"), ("Alto", "Alto"), ("Bass", "Basso")])
+def test_matcher_names_abbreviations_synonyms_numerals(wanted, label):
+    inst = [{"label": x, "abbreviations": a, "family": f} for x, a, f in [
+        ("Flauti I. II.", ["Fl."], "woodwind"), ("Corni in F", ["Cor."], "brass"), ("Trombe in B", ["Tr."], "brass"), ("Tromboni", ["Trbni."], "brass"),
+        ("Timpani", ["Timp."], "percussion"), ("Pianoforte", ["Pfte."], "keyboard"), ("Soprano", ["S."], "voice"), ("Alto", ["A."], "voice"),
+        ("Basso", ["B."], "voice"), ("Violini I.", ["Vl. I"], "strings"), ("Violini II.", ["Vl. II"], "strings"), ("Viole", ["Vle."], "strings"),
+        ("Violoncelli", ["Vc."], "strings"), ("Contrabassi", ["Cb."], "strings")]]
+    m = match_instrument(inst, wanted)
+    assert m is not None and m["label"] == label
+
+
+def test_same_instrument_for_the_recheck():
+    assert same_instrument("Pno.", "Piano (solo)") and same_instrument("Violins", "Violin I") and same_instrument("Vl. I", "Violini I")
+    assert same_instrument("Flauti I. II.", "Flute 1") and same_instrument("Klavier", "Piano")
+    assert not same_instrument("Violini II", "Violin I") and not same_instrument("Viola", "Violin I") and not same_instrument("Violoncello", "Contrabass")
+    assert not same_instrument("Corno inglese", "Horn") and not same_instrument("Oboe", "Piano")
+
+
+@pytest.mark.asyncio
+async def test_absent_refused_when_the_labels_propose_staves():
+    client, t = fake_client([tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), LABEL, commit(1, "absent"),
+                             commit(1, [4, 5]), RECHECK_PIANO, tool("finish", {})])
+    job, ctx, db = world(1)
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1 and out["absent"] == 0
+    fb = json.loads(t.calls[5]["messages"][-1]["content"][0]["content"])
+    assert "proposed staves [4, 5]" in fb["error"]
