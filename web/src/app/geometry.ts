@@ -32,11 +32,12 @@ function readRaw(osmd: OpenSheetMusicDisplay): { raw: Raw[]; pageCount: number; 
   const sysIds = new Map<object, number>()
   const raw: Raw[] = []
   for (const column of gs?.MeasureList ?? []) {
-    const ms = (column ?? []).filter(m => m && m.ParentMusicSystem && !m.IsExtraGraphicalMeasure)
+    // A hidden instrument's measures keep the ParentMusicSystem of an earlier render (OSMD never resets it), and
+    // that system's page is gone. Only measures on a current page count, whichever staff they sit on.
+    const ms = (column ?? []).filter(m => m && !m.IsExtraGraphicalMeasure && m.ParentMusicSystem && pages.includes(m.ParentMusicSystem.Parent))
     if (!ms.length) continue
     const sysObj = ms[0].ParentMusicSystem
     const page = pages.indexOf(sysObj.Parent)
-    if (page < 0) continue
     if (!sysIds.has(sysObj)) sysIds.set(sysObj, sysIds.size)
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity
     for (const m of ms) {

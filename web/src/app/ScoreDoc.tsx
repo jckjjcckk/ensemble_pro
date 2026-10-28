@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { Link, useParams } from 'react-router'
+import { AnimatePresence, motion } from 'motion/react'
 import type { Annotation, AnnotationKind } from '../mock'
-import { Screen, useViewport } from './layout'
+import { Screen, useReducedMotion, useViewport } from './layout'
 import { ScoreStage, type StageView } from './ScoreStage'
 import { Ruler, type RulerMark } from './Ruler'
 import { spanRects, type Geo } from './geometry'
@@ -10,6 +11,16 @@ import { barRange, firstName, initials, kindLabel, partShort, useStore, type Spa
 import { IClose, IList, IMic, IMinus, IPencil, IPlus, IScissors } from './icons'
 
 type Tool = null | 'marking' | 'cut' | 'voice'
+
+/** The composer rises out of the dock on this spring; the tools it covers fade. */
+const RISE = { type: 'spring', stiffness: 320, damping: 20, mass: 0.8 } as const
+/** The composer floats over the whole dock row (growing upward if it wraps), so the stage never changes size for it. */
+// It starts at the row's top rule (so the edge is invisible on one row) and draws its own when it rises past it.
+const composerStyle: CSSProperties = {
+  position: 'absolute', bottom: 0, minHeight: 'calc(100% + 6px)', padding: '6px 12px 0', zIndex: 2,
+  background: 'var(--dk)', boxShadow: '0 -1px 0 var(--dk-rule)',
+}
+const dockWrapStyle: CSSProperties = { position: 'relative', flex: 1, minWidth: 0, display: 'flex' }
 
 const markKinds: { kind: AnnotationKind; label: string }[] = [
   { kind: 'dynamic', label: 'Dynamic' },
@@ -46,6 +57,7 @@ function Unavailable({ title, detail }: { title: string; detail?: string }) {
 
 function Doc({ scoreId }: { scoreId: string }) {
   const vp = useViewport()
+  const reduced = useReducedMotion()
   const { contextFor, annotations, addAnnotation, scoresById, partsById, world } = useStore()
   const score = scoresById[scoreId]
   // Standing comes from the membership in the ensemble that owns the score, not from which library is open.
@@ -67,7 +79,8 @@ function Doc({ scoreId }: { scoreId: string }) {
   const [focus, setFocus] = useState({ bar: groupBar, key: 0 })
   const [view, setView] = useState<StageView | null>(null)
   const [pin, setPin] = useState<string | null>(null)
-  const [listOpen, setListOpen] = useState(vp.w >= 1360)
+  // The Markings panel floats over the stage at every width, so the score never re-engraves for it; it opens on demand.
+  const [listOpen, setListOpen] = useState(false)
   const [tool, setTool] = useState<Tool>(null)
   const [draftBar, setDraftBar] = useState(groupBar)
   const [draftSpan, setDraftSpan] = useState<Span>({ from: 260, to: 267 })
@@ -76,11 +89,23 @@ function Doc({ scoreId }: { scoreId: string }) {
   const [draftAll, setDraftAll] = useState(true)
   const [rec, setRec] = useState<{ on: boolean; sec: number }>({ on: false, sec: 0 })
   const listRef = useRef<HTMLDivElement>(null)
+  const dockWrapRef = useRef<HTMLDivElement>(null)
+  // How far the dock body sits from the dock's edges (the area nav and the row padding): the composer reaches past them.
+  const [reach, setReach] = useState({ left: 0, right: 0 })
+  useLayoutEffect(() => {
+    const el = dockWrapRef.current
+    const dock = el?.offsetParent as HTMLElement | null
+    if (!el || !dock) return
+    const left = el.offsetLeft
+    const right = dock.clientWidth - left - el.offsetWidth
+    setReach(r => (r.left === left && r.right === right ? r : { left, right }))
+  }, [tool, vp.w])
 
   const isFull = partSel === 'full'
   const instruments = isFull ? null : [score.partIds.indexOf(partSel)]
   // Words go to the outer margin when there is room for one beside each page; otherwise the Markings panel carries them.
-  const marginW = vp.w >= 1180 && !(listOpen && vp.w < 1500) ? 184 : 0
+  // Depends on the viewport only: the panel floating over a margin must not change the engraving.
+  const marginW = vp.w >= 1180 ? 184 : 0
   const visible = useMemo(
     () => annotations.filter(a => a.scoreId === score.id && (isFull || a.partId === null || a.partId === partSel)).sort((a, b) => a.barFrom - b.barFrom),
     [annotations, score.id, isFull, partSel],
@@ -246,7 +271,14 @@ function Doc({ scoreId }: { scoreId: string }) {
   )
 
   const composer = tool && (
-    <form className="composer" onSubmit={e => { e.preventDefault(); save() }} aria-label={`New ${tool === 'voice' ? 'voice note' : tool}`}>
+    <motion.form
+      key={tool} className="composer" style={{ ...composerStyle, left: -reach.left, right: -reach.right }} layout
+      initial={reduced ? { opacity: 0 } : { opacity: 0, y: 28 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={reduced ? { opacity: 0, transition: { duration: 0.12 } } : { opacity: 0, y: 18, transition: { duration: 0.14 } }}
+      transition={reduced ? { duration: 0.16 } : RISE}
+      onSubmit={e => { e.preventDefault(); save() }} aria-label={`New ${tool === 'voice' ? 'voice note' : tool}`}
+    >
       {tool === 'marking' && <>
         {barStepper}
         <div className="seg dseg is-small" role="radiogroup" aria-label="Kind">
@@ -272,18 +304,26 @@ function Doc({ scoreId }: { scoreId: string }) {
         {audience}
       </>}
       <div className="grow" />
-      <button type="button" className="dbtn" onClick={() => setTool(null)}>Cancel</button>
+      <button type="button" className="dbtn" style={{ marginLeft: 'auto' }} onClick={() => setTool(null)}>Cancel</button>
       <button type="submit" className="dbtn is-primary" disabled={(tool === 'voice' && (rec.on || rec.sec === 0))}>
         {tool === 'cut' ? 'Add cut' : tool === 'voice' ? 'Save note' : 'Add marking'}
       </button>
-    </form>
+    </motion.form>
   )
 
-  const dock = composer || (
-    <div className="doc-dock">
-      {partSwitcher}
-      <div className="grow" />
-      {tools}
+  // The dock row keeps its height whatever is in it: the tools fade under the composer, which floats over them.
+  const dock = (
+    <div style={dockWrapStyle} ref={dockWrapRef}>
+      <AnimatePresence initial={false}>
+        {!tool && (
+          <motion.div key="tools" className="doc-dock" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? 0 : 0.12 }}>
+            {partSwitcher}
+            <div className="grow" />
+            {tools}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence initial={false}>{composer}</AnimatePresence>
     </div>
   )
 
@@ -292,7 +332,7 @@ function Doc({ scoreId }: { scoreId: string }) {
 
   return (
     <Screen header={header} ruler={ruler} dock={dock} className="is-doc">
-      <div className={`work ${listOpen ? 'has-side' : ''} ${listOpen && vp.w >= 1360 ? 'side-docked' : ''}`}>
+      <div className={`work ${listOpen ? 'has-side' : ''}`}>
         <ScoreStage
           src={score.fixture}
           instruments={instruments}
