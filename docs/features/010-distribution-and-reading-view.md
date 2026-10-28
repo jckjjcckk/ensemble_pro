@@ -62,13 +62,32 @@ window.
   "Optimised for digital display", said under it), for whoever may edit the book; it writes `scores.digital_layout`
   and the world reloads. A cover at the shelf's left edge now hangs its menu from the button's left edge (before, the
   menu left the viewport).
-- **Open PDF** is `/score/{id}/pages` (`web/src/app/Pages.tsx`): the rendered pages `{score_id}/pages/{n}.png`
+- **Open PDF** (before R3; `Pages.tsx` is gone, see the Stand below) was `/score/{id}/pages` (`web/src/app/Pages.tsx`): the rendered pages `{score_id}/pages/{n}.png`
   (listed from the bucket, so pages appear as the import renders them) or a camera intake's photographs in
   `page_order`; one page per screen in portrait, facing pages in landscape with page 1 alone as a right-hand
   page, snapping spread by spread, dark themes invert the paper like the strips. The dock offers the PDF file
   itself (signed, the iPad's own viewer) and Open Digital when there is one. Verified on three repo page images
   through the temporary harness at 1024x768; not seen with a real import's pages.
-- The reader is reached through the dock's Book place, and Read / Practise is a toggle in its header (001).
+- The reader is reached through the dock's Stand place, and Read / Practise is a toggle in its header (001).
+- **The Stand (R3, 2026-10-28; design in `docs/design/r3/`).** `Stand.tsx` replaces the reader and the page reader:
+  one stage, `EngravedStage.tsx`, serves engraved Digital pages (`/score/{id}`) and PDF page images
+  (`/score/{id}/pages`). For a PDF the bar boxes come from `measure_placements` of the latest done interpretation
+  and are turned into the same `bars` shape as the `.mpos` boxes, so tapping a bar, highlights, notes, scribbles,
+  faces and Follow work on scanned pages too. Header: Shelf back, serif title with the part (the part never
+  truncates away), "Beethoven · bars 49–80 of 236" (says "p. 1, upper half" when zoomed), Read / Practise,
+  Mine / Group (the reader's own marks only, or the layer of the group the book is read in), presence faces and
+  "…". Landscape shows two facing pages (the first spread is pages 1–2), portrait one page; swipe, the turn
+  buttons and arrow keys turn with a directional spring. Pinch (or ctrl+wheel, or + / − / 0) zooms into one page
+  with a focal point; a zoom pill and a page overview show where you are. A tap on a bar opens the vertical quick
+  menu beside the bar on the side with room (Bar N, others' marks, Highlight, Note, Scribble, Loop from here).
+  Notes show as bubbles with the author's face; members on the visible pages show as faces at the page edge with
+  "bar N" ("b.N" in portrait); "Following Anna's page turns" is a pill at the foot (dashed when not following).
+  Three appearances: light, dark with dimmed paper (multiply blend), dark inverted; chosen in the account menu
+  and in the Stand's "…" menu. The "…" menu also keeps the status rows (the AI question, "Digitalising in
+  progress"), the PDF / Digital switch, the part, "Preserve original formatting", Markings, Follow, admin tools
+  (a marking, a cut, a voice note) and Open the PDF file. The ruler is gone (the design has none).
+  `localStorage` `folio.book` and a per-book place (`folio.place`) are kept. Verified in the browser pane against
+  the local stack at 834x1194 and 1194x834, light and dark; screenshots in `docs/design/r3/shots/` (gitignored).
 - **A personal book shared with a group (2026-10-28, 001).** By reference: the group reads the owner's book, its
   pages, its Digital file and its splits' rows from the owner's library; nothing is copied. On the group shelf it sits
   in "Shared with the group" with "Shared by {name}"; for anyone but the owner its page and menu offer only Open PDF
@@ -104,16 +123,14 @@ window.
 
 ## Open issues
 
-- The page reader shows pages only: no bar overlays, no markings, no swipe turn beyond native scroll-snap.
 - Highlighted staff band on the original page.
 - Pages take long to engrave on the device for a single part (the full score now comes engraved from the box; a
   part's own pages are the next step, 005).
-- The composer line under the reader's title shows the last word of the composer ("van" for "Beethoven, Ludwig van").
 - Chrome hide/show on tap in document mode not built.
+- The Stand's hold-a-bar (500 ms) gesture and scan drag were not walked in the pane for R3; a real iPad pass is still owed.
 
 ## Next steps
 
-1. `measure_placements` overlays on the page reader (tap a bar = select a bar, as in the tap test).
-2. Open Digital on a converted book end to end through the UI (the engraving step runs at the end of `omr_convert`;
+1. Open Digital on a converted book end to end through the UI (the engraving step runs at the end of `omr_convert`;
    seen only on an imported MusicXML so far).
-3. Real iPad pass of `touch.md`, including line 8 (tap a face) and Follow between two iPads.
+2. Real iPad pass of `touch.md`, including line 8 (tap a face) and Follow between two iPads.

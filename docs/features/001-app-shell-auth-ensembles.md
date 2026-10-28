@@ -20,12 +20,13 @@ Web (`web/`, Vite + React 19 + TypeScript, Tailwind v4, OpenSheetMusicDisplay 2.
 | `web/src/app/auth.tsx` | `AuthProvider`, `SignIn` (email + password only: accounts are created by hand, so no sign-up and no reset), `useAuth` |
 | `web/src/app/data.tsx` | `useWorld`: members, ensembles, scores, parts through RLS; signed URLs for score files; Realtime row changes on scores/parts/members trigger a refetch; `importMusicXml` (feature 002) |
 | `web/src/app/store.tsx` | app state, `WORDMARK = 'Folio'`, display setting; the store takes the world |
-| `web/src/app/Library.tsx` | context switcher, folders of covers, information box (facts, read flags as counts, parts with holder and one-word difficulty, brief for admins, Open score / Practise / Order pages / Retake pages), dock with Resume practice and Scan pages, Import MusicXML for admins and owners |
+| `web/src/app/Shelf.tsx` | R3 shelf: My Library / Groups, Import, Scan, account circle, summary line, card grid (engraved key and time, bars, shared dot, PDF / Digital tags, busy ring, ask and failed dots), empty state, group rows, Shelf / Stand dock |
+| `web/src/app/BookSheet.tsx`, `GroupsDialog.tsx`, `Surfaces.tsx` | Book sheet (bottom sheet), Groups dialog (centred), shared BottomSheet / Dialog / Confirm |
 | `web/src/app/ScoreDoc.tsx`, `ScoreStage.tsx`, `Ruler.tsx`, `marks.tsx`, `geometry.ts` | score screen (feature 010), margin notes, ruler, markings (feature 012) |
 | `web/src/app/Practice.tsx` | practice screen, mock state (feature 014) |
 | `web/src/app/Scan.tsx` | scan intake, mock draft (feature 002) |
-| `web/src/app/Display.tsx` | display sheet: token set Instrument (default) or Bound, theme auto/light/dark, persisted as `folio.display`; Sign out lives here |
-| `web/src/app/styles.css` | tokens; root class `.fo` |
+| `web/src/app/Display.tsx` | `AccountButton`: the account circle's popover with Appearance (Auto / Light / Dark), the dark page (Dimmed paper / Inverted) and Sign out; persisted as `folio.display` |
+| `web/src/app/styles.css`, `r3.css` | R3 tokens (light and dark) on the root class `.fo`; R3 components |
 | `web/src/mock/` | `data.ts`, `ScoreView.tsx`: the mock world still used by annotations, practice state, scan draft, presence |
 | `web/src/lib/supabase.ts`, `lib/api.ts` | anon client; `apiHealth()` |
 | `.claude/launch.json` (gitignored) | starts the web dev server for the in-app browser |
@@ -232,6 +233,18 @@ dimmed until there is one) and Group `/group`. Read and Practise are a segmented
 header (`BookModes`, shown on `/score/:id` and `/practice`; it replaces the history entry). Practise goes to
 `/practice?score={id}`; the practice screen still reads its mock state, the id is there for it. The standalone back
 control, 44 pt targets, pressed states and sheet springs are unchanged.
+
+### R3 shelf and sheets (web, 2026-10-28)
+
+CK's R3 design (`docs/design/r3/`) replaces the three places with two: **Shelf** (`/` My Library, `/groups`
+Groups; `/group` opens the Groups dialog) and **Stand** (the last book, `folio.book`; enabled when there is a
+book to read). A card opens the Book sheet over the dimmed shelf: identity (rename inline, dates under the (i)),
+Open on the stand with "Continues at bar N, page P", Split by instrument, Convert to Digital with an estimate
+(40 s a page), Share with a group, Export MusicXML / Rename / Delete book…. Rename and delete use the scores
+table policies (`renameBook`, `deleteBook` in `data.tsx`); deleting leaves the storage files behind. The Groups
+dialog shows the current group's join code with Copy, members with roles, Delete group… (Leave group… for
+members), other groups as rows, Join with a code and Create a group, with the existing RPCs; each destructive
+action asks once in one message box. In landscape the shelf has four columns and sheets are centred at 820 px.
 
 ## Rules and decisions
 
