@@ -137,12 +137,12 @@ def main() -> None:
     sh = sub.add_parser("show", help="print the score, interpretations, parts and placements")
     sh.add_argument("--score", required=True)
     sh.set_defaults(fn=cmd_show)
-    for kind in ("process_pages", "import_musicxml", "transcribe_voice", "brief"):
+    for kind in ("process_pages", "import_musicxml", "transcribe_voice", "brief", "part_cut"):
         r = sub.add_parser(kind, help=f"run the {kind} handler on a score")
         r.add_argument("--score", required=True)
         r.add_argument("--source")
         r.add_argument("--answer", help="payload.answer for a follow-up job, e.g. 'Piano I, Piano II'")
-        r.add_argument("--payload", help="extra payload as JSON")
+        r.add_argument("--payload", help="extra payload as JSON, e.g. part_cut: '{\"instrument\": \"Piano\", \"pages\": [1, 2]}'")
         r.set_defaults(fn=cmd_run, kind=kind)
     a = ap.parse_args()
     point_at_local_stack(a.provider, a.allow_remote)

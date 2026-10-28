@@ -75,6 +75,20 @@ writes interpretations, measures, placements and parts exactly as `process_pages
 (crop a part's staff band from each system and stitch a per-part PDF) is a tool only for scores with many
 staves; small scores distribute the original page with the part's band highlighted.
 
+**Part cut (`api/app/librarian/part_cut.py`, 2026-10-28).** The first handler on the loop. Payload
+`{score_id, instrument, pages?, interpretation_id?}`. Tools: `read_header` (Spark reads page 1: instruments, staves
+each, clefs, key, time), `list_pages`, `read_page` (OpenCV staves/systems/barlines from `cut.py`, then Spark labels
+the numbered overlay: which staves are the instrument's per system), `commit_system(page, system, staves | "absent")`
+(commit: staves exist in the system, count matches the header, crop verify, Spark re-reads the crop alone and must
+name the same instrument), `finish` (commit: refuses while a page or system is uncommitted). Three refusals park
+the run with the typed question `{kind: "choose_staves", page, system, proposal, last_attempt, feedback, staff_boxes,
+image_key, allowed, answer_format}`; the answer `{staves: [...] | "absent"}` is applied as a successful commit and
+the run resumes (`payload.resume_from` = the job that asked). State lives in `jobs.result.agent`. Outputs: cleaned
+crops at `{score_id}/parts/{slug}/p{page:03}-s{k}.png`, a `sources` row of kind `part_images` (migration
+`20261028090000_part_images_source.sql`, not applied yet), an interpretation (engine `part-cut-agent`) whose summary
+holds the counts and the log, with the page-intake placements copied under it (same measure ids). Tests:
+`api/tests/test_part_cut.py` on PIL-drawn pages.
+
 **Voice note → proposed annotations (item 7).** Tools: `score_facts` (part list, measure range, rehearsal
 marks), `propose(kind, measure_from, measure_to, audience, text, quote)` (commit: `quote` must be a verbatim
 span of the transcript, bars inside the range, audience a known part or `ensemble`, else refuse),
