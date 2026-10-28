@@ -1,6 +1,6 @@
 # 008 Part extraction by cutting, no OMR
 
-Status: prototype (experiment pipeline works on 6 scores; `part_cut` handler merged on main, runs end to end on the local stack with Spark on Rach 1 pages 1 to 5 (2026-10-28, see "Live runs"); migration applied locally, not hosted; the multi-part contract below is not yet implemented) | Meta model: Muse Spark 1.3 (labels the target staves per system on a numbered overlay, re-reads each crop alone; reads the header, feature 003). SAM 3.1 not used.
+Status: prototype (experiment pipeline works on 6 scores; `part_cut` handler merged on main, runs end to end on the local stack with Spark on Rach 1 pages 1 to 5 (2026-10-28, see "Live runs"); migration applied locally, not hosted; the multi-part contract below is implemented in the handler with the two routes, run on Beethoven 9 pages 172 to 176, 2026-10-28 evening) | Meta model: Muse Spark 1.3 (labels the target staves per system on a numbered overlay, re-reads each crop alone; reads the header, feature 003). SAM 3.1 not used.
 
 ## Purpose
 
@@ -15,10 +15,26 @@ the part's band highlighted (feature 010) and true extraction is for big scores.
 
 **A part export is a selection of parts chosen by the user, not a single instrument.** A soprano can export
 soprano alone or soprano and alto together. The payload takes a list of instruments; the chosen staves of
-each system are kept together in score order and cleaned as one block; one strip per page. The drafted
-handler takes one `instrument`; it must become `instruments: [...]`, with the block = the union of the
-chosen instruments' staves per system (adjacent in score order), the clean pass treating that block as "the
-target", verify expecting the summed staff count, and the recheck naming every instrument in the block.
+each system are kept together in score order and cleaned as one block; one strip per page. When the chosen
+set skips a staff in the middle (soprano and tenor without alto) each contiguous run is cut as its own block
+and the blocks are stacked vertically into one strip image per system with a small gap (CK: "stack them").
+
+Implemented (2026-10-28 evening): the payload takes `instruments: [...]` (`instrument: "..."` still accepted
+as a one-element list); per system the union of the chosen staves is split into contiguous runs, each run
+is cleaned and verified as its own block, the recheck asks per block and must name one of the block's
+instruments (or "chorus" for a block of voices), the strip is the blocks stacked with a white gap of 1.5
+staff spaces, the header count check expects the summed staff count. Slug = the instruments' slugs joined
+with `+` (`soprano+alto`), keys stay `{score_id}/parts/{slug}/p{page:03}-s{k}.png`.
+
+Routes (`api/app/routes/scores.py`, `api/app/routes/jobs.py`):
+
+- `POST /scores/{id}/parts` body `{instruments: [string], pages?: [int]}`, owner or ensemble admin, budget
+  checked; refuses an empty list (400) and a score without a `pdf`/`images` source (400); inserts a
+  `part_cut` job `{score_id, instruments, pages?}` and returns the job row.
+- `POST /jobs/{id}/answer` body = the answer payload (`{staves: [...] | "absent"}` or `{blocks: [[...], ...] |
+  "absent"}`), only for a job that is `done` with `result.question` set and whose score the caller may edit
+  (409 otherwise, 409 when already answered, 404 unknown); inserts a job of the same kind with the parked
+  job's payload plus `answer`, `resume_from` and the question's `interpretation_id`, returns the new row.
 
 ## Pipeline (`api/experiments/grounding/`, run from `api/` with `uv run experiments/grounding/<script>.py`)
 
@@ -194,30 +210,45 @@ family (defaults keep the old behaviour).
 
 ## The job handler (`api/app/librarian/part_cut.py`, drafted 2026-10-27 on branch `worktree-agent-a4b9692edf1cec344`, commit 6c1885d; merged into main 2026-10-28 as 2524caf with 7f827d8)
 
-- Kind `part_cut`, payload `{score_id, instrument, interpretation_id?, pages?: [int], answer?, resume_from?,
-  max_cost_usd? (2.0)}`. Runs on the agent loop (006): one model call per turn plus one inside
-  `read_header`, one inside `read_page` (labels on the overlay), one inside `commit_system` (recheck).
+- Kind `part_cut`, payload `{score_id, instruments: [str] (or instrument: str), interpretation_id?, pages?: [int],
+  answer?, resume_from?, max_cost_usd? (2.0)}`. Runs on the agent loop (006): one model call per turn plus one
+  inside `read_header`, one inside `read_page` (labels on the overlay; several instruments are asked in one
+  call, `wanted: [{instrument, staves, status}]` per system), one per block inside `commit_system` (recheck,
+  4000-token budget).
 - `api/app/librarian/cut.py`: the geometry, overlay, clean-and-extend crop and verify ported from the
   experiment (no model).
 - Tools: `read_header` (once, first), `list_pages`, `read_page(page)` (geometry + proposal, overlay uploaded
-  to `{score_id}/parts/{slug}/overlay-p{page:03}.png`), `commit_system(page, system, staves | "absent")`
-  (commit: staves exist in the system, count matches the header, staves adjacent, crop verify, Spark
-  recheck must name the same instrument; `same_instrument` normalises aliases Pno/Pfte/Klavier/Vn/Vcl...),
-  `finish` (commit: refuses while any page or system is uncommitted). `max_turns = 8 + 4 x pages`,
+  to `{score_id}/parts/{slug}/overlay-p{page:03}.png`), `commit_system(page, system, staves | blocks |
+  "absent")` (commit: staves exist in the system, total count matches the header's sum over the chosen
+  instruments, the union is split into contiguous blocks, crop verify and Spark recheck per block; the
+  recheck must name one of the block's instruments, `same_instrument` normalises aliases
+  Pno/Pfte/Klavier/Vn/Vcl..., "chorus" passes for a block of voices), `finish` (commit: refuses while any
+  page or system is uncommitted). `max_turns = 8 + 6 x pages` (choir pages have up to 4 systems),
   `max_refusals = 3`.
+- Vocal pairs: in choral writing the barlines stop at each staff and do not cross the lyric gap, so a
+  two-staff block never passes `barlines_present` over its full span; when `staves_in_crop` passes and every
+  staff of the block has its barlines on its own, the block passes (`verify.barlines_present.per_staff`).
 - Three refusals park the run with the typed Question payload `{kind: "choose_staves", page, system,
-  instrument, interpretation_id, proposal, last_attempt, feedback, staff_boxes: [{index, y_top, y_bottom,
-  x0, x1}], image_key, allowed: {staves: "list of adjacent staff numbers", absent: true}, answer_format}`.
-  The answer `{staves: [...] | "absent"}` is applied as a successful commit (no recheck) and the run resumes
-  with `resume_from` = the job that asked. State in `jobs.result.agent`.
-- Outputs: cleaned crops at `{score_id}/parts/{slug}/p{page:03}-s{k}.png`; a `sources` row of kind
-  `part_images` (`storage_paths` = crops in reading order, `meta` = instrument, slug, parent source,
-  interpretation, per-system staves and bars; migration `20261028090000_part_images_source.sql`, **not
-  applied**); an `interpretations` row, engine `part-cut-agent`, summary with counts and log, the
-  page-intake placements copied under it (same measure ids); `parts` upsert with `storage_path` = first crop.
-- Tests `api/tests/test_part_cut.py` (4 cases on PIL-drawn pages with the scripted model): happy path three
-  pages, refusal then correct retry, escalation to needs_review then resume with answer, absent page and
-  finish refuses uncommitted. 14/14 passed with the loop tests at draft time. Not run on real pages or Spark.
+  instrument ("Soprano + Alto"), instruments: [...], interpretation_id, proposal (union or "absent"),
+  blocks: [{staves, instruments}], staves_per_instrument, last_attempt, feedback, staff_boxes: [{index,
+  y_top, y_bottom, x0, x1}], image_key, allowed: {staves, blocks, absent: true}, answer_format}`. The
+  answer `{staves: [...] | "absent"}` or `{blocks: [[...], ...] | "absent"}` is applied as a successful
+  commit: no recheck, no count or verify refusal either (011: the admin's words are final, and the geometry
+  may have missed a staff); the run resumes with `resume_from` = the job that asked. State in
+  `jobs.result.agent`.
+- Outputs: strips at `{score_id}/parts/{slug}/p{page:03}-s{k}.png`; a `sources` row of kind `part_images`
+  (`storage_paths` = strips in reading order, `meta` = `instrument` (joined label), `instruments` (list),
+  slug, parent source, interpretation, per-system `staves`, `blocks`, key and bars; migration
+  `20261028090000_part_images_source.sql`, applied locally, **not hosted**); an `interpretations` row, engine
+  `part-cut-agent`, summary with counts and log, the page-intake placements copied under it (same measure
+  ids); `parts` upsert named by the joined label with `storage_path` = first strip.
+- Tests `api/tests/test_part_cut.py` (PIL-drawn pages, scripted model): happy path three pages, refusal then
+  correct retry, escalation to needs_review then resume, absent page and finish refuses uncommitted, header
+  from the overlay, matcher table, two blocks cut separately and stacked (gap measured, one recheck per
+  block, a wrong recheck on one block refuses the commit), adjacent instruments as one block, a vocal pair
+  through the per-staff barline fallback, absent for every chosen instrument, question and answer with
+  blocks, admin answer against the header count, payload forms. `api/tests/test_routes.py`: the two routes
+  through FastAPI's TestClient with the fake database. 50 passed with the loop tests (2026-10-28 evening).
 
 ### Live runs on the local stack (2026-10-28, Rach 1 Gutheil pages 1 to 5, Muse Spark 1.3, effort low)
 
@@ -240,17 +271,59 @@ refusals, park); the resume path applies the admin's answer and continues; the d
 calls get their own JSON-only system prompt (the agent's "one tool per turn" prompt made Spark answer a label
 request with a pretend tool call); a model commit of `absent` is refused unless the page labels say absent.
 
+### Live runs: Beethoven 9 pages 172 to 176, two instruments (2026-10-28 evening, Muse Spark 1.3, effort low)
+
+Seeded from the IMSLP 46254 PDF at 150 dpi (pymupdf, grey, 3153 x 4000). Expected from the single-part runs:
+S 13 / A 14 / T 15 on p. 172 s1, p. 176 s4; S 12 / A 13 / T 14 on p. 175 s1; p. 173 and p. 174 depend on the
+geometry (see below). `uv run -m app.librarian.run part_cut --score <id> --payload '{"instruments":
+["Soprano", "Alto"], "pages": [1,2,3,4,5]}'`, answers through `--payload '{..., "resume_from": <job>,
+"answer": {"blocks": [[13], [15]]}}'` (the shape `POST /jobs/{id}/answer` queues).
+
+| Run | Outcome | Cost (usage_events) |
+|---|---|---|
+| S+A 1 | paused at the turn limit: every commit with staves raised `KeyError: 'pass'` (the refusal message walked the `clean` stats dict, which has no `pass`; latent since the draft, never hit on Rach 1 because verify never failed there) | $0.158 |
+| S+A 2 | p. 172 s1 [13, 14] committed as one block (barlines per staff: a choir's barlines do not cross the lyric gap, so the whole-span check fails on every vocal pair; fallback added); parked on p. 173 s2 where the geometry found 8 of 15 staves and the labels could only offer the alto's box | $0.125 |
+| S+A 2 resumed with `{"staves": [6]}` | `done`: 5 systems cut, 6 absent, 1 question; p. 174 [10, 11] and p. 175 [12, 13], p. 176 [13, 14] right; one recheck false alarm ("alto and tenor trombones") retried through | $0.116 |
+| S+T 1 | labels right on p. 172 ([13, 15], the stacked case); parked: the recheck on the soprano block alone said Oboe, viola, Organ (a resting staff whose margin shows only the "O" of CORO) | $0.076 |
+| S+T 1 resumed `{"blocks": [[13], [15]]}` | p. 172 stacked strip written; p. 173 absent x3 (geometry); p. 174 [10, 11]; p. 175 labels right ([12, 14]), parked: recheck on the soprano block said "Tenor" three times (soprano C-clef) | $0.117 |
+| resumed `{"blocks": [[12], [14]]}` | p. 175 stacked; p. 176 labels right ([13, 15]), parked again on the soprano block, "Tenor" | $0.056 |
+| resumed `{"blocks": [[13], [15]]}` | `done`: 4 systems cut, 7 absent, 3 questions; derived source written | $0.012 |
+| S+T 2, with the recheck accepting any instrument of the export (tried, then reverted) | labels right ([13, 15]); the recheck refused the soprano block as "Viola", the model tried [16] ("Choir Basses", refused), then committed **[14, 15]** (alto + tenor, one staff off) and the loosened recheck let it through on "Tenor"; parked on p. 173 s2 (geometry) | $0.153 |
+
+Decisions that came out of the runs: the recheck stays per block and must name the block's own instrument (or
+"chorus" for voices); accepting any instrument of the export was tried on S+T run 2 and shipped a wrong strip, so
+the strict rule stays and asks the admin instead (3 questions in 5 pages on the soprano's C-clef, which Spark
+reads as "Tenor" on every unlabelled system; an open issue below). New guard, no model call: a block must agree
+with the labels, the instruments whose proposed staves it touches must account for all of its staves (`[14, 15]`
+against a proposal S 13 / T 15 is refused for the stray 14); a block that shares no labelled staff goes to verify
+and the recheck as before. Also: 4000-token budget for the recheck (two truncations at 2048), `max_turns = 8 + 6
+x pages`, the admin's answer skips the count and verify refusals as well as the recheck. Total Meta spend of the
+evening: $0.80 over 134 calls (usage_events). The strips (looked at by eye): p. 172, 175, 176 of S+A are clean two-staff blocks, the soprano's
+lyrics kept and the alto's partly erased; the stacked S+T strips on the same pages are two clean single staves with
+a white hairline between them, readable for the notes, the lyrics half erased on both and the "CORO" margin label
+split across the blocks. p. 173 and p. 174 are wrong on both exports: the geometry misses the neighbours, so the
+band runs to the page edge and the strip holds half the system (p. 173 holds Vn to Cb; p. 174 holds S A T B
+and the basses) and on p. 173 the soprano has no box at all. That is the staff recovery the experiment had
+and `cut.py` lacks (003).
+
 ## Open issues
 
-- Implement the multi-part contract (list of instruments, one block per system).
+- Geometry on the Beethoven 9 choir pages: `cut.find_staves` finds 8 of 15 staves on p. 173 and 12 of 18 on
+  p. 174 where the experiment's `piano_cut_geometry.py` (with the header's staff recovery, 003) found them
+  all; the port in `cut.py` has no recovery step, so the undetected neighbours leave half a page in the
+  strip (see "Live runs: Beethoven 9").
 - Lyric rule for vocal staves; page-edge fake staves; recheck false alarms on unlabelled pages (consider
   giving the recheck the header's clef expectations, or trusting by-order labels when the system is full).
+  On the Beethoven 9 choir pages the recheck called the soprano's C-clef staff "Tenor" (or Viola, Oboe,
+  Organ when resting) on every unlabelled system: a two-voice export of S+T or S+A parks once per page.
+  A cheaper second opinion for voices may be the clef itself (soprano C-clef on line 1, alto on line 3,
+  tenor on line 4), which geometry can read without a model.
 - Cross-page continuity; bar numbers on the strip (barlines already found, 004); "absent" as a first-class
   answer in the UI (011); orchestral cues for a concerto soloist (adjacent staves at reduced size).
 - Spark JSON: malformed on about half the page calls at low effort; stray-token repair (`}-math]`,
   `word=digits`) and one retry stay; a bracket-closing repair for truncation was planned before the 8k budget
   made it rare.
-- Wire the handler to a route; apply the migration to the hosted project when CK says.
+- Apply the migration to the hosted project when CK says (the routes are wired).
 - Decision pending from CK: whether item 6 becomes "intake + part cut" with OMR only behind practice mode.
 
 ## Files and output dirs
