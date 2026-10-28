@@ -1,0 +1,216 @@
+# 008 Part extraction by cutting, no OMR
+
+Status: prototype (experiment pipeline works on 6 scores; `part_cut` handler merged on main, runs end to end on the local stack with Spark on Rach 1 pages 1 to 5 (2026-10-28, see "Live runs"); migration applied locally, not hosted; the multi-part contract below is not yet implemented) | Meta model: Muse Spark 1.3 (labels the target staves per system on a numbered overlay, re-reads each crop alone; reads the header, feature 003). SAM 3.1 not used.
+
+## Purpose
+
+For a soloist or a choir singing from a full score, skip OMR: recognise which staves on each system are the
+requested part, crop them, clean the neighbours' ink out, stack them into a strip per page. CK's question
+(2026-10-28 morning): "extract the piano sheet from the grand sheet of Rachmaninov piano concerto no 1, I
+want only piano." Choir feedback (2026-10-27): SATB singers keep the grand sheet; separate parts only pay
+off when the voice sits inside a 10+ staff full score, so small scores distribute the original page with
+the part's band highlighted (feature 010) and true extraction is for big scores.
+
+## The contract (CK, 2026-10-28)
+
+**A part export is a selection of parts chosen by the user, not a single instrument.** A soprano can export
+soprano alone or soprano and alto together. The payload takes a list of instruments; the chosen staves of
+each system are kept together in score order and cleaned as one block; one strip per page. The drafted
+handler takes one `instrument`; it must become `instruments: [...]`, with the block = the union of the
+chosen instruments' staves per system (adjacent in score order), the clean pass treating that block as "the
+target", verify expecting the summed staff count, and the recheck naming every instrument in the block.
+
+## Pipeline (`api/experiments/grounding/`, run from `api/` with `uv run experiments/grounding/<script>.py`)
+
+| Step | Script | Model | What |
+|---|---|---|---|
+| 0 | `score_header.py` | Spark, effort low | page 1 overlay → instruments in score order, staves, clefs (003) |
+| 1 | `piano_cut_geometry.py` | none | rasterise at 150 dpi, deskew, staves, systems, system barlines, staff recovery from the header, numbered overlay (003) |
+| 2 | `piano_cut_label.py` | Spark, effort low, `complete_json` (8000 tokens, one retry) | one call per page: which staff numbers are the wanted instrument per system, every other staff's instrument, playing / resting / absent; prompt carries the score order and the by-order guess (full system) or "decide from labels/clefs/brace, answer absent" (short system) |
+| 3 | `piano_cut_build.py` + `piano_cut_clean.py` | none | crop the named staves per system, clean-and-extend, geometric verify, stack into `part-p<NN>.png` and `strip.png`, `piano-cut.html`, `results.json` |
+| 4 | `piano_cut_recheck.py` | Spark, effort low, `complete_json` 4000 tokens, one retry | Spark sees each crop alone and names the instrument; disagreement → NEEDS REVIEW |
+
+`--score <pdf stem>` / `PIANO_CUT_SCORE=` (default Rach 1 Gutheil writes to `out/piano-cut/`, others to
+`out/piano-cut/<stem>/`); `--instrument "..."` / `PIANO_CUT_INSTRUMENT=` on every script (default "Piano
+(solo)"; other instruments write to `out/piano-cut/<stem>/<instrument-slug>/`; pages, geometry, overlays,
+`header.json` and `spend.json` stay in the score folder). The matcher (`piano_cut_label.match_instrument`:
+synonym table + numeral) prefers a voice-family header entry for a voice name, then a label whose first word
+is the name, no single-letter synonyms (the first Alto run cut the alto trombone, "Tromboni Alto e Tenore",
+$0.11 wasted). Nothing piano-specific is left in the label or recheck prompt; the class names inside
+`piano_cut_clean.py` are documented as "the target".
+
+## The cut and the clean-and-extend pass (`CLEAN.md`)
+
+Rule: crops are cleaned and extended, never widened. Per system: the band runs from 4 px (half a space)
+below the bottom line of the staff above to 4 px above the top line of the staff below (else the adjacent
+system's edge staff, else 12 spaces); full left margin, system right edge + 2 spaces. Known barline columns
+(+-4 px) that run dark from the band edge to the target's outer line are masked for the analysis only.
+Components: dilate 7x3, 8-connected, bbox and area on real ink. Classes: TARGET (overlaps the target region,
+outer lines +-1 space), NEIGHBOUR (reaches the band edge or within 1 space of the neighbour's outer line),
+BOTH (kept, logged); specks under 4 px outside the target erased. Gap components go to the nearer **ink**
+(vertically in their own columns, or horizontally on their own rows within 1.5 spaces, the next word of a
+text line), ties to the target. Deviation from the brief: not "nearer staff line" (the 8va on Rach 1 p. 2 s2
+sits 3 px under the timpani and 50 px above the piano; "a tempo" 17 px under, 27 px above). Erase NEIGHBOUR
+(white over the dilated mask + 1 px), fit the crop to the kept ink + 3 px, never narrower than the staves +
+1 space. Flags `edge_ink_top` / `edge_ink_bottom` (informational). Kernel and reaches tuned on 150 dpi.
+
+Verifier: `bar_count` by re-detecting barlines inside the crop gave false alarms on dense piano systems
+(p. 3 s1: 6 vs 5, p. 4 s1: 5 vs 3, p. 4 s2: 4 vs 3); replaced by `barlines_present` (each system barline x
+must have a vertical dark run through the block, cover at least 0.9) plus `staves_in_crop` (= the expected
+count) and `brace_or_bracket` (informational, skipped for single staves). Geometry cannot catch a wrong
+instrument (a violin pair also has two staves, a brace and the same bars; p. 43 has both piano staves in
+treble clef), only a wrong box, so the Spark recheck is mandatory.
+
+**Bar-aware cleanup (2026-10-27 late, the three leaks: Rach 1 p. 3 s1 Vn I hairpin; PC3 p. 3 s2 Horn II
+ledger notes with `sf` and slurs; PC3 p. 5 s2 a neighbour's `sf`).** Barline x positions split the staves'
+x range into bars (barline columns +-5 px belong to no bar; bar 1 starts at the staves' left end so clef and
+key are bar 1's ink). Own ink per bar inside the target's staff region with the staff lines removed (runs
+of at least 1.5 spaces, +-1 row), counted in staff-space units: rests-only bars measure 0.0 to 1.3 sp² on 18
+systems (PC3 all 0.0 to 0.3), the sparsest playing bar 7.0, clef and key alone 4.0. **Floor: 1.25 sp² per
+staff** (2.5 for a piano). A quarter rest keeps its ink (8.6) and counts as playing. Components over resting
+bars only (not touching the staff lines within 2 px, not reaching the neighbour) are the neighbour's and
+erased, except a component that continues a kept text line (next word within 2.5 spaces; chains propagate:
+"Allegro con brio" over PC3 p. 1 bars 1 to 2). Pieces of kept components: a TARGET or BOTH component's ink
+minus the vertical barline runs (at least 5 spaces tall at a barline column) is re-joined; a floating piece
+(no ink inside the staff rows) over resting bars only is erased; a piece with ink inside the staff rows is
+never touched (clef tails, ledger chords on their stems, the sagging line of a bowed staff; the staff
+region's edge rows are traced per column, since the Breitkopf bottom line sags 1 to 6 px and two earlier
+drafts cut it). Result on 18 systems: 3 crops changed (the three leaks gone), 15 pixel-identical, verify
+17/17 as before. Limits: a bar holding only a whole note in a space measures below the floor; tempo text
+over a resting bar mid-system is lost; marks of the neighbour over bars where the target plays are still
+decided by distance (PC5 p. 2 "Ped." and release star).
+
+## Results
+
+Rach 1 Gutheil 1919, pages 1, 2, 7, 15, 16, 43 (`REPORT.md`, 2026-10-27, $0.103 of a $1.50 cap, 13 calls):
+
+| Page | Why | Staves | Systems (bars) | Spark: piano staves | Correct | Verify | Label s / $ | Recheck s / $ |
+|---|---|---|---|---|---|---|---|---|
+| 1 | full names in the margin | 17 | 1 (4) | 11, 12 playing | yes | pass | 6.4 / 0.0089 | 3.8 / 0.0021 |
+| 2 | "Pno." abbreviations, piano top of system 1 | 24 | 2 (4, 5) | 1, 2 and 18, 19 | yes | pass, pass | 9.2 / 0.0107 | 5.7 / 0.0051; 3.2 / 0.0022 |
+| 7 | abbreviations, busy piano | 17 | 1 (4) | 11, 12 | yes | pass | 4.8 / 0.0086 | 6.2 / 0.0056 |
+| 15 | no labels, piano all rests | 17 | 1 (5) | 11, 12 resting | yes | pass | 11.6 / 0.0155 | 3.9 / 0.0047 |
+| 16 | tutti, cut-away, piano not printed | 22 | 2 (6, 4) | s1 absent; s2 18, 19 | half: s2 is Vn I/II | geometry pass, **recheck "violins"** → NEEDS REVIEW | 11.7 / 0.0151 | 8.4 / 0.0066 |
+| 43 | no labels, both staves treble, virtuosic | 17 | 1 (4) | 11, 12 | yes | pass | 18.4 / 0.0150 | 2.8 / 0.0030 |
+
+Works as a two-call loop with a review state. 5 of 6 pages right; the miss is the cut-away tutti page where
+Spark picks the braced Vn I/II pair by score position ("between brass and strings"); a $0.005 recheck of the
+crop alone catches it. 3 of 6 answers were malformed JSON (`}-math]`, `]} apron,`), repaired by the parser.
+~$0.02 and 10 to 30 s per page; a 92-page score about $1.60 and under an hour serially. Plain crops lost the
+top of the 8va on p. 1 and a triplet "3", p. 7's high slurs touched the edge (fixed by the clean pass).
+Rach 1 p. 1 to 5 later: 8/8 systems, identical staves and erased/kept counts across the hardening rerun.
+
+Generalisation (`GENERALISE.md`, pages 1 to 5, $0.2287: Rach 2 $0.0713, PC3 $0.0819, PC5 $0.0755; 15 label
+calls $0.166 at $0.009 to 0.018 and 5.7 to 14.2 s; 23 rechecks $0.063 at $0.002 to 0.005 and 2.2 to 5.5 s):
+
+| Score | Crops | Correct | Verify | Recheck | Notes |
+|---|---|---|---|---|---|
+| Rach 2 (IMSLP 03631, 1240x1754, skew +-0.3°) | 9 | 9/9 | 9/9 pass | 9/9 "Piano"/"P-no" | every staff found; wind hairpins under the staff above leak into 4 crops (p2 s2, p3 s1, p3 s2, p5 s2) |
+| Beethoven PC3 (Breitkopf, 1425x1875) | 7 | 6/7 | 1 FAIL staves_in_crop (p5 s2 [21]: geometry missed the piano treble; crop correct by luck, flagged) | 7/7 "piano"/"Klavier" | piano rests all five pages; p4 lost to truncated JSON (1502 tokens, before the 8k budget); p3 s2 Horn II ledger leak; p2 s2 thin brace not detected |
+| Beethoven PC5 (Breitkopf) | 7 | 7/7 | 7/7 pass | 7/7 "Piano"/"Pfte." | cadenza page grouped right (2, 13, 2); tutti p4 and p5 "absent", no crop; p4 geometry found 14 of 24; p3 s3 Cor. II `sf` leak; page number and plate "B. 69." kept (harmless) |
+
+Score: 23 crops shipped, 23 the piano, 3 neighbour-ink leaks, 1 flagged, 1 page lost. Spark right on 14/15
+parseable pages, 28/28 systems where geometry was right. After hardening (`HARDEN.md`, PC3 p1 to 5 and Rach
+1 p1 to 5, $0.243): PC3 9 crops, 9 piano, 9 pass, 9 recheck "piano"; both recovered staves real; p4 came back
+whole at 1349 tokens with the 8000 budget; one retry on Rach 1 p1 ($0.009 wasted); stray-token repair on 2
+of 10 pages. Rach 2 / PC3 / PC5 first 5 pages after the clean pass: 23/24 systems right, every wrong pick
+caught by the recheck, ~$0.02 a page.
+
+Any instrument (`GENERAL.md`, 2026-10-27 night, $0.777: headers $0.062 (3), labels $0.40 (32 calls incl.
+retries and the wasted Alto run), rechecks $0.31 (41 calls incl. 3 wasted at 2048 tokens)):
+
+| Score | Instrument | Pages | Correct by eye | Verify / recheck | Notes |
+|---|---|---|---|---|---|
+| PC5 | Violin I | 1 to 5 | 9 of 9 systems boxed right; p4 s2 crop holds Vn I + Vn II (Vn II unboxed, band ran on) | p4 s2 FAIL (barlines, recheck "Violin I & II") → needs_review | p2 "Ped." and release star above (distance rule); p3 s3 "f arco" of the staff below |
+| Dvořák 9 | Flute I | 5 to 9 (5 = first music page, book p. 183; 6 to 9 no labels) | yes on every system (shared Fl. I/II staff is the answer) | p6 recheck "Violin I" (ff chords), p7 s2 "Trumpet" ("a2"), p8 s2 barlines_present FAIL (one barline not re-found); 3 of 9 rechecks ran out at 2048 tokens → 4000 + retry | p9 s1 oboe slurs under the flute (both play) |
+| Dvořák 9 | Piano (solo) | 5 to 8 | negative test passes: header lists no piano, absent on all 6 systems, no crop | n/a | $0.038 |
+| Beethoven 9 | Soprano | 172 to 176 (book 168 to 172, first chorus pages) | yes on every page ("Seyd umschlungen", "Kuss der ganzen Welt!", "Brüder, überm Sternenzelt", "ein lieber Vater wohnen") | p174, p176 recheck "Alto" (false alarms) → needs_review; p176 needed `--reparse` (`responsibility=0` stray token) | lyrics partly erased; grey scan specks painted white |
+| Beethoven 9 | Alto | 172 to 176 | p173 crop holds Alto + Tenor (tenor unboxed); others yes | p173 recheck "Alto and Tenor" (right); p174 barlines + "Viola", p175 "Tenor" (false alarms) → needs_review | soprano's lyrics above leak |
+
+Score: 28 crops shipped; 26 are the wanted staff and nothing else is boxed in (PC5 p4 s2 and Beethoven 9 Alto
+p173 hold a second, unboxed staff, both flagged by the recheck). Spark's labelling right on every system where
+geometry was right (56/56 incl. absent). The recheck is the weak model step on unlabelled pages: 7 false
+alarms (Dvořák p6, p7; Beethoven 9 S p174, p176, A p174, p175) against 2 true catches.
+
+**CK judged the soprano strip usable as it stands (2026-10-28).**
+
+Known choir defects: a lyric line is half erased (the gap between S and A holds the soprano's lyrics and the
+alto's noteheads; nearest-ink splits the line word by word, "Seyd _schlungen _li o_nen!"; the whole-note
+blind spot makes semibreve bars count as resting so syllables under them go to the neighbour); page-edge
+shadows counted as staves (003); soprano/alto C-clef confusion in the recheck (4 times); native resolution
+finds 10/16 staves vs 16/16 upscaled (003). A lyric line needs its own rule: the text row directly under a
+vocal staff belongs to it.
+
+## The job handler (`api/app/librarian/part_cut.py`, drafted 2026-10-27 on branch `worktree-agent-a4b9692edf1cec344`, commit 6c1885d; merged into main 2026-10-28 as 2524caf with 7f827d8)
+
+- Kind `part_cut`, payload `{score_id, instrument, interpretation_id?, pages?: [int], answer?, resume_from?,
+  max_cost_usd? (2.0)}`. Runs on the agent loop (006): one model call per turn plus one inside
+  `read_header`, one inside `read_page` (labels on the overlay), one inside `commit_system` (recheck).
+- `api/app/librarian/cut.py`: the geometry, overlay, clean-and-extend crop and verify ported from the
+  experiment (no model).
+- Tools: `read_header` (once, first), `list_pages`, `read_page(page)` (geometry + proposal, overlay uploaded
+  to `{score_id}/parts/{slug}/overlay-p{page:03}.png`), `commit_system(page, system, staves | "absent")`
+  (commit: staves exist in the system, count matches the header, staves adjacent, crop verify, Spark
+  recheck must name the same instrument; `same_instrument` normalises aliases Pno/Pfte/Klavier/Vn/Vcl...),
+  `finish` (commit: refuses while any page or system is uncommitted). `max_turns = 8 + 4 x pages`,
+  `max_refusals = 3`.
+- Three refusals park the run with the typed Question payload `{kind: "choose_staves", page, system,
+  instrument, interpretation_id, proposal, last_attempt, feedback, staff_boxes: [{index, y_top, y_bottom,
+  x0, x1}], image_key, allowed: {staves: "list of adjacent staff numbers", absent: true}, answer_format}`.
+  The answer `{staves: [...] | "absent"}` is applied as a successful commit (no recheck) and the run resumes
+  with `resume_from` = the job that asked. State in `jobs.result.agent`.
+- Outputs: cleaned crops at `{score_id}/parts/{slug}/p{page:03}-s{k}.png`; a `sources` row of kind
+  `part_images` (`storage_paths` = crops in reading order, `meta` = instrument, slug, parent source,
+  interpretation, per-system staves and bars; migration `20261028090000_part_images_source.sql`, **not
+  applied**); an `interpretations` row, engine `part-cut-agent`, summary with counts and log, the
+  page-intake placements copied under it (same measure ids); `parts` upsert with `storage_path` = first crop.
+- Tests `api/tests/test_part_cut.py` (4 cases on PIL-drawn pages with the scripted model): happy path three
+  pages, refusal then correct retry, escalation to needs_review then resume with answer, absent page and
+  finish refuses uncommitted. 14/14 passed with the loop tests at draft time. Not run on real pages or Spark.
+
+### Live runs on the local stack (2026-10-28, Rach 1 Gutheil pages 1 to 5, Muse Spark 1.3, effort low)
+
+Seeded with `uv run -m app.librarian.run seed --pages p01..p05.png`, run with
+`uv run -m app.librarian.run part_cut --score <id> --payload '{"instrument": "Piano", "pages": [1,2,3,4,5]}'`.
+The expected decisions are the experiment's: p1 s1 [11,12]; p2 [1,2] and [18,19]; p3 [6,7] and absent; p4 [7,8]
+and [17,18]; p5 [3,4] and [13,14].
+
+| Run | Header | Refused commits | Outcome | Cost |
+|---|---|---|---|---|
+| 1, before the header port | empty (old prompt, 2k budget, 3 JSON failures) | 5, the recheck caught every wrong guess | parked `needs_review` on p3 s2 after a streak of 3; resumed with `{"staves": "absent"}`, finished `done`, all 9 decisions right | $0.13 |
+| 2, header ported (9a5c39e) | 15 instruments, 17 staves, first try | 2 | `done`, all 9 right | $0.13 |
+| 3, with require/retry, before the JSON-only system prompt | same | 0 | `done`, but p2 s1 committed absent instead of [1,2] because the labels skipped it; led to the `absent` guard | $0.11 |
+| 4, JSON-only system prompt and `absent` guard | same | 0 | `done`, all 9 right, no question asked | $0.10 |
+
+What the runs proved: the loop's refusal reset works in practice (two refusals, four good commits, three
+refusals, park); the resume path applies the admin's answer and continues; the derived `sources` row (kind
+`part_images`, 8 crops in reading order, `meta.instrument`) and the `interpretations` row (engine
+`part-cut-agent`, done) are written. Fixes that came out of the runs: the in-tool header, label and recheck
+calls get their own JSON-only system prompt (the agent's "one tool per turn" prompt made Spark answer a label
+request with a pretend tool call); a model commit of `absent` is refused unless the page labels say absent.
+
+## Open issues
+
+- Implement the multi-part contract (list of instruments, one block per system).
+- Lyric rule for vocal staves; page-edge fake staves; recheck false alarms on unlabelled pages (consider
+  giving the recheck the header's clef expectations, or trusting by-order labels when the system is full).
+- Cross-page continuity; bar numbers on the strip (barlines already found, 004); "absent" as a first-class
+  answer in the UI (011); orchestral cues for a concerto soloist (adjacent staves at reduced size).
+- Spark JSON: malformed on about half the page calls at low effort; stray-token repair (`}-math]`,
+  `word=digits`) and one retry stay; a bracket-closing repair for truncation was planned before the 8k budget
+  made it rare.
+- Wire the handler to a route; apply the migration to the hosted project when CK says.
+- Decision pending from CK: whether item 6 becomes "intake + part cut" with OMR only behind practice mode.
+
+## Files and output dirs
+
+`out/piano-cut/` (gitignored): `REPORT.md`, `CLEAN.md`, `GENERALISE.md`, `HARDEN.md`, `GENERAL.md`,
+`pages/`, `geom-p*.json`, `overlay-p*.png`, `label-p*.json` (prompt, raw text, parsed, cost, retries),
+`crop-p*-s*.png`, `recheck-p*-s*.json`, `highlight-p*.png`, `part-p*.png`, `strip.png`, `results.json`,
+`spend.json`, `spend-global.json`, `piano-cut.html` (side by side, data URIs, 2.4 MB), `clean-compare.html`,
+`clean-debug-*.png`, `clean-preview-*.png`, `header.json`. Per score: `rach2-fullscore-imslp03631/`,
+`beethoven-pc3-fullscore-imslp977417/`, `beethoven-pc5-fullscore-imslp977419/` (+ `violin-i/`),
+`dvorak9-fullscore-simrock-1894/` (+ `flute-i/`, a first run on pages 6 to 10 parked in `extra-p10/`),
+`beethoven-sym9-fullscore-imslp46254/` (`soprano/`, `alto/`). A bundle for Anthropic's Managed Agents
+builder ("Score Stave Extractor", for its grader format, feature 016) sits in the scratchpad as
+`stave-extractor.zip` (scripts + two 5-page excerpts + README).
