@@ -3,9 +3,10 @@
  *  for an admin, Delete, each behind one confirmation box), Create a group (a name, then the code), Join a group (the
  *  eight digits on the numeric keyboard), and, with no group open, the start: your groups, create, join.
  *  Calls the RPCs `create_ensemble`, `join_ensemble`, `leave_ensemble`, `delete_ensemble` through supabase-js; their
- *  own messages are shown as sentences. */
-import { useState, type FormEvent } from 'react'
-import { MY_LIBRARY, createGroup, deleteGroup, joinGroup, leaveGroup, type NewGroup } from './data'
+ *  own messages are shown as sentences. Also the book page's Share with a group sheet (`share_score`, `unshare_score`). */
+import { useEffect, useState, type FormEvent } from 'react'
+import type { Score } from '../mock'
+import { MY_LIBRARY, createGroup, deleteGroup, joinGroup, leaveGroup, shareBook, unshareBook, type NewGroup } from './data'
 import { Sheet } from './Sheet'
 import { SheetHead } from './Parts'
 import { useStore, type Context } from './store'
@@ -229,6 +230,121 @@ function JoinFace({ onClose, onOpened }: { onClose: () => void; onOpened: (id: s
         {msg && <p className="sheet-msg" role="alert">{msg}</p>}
         <button type="button" className="btn btn-line" onClick={onClose}>Cancel</button>
         <button type="button" className="btn btn-solid" disabled={!ready || busy} onClick={() => submit()}>{busy ? 'Joining' : 'Join group'}</button>
+      </div>
+    </>
+  )
+}
+
+// ---------------------------------------------------------------- share a book with a group
+
+/** "Share with a group", from a personal book's page: the owner's groups, one switch each. Turning one on shares the
+ *  book there at once (`share_score`); turning it off asks once (`unshare_score`). By reference: the book stays in
+ *  the owner's library, nothing is copied, and the owner's own marks stay private. */
+export function ShareSheet({ score, open, onClose }: { score: Score | null; open: boolean; onClose: () => void }) {
+  return (
+    <Sheet open={open} onClose={onClose} label="Share with a group" portal className="group-sheet share-sheet">
+      {score && <ShareFace score={score} onClose={onClose} />}
+    </Sheet>
+  )
+}
+
+function ShareFace({ score, onClose }: { score: Score; onClose: () => void }) {
+  const { contexts, world, sharesFor } = useStore()
+  const groups = contexts.filter(c => c.ensemble.id !== MY_LIBRARY)
+  const shared = new Set(sharesFor(score.id).map(s => s.ensembleId))
+  // What a tap asked for, until the reloaded world says the same.
+  const [wanted, setWanted] = useState<Record<string, boolean>>({})
+  const [busy, setBusy] = useState<string | null>(null)
+  const [confirm, setConfirm] = useState<string | null>(null)
+  const [msg, setMsg] = useState<string | null>(null)
+  const sharedKey = [...shared].sort().join()
+  useEffect(() => {
+    setWanted(w => Object.fromEntries(Object.entries(w).filter(([id, on]) => on !== sharedKey.split(',').includes(id))))
+  }, [sharedKey])
+  const isOn = (id: string) => wanted[id] ?? shared.has(id)
+  const confirming = groups.find(c => c.ensemble.id === confirm)
+
+  const share = async (id: string) => {
+    setBusy(id); setMsg(null)
+    try {
+      await shareBook(score.id, id)
+      setWanted(w => ({ ...w, [id]: true }))
+      world.reload()
+    } catch (e) {
+      setMsg((e as Error).message)
+    } finally {
+      setBusy(null)
+    }
+  }
+  const unshare = async () => {
+    if (!confirm) return
+    const id = confirm
+    setBusy(id); setMsg(null)
+    try {
+      await unshareBook(score.id, id)
+      setWanted(w => ({ ...w, [id]: false }))
+      setConfirm(null)
+      world.reload()
+    } catch (e) {
+      setMsg((e as Error).message)
+    } finally {
+      setBusy(null)
+    }
+  }
+  const tap = (id: string) => {
+    if (busy) return
+    if (isOn(id)) { setConfirm(id); setMsg(null) }
+    else { setConfirm(null); void share(id) }
+  }
+
+  return (
+    <>
+      <SheetHead title="Share with a group" sub={score.title} onClose={onClose} />
+      <div className="sheet-body">
+        <p className="g-note">The group reads this book from your library. Nothing is copied, and your own marks stay yours: the group sees only what is marked for it.</p>
+        {groups.length > 0 ? (
+          <ul className="share-list" aria-label="Your groups">
+            {groups.map(c => {
+              const id = c.ensemble.id
+              const on = isOn(id)
+              return (
+                <li key={id}>
+                  <button
+                    type="button" role="switch" aria-checked={on} aria-busy={busy === id} disabled={!!busy && busy !== id}
+                    className="share-row" onClick={() => tap(id)}
+                  >
+                    <IPeople size={20} />
+                    <span className="share-name">
+                      <b>{c.ensemble.name}</b>
+                      <span>{busy === id ? (on ? 'Stopping' : 'Sharing') : on ? 'Reads this book' : `${c.ensemble.members.length} ${c.ensemble.members.length === 1 ? 'person' : 'people'}`}</span>
+                    </span>
+                    <span className={`switch ${on ? 'is-on' : ''}`} aria-hidden="true"><span /></span>
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        ) : (
+          <p className="g-note">You are not in a group yet. Create or join one from the library, then share books with it here.</p>
+        )}
+      </div>
+      <div className="sheet-foot">
+        {confirming ? (
+          <div className="g-confirm" role="alertdialog" aria-label={`Stop sharing with ${confirming.ensemble.name}`}>
+            <p className="g-confirm-q">Stop sharing with {confirming.ensemble.name}?</p>
+            <p className="g-confirm-why">The group stops seeing this book at once. What its members marked on it is kept, and comes back if you share it again.</p>
+            {msg && <p className="sheet-msg" role="alert">{msg}</p>}
+            <div className="g-confirm-acts">
+              <button type="button" className="btn btn-line" disabled={!!busy} onClick={() => { setConfirm(null); setMsg(null) }}>Cancel</button>
+              <button type="button" className="btn btn-solid is-danger" disabled={!!busy} onClick={unshare}>{busy ? 'Stopping' : 'Stop sharing'}</button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {msg && <p className="sheet-msg" role="alert">{msg}</p>}
+            <button type="button" className="btn btn-solid" onClick={onClose}>Done</button>
+          </>
+        )}
       </div>
     </>
   )

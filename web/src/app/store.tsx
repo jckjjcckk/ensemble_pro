@@ -3,7 +3,7 @@ import {
   annotations as seedAnnotations, practice, scanDraft,
   type Annotation, type Ensemble, type Member, type Membership, type Part, type ScanPage, type Score,
 } from '../mock'
-import type { PartJob, PartStrip, World } from './data'
+import { MY_LIBRARY, type PartJob, type PartStrip, type ScoreShare, type World } from './data'
 
 export const BASE = ''
 export const WORDMARK = 'Folio'
@@ -82,6 +82,16 @@ interface Store {
   jobsFor: (scoreId: string) => PartJob[]
   /** Finished splits by instrument of a score, newest first (008, 010). */
   stripsFor: (scoreId: string) => PartStrip[]
+  /** The groups a personal book is shared with, as far as the account can see (its own books: every share). */
+  sharesFor: (scoreId: string) => ScoreShare[]
+  /** May the account change the book (split, convert, export, order pages, share)? A personal book: its owner only,
+   *  whichever shelf it is opened from. A group's book: its admins. */
+  canEditBook: (score: Score) => boolean
+  /** The `ensemble_id` a mark on this book is written with and read by (`annotations`, `scribbles`): null on a
+   *  group's own book (the book's group) and for the owner's private marks in their own library; the group's id when
+   *  a shared book is open from that group's shelf (or, for someone else's book, the first group it reaches them
+   *  through). See supabase/migrations/20261028200000_score_shares.sql. */
+  markGroupFor: (score: Score) => string | null
   display: Display
   setDisplay: Dispatch<SetStateAction<Display>>
   practiceUI: PracticeUI
@@ -123,15 +133,30 @@ export function StoreProvider({ world, children }: { world: World; children: Rea
   const membersById = useMemo(() => byId(world.ensembles.flatMap(e => e.members)), [world.ensembles])
   const jobsFor = useCallback((scoreId: string) => world.jobs.filter(j => j.scoreId === scoreId), [world.jobs])
   const stripsFor = useCallback((scoreId: string) => world.strips.filter(s => s.scoreId === scoreId), [world.strips])
+  const sharesFor = useCallback((scoreId: string) => world.shares.filter(s => s.scoreId === scoreId), [world.shares])
+  const canEditBook = useCallback((score: Score) => {
+    const owner = world.owners[score.id]
+    if (owner) return owner === world.account.id
+    return (contextFor(score.ensembleId)?.membership.role ?? 'player') !== 'player'
+  }, [world.owners, world.account.id, contextFor])
+  const markGroupFor = useCallback((score: Score): string | null => {
+    const owner = world.owners[score.id]
+    if (!owner) return null
+    const groups = world.shares.filter(s => s.scoreId === score.id).map(s => s.ensembleId)
+    const here = contextFor(contextId)?.ensemble.id ?? MY_LIBRARY
+    if (groups.includes(here)) return here
+    if (owner === world.account.id) return null
+    return groups.find(g => contexts.some(c => c.ensemble.id === g)) ?? null
+  }, [world.owners, world.shares, world.account.id, contextFor, contextId, contexts])
 
   const value = useMemo<Store>(() => ({
     world, contexts, scoresById, partsById, membersById,
-    context: contextFor(contextId) ?? contexts[0], setContext, contextFor, jobsFor, stripsFor,
+    context: contextFor(contextId) ?? contexts[0], setContext, contextFor, jobsFor, stripsFor, sharesFor, canEditBook, markGroupFor,
     display, setDisplay,
     practiceUI, setPracticeUI,
     annotations, addAnnotation: a => setAnnotations(xs => [...xs, a]),
     scan, setScan,
-  }), [world, contexts, scoresById, partsById, membersById, contextId, contextFor, setContext, jobsFor, stripsFor, display, practiceUI, annotations, scan])
+  }), [world, contexts, scoresById, partsById, membersById, contextId, contextFor, setContext, jobsFor, stripsFor, sharesFor, canEditBook, markGroupFor, display, practiceUI, annotations, scan])
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }

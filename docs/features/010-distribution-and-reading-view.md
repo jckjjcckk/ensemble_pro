@@ -55,6 +55,13 @@ window.
   itself (signed, the iPad's own viewer) and Open Digital when there is one. Verified on three repo page images
   through the temporary harness at 1024x768; not seen with a real import's pages.
 - The reader is reached through the dock's Book place, and Read / Practise is a toggle in its header (001).
+- **A personal book shared with a group (2026-10-28, 001).** By reference: the group reads the owner's book, its
+  pages, its Digital file and its splits' rows from the owner's library; nothing is copied. On the group shelf it sits
+  in "Shared with the group" with "Shared by {name}"; for anyone but the owner its page and menu offer only Open PDF
+  and Open Digital. Marks are per layer (`ensemble_id` on `annotations` and `scribbles`): the owner's private marks
+  stay private, the group's marks live in the group's layer and are kept when the book is unshared. The reader writes
+  and filters the layer from `useStore().markGroupFor(score)`; the scribble upsert's `onConflict` gains
+  `ensemble_id` (rules and contract in 001 and in `20261028200000_score_shares.sql`).
 - Bound's facing-pages book view (`engraving.tsx`: `useEngraving`, `segments`, `Book`, in
   `docs/design/explorations/4.md`) is a stretch display setting after Nov 1.
 - Acceptance: `docs/acceptance/touch.md` lines 3 to 8 and 12 (not yet run on the iPad).

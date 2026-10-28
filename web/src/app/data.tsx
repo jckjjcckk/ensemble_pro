@@ -24,6 +24,11 @@ export interface World {
   bookJobs: BookJob[]
   /** What the account may see of each group beyond its name: the join code (members only) and who made it. */
   groups: Record<string, GroupInfo>
+  /** Personal books shared with a group by reference (`score_shares`): the account's own shares and every share into
+   *  its groups. The book stays in its owner's library; the group reads it. */
+  shares: ScoreShare[]
+  /** The owner of every personal book the account can read (score id → user id). A group's own book is absent. */
+  owners: Record<string, string>
   loaded: boolean
   reload: () => void
 }
@@ -87,6 +92,19 @@ export interface AskJob { id: string; scoreId: string; kind?: string; question?:
 
 export interface GroupInfo { joinCode?: string; createdBy?: string }
 
+/** One personal book shared with one group (`score_shares`; 001, 010). */
+export interface ScoreShare {
+  scoreId: string
+  ensembleId: string
+  sharedBy: string
+  /** The sharer as the group knows them (their member name), or the account's own name. */
+  sharedByName: string
+  createdAt: string
+}
+
+/** A book the account reads only through a share into a group it is not looking at: on no shelf. */
+export const SHARED_ELSEWHERE = 'shared'
+
 export interface PartStrip {
   id: string
   scoreId: string
@@ -116,7 +134,7 @@ const signedUrls = new Map<string, { url: string; until: number }>()
 
 async function load(session: Session): Promise<Omit<World, 'reload'>> {
   const uid = session.user.id
-  const [mem, sc, pa, prof, jb, src, itp, bj, grp] = await Promise.all([
+  const [mem, sc, pa, prof, jb, src, itp, bj, grp, sh] = await Promise.all([
     supabase.from('members').select('id,role,part,ensemble_id,user_id,display_name,ensembles(id,name)'),
     supabase.from('scores').select('*').order('updated_at', { ascending: false }),
     supabase.from('parts').select('*').order('position'),
@@ -132,6 +150,9 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
       .neq('kind', 'part_cut').order('created_at'),
     // `*` so a stack without `join_code` yet still answers (the code then simply does not show).
     supabase.from('ensembles').select('*'),
+    // Shares of the account's own books, and every share into its groups (RLS). A stack without the table answers
+    // with an error and the shelves simply have no shared books.
+    supabase.from('score_shares').select('score_id,ensemble_id,shared_by,created_at').order('created_at'),
   ])
   const memberRows: Row[] = mem.data ?? []
   const scoreRows: Row[] = sc.data ?? []
@@ -142,6 +163,7 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
   const interpRows: Row[] = itp.data ?? []
   const bookJobRows: Row[] = bj.data ?? []
   const groupRows: Row[] = grp.data ?? []
+  const shareRows: Row[] = sh.data ?? []
   const myName = prof.data?.display_name || session.user.email?.split('@')[0] || 'You'
 
   const members: Member[] = memberRows.map(m => ({
@@ -157,6 +179,19 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
       members: members.filter(m => memberRows.find(r => r.id === m.id)?.ensemble_id === id),
     })),
   ]
+  // A personal book is the owner's: in their library. Someone else's personal book is read through a share, and
+  // belongs (for roles, the roster, the reader) to the first of the account's groups it is shared with.
+  const myGroups = new Set(memberRows.filter(m => m.user_id === uid).map(m => m.ensemble_id as string))
+  const homeOf = (s: Row): string => {
+    if (s.ensemble_id) return s.ensemble_id
+    if (!s.owner_user_id || s.owner_user_id === uid) return MY_LIBRARY
+    return shareRows.find(r => r.score_id === s.id && myGroups.has(r.ensemble_id))?.ensemble_id ?? SHARED_ELSEWHERE
+  }
+  const shares: ScoreShare[] = shareRows.map(r => ({
+    scoreId: r.score_id, ensembleId: r.ensemble_id, sharedBy: r.shared_by, createdAt: r.created_at,
+    sharedByName: r.shared_by === uid ? myName : memberRows.find(m => m.ensemble_id === r.ensemble_id && m.user_id === r.shared_by)?.display_name || 'a member',
+  }))
+  const owners: Record<string, string> = Object.fromEntries(scoreRows.filter(s => s.owner_user_id).map(s => [s.id as string, s.owner_user_id as string]))
   const memberships: Membership[] = [
     { ensembleId: MY_LIBRARY, role: 'owner', memberId: MY_LIBRARY },
     ...memberRows.filter(m => m.user_id === uid).map(m => ({ ensembleId: m.ensemble_id as string, role: m.role as 'admin' | 'player', memberId: m.id as string })),
@@ -206,7 +241,7 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
     }
   }
   const scores: Score[] = scoreRows.map(s => ({
-    id: s.id, ensembleId: s.ensemble_id ?? MY_LIBRARY,
+    id: s.id, ensembleId: homeOf(s),
     title: s.title || 'Untitled', composer: s.composer ?? '', work: s.work ?? '',
     status: s.status, progress: s.progress ?? undefined, failureReason: s.failure_reason ?? undefined,
     fixture: urlFor(playPath(s)), pages: s.pages ?? 0, bars: s.bars ?? 0, tempoBpm: s.tempo_bpm ?? 0,
@@ -220,6 +255,7 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
     jobs: partJobs(jobRows), strips: partStrips(stripRows), headers: headersOf(interpRows, partRows), loaded: true,
     bookJobs: chainedBookJobs(bookJobRows),
     groups: Object.fromEntries(groupRows.map(g => [g.id as string, { joinCode: g.join_code ?? undefined, createdBy: g.created_by ?? undefined }])),
+    shares, owners,
   }
 }
 
@@ -300,6 +336,7 @@ const empty = (uid = '', name = ''): Omit<World, 'reload'> => ({
   account: { id: uid, name, email: '', memberships: [{ ensembleId: MY_LIBRARY, role: 'owner', memberId: MY_LIBRARY }] },
   ensembles: [{ id: MY_LIBRARY, name: 'My library', kind: 'solo', members: [{ id: MY_LIBRARY, name: name || 'You', role: 'pianist', instrument: 'Piano', online: true }] }],
   members: [], scores: [], parts: [], jobs: [], strips: [], headers: {}, loaded: false, bookJobs: [], groups: {},
+  shares: [], owners: {},
 })
 
 export function useWorld(session: Session | null): World {
@@ -322,6 +359,7 @@ export function useWorld(session: Session | null): World {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'interpretations' }, reload)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'sources' }, reload)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'ensembles' }, reload)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'score_shares' }, reload)
       .subscribe()
     return () => { supabase.removeChannel(ch) }
   }, [session, reload])
@@ -443,4 +481,19 @@ export async function leaveGroup(id: string): Promise<void> {
 export async function deleteGroup(id: string): Promise<void> {
   const { error } = await supabase.rpc('delete_ensemble', { ensemble: id })
   if (error) throw new Error(groupError(error, 'The group could not be deleted just now. Try again in a moment.'))
+}
+
+// ---------------------------------------------------------------- sharing a book with a group (`score_shares`)
+
+/** `share_score(score, ensemble)`: the owner lets one of their groups read a book of their own library. Nothing is
+ *  copied and nothing moves; sharing twice changes nothing. Refusals: not_owner, not_member, not_found. */
+export async function shareBook(scoreId: string, ensembleId: string): Promise<void> {
+  const { error } = await supabase.rpc('share_score', { score: scoreId, ensemble: ensembleId })
+  if (error) throw new Error(groupError(error, 'The book could not be shared just now. Try again in a moment.'))
+}
+
+/** `unshare_score(score, ensemble)`: the group stops reading the book at once. Its marks on the book are kept. */
+export async function unshareBook(scoreId: string, ensembleId: string): Promise<void> {
+  const { error } = await supabase.rpc('unshare_score', { score: scoreId, ensemble: ensembleId })
+  if (error) throw new Error(groupError(error, 'The book is still shared. Try again in a moment.'))
 }

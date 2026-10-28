@@ -4,7 +4,7 @@
  *  book (`needs_review`), or the reading run's interpretation marked `needs_review`. Failed: the read stopped, or the
  *  last conversion did and no transcription exists. A book carries one status dot at most: question over failure. */
 import type { BookKind, Score } from '../mock'
-import type { AskJob, BookJob, PartJob } from './data'
+import type { AskJob, BookJob, PartJob, ScoreShare } from './data'
 
 export interface BookState {
   busy: 'reading' | 'converting' | null
@@ -49,3 +49,30 @@ export function bookState(s: Score, bookJobs: BookJob[], partJobs: PartJob[]): B
 
 /** The status dot's colour, or none when the book is fine. */
 export const dotOf = (b: BookState): 'ask' | 'fail' | null => (b.asking ? 'ask' : b.failed ? 'fail' : null)
+
+/** How a book stands with groups (`score_shares`). A personal book can be shared by reference with the owner's groups:
+ *  it stays in the owner's library and each group reads it from there. Its dot and tags (above) are the book's own and
+ *  read the same on every shelf: they come from the book's rows and jobs, which a share lets the group read. */
+export interface BookShare {
+  /** The account owns this personal book: it may share it, and keeps every edit action on every shelf. */
+  mine: boolean
+  /** On a group's shelf: a book from someone's own library, read here through a share. */
+  sharedHere: boolean
+  /** Who shared it into the open group ("you" for the account's own). */
+  sharedBy: string | null
+  /** The groups the account's own book is shared with (ids), for the mark on its cover. */
+  sharedWith: string[]
+}
+
+export function bookShare(s: Score, shares: ScoreShare[], owners: Record<string, string>, accountId: string, here: string): BookShare {
+  const owner = owners[s.id]
+  const mine = !!owner && owner === accountId
+  const all = shares.filter(x => x.scoreId === s.id)
+  const into = all.find(x => x.ensembleId === here)
+  return {
+    mine,
+    sharedHere: !!owner && !!into,
+    sharedBy: into ? (into.sharedBy === accountId ? 'you' : into.sharedByName) : null,
+    sharedWith: mine ? all.map(x => x.ensembleId) : [],
+  }
+}

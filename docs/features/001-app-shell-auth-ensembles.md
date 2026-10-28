@@ -130,6 +130,100 @@ shows its `message` as is; anything else, such as a signed-out call or a missing
 - Verified on fake data only (a temporary `?view=harness` route, removed): sheet faces, the confirmation box, the
   refusal sentence for a signed-out call, 1024x768 light and 768x1024 dark. Not seen against a signed-in account.
 
+## Sharing a book with a group (2026-10-28)
+
+CK asked for "share a book to a group": does it copy, or share permission to view the personal file, and it does
+not share the annotations? Decision: **share by reference, not a copy and not a move.** The book stays in its owner's
+personal library; a `score_shares` row lets one group read it; unsharing removes the row and the group stops seeing
+it at once. Migration `supabase/migrations/20261028200000_score_shares.sql`, **applied to the local stack only**.
+
+Policy rules in plain words:
+
+- **Reading the book.** The owner, members of the group that owns it (a group's book), and members of every group it
+  is shared with read the score, its sources, parts, measures, readings, placements, jobs and the files under
+  `{score_id}/` in the bucket. All of them go through `can_read_score`, which now also asks `is_shared_with_me`
+  (SECURITY DEFINER, so `scores` and `score_shares` policies can ask each other without recursing); `scores_select`
+  adds `is_shared_with_me(id)` to its column rules.
+- **Writing the book** (import, split, convert, export from the API, delete, sources, parts, measures rows, files)
+  is unchanged: `can_edit_score`, the owner of a personal book or an admin of the group that owns a group's book. A
+  share gives no write, whatever the reader's role in the group.
+- **Only personal books are shared, only by their owner, only into a group the owner is in.** A trigger refuses a
+  share of a group's book on every path. When the owner leaves a group (or is removed), the shares of their books
+  there are deleted (trigger `members_drop_shares`). Deleting the book or the group deletes its shares.
+- **Marks are layers.** `annotations.ensemble_id` and `scribbles.ensemble_id` (new, nullable, cascade with the group)
+  name the group a mark is addressed to; the layer is `coalesce(mark.ensemble_id, scores.ensemble_id)`.
+  - Personal book, `ensemble_id` null: the owner's **private** layer, read and written by the owner only, before and
+    after any share. A group never sees it.
+  - Personal book, `ensemble_id = g`: group g's layer on that book, readable while the book is shared with g by
+    members of g, with the audience rules counted inside g (ensemble, g's seat, g's member row). Any member writes
+    what a player may write (a live highlight for the group; a note, bowing or pencil to themselves as `member`
+    audience; never a cut); an **admin of g leads the layer** (writes to anyone, cuts, sees and removes every mark),
+    exactly as on the group's own books. The book's owner is an ordinary member in g's layer.
+  - A group's own book: null means the book's group, as before, so every existing row behaves as today. A mark
+    written with `ensemble_id` = the book's own group is stored as null (trigger `normalise_mark_group`): one layer,
+    one scribble row per page, part and author.
+  - Unsharing hides g's layer and keeps it; sharing again brings it back. A mark's author always reads their own mark.
+- Helpers: `score_owner`, `is_shared_with_me`, `mark_group`, `can_read_layer`, `can_lead_layer`, `may_write_mark`.
+  `can_see_annotation` and the four annotation policies and three scribble policies are rewritten on them; the update
+  policy now also checks the new row (an author can no longer move a note into another layer or make a private note
+  public by an update). Realtime publication gains `score_shares`.
+- Storage policies hardened in the same migration, same rules: the key's first folder goes through
+  `score_folder(key)` (null when it is not a uuid) before `can_read_score` / `can_edit_score`. Two stray keys on the
+  local stack (`scores/ed1c9897…/pages/n.png`) made every listing of the bucket fail for everyone, the owner included
+  ("invalid input syntax for type uuid"), which broke Open PDF's page listing locally.
+
+RPCs (`security definer`, execute for `authenticated` only; refusals SQLSTATE P0001 / PostgREST 400, sentence in
+`message`, key in `hint`, like the group RPCs):
+
+| Call | Returns | Refusals (`message` / `hint`) |
+|---|---|---|
+| `share_score(score uuid, ensemble uuid)` | the `score_shares` row (`score_id`, `ensemble_id`, `shared_by`, `created_at`); sharing twice returns the same row | "This book no longer exists." / `not_found` (missing or not readable); "A group's book stays with its group. Only a book in your own library can be shared." / `not_owner`; "Only the book's owner can share it." / `not_owner`; "This group no longer exists." / `not_found`; "You are not in this group." / `not_member`; "Sign in first." / `not_signed_in` |
+| `unshare_score(score uuid, ensemble uuid)` | nothing; idempotent | "This book no longer exists." / `not_found`; "Only the book's owner can stop sharing it." / `not_owner` |
+
+`score_shares` RLS: members of the group and the book's owner read; the owner inserts (as `shared_by`, and must be a
+member of the group) and deletes; no updates.
+
+**For the reader (ScoreDoc, ink.ts):** write `ensemble_id` on every annotation and scribble from
+`useStore().markGroupFor(score)` (null on a group's own book and for the owner in their own library; the group's id
+when a shared book is open from that group's shelf). Filter reads by the same layer (`.is('ensemble_id', null)` or
+`.eq('ensemble_id', g)`): the owner of a shared book can read their private layer and every group layer they are in,
+so an unfiltered select mixes them. **Breaking:** the scribbles unique key is now
+`(score_id, page, part, user_id, ensemble_id)`, so the upsert must say
+`onConflict: 'score_id,page,part,user_id,ensemble_id'`; the old four-column `onConflict` gets 42P10. Someone else's
+shared book arrives with `ensembleId` = the first of the account's groups it is shared with, so `contextFor` gives the
+account's role there; use `useStore().canEditBook(score)` for anything that changes the book itself.
+
+Verified on the local stack:
+
+- SQL as owner (piano), members of the group (violin2, cello), its admin, and a non-member (groups-c), in one
+  rolled-back transaction: 47 of 47 checks, plus every expected refusal (not_member, not_owner, not_found, RLS on
+  `score_shares`, `sources`, `parts`, `annotations`, `scribbles`, 42501 from `measure_ids`).
+- The browser's PostgREST and Storage calls from Node with supabase-js, the anon key and locally minted HS256 user
+  JWTs (fixtures by the service role, removed after): 51 of 51, including signed URLs and page listing for the
+  member, no write for the member, Realtime INSERT and DELETE on `score_shares` heard by the member, the group layer
+  written and filtered, the old scribble `onConflict` refused with 42P10.
+- `api/scripts/smoke_local.py` ALL PASS and `api/tests/test_groups_local.py` 3 passed after the migration.
+
+### Sharing in the app (web, 2026-10-28)
+
+- `data.tsx` loads `score_shares` with the world (`World.shares`, `World.owners`), listens to it on Realtime, and
+  wraps the RPCs as `shareBook` / `unshareBook`. A shared book read by someone else gets `ensembleId` = their first
+  group it is shared with (never My library). `store.tsx` adds `sharesFor`, `canEditBook`, `markGroupFor`;
+  `book.ts` adds `bookShare` (the dot and tags are unchanged: they read the book's own rows, which a share opens).
+- **The book page** of a personal book carries **Share with a group** under Split by instrument and Export, and a
+  quiet "Shared with Hart House Chamber Players" line. It opens a raised sheet (`ShareSheet` in `Groups.tsx`): the
+  account's groups, one row each, the whole row a switch drawn in ink. Off to on shares at once; on to off opens one
+  confirmation box in the sheet's foot ("Stop sharing with …? The group stops seeing this book at once. What its
+  members marked on it is kept, and comes back if you share it again."). A refusal shows its sentence.
+- **The group shelf** shows the group's books in their folders, then a folder **Shared with the group** with a quiet
+  "Shared by Lin Zhou" ("Shared by you" for the account's own) under the cover's meta. For someone else's book the
+  page and the "…" menu offer only Open PDF / Open Digital: no Split, Convert, Export, Order or Retake pages, no
+  Share; its page says "Shared by Lin Zhou from their own library", and a question waiting on it says "Its owner
+  answers it." The owner's own cover in My library carries a small people mark (VoiceOver: "shared with …").
+- Seen on fake data through a temporary `?view=harness` route (removed before commit) at 1194x834 light and 834x1194
+  dark: owner's library and book page, the share sheet, the stop-sharing box, a refused share, the member's group
+  shelf, a borrowed PDF and Digital book page and its menu. Not seen signed in against the local stack.
+
 ### Three places (web, 2026-10-28)
 
 CK: Library, Book, Group; not five tabs. The dock's area nav (`layout.tsx`) is Library `/`, Book (the last book
@@ -149,6 +243,11 @@ control, 44 pt targets, pressed states and sheet springs are unchanged.
 
 ## Open issues
 
+- Sharing: migration local only, not hosted. The share sheet and the shelves are not yet seen signed in. The reader
+  does not yet write or filter `ensemble_id` (another agent), and its scribble upsert must move to the five-column
+  `onConflict` before this migration reaches a stack it runs against. "Shared by" uses the sharer's
+  `members.display_name`, which is empty on the local seed ("a member"). The cover foot overlaps a part badge and the
+  tag at 834 px portrait (seen on the Beethoven's "Vn II"; not caused by sharing).
 - Groups: the migration is local only; the UI is built but not yet run signed in (create, join, leave, delete on the
   local stack). Join codes have no attempt limit: 10^8 codes, so guessing one takes millions of signed-in calls, but
   a rate limit would close it. The admin cannot yet give a member a part or make them admin from the sheet.

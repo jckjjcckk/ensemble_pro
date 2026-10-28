@@ -159,6 +159,58 @@
 .fo .g-choice b { font-size: 16px; font-weight: 650; }
 .fo .g-choice > span > span { font-size: 13.5px; color: var(--ink-3); line-height: 1.4; }
 
+/* ---------------------------------------------------------------- a book shared with a group (by reference) */
+
+/* On a group's shelf: who shared the book, quiet, under the cover's meta. */
+.fo .cover-by {
+  max-width: 100%; margin-top: 2px; font-size: 12px; line-height: 1.3; color: var(--ink-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* On the owner's own cover: a small mark that the book is shared; the cover's name for VoiceOver says with whom. */
+.fo .cover-shared { flex: none; display: inline-flex; color: var(--ink-3); }
+.fo .info-by { margin-top: 4px; font-size: 13.5px; color: var(--ink-3); }
+.fo .info-shared { display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--ink-3); line-height: 1.4; }
+.fo .info-shared > svg { flex: none; }
+
+/* The share sheet: one row per group, the whole row is the switch (56 px). */
+.fo .share-list { display: flex; flex-direction: column; }
+.fo .share-row {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 0 4px; border: 0; border-top: 1px solid var(--rule);
+  background: transparent; color: var(--ink); text-align: left; transition: background-color 120ms var(--ease);
+}
+.fo .share-list li:first-child .share-row { border-top: 0; }
+.fo .share-row > svg { flex: none; color: var(--ink-2); }
+.fo .share-row:disabled { opacity: 0.5; }
+.fo .share-row[aria-busy='true'] { cursor: progress; }
+.fo .share-name { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.fo .share-name b { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fo .share-name span { font-size: 13.5px; color: var(--ink-3); }
+.fo .share-row[aria-checked='true'] .share-name span { color: var(--ink-2); }
+
+/* A switch drawn in ink: on is the ink itself, never a colour (green means following, nothing else). */
+.fo .switch {
+  flex: none; position: relative; width: 46px; height: 28px; border-radius: 14px;
+  background: var(--wash-2); box-shadow: inset 0 0 0 1px var(--rule-2);
+  transition: background-color 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+.fo .switch > span {
+  position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--sheet); box-shadow: 0 1px 2px oklch(0.2 0.01 255 / 0.25);
+  transition: transform 180ms var(--ease);
+}
+.fo .switch.is-on { background: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.fo .switch.is-on > span { transform: translateX(18px); }
+.fo .share-row[aria-busy='true'] .switch { animation: fo-ring 0.8s var(--ease) infinite alternate; }
+
+.fo .share-row:active:not(:disabled) { background: var(--wash-2); transition-duration: 40ms; }
+@media (hover: hover) {
+  .fo .share-row:hover:not(:disabled) { background: var(--wash); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fo .switch, .fo .switch > span { transition: none; }
+  .fo .share-row[aria-busy='true'] .switch { animation: none; }
+}
+
 /* ---------------------------------------------------------------- the dock's places and the reader's mode toggle */
 
 .fo .area.is-off { opacity: 0.4; cursor: default; }
