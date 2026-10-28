@@ -25,6 +25,19 @@ window.
   (`members.part`); the information box shows parts with holder and one-word difficulty; violin2 sees the
   Vn II badge.
 - Display setting: Instrument or Bound token set, theme auto/light/dark (`DESIGN.md`).
+- Information box (2026-10-28 night, CK: "it still looks like a website"): a book's identity leads it. An
+  engraved treble staff with the key signature and the time signature (`Identity.tsx`; glyph outlines are
+  VexFlow 1.2.93's Gonville, the face OSMD engraves with, extracted once into `engraving.ts`; all
+  `currentColor`, so the theme's ink draws it), the key named under it ("B♭ major", the mode the signature
+  cannot show), and the length in bars, plus duration ("c. 7 min") for digital books. `keysig.ts` reads
+  music21's `key_sig` ("E- major", "f# minor", case-insensitive) and `meter`; an unread or invalid key or
+  meter leaves the signature's place empty on the bare staff, never a guess. Pages, tempo, the read result
+  and the last change moved under the (i) beside the close button. Read flags stay visible as a count line.
+- Every book carries one tag, PDF or Digital, on the cover and at the head of the box, from its first
+  non-split source (`pdf`/`images` = PDF, `musicxml` = Digital; `Score.book` in `data.tsx`). "MusicXML" is
+  said only on Import MusicXML and Export MusicXML (a digital book's stored file, or a digital split's).
+- Digital splits (008) read on the stage with only their instruments: `/score/{id}?split={source_id}` adds
+  the split as a choice in the part switcher and selects it.
 - Bound's facing-pages book view (`engraving.tsx`: `useEngraving`, `segments`, `Book`, in
   `docs/design/explorations/4.md`) is a stretch display setting after Nov 1.
 - Acceptance: `docs/acceptance/touch.md` lines 3 to 8 and 12 (not yet run on the iPad).
@@ -41,6 +54,8 @@ window.
 - iPad first; 44 pt targets; swipe is the page turn.
 - A part export is a user-chosen selection of parts (008 contract), so the reading view must accept a strip
   that holds two voices.
+- Words: Split by instrument (not cut parts), Digital (not MusicXML) as a book's kind, Reading (not
+  processing). The identity block is notation, not typed text.
 
 ## Open issues
 

@@ -165,7 +165,7 @@ export default function Scan() {
 
   const dock = committed ? (
     <div className="scan-dock">
-      <p className="dock-msg"><ICheck size={20} /><span>Sent in this order. Processing has started.</span></p>
+      <p className="dock-msg"><ICheck size={20} /><span>Sent in this order. Reading has started.</span></p>
       <div className="grow" />
       <Link to="/" className="dbtn is-primary">Back to the library</Link>
     </div>
@@ -184,7 +184,7 @@ export default function Scan() {
       )}
       <div className="grow" />
       <button type="button" className="dbtn is-primary is-big" disabled={pages.length === 0} onClick={() => { setRemoved(null); setScan(s => ({ ...s, committed: true, retaking: [] })) }}>
-        Process {pages.length} pages in this order
+        Read {pages.length} pages in this order
       </button>
     </div>
   )
@@ -195,9 +195,9 @@ export default function Scan() {
         <div className="scan-inner">
           <div className="scan-lead">
             {committed ? (
-              <p className="scan-instr"><ILock size={18} />Order committed. Parts will appear in the library when reading finishes.</p>
+              <p className="scan-instr"><ILock size={18} />Order confirmed. The parts appear in the library when reading finishes.</p>
             ) : (
-              <p className="scan-instr">Drag pages into reading order, or focus a page and press Option with an arrow key. Nothing is read until you press Process.</p>
+              <p className="scan-instr">Drag pages into reading order, or focus a page and press Option with an arrow key. Nothing is read until you confirm the order.</p>
             )}
             {!committed && warned.length > 0 && (
               <ul className="warnings" aria-label="Warnings">

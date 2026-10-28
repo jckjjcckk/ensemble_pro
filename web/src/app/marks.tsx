@@ -62,10 +62,10 @@ export function NoteBody({ a }: { a: Annotation }) {
       {a.kind === 'voice'
         ? (a.transcript
           ? <blockquote className="note-quote">{a.transcript}</blockquote>
-          : <p className="note-pending">Transcript arrives when the recording has been processed.</p>)
+          : <p className="note-pending">The words appear once the recording is transcribed.</p>)
         : a.text && <p className="note-text">{a.text}</p>}
       {a.kind === 'voice' && <VoicePlayer a={a} />}
-      <p className="note-by">{author?.name ?? 'Unknown'} · {a.partId ? 'one part' : 'everyone'} · {fmtDateTime(a.createdAt)}</p>
+      <p className="note-by">{author?.name ?? 'A member'} · {a.partId ? 'one part' : 'everyone'} · {fmtDateTime(a.createdAt)}</p>
     </>
   )
 }
@@ -211,7 +211,7 @@ export function MarginLayer({ geo, items, width, selected, onSelect }: {
             <button type="button" className="m-body" aria-pressed={sel} onClick={e => { e.stopPropagation(); onSelect(sel ? null : p.a.id) }}>
               <span className="m-meta"><KindIcon kind={p.a.kind} size={13} />{firstName(author?.name ?? '')} · <span className="num">bar {barRange(p.a.barFrom, p.a.barTo)}</span></span>
               {p.a.kind === 'voice'
-                ? (p.a.transcript ? <span className="m-text m-quote">{p.a.transcript}</span> : <span className="m-text m-pending">Transcript arrives after processing.</span>)
+                ? (p.a.transcript ? <span className="m-text m-quote">{p.a.transcript}</span> : <span className="m-text m-pending">The words appear once the recording is transcribed.</span>)
                 : <span className="m-text">{p.a.text}</span>}
             </button>
             {sel && p.a.kind === 'voice' && <VoicePlayer a={p.a} />}

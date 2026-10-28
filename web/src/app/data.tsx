@@ -15,7 +15,8 @@ export interface World {
   parts: Part[]
   /** Part-cut jobs (008), the latest of each chain of question and answer. */
   jobs: PartJob[]
-  /** Finished cut parts: one `part_images` source each, strips in reading order (008, 010). */
+  /** Finished splits by instrument: a `part_images` source (a PDF book's strips, 008, 010) or a `musicxml` source
+   *  holding only the chosen instruments (a digital book's split). */
   strips: PartStrip[]
   /** Instrument names the librarian read from each score's header (003), in score order. */
   headers: Record<string, string[]>
@@ -66,11 +67,15 @@ export interface PartJob {
 export interface PartStrip {
   id: string
   scoreId: string
+  /** `images`: system strips cut from a PDF book's pages. `musicxml`: a digital book's notation, only these instruments. */
+  kind: 'images' | 'musicxml'
   instruments: string[]
   /** "Piano", or "Soprano & Alto" for a selection of parts. */
   label: string
-  /** Bucket-relative keys of the cut system images, in reading order. */
+  /** Bucket-relative keys of the cut system images, in reading order (empty for a digital split). */
   paths: string[]
+  /** The split's own MusicXML file (digital splits only). */
+  path?: string
   systems: { page: number; system: number; staves: number[] | 'absent'; key: string | null; bars: number | null }[]
   createdAt: string
 }
@@ -97,19 +102,20 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
     supabase.from('jobs')
       .select('id,kind,status,progress,error,score_id,created_at,payload,note:result->>note,question:result->>question,question_payload:result->question_payload,source_id:result->>source_id,systems_cut:result->systems_cut,log:result->agent->scratch->log,agent_log:result->agent->log')
       .eq('kind', 'part_cut').order('created_at'),
-    supabase.from('sources').select('id,score_id,storage_paths,meta,created_at').eq('kind', 'part_images').order('created_at'),
+    supabase.from('sources').select('id,score_id,kind,storage_paths,meta,created_at').order('created_at'),
     supabase.from('interpretations').select('id,score_id,engine,status,created_at,header:params->state->header->instruments,summary_header:summary->header->instruments,summary_parts:summary->parts').order('created_at'),
   ])
   const memberRows: Row[] = mem.data ?? []
   const scoreRows: Row[] = sc.data ?? []
   const partRows: Row[] = pa.data ?? []
   const jobRows: Row[] = jb.data ?? []
-  const stripRows: Row[] = src.data ?? []
+  const sourceRows: Row[] = src.data ?? []
+  const stripRows = sourceRows.filter(isSplit)
   const interpRows: Row[] = itp.data ?? []
   const myName = prof.data?.display_name || session.user.email?.split('@')[0] || 'You'
 
   const members: Member[] = memberRows.map(m => ({
-    id: m.id, name: m.display_name || 'Member', role: m.role === 'admin' ? 'leader' : 'player',
+    id: m.id, name: m.display_name || 'A member', role: m.role === 'admin' ? 'leader' : 'player',
     instrument: m.part ?? '', online: false,
   }))
   const self: Member = { id: MY_LIBRARY, name: myName, role: 'pianist', instrument: 'Piano', online: true }
@@ -140,6 +146,17 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
     id: p.id, scoreId: p.score_id, name: p.name, fixture: urlFor(p.storage_path), pages: 0,
     difficulty: (p.difficulty ?? 3) as Part['difficulty'],
   }))
+  // A book is what it was first made from; splits (images or notation) are its children, not its kind.
+  const bookOf = (s: Row): Pick<Score, 'book' | 'sourcePath' | 'sourceName'> => {
+    const first = sourceRows.find(r => r.score_id === s.id && !isSplit(r))
+    if (first) {
+      const digital = first.kind === 'musicxml'
+      return { book: digital ? 'digital' : 'pdf', sourcePath: digital ? (first.storage_paths as string[])?.[0] : undefined, sourceName: digital ? first.meta?.filename ?? undefined : undefined }
+    }
+    if (firstPath(s)) return { book: 'digital', sourcePath: firstPath(s) }
+    if (stripRows.some(r => r.score_id === s.id && r.kind === 'part_images')) return { book: 'pdf' }
+    return {}
+  }
   const scores: Score[] = scoreRows.map(s => ({
     id: s.id, ensembleId: s.ensemble_id ?? MY_LIBRARY,
     title: s.title || 'Untitled', composer: s.composer ?? '', work: s.work ?? '',
@@ -147,6 +164,7 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
     fixture: urlFor(firstPath(s)), pages: s.pages ?? 0, bars: s.bars ?? 0, tempoBpm: s.tempo_bpm ?? 0,
     key: s.key_sig ?? '', meter: s.meter ?? '', durationSec: s.duration_sec ?? 0, updatedAt: s.updated_at,
     partIds: partRows.filter(p => p.score_id === s.id).map(p => p.id), folder: s.folder || 'Scores', brief: s.brief ?? undefined,
+    ...bookOf(s),
   }))
 
   return {
@@ -173,7 +191,7 @@ function partJobs(rows: Row[]): PartJob[] {
       return {
         id: r.id, scoreId: r.score_id, status, progress: Number(r.progress ?? 0),
         instruments: instrumentsOf(r.payload), pages: Array.isArray(r.payload?.pages) ? r.payload.pages : undefined,
-        note: r.note ?? undefined, log, error: r.error ?? (status === 'failed' && r.status === 'done' ? 'The run stopped without cutting anything.' : undefined),
+        note: r.note ?? undefined, log, error: r.error ?? (status === 'failed' && r.status === 'done' ? 'The split stopped before anything was made.' : undefined),
         question: parked ? r.question : undefined, questionPayload: parked ? q! : undefined,
         sourceId: r.source_id ?? undefined, systemsCut: r.systems_cut ?? undefined, createdAt: r.created_at,
       }
@@ -181,12 +199,19 @@ function partJobs(rows: Row[]): PartJob[] {
     .reverse()
 }
 
+/** A split is a source made from another one: strips cut from pages, or a notation file holding some instruments. */
+const isSplit = (r: Row) => r.kind === 'part_images' || (r.kind === 'musicxml' && (Array.isArray(r.meta?.instruments) || !!r.meta?.slug))
+
 function partStrips(rows: Row[]): PartStrip[] {
   return rows.map(r => {
     const instruments = instrumentsOf(r.meta)
+    const digital = r.kind === 'musicxml'
+    const keys = (r.storage_paths as string[]) ?? []
     return {
-      id: r.id, scoreId: r.score_id, instruments, label: partLabel(instruments.length ? instruments : ['Part']),
-      paths: (r.storage_paths as string[]) ?? [], systems: (r.meta?.systems as PartStrip['systems']) ?? [], createdAt: r.created_at,
+      id: r.id, scoreId: r.score_id, kind: digital ? 'musicxml' as const : 'images' as const, instruments,
+      label: partLabel(instruments.length ? instruments : ['Part']),
+      paths: digital ? [] : keys, path: digital ? keys[0] : undefined,
+      systems: (r.meta?.systems as PartStrip['systems']) ?? [], createdAt: r.created_at,
     }
   }).reverse()
 }
@@ -239,12 +264,38 @@ export async function importMusicXml(file: File, where: { ensembleId: string | n
   const { data: row, error } = await supabase.from('scores').insert({
     ensemble_id: where.ensembleId, owner_user_id: where.ownerId, title: '', folder: 'Imported', status: 'uploaded', created_by: where.createdBy,
   }).select('id').single()
-  if (error || !row) throw new Error(error?.message ?? 'Could not create the score')
+  if (error || !row) throw new Error('The score could not be added to this library.')
   const key = `${row.id}/source.musicxml`
   const up = await supabase.storage.from('scores').upload(key, file, { contentType: 'application/vnd.recordare.musicxml+xml', upsert: true })
-  if (up.error) throw new Error(up.error.message)
+  if (up.error) throw new Error('The file did not upload. Check the connection and try again.')
   const res = await fetch(`${apiBase}/scores/${row.id}/import`, {
     method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ path: key, filename: file.name }),
   })
-  if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail ?? `API ${res.status}`)
+  if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail ?? 'The file is stored, but the librarian could not start reading it. Try the import again.')
+}
+
+/** Hand a stored notation file to the device: Safari on the iPad offers to save it to Files. The bytes come through the
+ *  storage API (RLS decides) and leave as a same-origin blob, so the file name holds on every browser. */
+export async function exportStored(path: string, filename: string): Promise<void> {
+  const { data, error } = await supabase.storage.from('scores').download(path)
+  if (error || !data) throw new Error('The file could not be fetched. Check the connection and try again.')
+  const compressed = /\.mxl$/i.test(filename)
+  const blob = new Blob([data], { type: compressed ? 'application/vnd.recordare.musicxml' : 'application/vnd.recordare.musicxml+xml' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.rel = 'noopener'
+  document.body.append(a)
+  a.click()
+  a.remove()
+  window.setTimeout(() => URL.revokeObjectURL(url), 30_000)
+}
+
+/** A name a musician recognises in Files: the imported file's own name, or the title (and the instruments of a split). */
+export function exportName(title: string, path: string, sourceName?: string, label?: string): string {
+  if (!label && sourceName) return sourceName
+  const ext = /\.mxl$/i.test(sourceName ?? path) ? 'mxl' : 'musicxml'
+  const base = [title.trim() || 'Score', label].filter(Boolean).join(' – ').replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim()
+  return `${base}.${ext}`
 }

@@ -1,16 +1,17 @@
-/** Feature 008 on the iPad: choose the parts to cut out of a scanned score, start the job, watch it, answer its
- *  question (011), open the finished strip (010). The librarian runs `part_cut` on Muse Spark; this file only
- *  asks for it and shows what it says. */
+/** Split by instrument (feature 008) on the iPad. A PDF book: choose instruments, start the cut, watch it, answer its
+ *  question (011), open the finished strip (010); the librarian runs `part_cut` on Muse Spark. A digital book: choose
+ *  among its parts, and the API writes a MusicXML file holding only them (no model call); the split opens in the
+ *  reader with only those instruments and exports as MusicXML. This file only asks for the work and shows what it says. */
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import type { Score } from '../mock'
 import { apiFailure, cutParts } from '../lib/api'
 import { useAuth } from './auth'
-import { partLabel, type PartJob } from './data'
+import { exportName, exportStored, partLabel, type PartJob, type PartStrip } from './data'
 import { fmtDateTime, useStore } from './store'
 import { Sheet } from './Sheet'
 import { StaffQuestion } from './StaffQuestion'
-import { ICheck, IChevronRight, IClose, IScissors, IWarning } from './icons'
+import { ICheck, IChevronRight, IClose, IExport, IParts, IWarning } from './icons'
 import './parts.css'
 
 /** The head of a librarian sheet: title, a line under it, the close button. Children carry `.sheet-body` and `.sheet-foot`. */
@@ -26,21 +27,23 @@ export function SheetHead({ title, sub, onClose }: { title: string; sub?: string
   )
 }
 
-/** The part picker: the instruments the header names, in score order, or names typed by hand when there is no header.
- *  An export is a selection of parts (CK's contract): one, or several that read together. */
+/** The instrument picker. A PDF book offers the instruments its first page names, in score order, or names typed by
+ *  hand when that has not been read; a digital book offers its own parts. A split is one instrument, or several that
+ *  read together (CK's contract). */
 export function PartPicker({ score, open, onClose }: { score: Score; open: boolean; onClose: () => void }) {
   return (
-    <Sheet open={open} onClose={onClose} label="Cut parts" portal>
-      <SheetHead title="Cut parts" sub={score.title} onClose={onClose} />
+    <Sheet open={open} onClose={onClose} label="Split by instrument" portal>
+      <SheetHead title="Split by instrument" sub={score.title} onClose={onClose} />
       <PickerForm score={score} onClose={onClose} />
     </Sheet>
   )
 }
 
 function PickerForm({ score, onClose }: { score: Score; onClose: () => void }) {
-  const { world } = useStore()
+  const { world, partsById } = useStore()
   const { session } = useAuth()
-  const header = world.headers[score.id] ?? []
+  const digital = score.book === 'digital'
+  const header = digital ? score.partIds.map(id => partsById[id]?.name).filter((n): n is string => !!n) : world.headers[score.id] ?? []
   const [chosen, setChosen] = useState<string[]>([])
   const [extra, setExtra] = useState<string[]>([])
   const [typed, setTyped] = useState('')
@@ -57,7 +60,7 @@ function PickerForm({ score, onClose }: { score: Score; onClose: () => void }) {
     if (!chosen.includes(n)) setChosen(xs => [...xs, n])
     setTyped('')
   }
-  // Keep score order for the payload: the handler cuts the chosen staves as one block, top to bottom.
+  // Keep score order for the payload: the handler takes the chosen staves as one block, top to bottom.
   const ordered = names.filter(n => chosen.includes(n))
 
   const start = async () => {
@@ -68,7 +71,7 @@ function PickerForm({ score, onClose }: { score: Score; onClose: () => void }) {
       world.reload()
       onClose()
     } catch (e) {
-      setMsg(apiFailure(e, 'Cutting parts'))
+      setMsg(apiFailure(e, 'Splitting by instrument'))
     } finally {
       setBusy(false)
     }
@@ -78,12 +81,14 @@ function PickerForm({ score, onClose }: { score: Score; onClose: () => void }) {
     <>
       <div className="sheet-body">
         <p className="pick-sub">
-          {header.length
-            ? 'The header names these parts, top to bottom. Choose one, or several that read together on one strip.'
-            : 'No header has been read for this score yet. Name the part as the score prints it, for example "Violino I" or "Soprano".'}
+          {digital
+            ? 'Choose one instrument, or several to read together. The split keeps only them, in score order, ready to read or export.'
+            : header.length
+              ? 'The first page names these instruments, top to bottom. Choose one, or several that read together on one strip.'
+              : 'The instrument names on the first page have not been read yet. Type the instrument as the score prints it, for example "Violino I" or "Soprano".'}
         </p>
         {names.length > 0 && (
-          <div className="pick" role="group" aria-label="Parts">
+          <div className="pick" role="group" aria-label="Instruments">
             {names.map((n, i) => (
               <button key={n} type="button" role="checkbox" aria-checked={chosen.includes(n)} aria-label={n} className="pick-row" onClick={() => toggle(n)}>
                 <span className="pick-mark"><ICheck size={15} strokeWidth={2.5} /></span>
@@ -93,61 +98,107 @@ function PickerForm({ score, onClose }: { score: Score; onClose: () => void }) {
             ))}
           </div>
         )}
-        <form className="pick-add" onSubmit={addTyped}>
-          <label className="field">
-            <span>{header.length ? 'Another part, as printed' : 'Part name, as printed'}</span>
-            <input value={typed} onChange={e => setTyped(e.target.value)} placeholder="e.g. Violino I" autoCapitalize="words" autoComplete="off" />
-          </label>
-          <button type="submit" className="btn btn-line" disabled={!typed.trim()}>Add</button>
-        </form>
+        {!digital && (
+          <form className="pick-add" onSubmit={addTyped}>
+            <label className="field">
+              <span>{header.length ? 'Another instrument, as printed' : 'Instrument, as printed'}</span>
+              <input value={typed} onChange={e => setTyped(e.target.value)} placeholder="e.g. Violino I" autoCapitalize="words" autoComplete="off" />
+            </label>
+            <button type="submit" className="btn btn-line" disabled={!typed.trim()}>Add</button>
+          </form>
+        )}
       </div>
       <div className="sheet-foot">
         {msg && <p className="sheet-msg" role="alert">{msg}</p>}
         <button type="button" className="btn btn-line" onClick={onClose}>Cancel</button>
         <button type="button" className="btn btn-solid" disabled={!ordered.length || busy} onClick={start}>
-          <IScissors size={18} />{busy ? 'Starting' : ordered.length <= 1 ? `Cut ${ordered[0] ?? 'parts'}` : `Cut ${ordered.length} parts together`}
+          <IParts size={18} />{busy ? 'Starting' : ordered.length ? `Split out ${partLabel(ordered.length > 3 ? [`${ordered.length} instruments`] : ordered)}` : 'Choose instruments'}
         </button>
       </div>
     </>
   )
 }
 
-const stateWord: Record<PartJob['status'], string> = { queued: 'Queued', running: 'Cutting', needs_review: 'Needs you', done: 'Cut', failed: 'Stopped' }
+const stateWord: Record<PartJob['status'], string> = { queued: 'Waiting', running: 'Splitting', needs_review: 'Needs you', done: 'Done', failed: 'Stopped' }
 
-/** What the information box shows under "Cut parts": finished strips, running jobs, the question, and the action. */
+/** A finished split. PDF: its strip of systems. Digital: read it with only these instruments, or export it. */
+function SplitRow({ score, split, twins }: { score: Score; split: PartStrip; twins: boolean }) {
+  const [exporting, setExporting] = useState(false)
+  const name = (
+    <span className="pt-name">
+      {split.label}
+      {twins && <span className="pt-when"> · {fmtDateTime(split.createdAt)}</span>}
+    </span>
+  )
+  if (split.kind === 'images') {
+    return (
+      <li className="pt-row">
+        {name}
+        <Link className="pt-open" to={`/score/${score.id}?view=strips&strip=${split.id}`}>
+          <span className="num">{split.paths.length}</span> {split.paths.length === 1 ? 'system' : 'systems'} <IChevronRight size={18} />
+        </Link>
+      </li>
+    )
+  }
+  const exportSplit = async () => {
+    if (!split.path) return
+    setExporting(true)
+    try {
+      await exportStored(split.path, exportName(score.title, split.path, undefined, split.label))
+    } catch (e) {
+      window.alert((e as Error).message)
+    } finally {
+      setExporting(false)
+    }
+  }
+  return (
+    <li className="pt-row is-digital">
+      {name}
+      <span className="pt-acts">
+        {split.path && (
+          <button type="button" className="btn-icon" disabled={exporting} onClick={exportSplit} aria-label={`Export ${split.label} as MusicXML`}>
+            <IExport size={20} />
+          </button>
+        )}
+        <Link className="pt-open" to={`/score/${score.id}?split=${split.id}`}>Read <IChevronRight size={18} /></Link>
+      </span>
+    </li>
+  )
+}
+
+/** What the information box shows under "Split by instrument": finished splits, running jobs, the question, the action. */
 export function PartsPanel({ score }: { score: Score }) {
   const { contextFor, jobsFor, stripsFor } = useStore()
   const strips = stripsFor(score.id)
   const jobs = jobsFor(score.id).filter(j => j.status !== 'done' || !strips.some(s => s.id === j.sourceId))
   const canEdit = (contextFor(score.ensembleId)?.membership.role ?? 'player') !== 'player'
+  const digital = score.book === 'digital'
   const [picking, setPicking] = useState(false)
   const [answering, setAnswering] = useState<string | null>(null)
   const asked = jobs.find(j => j.id === answering && j.status === 'needs_review') ?? null
-  if (!canEdit && !strips.length && !jobs.length) return null
+  // A digital book can be split once it is read and has more than one instrument; a PDF book's cut works from the pages.
+  const canSplit = canEdit && (!digital || (score.status === 'ready' && score.partIds.length > 1))
+  if (!canSplit && !strips.length && !jobs.length) return null
 
   return (
     <div>
-      <h3>Cut parts</h3>
-      {strips.length + jobs.length === 0 && <p className="info-log">Nothing cut yet. A part is a selection of staves lifted out of every page and stacked as one strip.</p>}
+      <h3>Split by instrument</h3>
+      {strips.length + jobs.length === 0 && (
+        <p className="info-log">
+          {digital
+            ? 'Nothing split out yet. A split keeps only the instruments you choose, to read on its own or export.'
+            : 'Nothing split out yet. A split lifts the chosen staves out of every page and stacks them as one strip.'}
+        </p>
+      )}
       {(strips.length > 0 || jobs.length > 0) && (
         <ul className="pt-list">
-          {strips.map(s => (
-            <li key={s.id} className="pt-row">
-              <span className="pt-name">
-                {s.label}
-                {strips.filter(x => x.label === s.label).length > 1 && <span className="pt-when"> · {fmtDateTime(s.createdAt)}</span>}
-              </span>
-              <Link className="pt-open" to={`/score/${score.id}?view=strips&strip=${s.id}`}>
-                <span className="num">{s.paths.length}</span> systems <IChevronRight size={18} />
-              </Link>
-            </li>
-          ))}
+          {strips.map(s => <SplitRow key={s.id} score={score} split={s} twins={strips.filter(x => x.label === s.label).length > 1} />)}
           {jobs.map(j => (
             <li key={j.id} className="pt-row" aria-live={j.status === 'running' ? 'polite' : undefined}>
               <span className="pt-name">{partLabel(j.instruments)}</span>
               <span className="pt-state">
                 {(j.status === 'queued' || j.status === 'running') && (
-                  <span className="meter" role="progressbar" aria-valuenow={Math.round(j.progress * 100)} aria-valuemin={0} aria-valuemax={100} aria-label="Cutting">
+                  <span className="meter" role="progressbar" aria-valuenow={Math.round(j.progress * 100)} aria-valuemin={0} aria-valuemax={100} aria-label="Splitting">
                     <span style={{ width: `${Math.round(j.progress * 100)}%` }} />
                   </span>
                 )}
@@ -160,7 +211,7 @@ export function PartsPanel({ score }: { score: Score }) {
                 </ul>
               )}
               {j.status === 'queued' && <span className="pt-note">Waiting for the librarian{j.pages ? `, ${j.pages.length} pages` : ''}.</span>}
-              {j.status === 'failed' && <span className="pt-fail">{j.error ?? 'The run stopped.'}</span>}
+              {j.status === 'failed' && <span className="pt-fail">{j.error ?? 'The split stopped.'}</span>}
               {j.status === 'needs_review' && (
                 <div className="pt-q">
                   <p>{j.question?.split('?')[0]}?</p>
@@ -171,9 +222,9 @@ export function PartsPanel({ score }: { score: Score }) {
           ))}
         </ul>
       )}
-      {canEdit && (
+      {canSplit && (
         <div className="pt-actions">
-          <button type="button" className="btn btn-line" onClick={() => setPicking(true)}><IScissors size={18} />Cut parts</button>
+          <button type="button" className="btn btn-line" onClick={() => setPicking(true)}><IParts size={18} />Split by instrument</button>
         </div>
       )}
       {canEdit && <PartPicker score={score} open={picking} onClose={() => setPicking(false)} />}

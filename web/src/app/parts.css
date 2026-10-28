@@ -22,7 +22,7 @@
 .fo .pick-add .field { flex: 1; }
 .fo .pick-add .btn { min-height: 46px; }
 
-/* ---------------------------------------------------------------- jobs and cut parts in the information box */
+/* ---------------------------------------------------------------- split by instrument in the information box: jobs and finished splits */
 
 .fo .pt-list { display: flex; flex-direction: column; }
 .fo .pt-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--rule); font-size: 14.5px; }
@@ -38,6 +38,8 @@
 .fo .pt-q { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 10px; margin-top: 4px; padding: 12px 14px; border-radius: 10px; background: color-mix(in oklch, var(--amber) 10%, transparent); }
 .fo .pt-q p { font-size: 14.5px; line-height: 1.45; }
 .fo .pt-q .btn { align-self: flex-start; }
+.fo .pt-acts { display: flex; align-items: center; gap: 2px; }
+.fo .pt-acts .btn-icon { color: var(--ink-2); }
 .fo .pt-open { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; margin-right: -12px; border-radius: 8px; font-size: 14.5px; font-weight: 600; color: var(--ink); text-decoration: none; }
 .fo .pt-actions { margin-top: 10px; }
 .fo .pt-actions .btn { width: 100%; min-height: 48px; }
@@ -74,7 +76,7 @@
 /* A system strip is about 6.5 times wider than tall; the reserved height keeps the snap points still while images decode. */
 .fo .strip { flex: none; min-height: calc((100vw - 32px) * 0.155 + 36px); scroll-snap-align: start; scroll-margin-top: 16px; background: var(--sheet); border: 1px solid var(--sheet-edge); border-radius: 4px; box-shadow: var(--shadow); }
 .fo .strip-when { font-weight: 400; opacity: 0.7; }
-/* Several cut parts: the switcher scrolls sideways under the finger instead of pushing the Library button off the dock. */
+/* Several splits: the switcher scrolls sideways under the finger instead of pushing the Library button off the dock. */
 .fo .strips-seg { flex: 0 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .fo .strips-seg::-webkit-scrollbar { display: none; }
 .fo .strips-seg button { white-space: nowrap; }

@@ -100,7 +100,7 @@ function QuestionBody({ job, q, onClose }: { job: PartJob; q: ChooseStaves; onCl
             <img src={url} alt="" draggable={false} decoding="async"
               onLoad={e => setSize({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })}
               style={crop ? { top: `${(-crop.top / crop.h) * 100}%` } : { position: 'static', visibility: 'hidden' }} />
-          ) : <span>{q.image_key ? 'Loading the page' : 'No overlay for this page'}</span>}
+          ) : <span>{q.image_key ? 'Loading the page' : 'No picture of this page to choose from'}</span>}
           {crop && size && boxes.map((b, i) => {
             // Each box's hit area reaches halfway to its neighbours, so a finger lands on a staff, not between two.
             const above = i > 0 ? (b.y_top + boxes[i - 1].y_bottom) / 2 : b.y_top - 12
@@ -131,7 +131,7 @@ function QuestionBody({ job, q, onClose }: { job: PartJob; q: ChooseStaves; onCl
           {busy === 'absent' ? 'Sending' : `${instrument} is not printed here`}
         </button>
         <button type="button" className="btn btn-solid" disabled={!sel || !!busy} onClick={() => send(chosen)}>
-          <ICheck size={18} />{busy === 'staves' ? 'Sending' : sel ? `${stavesWord(sel)} are ${instrument}'s` : 'Tap the staves'}
+          <ICheck size={18} />{busy === 'staves' ? 'Sending' : sel ? `${stavesWord(sel).replace(/^s/, 'S')} ${sel[0] === sel[1] ? 'is' : 'are'} ${instrument}` : 'Tap the staves'}
         </button>
       </div>
     </>

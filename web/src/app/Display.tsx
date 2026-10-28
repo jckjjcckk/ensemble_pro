@@ -38,7 +38,7 @@ export function DisplayButton() {
         <h2>Display</h2>
         <div className="disp-row">
           <span>Type and colour</span>
-          <div className="seg" role="radiogroup" aria-label="Token set">
+          <div className="seg" role="radiogroup" aria-label="Type and colour">
             {sets.map(s => (
               <button key={s.id} type="button" role="radio" aria-checked={display.tokens === s.id} onClick={() => setDisplay(d => ({ ...d, tokens: s.id }))}>{s.label}</button>
             ))}
