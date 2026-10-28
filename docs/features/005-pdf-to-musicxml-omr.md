@@ -1,6 +1,6 @@
 # 005 PDF to MusicXML (OMR on the Ryzen Ubuntu box)
 
-Status: working on the local stack (Convert to Digital: `POST /scores/{id}/convert`, job `omr_convert`, 2026-10-28); experiments on the box in `api/experiments/omr/` | Meta model: Muse Spark 1.3 reads the text layer and answers closed questions about low-grade symbols. Spark never touches notes.
+Status: working on the local stack (Convert to Digital: `POST /scores/{id}/convert`, job `omr_convert`; engraved pages in two layouts by MuseScore on the box, `engrave.py`, 2026-10-28); experiments on the box in `api/experiments/omr/` | Meta model: Muse Spark 1.3 reads the text layer and answers closed questions about low-grade symbols. Spark never touches notes.
 
 ## Purpose
 
@@ -264,6 +264,42 @@ The fixed files and their renders: `api/experiments/engrave/goldberg/same-file/F
 `api/experiments/engrave/chopin-op40-1/F-*` (`fix_inputs.py`; `G-input.musicxml` is the same after a music21
 re-write, same counts and systems). Tests: `api/tests/test_musicxml_fix.py`.
 
+### The engraving step, in the app (2026-10-28 night, `engrave.py`)
+
+CK's decision: digital books are rendered server-side by MuseScore, not on the device. Every book's own notation (the
+import's file, or the transcription; never a split) is engraved twice at the end of `import_musicxml` and of
+`omr_convert` (`engrave_step`, best effort: the book is ready either way, and the reader falls back to OSMD on the
+device when no pages exist), and again on demand as job kind `engrave` (`run.py engrave --score`). The box runs one
+MuseScore job file per layout (`-j`: SVG pages plus the `.mpos` measure positions in one run, `-S style.mss` for the
+display layout), about 4.5 s a layout for the Beethoven quartet (22 pages) over ssh, 9.9 s for both.
+
+| Layout | The file MuseScore gets | Style | What CK sees |
+|---|---|---|---|
+| `display` (default), "Optimised for digital display" | a copy with every `<print>` system and page break dropped and `<defaults>` set to an iPad page, 3:4 portrait, 210 x 280 mm, 12/14 mm margins, the file's own `<scaling>` kept (music21's 7 mm / 40 tenths when absent), `<system-layout>` and `<staff-layout>` defaults dropped | `enableVerticalSpread` 0, `lastSystemFillLimit` 0, `pageTwosided` 0 | systems at their natural distance; a short last page keeps its empty space at the bottom (Goldberg p2: system gaps 2530/2360 units instead of 3890/3720 stretched); the quartet reflows to 22 pages of 3 systems (2 under the title) |
+| `original`, "Preserve original formatting" | the file as it stands | none | the scan's page size and systems for a transcription (`musicxml_fix` carries them); the editor's page for an import (the quartet: Letter, 21 pages, vertically justified, as the file says nothing) |
+
+Style keys tested on the box (`.mss` is the `<Style>` block of an `.mscx`; the template files under
+`squashfs-root/share/mscore4portable-4.7/templates/` list every key): `enableVerticalSpread` is the switch;
+`maxSystemDistance = minSystemDistance` on top of it packs every page to the minimum (tighter than the natural
+distance, rejected); page size keys in the style are ignored when the file carries `<defaults>`, which is why the
+display copy rewrites the file. `MU_QT_QPA_PLATFORM` and `QT_QPA_PLATFORM` must both be `offscreen` (one alone aborts).
+
+`.mpos` units are twelve times the SVG's user units (the SVG is written at 1200 dpi): the first bar's `x / 12` is the
+first staff line's x, a system's `y / 12` the staff's top. Each element is one measure in file order, `id` the ordinal,
+`page` 0-based. `bar_boxes` joins ordinal i to the i-th measure number of the file's first part (`measures.number`) and
+writes `[number, page (1-based), x, y, w, h]` as fractions of its page; an ordinal past the numbers, a page without an
+SVG, or a number engraved twice is skipped. The box spans the whole system height (every staff of the system).
+
+Storage: `{score_id}/digital/{layout}/p{nnn}.svg` and one `sources` row of kind `engraving` per layout
+(`storage_paths` the pages in order, `page_count`, `page_order`, `meta = {layout, source_id, engine "musescore-4.7.5",
+page_mm, bars, engraved_at}`); a re-run replaces the files and updates the row. The chosen layout is
+`scores.digital_layout` (default `display`), migration `20261028230000_engraved_layouts.sql` (local only, CK pushes).
+Failures are plain sentences in `result.engraving.reason` ("The engraving engine is offline", "... crashed on this
+file", "... wrote no pages for this file", "A compressed .mxl cannot be engraved yet"); `ENGRAVE=off` in the
+environment skips the box (the test suite's default, `tests/conftest.py`). Tests: `api/tests/test_engrave.py` (the
+display copy, the measure numbers, the real Goldberg `.mpos` to boxes, the step and the job against a fake box, the
+import's step, the ssh exit 255 rule). The reader side is in 010.
+
 ## The box
 
 The OMR engines run on CK's Ryzen Ubuntu box, reached as ssh alias `omr` (CK's `~/.ssh/config`; LAN host,
@@ -298,8 +334,9 @@ compare-*.json, base/final.musicxml, slices, render, review.html) and `goldberg-
 
 In the app: `api/app/librarian/omr_convert.py` (handler, `SshBox`), `omr_box.py` (box side, stdlib, copied over
 per run), `omr_book.py` (bar map and gate), `omr_spark.py` (crops, prompts, placement, the two passes),
-`omr_score.py` (merge, edits, flags), `musicxml_fix.py` (voices per staff, page layout and credits);
-`api/app/routes/convert.py`; tests `api/tests/test_omr_convert.py`, `api/tests/test_musicxml_fix.py`.
+`omr_score.py` (merge, edits, flags), `musicxml_fix.py` (voices per staff, page layout and credits), `engrave.py`
+(MuseScore over ssh, the two layouts, `.mpos` to bar boxes, the `engraving` sources); `api/app/routes/convert.py`;
+tests `api/tests/test_omr_convert.py`, `api/tests/test_musicxml_fix.py`, `api/tests/test_engrave.py`.
 
 ## Next steps
 
@@ -309,4 +346,8 @@ per run), `omr_book.py` (bar map and gate), `omr_spark.py` (crops, prompts, plac
 2. A chamber-music run: no Beethoven quartet PDF is in the corpus; a string quartet or piano trio, 5 pages.
 3. Notes ground truth for Var. 1 and 2 (Open Goldberg) so the note F1 covers more than the Aria; a page-level
    duplicate check (page 4 of the BGA PDF repeats page 3).
-4. Keep Audiveris as a separate process (AGPL): Folio's code never imports it.
+4. Keep Audiveris as a separate process (AGPL): Folio's code never imports it; MuseScore (GPLv3) likewise, a
+   process over ssh.
+5. Engraving: a single part's pages (today a part falls back to OSMD on the device); `.mxl` input (unzip before the
+   box); a player's own layout choice (the toggle writes the book, so only an owner or admin sees it); the
+   per-book `bars` list rides in `sources.meta` and is loaded with the library (about 12 KB a layout).
