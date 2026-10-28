@@ -1,0 +1,190 @@
+{
+ "source": "piano_cut_geometry.py with staff recovery, out/piano-cut/beethoven-sym9-fullscore-imslp46254/geom-p175.json",
+ "frame": "150 dpi greyscale render (PyMuPDF), deskewed by skew_deg about the page centre",
+ "image_px": [
+  3136,
+  4000
+ ],
+ "skew_deg": 0.5,
+ "staves": [
+  {
+   "index": 1,
+   "y_top": 628,
+   "y_bottom": 688,
+   "x0": 233,
+   "x1": 3125,
+   "spacing": 15.0
+  },
+  {
+   "index": 2,
+   "y_top": 814,
+   "y_bottom": 874,
+   "x0": 233,
+   "x1": 3126,
+   "spacing": 15.0
+  },
+  {
+   "index": 3,
+   "y_top": 988,
+   "y_bottom": 1051,
+   "x0": 235,
+   "x1": 3128,
+   "spacing": 15.75
+  },
+  {
+   "index": 4,
+   "y_top": 1168,
+   "y_bottom": 1230,
+   "x0": 234,
+   "x1": 3129,
+   "spacing": 15.5
+  },
+  {
+   "index": 5,
+   "y_top": 1349,
+   "y_bottom": 1410,
+   "x0": 234,
+   "x1": 3131,
+   "spacing": 15.25
+  },
+  {
+   "index": 6,
+   "y_top": 1530,
+   "y_bottom": 1591,
+   "x0": 232,
+   "x1": 3132,
+   "spacing": 15.25
+  },
+  {
+   "index": 7,
+   "y_top": 1711,
+   "y_bottom": 1774,
+   "x0": 251,
+   "x1": 3134,
+   "spacing": 15.75
+  },
+  {
+   "index": 8,
+   "y_top": 1896,
+   "y_bottom": 1957,
+   "x0": 267,
+   "x1": 3135,
+   "spacing": 15.25
+  },
+  {
+   "index": 9,
+   "y_top": 2076,
+   "y_bottom": 2138,
+   "x0": 250,
+   "x1": 3135,
+   "spacing": 15.5
+  },
+  {
+   "index": 10,
+   "y_top": 2256,
+   "y_bottom": 2318,
+   "x0": 252,
+   "x1": 3135,
+   "spacing": 15.5
+  },
+  {
+   "index": 11,
+   "y_top": 2435,
+   "y_bottom": 2498,
+   "x0": 236,
+   "x1": 3135,
+   "spacing": 15.75
+  },
+  {
+   "index": 12,
+   "y_top": 2617,
+   "y_bottom": 2677,
+   "x0": 235,
+   "x1": 3135,
+   "spacing": 15.0
+  },
+  {
+   "index": 13,
+   "y_top": 2798,
+   "y_bottom": 2861,
+   "x0": 237,
+   "x1": 3135,
+   "spacing": 15.75
+  },
+  {
+   "index": 14,
+   "y_top": 2976,
+   "y_bottom": 3039,
+   "x0": 241,
+   "x1": 3135,
+   "spacing": 15.75
+  },
+  {
+   "index": 15,
+   "y_top": 3159,
+   "y_bottom": 3221,
+   "x0": 252,
+   "x1": 3135,
+   "spacing": 15.5
+  },
+  {
+   "index": 16,
+   "y_top": 3338,
+   "y_bottom": 3400,
+   "x0": 258,
+   "x1": 3135,
+   "spacing": 15.5
+  },
+  {
+   "index": 17,
+   "y_top": 3871,
+   "y_bottom": 3934,
+   "x0": 17,
+   "x1": 3135,
+   "spacing": 15.75
+  }
+ ],
+ "systems": [
+  {
+   "index": 1,
+   "staff_indices": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16
+   ],
+   "box": {
+    "x0": 236,
+    "y0": 605,
+    "x1": 3135,
+    "y1": 3423
+   },
+   "n_measures": 7
+  },
+  {
+   "index": 2,
+   "staff_indices": [
+    17
+   ],
+   "box": {
+    "x0": 17,
+    "y0": 3848,
+    "x1": 3135,
+    "y1": 3957
+   },
+   "n_measures": 0
+  }
+ ]
+}

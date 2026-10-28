@@ -1,0 +1,3 @@
+# renders, overlays and crops are rebuilt from the PDFs; OMR exports stay local
+cache/
+runs/*/omr/

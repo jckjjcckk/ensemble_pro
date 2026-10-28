@@ -1,0 +1,255 @@
+{
+ "source": "score_header.py (Spark 1.3, low), out/piano-cut/beethoven-sym9-fullscore-imslp46254/header.json, frozen as the label task's header context",
+ "instruments": [
+  {
+   "label": "False detection - top page edge, no staff",
+   "abbreviations": [],
+   "boxes": [
+    1
+   ],
+   "staves": 1,
+   "clefs": [
+    "unknown"
+   ],
+   "family": "other"
+  },
+  {
+   "label": "Flauti.",
+   "abbreviations": [
+    "Fl."
+   ],
+   "boxes": [
+    2
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "woodwind"
+  },
+  {
+   "label": "Oboi.",
+   "abbreviations": [
+    "Ob."
+   ],
+   "boxes": [
+    3
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "woodwind"
+  },
+  {
+   "label": "Clarinetti.",
+   "abbreviations": [
+    "Clar."
+   ],
+   "boxes": [
+    4
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "woodwind"
+  },
+  {
+   "label": "Fagotti.",
+   "abbreviations": [
+    "Fag."
+   ],
+   "boxes": [
+    5
+   ],
+   "staves": 1,
+   "clefs": [
+    "bass"
+   ],
+   "family": "woodwind"
+  },
+  {
+   "label": "Corni in D.",
+   "abbreviations": [
+    "Cor."
+   ],
+   "boxes": [
+    6
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "brass"
+  },
+  {
+   "label": "Tympani in D.",
+   "abbreviations": [
+    "Tymp."
+   ],
+   "boxes": [
+    7
+   ],
+   "staves": 1,
+   "clefs": [
+    "bass"
+   ],
+   "family": "percussion"
+  },
+  {
+   "label": "Tromboni Alto e Tenore",
+   "abbreviations": [
+    "Tromb."
+   ],
+   "boxes": [
+    8
+   ],
+   "staves": 1,
+   "clefs": [
+    "alto"
+   ],
+   "family": "brass"
+  },
+  {
+   "label": "Tromboni Basso.",
+   "abbreviations": [
+    "Tromb. Basso"
+   ],
+   "boxes": [
+    9
+   ],
+   "staves": 1,
+   "clefs": [
+    "bass"
+   ],
+   "family": "brass"
+  },
+  {
+   "label": "Violini. I.",
+   "abbreviations": [
+    "Vl. I"
+   ],
+   "boxes": [
+    10
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "strings"
+  },
+  {
+   "label": "Violini. II.",
+   "abbreviations": [
+    "Vl. II"
+   ],
+   "boxes": [
+    11
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "strings"
+  },
+  {
+   "label": "Viola.",
+   "abbreviations": [
+    "Va."
+   ],
+   "boxes": [
+    12
+   ],
+   "staves": 1,
+   "clefs": [
+    "alto"
+   ],
+   "family": "strings"
+  },
+  {
+   "label": "CORO Soprano",
+   "abbreviations": [
+    "S."
+   ],
+   "boxes": [
+    13
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "voice"
+  },
+  {
+   "label": "CORO Alto",
+   "abbreviations": [
+    "A."
+   ],
+   "boxes": [
+    14
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "voice"
+  },
+  {
+   "label": "CORO Tenore",
+   "abbreviations": [
+    "T."
+   ],
+   "boxes": [
+    15
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "voice"
+  },
+  {
+   "label": "CORO Basso",
+   "abbreviations": [
+    "B."
+   ],
+   "boxes": [
+    16
+   ],
+   "staves": 1,
+   "clefs": [
+    "bass"
+   ],
+   "family": "voice"
+  },
+  {
+   "label": "Violoncello & Bassi.",
+   "abbreviations": [
+    "Vc.",
+    "Cb."
+   ],
+   "boxes": [
+    17
+   ],
+   "staves": 1,
+   "clefs": [
+    "bass"
+   ],
+   "family": "strings"
+  },
+  {
+   "label": "False detection - bottom page edge, no staff",
+   "abbreviations": [],
+   "boxes": [
+    18
+   ],
+   "staves": 1,
+   "clefs": [
+    "unknown"
+   ],
+   "family": "other"
+  }
+ ],
+ "expected_staves": 18
+}

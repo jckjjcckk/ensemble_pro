@@ -1,0 +1,17 @@
+# The first real grid (2026-10-28 night): every model task x 3 models x 2 efforts x 2 resolutions, plus OMR.
+# Run:  uv run experiments/benchmark/run.py --grid grid.yaml --budget-meta 5 --budget-claude 5
+name: night-2026-10-28
+corpus: corpus/manifest.yaml
+
+tasks: [header, labels, text, closed]       # Muse Spark's roles; none of them touches notes
+models: [muse-spark-1.3, claude-haiku-5-5, claude-sonnet-5-5]
+efforts: [low, medium]                      # low is Spark's rule; medium is measured, not shipped
+resolutions: [native, 150dpi]               # what the model sees; frozen geometry is scaled onto it
+max_tokens: 16000                           # >= 8k: Spark's reasoning counts against it (005, 008)
+
+omr:                                        # engines only, on the box; notes are never a model's
+  engines: [audiveris, homr]                # homr is a stub
+  pages: [goldberg-bga-p01, goldberg-bga-p02, goldberg-bga-p03]
+  resolutions: [native, 150dpi, 300dpi, pdf]  # pdf = Audiveris rasterises the PDF page itself (how 005 ran it)
+
+concurrency: {meta: 4, anthropic: 6, omr: 2}

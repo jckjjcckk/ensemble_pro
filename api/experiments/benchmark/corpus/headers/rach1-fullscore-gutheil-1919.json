@@ -1,0 +1,232 @@
+{
+ "source": "score_header.py (Spark 1.3, low), out/piano-cut/header.json, frozen as the label task's header context",
+ "instruments": [
+  {
+   "label": "Flauti I. II.",
+   "abbreviations": [
+    "Fl."
+   ],
+   "boxes": [
+    1
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "woodwind"
+  },
+  {
+   "label": "Oboi I. II.",
+   "abbreviations": [
+    "Ob."
+   ],
+   "boxes": [
+    2
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "woodwind"
+  },
+  {
+   "label": "Clarinetti I. II. in A.",
+   "abbreviations": [
+    "Cl."
+   ],
+   "boxes": [
+    3
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "woodwind"
+  },
+  {
+   "label": "Fagotti I. II.",
+   "abbreviations": [
+    "Fag."
+   ],
+   "boxes": [
+    4
+   ],
+   "staves": 1,
+   "clefs": [
+    "bass"
+   ],
+   "family": "woodwind"
+  },
+  {
+   "label": "Corni in F. I. II.",
+   "abbreviations": [
+    "Cor."
+   ],
+   "boxes": [
+    5
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "brass"
+  },
+  {
+   "label": "Corni in F. III. IV.",
+   "abbreviations": [
+    "Cor."
+   ],
+   "boxes": [
+    6
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "brass"
+  },
+  {
+   "label": "Trombe I. II. in B.",
+   "abbreviations": [
+    "Trbe."
+   ],
+   "boxes": [
+    7
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "brass"
+  },
+  {
+   "label": "Tromboni ten. I. II.",
+   "abbreviations": [
+    "Trbni."
+   ],
+   "boxes": [
+    8
+   ],
+   "staves": 1,
+   "clefs": [
+    "tenor"
+   ],
+   "family": "brass"
+  },
+  {
+   "label": "Trombone basso",
+   "abbreviations": [
+    "Trbne. b."
+   ],
+   "boxes": [
+    9
+   ],
+   "staves": 1,
+   "clefs": [
+    "bass"
+   ],
+   "family": "brass"
+  },
+  {
+   "label": "Timpani in A. H.",
+   "abbreviations": [
+    "Timp."
+   ],
+   "boxes": [
+    10
+   ],
+   "staves": 1,
+   "clefs": [
+    "bass"
+   ],
+   "family": "percussion"
+  },
+  {
+   "label": "Piano.",
+   "abbreviations": [
+    "Pno."
+   ],
+   "boxes": [
+    11,
+    12
+   ],
+   "staves": 2,
+   "clefs": [
+    "treble",
+    "bass"
+   ],
+   "family": "keyboard"
+  },
+  {
+   "label": "Violini I.",
+   "abbreviations": [
+    "Vl. I"
+   ],
+   "boxes": [
+    13
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "strings"
+  },
+  {
+   "label": "Violini II.",
+   "abbreviations": [
+    "Vl. II"
+   ],
+   "boxes": [
+    14
+   ],
+   "staves": 1,
+   "clefs": [
+    "treble"
+   ],
+   "family": "strings"
+  },
+  {
+   "label": "Viole.",
+   "abbreviations": [
+    "Vla."
+   ],
+   "boxes": [
+    15
+   ],
+   "staves": 1,
+   "clefs": [
+    "alto"
+   ],
+   "family": "strings"
+  },
+  {
+   "label": "Violoncelli.",
+   "abbreviations": [
+    "Vc."
+   ],
+   "boxes": [
+    16
+   ],
+   "staves": 1,
+   "clefs": [
+    "bass"
+   ],
+   "family": "strings"
+  },
+  {
+   "label": "Contrabassi.",
+   "abbreviations": [
+    "Cb."
+   ],
+   "boxes": [
+    17
+   ],
+   "staves": 1,
+   "clefs": [
+    "bass"
+   ],
+   "family": "strings"
+  }
+ ],
+ "expected_staves": 17
+}
