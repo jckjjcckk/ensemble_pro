@@ -73,6 +73,42 @@ Scripts and checks:
   Checked at 1194x834 (both token sets, light and dark) and 834x1194.
 - `docs/acceptance/touch.md`: twelve lines CK runs on a real iPad (not yet run).
 
+## Groups: join codes and four actions (2026-10-28)
+
+CK: no auth changes. A group has an 8-digit numeric join code, never rotated. Create, join, leave and delete, each
+behind one confirmation box in the UI. Migration `supabase/migrations/20261028150000_ensemble_join_codes.sql`,
+**applied to the local stack only** (`supabase migration up --local`), not hosted; `supabase db push` when CK says.
+
+- `ensembles.join_code text not null unique`, check `join_code ~ '^[0-9]{8}$'`, default `new_join_code()`: eight
+  digits from `gen_random_bytes` (leading zeros kept), redrawn until unused. Existing ensembles were backfilled.
+- Reading it: the existing `ensembles_select` policy already lets every member (and the creator) read all columns of
+  their own ensembles, so admin and players see the code with `select('id,name,join_code')`. Non-members see no row;
+  the only way from a code to a group is `join_ensemble`.
+- RPCs (supabase-js `supabase.rpc(name, args)` with the signed-in user's session; `security definer`,
+  `set search_path = public`; execute revoked from `anon`, granted to `authenticated`):
+
+| Call | Returns | Refusals (`error.message` / `error.hint`) |
+|---|---|---|
+| `create_ensemble(name text)` | the `ensembles` row (with `join_code`); the caller becomes admin through the existing trigger; retries a code collision | "Give the group a name of up to 80 characters." / `bad_name` (name trimmed) |
+| `join_ensemble(code text)` | the ensemble's `uuid`; the caller is added as `player`; idempotent (an existing member keeps their role); spaces and dashes in the code are ignored | "A join code is 8 digits." / `bad_code`; "No group has the code 12345678. Check the digits with the group's admin." / `unknown_code` |
+| `leave_ensemble(ensemble uuid)` | nothing | "You are not in this group." / `not_member`; "You are this group's only admin, so you cannot leave it. Make another member an admin first, or delete the group." / `last_admin` |
+| `delete_ensemble(ensemble uuid)` | nothing; cascades to members, the group's scores (sources, interpretations, measures, parts, annotations, jobs) and rehearsal sessions | "Only an admin can delete this group." / `not_admin`; "This group no longer exists." / `not_found` |
+
+  Every refusal is SQLSTATE P0001, which PostgREST answers with 400; any call without a session gets "Sign in ..."
+  / `not_signed_in` (or 401 from PostgREST for the anon role). Branch on `hint`, show `message`.
+- A group always keeps an admin: trigger `members_keep_an_admin` (before delete or role/ensemble change on
+  `members`) refuses, with the same `last_admin` message, the last admin deleting their own membership or demoting
+  themselves straight through REST, which `members_delete` / `members_update` would otherwise allow. It stands
+  aside for the ensemble's own cascade and for the service role (auth.uid() null), so deleting an account still works.
+- Not removed by `delete_ensemble`: the deleted scores' files in the `scores` bucket (storage objects go through the
+  Storage API). The browser can list `{score_id}/` and remove them first, or a later API route can.
+- Tests `api/tests/test_groups_local.py` (local stack; skipped when it is down or the migration is not applied):
+  three throwaway accounts `groups-a/b/c@muse.test` with a fresh password per run, made with the service-role
+  client, call the RPCs through the anon key as the browser does; create, join twice, unknown and malformed codes,
+  stranger sees nothing, last admin refused by RPC, direct delete and direct demotion, a second admin may leave,
+  delete refused for a player and a non-member, cascade to members and a score, anon refused, a direct insert
+  still gets a code, the check and unique constraints, codes spread. 3 tests, pass.
+
 ## Rules and decisions
 
 - Secrets only in `api/.env`; the browser gets only `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`,
@@ -82,6 +118,10 @@ Scripts and checks:
 - Public repo from day 0 (CK). No PRs; CK is the only reviewer; push only when CK says.
 
 ## Open issues
+
+- Groups: the migration is local only; the UI (create, join by code, show the code to the admin, leave, delete,
+  one confirmation each) is not built. Join codes have no attempt limit: 10^8 codes, so guessing one takes
+  millions of signed-in calls, but a rate limit would close it.
 
 - Not checked on a real iPad yet (CK runs `touch.md`). Not checked on the hosted project from the UI (CK
   signs in at :5173 and imports `web/public/fixtures/beethoven-op18no1-mv1.musicxml` into Hart House).
