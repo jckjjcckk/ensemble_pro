@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { deliverFile } from '../lib/native'
-import type { Ensemble, Member, Membership, Part, Score } from '../mock'
+import type { DigitalLayout, Engraving, Ensemble, Member, Membership, Part, Score } from '../mock'
 
 export interface Account { id: string; name: string; email: string; memberships: Membership[] }
 export interface World {
@@ -217,7 +217,7 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
   }))
   // A book is what it was first made from; splits (images or notation) are its children, not its kind.
   const bookOf = (s: Row): Pick<Score, 'book' | 'sourcePath' | 'sourceName'> => {
-    const first = sourceRows.find(r => r.score_id === s.id && !isSplit(r) && !r.meta?.transcribed_from)
+    const first = sourceRows.find(r => r.score_id === s.id && r.kind !== 'engraving' && !isSplit(r) && !r.meta?.transcribed_from)
     if (first) {
       const digital = first.kind === 'musicxml'
       return { book: digital ? 'digital' : 'pdf', sourcePath: digital ? (first.storage_paths as string[])?.[0] : undefined, sourceName: digital ? first.meta?.filename ?? undefined : undefined }
@@ -248,6 +248,7 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
     fixture: urlFor(playPath(s)), pages: s.pages ?? 0, bars: s.bars ?? 0, tempoBpm: s.tempo_bpm ?? 0,
     key: s.key_sig ?? '', meter: s.meter ?? '', durationSec: s.duration_sec ?? 0, updatedAt: s.updated_at,
     partIds: partRows.filter(p => p.score_id === s.id).map(p => p.id), folder: s.folder || 'Scores', brief: s.brief ?? undefined,
+    engravings: engravingsOf(sourceRows, s.id), digitalLayout: (s.digital_layout === 'original' ? 'original' : 'display') as DigitalLayout,
     ...bookOf(s),
   })).map(sc => ({ ...sc, ...formsOf(scoreRows.find(r => r.id === sc.id)!, sc.book) }))
 
@@ -258,6 +259,12 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
     groups: Object.fromEntries(groupRows.map(g => [g.id as string, { joinCode: g.join_code ?? undefined, createdBy: g.created_by ?? undefined }])),
     shares, owners,
   }
+}
+
+/** The layout a digital book opens in, stored on the book (owner or admin: the scores update policy). */
+export async function setDigitalLayout(scoreId: string, layout: DigitalLayout): Promise<void> {
+  const { error } = await supabase.from('scores').update({ digital_layout: layout }).eq('id', scoreId)
+  if (error) throw new Error(error.message)
 }
 
 const instrumentsOf = (o: Row | null | undefined): string[] => {
@@ -301,6 +308,21 @@ function chainedBookJobs(rows: Row[]): BookJob[] {
       }
     })
     .reverse()
+}
+
+/** The engraved page sets of a book (`engraving` sources, one per layout; 005), the newest of each layout. */
+function engravingsOf(rows: Row[], scoreId: string): Engraving[] {
+  const out = new Map<DigitalLayout, Engraving>()
+  for (const r of rows) {
+    if (r.score_id !== scoreId || r.kind !== 'engraving') continue
+    const layout: DigitalLayout = r.meta?.layout === 'original' ? 'original' : 'display'
+    const paths = ((r.storage_paths as string[] | null) ?? []).filter(Boolean)
+    const bars = (Array.isArray(r.meta?.bars) ? r.meta.bars : []).filter((b: unknown) => Array.isArray(b) && b.length === 6 && b.every(x => typeof x === 'number'))
+    if (!paths.length || !bars.length) continue
+    const mm = Array.isArray(r.meta?.page_mm) && r.meta.page_mm.length === 2 ? [Number(r.meta.page_mm[0]), Number(r.meta.page_mm[1])] as [number, number] : undefined
+    out.set(layout, { id: r.id, layout, paths, pageCount: Number(r.page_count ?? paths.length) || paths.length, pageMm: mm && mm.every(x => x > 0) ? mm : undefined, bars })
+  }
+  return [...out.values()]
 }
 
 /** A split is a source made from another one: strips cut from pages, or a notation file holding some instruments.
