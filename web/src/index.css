@@ -1,1 +1,6 @@
 @import "tailwindcss";
+
+/* The launch frame: the document itself is the app's ground, so the first paint (and the home-screen launch)
+   is never a white or black flash. The app root (.fo) is position: fixed and paints its own tokens over this. */
+html, body { height: 100%; margin: 0; background: #e6e8eb; overscroll-behavior: none; }
+@media (prefers-color-scheme: dark) { html, body { background: #0d0e10; } }

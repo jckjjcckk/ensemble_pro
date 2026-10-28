@@ -55,6 +55,8 @@
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+  /* No double-tap-to-zoom anywhere (the second tap of a quick pair must register); panning and pinching stay. */
+  touch-action: manipulation;
   color-scheme: light;
   scrollbar-color: var(--rule-2) transparent;
   scrollbar-width: thin;
@@ -205,9 +207,15 @@
 .fo h1, .fo h2, .fo h3, .fo p, .fo ol, .fo ul, .fo dl, .fo dd, .fo figure, .fo blockquote { margin: 0; padding: 0; }
 .fo ol, .fo ul { list-style: none; }
 .fo button, .fo input, .fo select { font: inherit; color: inherit; }
-.fo button { cursor: pointer; }
+.fo button { cursor: pointer; touch-action: manipulation; }
 .fo button:disabled { cursor: default; }
-.fo a { color: inherit; text-decoration: none; }
+.fo a { color: inherit; text-decoration: none; touch-action: manipulation; }
+/* Controls and chrome are not text: no link-preview sheet on a long press, no selection loupe.
+   What the reader may want to copy (note bodies, briefs, inputs) stays selectable. */
+.fo button, .fo a, .fo label, .fo .hdr, .fo .dock, .fo .side-head, .fo .seg, .fo .cover, .fo .pin, .fo .badge, .fo .state, .fo .page-foot, .fo .disp, .fo .spot-card {
+  -webkit-touch-callout: none; user-select: none; -webkit-user-select: none;
+}
+.fo input, .fo textarea, .fo .note-text, .fo .note-quote, .fo .info-brief, .fo .info-log { user-select: text; -webkit-user-select: text; }
 .fo :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .fo .dock :focus-visible { outline-color: var(--dk-ink); }
 .fo .num { font-family: var(--font-num); font-variation-settings: 'wdth' 87.5; font-weight: var(--num-weight); letter-spacing: var(--num-track); font-variant-numeric: tabular-nums; }
@@ -222,14 +230,19 @@
 .fo .scr { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr); }
 .fo .hdr, .fo .dock-row { min-width: 0; }
 
+/* Standalone on iPad runs under a translucent status bar: the header pads itself by the top inset, the dock by the bottom one. */
 .fo .hdr {
   display: flex; align-items: center; gap: 20px;
-  min-height: 56px; padding: 6px 20px;
+  min-height: 56px;
+  padding: calc(6px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) 6px calc(20px + env(safe-area-inset-left));
   border-bottom: 1px solid var(--rule);
   background: var(--raised);
 }
 .fo .hdr-body { flex: 1; min-width: 0; }
-.fo .wordmark { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-title); font-weight: 700; font-size: calc(16px * var(--title-scale)); letter-spacing: -0.01em; font-variation-settings: 'wdth' 112; color: var(--ink); padding: 8px 4px; border-radius: 6px; }
+.fo .wordmark { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-family: var(--font-title); font-weight: 700; font-size: calc(16px * var(--title-scale)); letter-spacing: -0.01em; font-variation-settings: 'wdth' 112; color: var(--ink); padding: 8px 6px; margin-left: -6px; border-radius: 8px; }
+/* The way back on a pushed screen (scan, a score opened from a cover) when there is no browser chrome. */
+.fo .back { display: inline-grid; place-items: center; width: 44px; height: 44px; margin: 0 -8px 0 -10px; border-radius: 8px; color: var(--ink-2); }
+.fo .back + .wordmark { margin-left: 0; }
 
 .fo .ph { display: flex; align-items: center; gap: 14px; min-width: 0; }
 .fo .ph-title { min-width: 0; }
@@ -249,29 +262,23 @@
   background: transparent; font-size: 15px; font-weight: 600; white-space: nowrap;
   transition: background-color 160ms var(--ease), border-color 160ms var(--ease), color 160ms var(--ease);
 }
-.fo .btn.is-small { min-height: 36px; padding: 0 12px; font-size: 14px; }
+/* "Small" keeps the compact type and padding; the target itself stays 44 pt. */
+.fo .btn.is-small { padding: 0 12px; font-size: 14px; }
 .fo .btn-quiet { color: var(--ink-2); }
-.fo .btn-quiet:hover { background: var(--wash); color: var(--ink); }
 .fo .btn-quiet[aria-pressed='true'] { background: var(--wash-2); color: var(--ink); }
 .fo .btn-line { border-color: var(--rule-2); color: var(--ink); }
-.fo .btn-line:hover { background: var(--wash); }
 .fo .btn-line:disabled { color: var(--ink-3); border-color: var(--rule); background: transparent; }
 .fo .btn-solid { background: var(--ink); color: var(--sheet); }
-.fo .btn-solid:hover { background: var(--ink-2); }
 .fo .btn-icon { display: inline-grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 8px; background: transparent; color: var(--ink-2); }
-.fo .btn-icon.is-small { width: 40px; height: 40px; }
-.fo .btn-icon:hover { background: var(--wash); color: var(--ink); }
 .fo .btn-icon[aria-pressed='true'] { background: var(--wash-2); color: var(--ink); }
-.fo .btn-round { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--rule-2); background: var(--sheet); color: var(--ink); flex: none; }
-.fo .btn-round:hover { background: var(--wash); }
+.fo .btn-round { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--rule-2); background: var(--sheet); color: var(--ink); flex: none; }
 
 .fo .seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 10px; background: var(--wash); }
 .fo .seg button {
-  min-height: 40px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent;
+  min-height: 44px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent;
   font-size: 14.5px; font-weight: 600; color: var(--ink-2); white-space: nowrap;
   transition: background-color 160ms var(--ease), color 160ms var(--ease);
 }
-.fo .seg button:hover { color: var(--ink); }
 .fo .seg button[aria-checked='true'] { background: var(--sheet); color: var(--ink); box-shadow: 0 1px 2px oklch(0.2 0.01 255 / 0.12); }
 
 /* ---------------------------------------------------------------- dock */
@@ -281,8 +288,11 @@
   --r-rule: var(--dk-rule); --r-wash: var(--dk-wash); --r-heat: var(--dk-amber);
   --r-green: var(--dk-green); --r-amber: var(--dk-amber);
   background: var(--dk); color: var(--dk-ink);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   position: relative; z-index: 5;
+  /* --kb is the on-screen keyboard's overlap, measured from visualViewport (layout.tsx): the dock rides above it. */
+  transform: translateY(calc(var(--kb, 0px) * -1));
+  transition: transform 200ms var(--ease);
 }
 .fo .dock-ruler { position: relative; padding: 2px 12px 0; border-bottom: 1px solid var(--dk-rule); }
 .fo .dock-row { display: flex; align-items: stretch; gap: 12px; min-height: 76px; padding: 6px 12px; }
@@ -297,7 +307,6 @@
   font-size: 12px; font-weight: 600; letter-spacing: 0.01em;
   transition: background-color 160ms var(--ease), color 160ms var(--ease);
 }
-.fo .area:hover { color: var(--dk-ink); background: var(--dk-2); }
 .fo .area[aria-current='page'] { color: var(--dk-ink); background: var(--dk-3); }
 .fo .areas.is-stacked { flex-direction: column; justify-content: center; align-items: stretch; gap: 4px; }
 .fo .areas.is-stacked .area { flex-direction: row; justify-content: flex-start; gap: 10px; width: 136px; min-height: 48px; padding: 0 12px; font-size: 14px; }
@@ -308,16 +317,13 @@
   background: var(--dk-2); color: var(--dk-ink); font-size: 15px; font-weight: 600; white-space: nowrap;
   transition: background-color 160ms var(--ease), color 160ms var(--ease);
 }
-.fo .dbtn:hover { background: var(--dk-3); }
 .fo .dbtn:disabled { color: var(--dk-ink-3); background: var(--dk-2); opacity: 0.7; }
 .fo .dbtn.is-icon { width: 52px; padding: 0; }
 .fo .dbtn.is-primary { background: var(--dk-ink); color: var(--dk); }
-.fo .dbtn.is-primary:hover { background: var(--dk-ink-2); }
 .fo .dbtn.is-primary:disabled { background: var(--dk-3); color: var(--dk-ink-3); }
 .fo .dbtn.is-big { min-height: 56px; padding: 0 24px; font-size: 16px; }
 .fo .dseg { background: var(--dk-2); padding: 4px; border-radius: 12px; align-self: center; }
 .fo .dseg button { min-height: 48px; padding: 0 16px; color: var(--dk-ink-3); font-size: 15px; }
-.fo .dseg button:hover { color: var(--dk-ink); }
 .fo .dseg button[aria-checked='true'] { background: var(--dk-3); color: var(--dk-ink); box-shadow: none; }
 .fo .dseg.is-small button { min-height: 44px; padding: 0 12px; font-size: 14px; }
 
@@ -404,9 +410,8 @@
   position: absolute; top: 50%; z-index: 4; transform: translateY(-50%);
   display: grid; place-items: center; width: 44px; height: 96px; border: 0; border-radius: 10px;
   background: transparent; color: var(--ink-3); opacity: 0.7;
-  transition: opacity 160ms var(--ease), background-color 160ms var(--ease);
+  transition: opacity 160ms var(--ease), background-color 160ms var(--ease), transform 120ms var(--ease);
 }
-.fo .turn:hover { opacity: 1; background: var(--wash); color: var(--ink); }
 .fo .turn:disabled { opacity: 0; pointer-events: none; }
 .fo .turn-prev { left: 0; }
 .fo .turn-next { right: 0; }
@@ -441,7 +446,7 @@
 }
 .fo .pin::after { content: ''; position: absolute; inset: -9px -3px; }
 .fo .pin { position: relative; }
-.fo .pin:hover, .fo .pin[aria-expanded='true'] { border-color: var(--ink); }
+.fo .pin[aria-expanded='true'] { border-color: var(--ink); }
 .fo .pin.is-dynamic span { font-style: italic; font-weight: 700; font-family: Georgia, 'Times New Roman', serif; font-size: 14px; }
 .fo .glyph-dyn { font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: 700; font-size: 15px; line-height: 1; width: 14px; text-align: center; }
 
@@ -450,8 +455,7 @@
   background: var(--sheet); color: var(--ink); border: 1px solid var(--rule-2); border-radius: 12px; box-shadow: var(--shadow);
   display: flex; flex-direction: column; gap: 10px;
 }
-.fo .pop-close { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 8px; background: transparent; color: var(--ink-3); }
-.fo .pop-close:hover { background: var(--wash); color: var(--ink); }
+.fo .pop-close { position: absolute; top: 4px; right: 4px; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 8px; background: transparent; color: var(--ink-3); }
 
 .fo .o-presence { position: absolute; display: flex; transform: translateX(-100%); pointer-events: none; }
 .fo .o-face {
@@ -523,7 +527,6 @@
 /* presence in the header */
 .fo .presence { display: flex; gap: 4px; }
 .fo .face { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 44px; min-height: 44px; padding: 2px 2px; border: 0; border-radius: 8px; background: transparent; }
-.fo .face:hover:not(:disabled) { background: var(--wash); }
 .fo .face-i { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--ink-2); background: var(--sheet); font-size: 11px; font-weight: 700; }
 .fo .face-bar { font-size: 11px; color: var(--ink-2); line-height: 1; }
 .fo .face.is-off .face-i { border-style: dashed; color: var(--ink-3); border-color: var(--ink-3); }
@@ -557,11 +560,9 @@
 .fo .pd-tempo { display: flex; align-items: center; gap: 10px; flex: none; }
 .fo .step {
   display: grid; place-items: center; width: 72px; height: 72px; border: 0; border-radius: 14px;
-  background: var(--dk-2); color: var(--dk-ink); touch-action: manipulation;
+  background: var(--dk-2); color: var(--dk-ink);
   transition: background-color 120ms var(--ease);
 }
-.fo .step:hover { background: var(--dk-3); }
-.fo .step:active { background: var(--dk-3); transform: translateY(1px); }
 .fo .pd-tempo-read { display: flex; flex-direction: column; align-items: center; min-width: 172px; }
 .fo .pd-tempo-line { display: flex; align-items: baseline; gap: 6px; }
 .fo .pd-tempo-num { font-family: var(--font-num); font-size: 116px; font-weight: 300; font-variant-numeric: tabular-nums; line-height: 0.88; letter-spacing: -0.05em; font-variation-settings: 'wdth' 75; }
@@ -576,7 +577,6 @@
   background: var(--dk-2); color: var(--dk-ink-3);
   transition: background-color 160ms var(--ease), color 160ms var(--ease);
 }
-.fo .tog:hover { background: var(--dk-3); }
 .fo .tog.is-on { color: var(--dk-ink); background: var(--dk-3); }
 .fo .tog-icon { position: relative; display: inline-flex; }
 .fo .tog-label { font-size: 13.5px; font-weight: 600; line-height: 1.2; color: var(--dk-ink-2); }
@@ -590,7 +590,6 @@
   font-size: 15px; font-weight: 700;
   transition: background-color 160ms var(--ease);
 }
-.fo .pd-play:hover { background: var(--dk-ink-2); }
 
 /* one-row control surface: portrait iPad and narrow windows */
 .fo .pd.is-row { align-items: center; gap: 8px; }
@@ -639,7 +638,6 @@
 .fo .lib-inner { max-width: 1280px; margin: 0 auto; padding: 18px 28px 56px; }
 
 .fo .ctx { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.fo .ctx .seg button { min-height: 44px; }
 .fo .ctx-role { font-size: 14px; color: var(--ink-3); }
 .fo .ctx-select { min-height: 44px; padding: 0 36px 0 14px; border-radius: 10px; border: 1px solid var(--rule-2); background: var(--sheet); font-size: 15px; font-weight: 600; appearance: none; -webkit-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; background-size: 18px; }
@@ -663,7 +661,6 @@
   mask-image: linear-gradient(to right, black 55%, transparent);
   -webkit-mask-image: linear-gradient(to right, black 55%, transparent);
 }
-.fo .cover:hover { transform: translateY(-2px); }
 .fo .cover[aria-pressed='true'] { outline: 2px solid var(--ink); outline-offset: 4px; }
 .fo .cover.is-unavailable { color: var(--ink-2); }
 .fo .cover-composer { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
@@ -756,8 +753,10 @@
 .fo .art.is-blurred { filter: blur(1.4px); }
 .fo .art.is-cropped { transform: translateX(16%); }
 .fo .page-heat { display: block; height: 5px; border-radius: 3px; background: var(--heat); margin-top: -2px; }
-.fo .page-foot { display: flex; align-items: center; gap: 2px; }
-.fo .page-pos { font-size: 20px; font-weight: 700; min-width: 26px; letter-spacing: -0.02em; }
+.fo .page-foot { display: flex; align-items: center; gap: 4px; }
+/* Retake and Delete share the tile's width: 44 tall, as wide as the tile allows (a sheet for Delete is feature work). */
+.fo .page-foot .btn-icon { flex: 1 1 36px; min-width: 36px; }
+.fo .page-pos { font-size: 20px; font-weight: 700; min-width: 22px; letter-spacing: -0.02em; }
 .fo .page-src { display: block; margin-top: -6px; min-width: 0; font-size: 13px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fo .page-warning { display: flex; gap: 6px; align-items: flex-start; font-size: 13px; font-weight: 600; color: var(--amber); line-height: 1.3; }
 .fo .page-warning svg { flex: none; margin-top: 1px; }
@@ -765,6 +764,62 @@
 .fo .page-slot { position: relative; min-height: 120px; }
 .fo .slot-bracket { position: absolute; inset: 0 0 auto; aspect-ratio: 100 / 141; border: 2.5px solid var(--ink); border-bottom: 0; border-radius: 6px 6px 0 0; background: var(--wash); }
 .fo .page-ghost { position: fixed; z-index: 50; pointer-events: none; transform: rotate(-1.5deg) scale(1.03); filter: drop-shadow(0 18px 24px oklch(0.1 0.01 255 / 0.35)); }
+
+/* ---------------------------------------------------------------- pressed and hover
+
+   Every control acknowledges touch-down within a frame: it darkens and settles by 3 percent, then releases
+   over 120 ms. Hover lives only where a pointer can hover (the Mac); on the iPad a hover rule would stick to
+   the last tapped element and read as a wrong selected state. */
+
+.fo .btn, .fo .btn-icon, .fo .btn-round, .fo .seg button, .fo .dbtn, .fo .area, .fo .tog, .fo .pd-play, .fo .step,
+.fo .cover, .fo .pin, .fo .m-body, .fo .face, .fo .pop-close, .fo .wordmark, .fo .back, .fo .ctx-select, .fo .check {
+  transition: background-color 160ms var(--ease), border-color 160ms var(--ease), color 160ms var(--ease),
+    opacity 160ms var(--ease), box-shadow 160ms var(--ease), transform 120ms var(--ease);
+}
+.fo .btn:active:not(:disabled), .fo .btn-icon:active:not(:disabled), .fo .btn-round:active:not(:disabled), .fo .seg button:active:not(:disabled),
+.fo .dbtn:active:not(:disabled), .fo .area:active, .fo .tog:active:not(:disabled), .fo .pd-play:active:not(:disabled), .fo .step:active:not(:disabled),
+.fo .cover:active, .fo .pin:active, .fo .m-body:active, .fo .face:active:not(:disabled), .fo .pop-close:active, .fo .wordmark:active, .fo .back:active,
+.fo .ctx-select:active {
+  transition-duration: 40ms;
+  transform: scale(0.97);
+}
+/* light surfaces: a wash */
+.fo .btn-quiet:active:not(:disabled), .fo .btn-line:active:not(:disabled), .fo .btn-icon:active:not(:disabled), .fo .btn-round:active:not(:disabled),
+.fo .seg button:active:not(:disabled), .fo .face:active:not(:disabled), .fo .pop-close:active, .fo .wordmark:active, .fo .back:active, .fo .m-body:active, .fo .ctx-select:active {
+  background: var(--wash-2); color: var(--ink);
+}
+.fo .btn-solid:active:not(:disabled) { background: var(--ink-2); }
+.fo .cover:active { box-shadow: 0 1px 2px oklch(0.2 0.01 255 / 0.1), 0 4px 12px -6px oklch(0.2 0.01 255 / 0.2); }
+.fo .pin:active { border-color: var(--ink); background: var(--raised); transform: scale(0.95); }
+.fo .turn:active:not(:disabled) { opacity: 1; background: var(--wash-2); color: var(--ink); transform: translateY(-50%) scale(0.96); transition-duration: 40ms; }
+.fo .check:active { color: var(--dk-ink); transition-duration: 40ms; }
+/* the dock: one step lighter */
+.fo .dbtn:active:not(:disabled), .fo .area:active, .fo .tog:active:not(:disabled), .fo .step:active:not(:disabled) { background: var(--dk-3); }
+.fo .area[aria-current='page']:active, .fo .tog.is-on:active:not(:disabled) { background: color-mix(in oklch, var(--dk-3), var(--dk-ink) 10%); }
+.fo .dbtn.is-primary:active:not(:disabled), .fo .pd-play:active:not(:disabled) { background: var(--dk-ink-2); }
+.fo .dseg button:active:not(:disabled) { background: var(--dk-3); color: var(--dk-ink); }
+/* the ruler's knobs show their grab while dragging */
+.fo .ruler.is-dragging .r-knob { stroke: var(--r-wash); stroke-width: 8px; paint-order: stroke; }
+
+@media (hover: hover) {
+  .fo .btn-quiet:hover:not(:disabled) { background: var(--wash); color: var(--ink); }
+  .fo .btn-line:hover:not(:disabled) { background: var(--wash); }
+  .fo .btn-solid:hover:not(:disabled) { background: var(--ink-2); }
+  .fo .btn-icon:hover:not(:disabled) { background: var(--wash); color: var(--ink); }
+  .fo .btn-round:hover:not(:disabled) { background: var(--wash); }
+  .fo .seg button:hover:not(:disabled) { color: var(--ink); }
+  .fo .area:hover { color: var(--dk-ink); background: var(--dk-2); }
+  .fo .dbtn:hover:not(:disabled) { background: var(--dk-3); }
+  .fo .dbtn.is-primary:hover:not(:disabled) { background: var(--dk-ink-2); }
+  .fo .dseg button:hover:not(:disabled) { color: var(--dk-ink); }
+  .fo .turn:hover:not(:disabled) { opacity: 1; background: var(--wash); color: var(--ink); }
+  .fo .pin:hover { border-color: var(--ink); }
+  .fo .pop-close:hover, .fo .back:hover, .fo .wordmark:hover { background: var(--wash); color: var(--ink); }
+  .fo .face:hover:not(:disabled) { background: var(--wash); }
+  .fo .step:hover:not(:disabled), .fo .tog:hover:not(:disabled) { background: var(--dk-3); }
+  .fo .pd-play:hover:not(:disabled) { background: var(--dk-ink-2); }
+  .fo .m-body:hover { background: var(--wash); }
+}
 
 /* ---------------------------------------------------------------- portrait and narrow */
 
@@ -783,13 +838,12 @@
 }
 
 @media (max-width: 779px) {
-  .fo .hdr { padding: 6px 12px; gap: 10px; }
+  .fo .hdr { padding: calc(6px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) 6px calc(12px + env(safe-area-inset-left)); gap: 10px; }
   .fo .wordmark span { display: none; }
   .fo .ph { gap: 8px; }
   .fo .ph .btn-quiet span:not(.count) { display: none; }
   .fo .ph .btn-quiet { padding: 0 10px; }
   .fo .presence { gap: 0; }
-  .fo .face { min-width: 40px; }
   .fo .dock-row { gap: 8px; padding: 6px 8px; }
   .fo .areas { padding-right: 8px; }
   .fo .area { width: 48px; }
@@ -834,7 +888,6 @@
   transition: background-color 160ms var(--ease);
 }
 .fo .m-note.is-left .m-body { text-align: right; align-items: flex-end; }
-.fo .m-body:hover { background: var(--wash); }
 .fo .m-note.is-sel .m-body { background: var(--sheet); box-shadow: var(--shadow); }
 .fo .m-meta { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink-3); white-space: nowrap; }
 .fo .m-text { font-size: 13.5px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
@@ -849,7 +902,7 @@
 .fo[data-tokens='bound'] { font-feature-settings: normal; font-variant-numeric: normal; }
 
 /* ---------------------------------------------------------------- sign-in */
-.fo .signin { min-height: 100dvh; display: grid; place-items: center; padding: 24px 16px; background: var(--ground); }
+.fo .signin { height: 100%; overflow-y: auto; display: grid; place-items: center; padding: calc(24px + env(safe-area-inset-top)) 16px calc(24px + var(--kb, 0px)); background: var(--ground); }
 .fo .signin-card { width: min(380px, 100%); display: flex; flex-direction: column; gap: 14px; padding: 28px 24px 24px; border-radius: 14px; background: var(--sheet); border: 1px solid var(--sheet-edge); box-shadow: var(--shadow); }
 .fo .signin-mark { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-title); font-weight: var(--title-weight); letter-spacing: var(--title-track); font-size: calc(17px * var(--title-scale)); color: var(--ink); }
 .fo .signin-card h1 { font-family: var(--font-title); font-size: calc(24px * var(--title-scale)); font-weight: var(--title-weight); letter-spacing: var(--title-track); margin-top: 6px; }
