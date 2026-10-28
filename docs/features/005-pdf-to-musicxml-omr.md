@@ -1,6 +1,6 @@
 # 005 PDF to MusicXML (OMR on the Ryzen Ubuntu box)
 
-Status: prototype (experiments on the box; nothing in `api/app`; OMR is optional enrichment, never a prerequisite) | Meta model: Muse Spark 1.3 reads the text layer and answers closed questions about low-grade symbols. Spark never touches notes.
+Status: working on the local stack (Convert to Digital: `POST /scores/{id}/convert`, job `omr_convert`, 2026-10-28); experiments on the box in `api/experiments/omr/` | Meta model: Muse Spark 1.3 reads the text layer and answers closed questions about low-grade symbols. Spark never touches notes.
 
 ## Purpose
 
@@ -136,6 +136,84 @@ three tuplets at 0.65, 0.74, 0.76, all false (fingering, letters); the first two
 by a lower-graded tuplet in the same bar, bar 67 kept a false triplet. `--gate-tag tuplet=0.9`: 3 more calls
 ($0.013), all three called letters or nothing, no tuplet left in the final file. Total spend $0.403.
 
+## Convert to Digital, in the app (2026-10-28, `omr_convert`)
+
+CK's direction: a PDF book gets a second version of itself, scoped for now to piano and chamber music. The book
+shows PDF and Digital and two mode buttons, Open PDF and Open Digital; Digital is a transcription with flagged
+bars and the PDF stays the truth. The interaction is Split by instrument's: one action, a busy state, a result row.
+
+**Route.** `POST /scores/{id}/convert`, body optional `{pages?: [int]}` (1-based PDF pages; the whole PDF when
+omitted). 402 over budget, 404 no such score, 403 not owner or admin, 400 "This book has no PDF to convert" (no
+`pdf` source) or "A transcription of this book is already in progress" (an `omr_convert` job queued or running).
+Returns the job row: `kind = 'omr_convert'`, `status = 'queued'`, `max_attempts = 1` (a retry would pay for Spark
+again), `payload = {score_id, source_id, pages?}` and **`jobs.score_id` null**: the worker marks a failed job's
+score `failed` and `ctx.progress` moves the score's meter, and neither may touch a ready PDF book. The browser
+finds the job with `.eq('kind', 'omr_convert').eq('payload->>score_id', id)`; RLS lets the creator read it
+(`created_by = auth.uid()`), other admins of the ensemble do not see the busy state. While it runs, the handler
+refreshes `jobs.locked_at` every minute, so the worker's 15-minute stale sweep never re-queues a long book.
+
+**Handler** (`api/app/librarian/omr_convert.py`, helpers `omr_box.py`, `omr_book.py`, `omr_spark.py`,
+`omr_score.py`; the experiment code ported, not imported):
+
+1. Ships the stored PDF (the first `.pdf` key of the `pdf` source) to the box over ssh (`OMR_HOST`, default the
+   `omr` alias; `~/omr/folio/<job id>/`, removed afterwards unless `OMR_KEEP=1`), runs `omr_box.py` there:
+   Audiveris on the PDF itself (a page subset cut with pdfseparate/pdfunite), one book, no `-sheets`; `pdftoppm -r
+   300 -gray` for the crops; one tar back. At most 40 pages (`MAX_PAGES`, refused on the box before Audiveris
+   starts). Box unreachable (ssh exit 255, or the probe fails): the job fails with `result.reason` "The
+   transcription engine is offline" (the row's `error` reads "EngineOffline: The transcription engine is offline"),
+   before any model call, no charge. Audiveris failing, no bars, or bars that do not line up also fail before Spark.
+2. `omr_book` builds the bar map (global numbers, Audiveris's boxes, the gate at 0.6); `omr_score.merge` puts the
+   movements on it. A part the export left a bar out of is lined up by Audiveris's own measure numbers and gets a
+   whole-bar rest, flagged (Rach 1 two-piano p3-5: Piano II lacked bars 17 and 19, 38 measures against 40 stacks).
+3. Spark: the closed questions (A) and the text and dynamics re-read per system (B), 6 calls in flight, effort
+   low, 8k budget, JSON-only system prompt, one retry, every call through `ctx.charge`; allowance
+   `max_cost_usd` (default $0.20 a page), past it the rest keep Audiveris's reading. Two changes from the
+   experiment: B no longer asks for ornaments (precision 0.60, so nothing is attached to notes by the model;
+   Audiveris's ornaments stay), and an unconfirmed Spark point whose own bar label names another bar of the
+   system takes the label's bar (the open question of the p1-5 run, decided: all four such cases in the p1-5 and
+   p1-3 runs were the label's bar). Rest, dot, ornament and wedge verdicts are never edits; a doubtful one flags
+   the bar.
+4. Writes `{score_id}/digital/score.musicxml` and one `sources` row, kind `musicxml`, `storage_paths` that key,
+   `meta = {transcribed_from, engine: "audiveris-5.11+spark", flags: {bars_doubtful, pages_unreadable},
+   flagged_bars: [{number, page (PDF page), key, box (page fractions), reasons}], pages, parts}`; never
+   `instruments`, `slug` or `split_from` (the web's `isSplit`). A re-run replaces the file and updates the row.
+   The file is read back through the import's own `book_facts` (extracted from `import_musicxml.py` with
+   `write_parts` and `write_measures`; the import's behaviour unchanged): `measures` upserted; `parts` written as
+   the import writes them when the book has none, else the book's own names kept (positionally, when the counts
+   agree, and written into the file) and only `storage_path` set to the digital file, difficulty untouched; OCR'd
+   names tidied otherwise ("Piano 11." → "Piano II"). Facts only where empty: key, meter, bars (and pages for a
+   whole PDF); never tempo or length (the Goldberg Aria, which prints no tempo, came back as quarter = 72). The
+   score's `status`, `progress` and `current_interpretation_id` are not touched; no interpretation row.
+5. Result: `{source_id, instruments, bars, flagged_bars (numbers), seconds, cost_usd, pages, pages_unreadable,
+   spark_calls, spark_skipped, edits, timings: {box_s, audiveris_s, render_s, upload_s, pull_s, spark_s,
+   write_s}}`.
+
+Consequence for the web: `parts.storage_path` now points at the digital file, so `firstPath` in `data.tsx` gives a
+converted PDF book a `fixture` and ScoreDoc opens the notation (before, a PDF book said "The pages have not been
+read yet"). Open PDF and Open Digital, and the job's busy state, are web work still to do.
+
+**Live, local stack, 2026-10-28** (`api/tests/test_omr_convert.py` covers the same with a stubbed box and model):
+
+| Book | Pages | Bars | Parts (import path) | Wall | Box (Audiveris, render) | Spark | Flagged |
+|---|---|---|---|---|---|---|---|
+| Goldberg BGA | 1-3 | 69 | Piano (2 staves), 69 measures | 115.7 s | 65.0 s (56.9, 5.6) | 43 calls, 49.7 s, $0.185 | 24 |
+| same, re-run (label rule) | 1-3 | 69 | same, same source row | 114.2 s | 67.3 s (59.0, 5.6) | 43 calls, 45.7 s, $0.154 | 22 |
+| Rach 1, two pianos (Gutheil) | 3-5 | 40 | Piano I, Piano II (4 staves), 40 measures | 140.7 s | 91.1 s (85.0, 4.9) | 34 calls, 48.3 s, $0.183 | 32 |
+
+Re-run on Goldberg bars 1 to 69: text F1 strict **1.00** (44/44; the first run 0.932, its three misses the
+label rule now fixes), Aria notes identical to the experiment (pitch 0.977, onset+pitch 0.892, full 0.864),
+ornaments 7/18 at precision 0.88 (Audiveris's own). Key from the digital file: Goldberg "E minor" (music21's mode
+analysis on a G major signature: a scanned book gets its key from 004's signature read first, and that is never
+overwritten), Rach "F# minor" (right). Both files render in Verovio. Spend $0.52 of the $3 Meta cap; the first
+Rach attempt failed at the merge before any call (no charge), which is how the missing-bar case was found. No
+Beethoven quartet PDF exists in `api/fixtures/pdf/` or on the box, so chamber music beyond two pianos is untested.
+
+**How long for a 10-page PDF.** Per page, end to end: 38 s (Goldberg, sparse) to 47 s (Rach, dense). Audiveris
+20 to 28 s a page in one book (JVM start included once), the scans 2 s, Spark 15 to 16 s a page with 6 calls in
+flight, transfer and writing a few seconds. A 10-page book: Audiveris 3.5 to 5 min, Spark about 2.5 min, about
+**6.5 to 8 minutes** in all, Spark about $0.50 to $0.60. Audiveris and Spark run one after the other (Spark needs
+Audiveris's boxes); more calls in flight is the cheap lever on the Spark half.
+
 ## homr (0.7, studied and rejected for now)
 
 `out/omr-judge/homr/REPORT.md`. Pipeline: autocrop, resize, CLAHE → segnet UNet → boxes → `detect_staff` →
@@ -192,12 +270,16 @@ page slices), `render.py`, `compare.py`, `build_review.py`, `pipeline.py` (the M
 `api/experiments/omr/out/` (gitignored): `goldberg-p1-5/` (model, verify, reread, edits, flags,
 compare-*.json, base/final.musicxml, slices, render, review.html) and `goldberg-p1-5-gate-tuplet09/`.
 
+In the app: `api/app/librarian/omr_convert.py` (handler, `SshBox`), `omr_box.py` (box side, stdlib, copied over
+per run), `omr_book.py` (bar map and gate), `omr_spark.py` (crops, prompts, placement, the two passes),
+`omr_score.py` (merge, edits, flags); `api/app/routes/convert.py`; tests `api/tests/test_omr_convert.py`.
+
 ## Next steps
 
-1. Plumbing fixed (p1-5 above). Next: notes ground truth for Var. 1 and 2 (Open Goldberg) so the note F1
-   covers more than the Aria; a page-level duplicate check (page 4 of the BGA PDF repeats page 3); decide
-   whether an unconfirmed Spark x that disagrees with Spark's label should fall back to the label (it would
-   have fixed the one text miss) or stay a review flag.
-2. Decide whether OMR runs as a job kind (`omr`, optional, fills the same `measures`) or stays an experiment
-   until practice mode (014) needs notes.
-3. Keep Audiveris as a separate process (AGPL): Folio's code never imports it.
+1. Web: the Convert to Digital action on a PDF book, the busy state from the job row (found by
+   `payload->>score_id`), the Digital tag next to PDF once a `transcribed_from` source exists, Open PDF / Open
+   Digital, and the flagged bars (`meta.flagged_bars` has page and box for an overlay on the PDF).
+2. A chamber-music run: no Beethoven quartet PDF is in the corpus; a string quartet or piano trio, 5 pages.
+3. Notes ground truth for Var. 1 and 2 (Open Goldberg) so the note F1 covers more than the Aria; a page-level
+   duplicate check (page 4 of the BGA PDF repeats page 3).
+4. Keep Audiveris as a separate process (AGPL): Folio's code never imports it.
