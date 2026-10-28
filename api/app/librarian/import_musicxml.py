@@ -4,12 +4,14 @@ Writes interpretation v(n+1) with engine 'musicxml', the parts (names disambigua
 become "Violin I" and "Violin II"; "Violoncello" becomes "Cello"), one stable measure row per measure
 number, and the score's facts (key and meter in the canonical forms of `signature.py`, "F# minor" and "4/4"; bars,
 tempo, duration, pages estimate). Parts are named by `part_groups`, which `part_split` uses too. Difficulty is a rough
-density heuristic until the `brief` job (Spark) replaces it.
+density heuristic until the `brief` job (Spark) replaces it. `book_facts`, `write_parts` and `write_measures` are
+shared with Convert to Digital (`omr_convert`, feature 005), so a transcribed book is read the way an imported one is.
 """
 from __future__ import annotations
 
 import io
 import time
+from typing import Any
 
 from music21 import converter, key as m21key, meter as m21meter, stream, tempo as m21tempo
 
@@ -67,20 +69,11 @@ def difficulty_of(parts) -> int:
     return max(1, min(5, round(score)))
 
 
-@handler("import_musicxml")
-async def import_musicxml(job: Job, ctx: JobContext) -> dict:
-    t0 = time.time()
-    score_id = job.payload["score_id"]
-    source_id = job.payload["source_id"]
-    src = ctx.db.table("sources").select("*").eq("id", source_id).single().execute().data
-    path = src["storage_paths"][0]
-    await ctx.progress(0.05, "Reading the file")
-    data = ctx.storage_download(path)
-    s = converter.parse(io.BytesIO(data).read(), format="musicxml")
-
-    await ctx.progress(0.3, "Finding parts and measures")
+def book_facts(s) -> dict[str, Any]:
+    """What a parsed MusicXML says about its book: the parts as the app names them (`part_groups`), the measure
+    numbers, and the score facts in canonical form (key, meter, tempo, duration, a pages estimate, title, composer,
+    movement). Shared by the import (Path A) and Convert to Digital (`omr_convert`, feature 005)."""
     groups = part_groups(s)
-    names = [n for n, _ in groups]
     p0 = s.parts[0]
     measures = list(p0.getElementsByClass("Measure"))
     numbers = sorted({m.number for p in s.parts for m in p.getElementsByClass("Measure")})
@@ -94,11 +87,47 @@ async def import_musicxml(job: Job, ctx: JobContext) -> dict:
     mm = s.flatten().getElementsByClass(m21tempo.MetronomeMark)
     bpm = int(mm[0].number) if mm and mm[0].number else None
     quarters = float(s.highestTime or 0)
-    duration = int(quarters / bpm * 60) if bpm and quarters else None
     md = s.metadata
-    title = (md.title or "").strip() if md else ""
-    composer = (md.composer or "").strip() if md else ""
-    movement = (md.movementName or "").strip() if md else ""
+    return {
+        "groups": groups, "names": [n for n, _ in groups], "numbers": numbers,
+        "key_sig": canonical_key(ks[0].asKey(mode).name) if ks else None,
+        "meter": canonical_meter(ts[0].ratioString) if ts else None,
+        "tempo_bpm": bpm, "duration_sec": int(quarters / bpm * 60) if bpm and quarters else None,
+        "pages": max(1, round(len(measures) / 24)),
+        "title": (md.title or "").strip() if md else "", "composer": (md.composer or "").strip() if md else "",
+        "movement": (md.movementName or "").strip() if md else "",
+    }
+
+
+def write_parts(db, score_id: str, groups: list[tuple[str, list]], path: str) -> None:
+    """One `parts` row per app part (upsert on score and name) with its difficulty and the file that prints it."""
+    rows = [{"score_id": score_id, "name": name, "position": i, "difficulty": difficulty_of(staves), "storage_path": path}
+            for i, (name, staves) in enumerate(groups)]
+    db.table("parts").upsert(rows, on_conflict="score_id,name").execute()
+
+
+def write_measures(db, score_id: str, numbers: list[int]) -> None:
+    """Stable identities: upsert, never delete. Part null = the whole score."""
+    rows = [{"score_id": score_id, "number": n, "part": None} for n in numbers]
+    for i in range(0, len(rows), 500):
+        db.table("measures").upsert(rows[i:i + 500], on_conflict="score_id,number,part").execute()
+
+
+@handler("import_musicxml")
+async def import_musicxml(job: Job, ctx: JobContext) -> dict:
+    t0 = time.time()
+    score_id = job.payload["score_id"]
+    source_id = job.payload["source_id"]
+    src = ctx.db.table("sources").select("*").eq("id", source_id).single().execute().data
+    path = src["storage_paths"][0]
+    await ctx.progress(0.05, "Reading the file")
+    data = ctx.storage_download(path)
+    s = converter.parse(io.BytesIO(data).read(), format="musicxml")
+
+    await ctx.progress(0.3, "Finding parts and measures")
+    f = book_facts(s)
+    groups, names, numbers = f["groups"], f["names"], f["numbers"]
+    title, composer, movement = f["title"], f["composer"], f["movement"]
 
     prev = ctx.db.table("interpretations").select("version").eq("score_id", score_id).order("version", desc=True).limit(1).execute().data
     version = (prev[0]["version"] + 1) if prev else 1
@@ -108,16 +137,10 @@ async def import_musicxml(job: Job, ctx: JobContext) -> dict:
     }).execute().data[0]
 
     await ctx.progress(0.5, "Writing parts")
-    part_rows = []
-    for i, (name, staves) in enumerate(groups):
-        part_rows.append({"score_id": score_id, "name": name, "position": i, "difficulty": difficulty_of(staves), "storage_path": path})
-    ctx.db.table("parts").upsert(part_rows, on_conflict="score_id,name").execute()
+    write_parts(ctx.db, score_id, groups, path)
 
     await ctx.progress(0.7, f"Writing {len(numbers)} measures")
-    # Stable identities: upsert, never delete. Part null = the whole score.
-    rows = [{"score_id": score_id, "number": n, "part": None} for n in numbers]
-    for i in range(0, len(rows), 500):
-        ctx.db.table("measures").upsert(rows[i:i + 500], on_conflict="score_id,number,part").execute()
+    write_measures(ctx.db, score_id, numbers)
 
     summary = {
         "pages": None, "systems": None, "measures": len(numbers), "first_measure": numbers[0] if numbers else None,
@@ -131,9 +154,8 @@ async def import_musicxml(job: Job, ctx: JobContext) -> dict:
 
     facts = {
         "status": "ready", "progress": 1.0, "failure_reason": None,
-        "bars": len(numbers), "key_sig": canonical_key(ks[0].asKey(mode).name) if ks else None,
-        "meter": canonical_meter(ts[0].ratioString) if ts else None,
-        "tempo_bpm": bpm, "duration_sec": duration, "pages": max(1, round(len(measures) / 24)),
+        "bars": len(numbers), "key_sig": f["key_sig"], "meter": f["meter"],
+        "tempo_bpm": f["tempo_bpm"], "duration_sec": f["duration_sec"], "pages": f["pages"],
         "current_interpretation_id": interp["id"],
     }
     existing = ctx.db.table("scores").select("title,composer,work").eq("id", score_id).single().execute().data
