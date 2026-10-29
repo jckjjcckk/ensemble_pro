@@ -115,3 +115,20 @@ def v4(transcript: str, facts: ScoreFacts, holdout: set[str], examples: list[dic
     system, user = v3(transcript, facts, holdout, examples)
     assert RULES in user
     return system, user.replace(RULES, RULES_V4)
+
+
+def v5(transcript: str, facts: ScoreFacts, holdout: set[str], examples: list[dict]) -> tuple[str, str]:
+    """v4's rules without the worked examples: does the few-shot earn its tokens?"""
+    system, user = v2(transcript, facts, holdout, examples)
+    assert RULES in user
+    return system, user.replace(RULES, RULES_V4)
+
+
+# The same prompt as v4, run again: the run-to-run spread of Spark at effort low.
+v4r2 = v4
+
+
+# The app's prompt is v4 with the full example list (no hold-out in production): keep the two in step.
+from app.librarian import voice_prompt as _app  # noqa: E402
+
+assert _app.RULES.split("\n", 1)[1] == RULES_V4.split("\n", 1)[1] and _app.SCHEMA == SCHEMA_LIST

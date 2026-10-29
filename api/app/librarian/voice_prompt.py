@@ -102,3 +102,74 @@ def checked_marks(answer: object, transcript: str, facts: ScoreFacts) -> tuple[l
         why = check_mark(m, transcript, facts)
         (refused.append(why) if why else ok.append(m))
     return ok, refused
+
+
+# ---------- the prompt (eval version v4, chosen 2026-10-29; scores in docs/features/013) ----------
+
+SYSTEM = ("You turn a conductor's spoken rehearsal instruction into proposed marks on the players' parts. "
+          "Answer with JSON only.")
+
+SCHEMA = ('[{"position": "bar|range|mark|global", "bar_from": int|null, "bar_to": int|null, "audience": ["ensemble" | "part:<part name>" | "member:<name>", ...], "kind": "cut|dynamic|marking|text|breath|bowing", "text": "<the one-line mark for the stand>", "quote": "<verbatim span of the transcript the mark comes from>"}, ...]')
+
+RULES = """Rules:
+- Not every sentence is a mark. Telling the players where to start playing ("again from the beginning", "OK, letter
+  A, off we go", "once more from 57" with nothing to write), logistics (breaks, chairs, the time) and praise are not
+  marks: answer {"none": true}. A start point that comes with something to remember ("from 57 and keep it light")
+  is a mark at that bar. Telling a part where it comes in (its entry) is a mark.
+- The speaker may correct themself mid-sentence ("18, no, 19"; "violas, sorry, cellos"): the last version wins.
+  A correction replaces only what it corrects: keep the bar and the instruction already said. Ignore filler,
+  repeated words and false starts.
+- position: "bar" for one bar (bar_to = bar_from) or two adjacent bars named as one place (a pickup into bar 81 is
+  bar_from 80, bar_to 81); "range" for "from X to Y" (bar_to = Y, or null for "to the end"); "mark" when the place
+  is a landmark the score must resolve: a rehearsal letter, a double bar, a key change, a coda, a section (bars
+  null, name the landmark in text); "global" for the whole piece or its very beginning or end (bars null).
+- audience: "ensemble" when everyone is meant (the whole group, the whole choir, tutti) or nobody is named. Seat nicknames: firsts = Violin I, seconds =
+  Violin II, fiddles = both violin parts. When the speaker excludes a part, list every other part of its group
+  (strings: Violin I, Violin II, Viola, Cello; voices: Soprano, Alto, Tenor, Bass). A player addressed by name is
+  "member:<name>", only when the name is clearly said.
+- kind: "dynamic" for loudness and its changes; "marking" for a symbol or playing technique written on the music
+  (pizz., arco, mute, accent, fermata, vibrato); "bowing" for up/down bow; "breath" for a breath mark; "cut" for a
+  cut or a skipped repeat; "text" for any other spoken instruction (tempo, rit., character, rhythm, tuning, pitch).
+- text: what a player would pencil on the part, short, standard abbreviations (mf, sfz, cresc., dim., pizz., rit.),
+  with the place: "mf at bar 9", "Cut 130–137", "From E: lighter".
+- quote: copy a contiguous span of the transcript exactly, character for character.
+- One object per audience: marks for different audiences are separate objects; several places for the same
+  audience in one breath are one mark whose bars cover them.
+- The transcript is machine speech recognition and mishears words. A word that sounds like a part, a seat nickname
+  or a member's name (e.g. "Chelos", "Violets", "Lynn") is that part or person; "accept" or "stop" just before a
+  part may be "except". Numbers are usually right."""
+
+# Eight worked examples from api/fixtures/voice/script.csv. The eval held each scored line out of this list.
+EXAMPLES = """Transcript: "Second violins, from forty-two to forty-eight we're cutting that, go straight to forty-nine."
+Answer: [{"position": "range", "bar_from": 42, "bar_to": 48, "audience": ["part:Violin II"], "kind": "cut", "text": "Cut 42–48", "quote": "Second violins, from forty-two to forty-eight we're cutting that, go straight to forty-nine."}]
+
+Transcript: "Bar one-twelve, everyone, crescendo through to one-sixteen."
+Answer: [{"position": "range", "bar_from": 112, "bar_to": 116, "audience": ["ensemble"], "kind": "dynamic", "text": "cresc. 112–116", "quote": "Bar one-twelve, everyone, crescendo through to one-sixteen."}]
+
+Transcript: "Fiddles, bar seven, down bow, both of you."
+Answer: [{"position": "bar", "bar_from": 7, "bar_to": 7, "audience": ["part:Violin I", "part:Violin II"], "kind": "bowing", "text": "Down bow at bar 7", "quote": "Fiddles, bar seven, down bow, both of you."}]
+
+Transcript: "Bar sixty-four, altos and tenors, breath mark, then sixty-five sforzando, everyone."
+Answer: [{"position": "bar", "bar_from": 64, "bar_to": 64, "audience": ["part:Alto", "part:Tenor"], "kind": "breath", "text": "Breath at 64", "quote": "Bar sixty-four, altos and tenors, breath mark, then sixty-five sforzando, everyone."}, {"position": "bar", "bar_from": 65, "bar_to": 65, "audience": ["ensemble"], "kind": "dynamic", "text": "sfz at 65", "quote": "Bar sixty-four, altos and tenors, breath mark, then sixty-five sforzando, everyone."}]
+
+Transcript: "Inès, bar thirty, that harmonic, try it on the A string."
+Answer: [{"position": "bar", "bar_from": 30, "bar_to": 30, "audience": ["member:Inès"], "kind": "text", "text": "Harmonic on the A string, bar 30", "quote": "Inès, bar thirty, that harmonic, try it on the A string."}]
+
+Transcript: "Viola, ritard in the bar before letter F, then a tempo at F."
+Answer: [{"position": "mark", "bar_from": null, "bar_to": null, "audience": ["part:Viola"], "kind": "text", "text": "rit. before F, a tempo at F", "quote": "Viola, ritard in the bar before letter F, then a tempo at F."}]
+
+Transcript: "Okay that's lunch, back at one thirty."
+Answer: {"none": true}
+
+Transcript: "Right, bar one, here we go."
+Answer: {"none": true}"""
+
+
+def build_prompt(transcript: str, facts: ScoreFacts) -> tuple[str, str]:
+    """(system, user) for one utterance; send with effort low and an 8k output budget."""
+    user = (f"Score facts:\n{facts.as_text()}\n\n{RULES}\n\n"
+            f"Worked examples (other instructions, same score):\n\n{EXAMPLES}\n\n"
+            f"Transcript of what the conductor said:\n\"{transcript}\"\n\n"
+            f"Answer a JSON array of marks:\n{SCHEMA}\n"
+            "or, if there is nothing to write on the music, {\"none\": true}.")
+    return SYSTEM, user
