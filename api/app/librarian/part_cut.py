@@ -537,6 +537,12 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         given = args.get("blocks") if args.get("blocks") is not None else args.get("staves")
         if given is None:
             raise Refusal('give staves (a list of staff numbers) or blocks (a list of lists), or the string "absent"')
+        if isinstance(given, str) and given.strip().startswith("["):
+            # Claude sometimes serialises an array argument as its JSON text ("[8, 9]") when the schema allows a string.
+            try:
+                given = json.loads(given)
+            except ValueError:
+                raise Refusal('staves must be a non-empty list of staff numbers or "absent"')
         if isinstance(given, str):
             if given.strip().lower() != "absent":
                 raise Refusal('staves must be a non-empty list of staff numbers or "absent"')

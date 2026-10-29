@@ -173,6 +173,23 @@ async def test_refusal_then_correct_retry():
 
 
 @pytest.mark.asyncio
+async def test_staves_given_as_json_text_are_accepted():
+    # Claude serialised the array argument as its JSON text ("[4, 5]", "[[4, 5]]") on the first hosted split (2026-10-29).
+    script = [tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), LABEL,
+              commit(1, "[4, 5]"), RECHECK_PIANO, tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(1)
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1 and out["questions"] == 0 and ctx.result["agent"]["refusals"] == {}
+    script = [tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), LABEL,
+              tool("commit_system", {"page": 1, "system": 1, "blocks": "[[4, 5]]"}), RECHECK_PIANO, tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(1)
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1 and out["questions"] == 0
+
+
+@pytest.mark.asyncio
 async def test_escalates_to_needs_review_then_resumes_with_answer():
     client, t = fake_client([tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), LABEL, commit(1, [4]), commit(1, [4]), commit(1, [4])])
     job, ctx, db = world(1)
