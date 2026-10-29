@@ -1,46 +1,81 @@
-/* Folio. Every token and rule is scoped under .fo (the app root). */
+/* Folio. Every token and rule is scoped under .fo (the app root).
+   One look since R3 (CK, 2026-10-28; docs/design/r3/README.md): paper, ink and rule, light and dark. The legacy token
+   names (--ground, --sheet, --ink-2, the dock's --dk*) are kept and mapped onto the R3 palette, so the screens R3 does
+   not redraw (scan, practice, the librarian sheets) follow the same paper. */
 
 .fo {
-  /* type */
-  --font-ui: 'Archivo', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-num: 'Martian Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-  --font-title: var(--font-ui);
-  --num-weight: 450;
-  --num-track: -0.02em;
-  --title-weight: 650;
-  --title-track: -0.01em;
-  --title-scale: 1;
+  /* type: EB Garamond for display, titles and numbers; Inter for the interface; Noto Music for clefs and accidentals */
+  --font-ui: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-num: 'EB Garamond', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-title: var(--font-num);
+  --font-music: 'Noto Music', 'Bravura Text', serif;
+  --num-weight: 500;
+  --num-track: 0;
+  --title-weight: 500;
+  --title-track: 0;
+  --title-scale: 1.12;
 
-  /* daylight: pale ground, graphite ink */
-  --ground: oklch(0.93 0.005 255);
-  --sheet: oklch(0.987 0.002 95);
-  --sheet-edge: oklch(0.85 0.005 255);
-  --raised: oklch(0.965 0.004 255);
-  --ink: oklch(0.235 0.008 255);
-  --ink-2: oklch(0.41 0.008 255);
-  --ink-3: oklch(0.5 0.008 255);
-  --rule: oklch(0.86 0.005 255);
-  --rule-2: oklch(0.76 0.006 255);
-  --wash: oklch(0.235 0.008 255 / 0.065);
-  --wash-2: oklch(0.235 0.008 255 / 0.12);
-  --green: oklch(0.5 0.12 152);
-  --amber: oklch(0.55 0.12 68);
-  --heat: oklch(0.74 0.15 68);
-  --ask: oklch(0.8 0.15 86);   /* the status dot: the librarian has a question */
-  --fail: oklch(0.55 0.2 27);  /* the status dot: the run failed */
-  --shadow: 0 1px 2px oklch(0.2 0.01 255 / 0.08), 0 10px 28px -8px oklch(0.2 0.01 255 / 0.16);
+  /* R3 light */
+  --paper: #F3EFE6;        /* the shelf's ground, headers */
+  --card: #FBF9F4;         /* cards, sheets, the page */
+  --desk: #EAE5DA;         /* the stand's ground under the pages */
+  --seg: #E2DCCD;          /* segmented control well */
+  --seg-on: #FBF9F4;
+  --chip: #E2DCCD;
+  --line: #E2DCCD;         /* card borders, dividers */
+  --line-2: #CFC8B8;       /* control borders */
+  --line-3: #EEE9DD;       /* rows inside a card */
+  --hdr-line: #D9D3C5;
+  --text: #1C1A16;
+  --text-2: #4D4840;       /* tags */
+  --text-3: #6B665C;       /* captions, muted */
+  --text-4: #A39C8C;       /* disabled */
+  --solid: #1C1A16;        /* the primary button */
+  --on-solid: #F3EFE6;
+  --on-solid-2: #CFC8B8;
+  --group: #5B86C8;        /* a group, Following, the shared dot */
+  --ring-track: #DDD7C8;
+  --scrim: rgba(28, 26, 22, 0.28);
+  --sheet-shadow: 0 -16px 48px rgba(28, 26, 22, 0.30);
+  --dialog-shadow: 0 24px 60px rgba(28, 26, 22, 0.35);
+  --menu-shadow: 0 10px 28px rgba(28, 26, 22, 0.22);
+  --page-shadow: 0 1px 0 #D9D3C5, 0 10px 30px rgba(28, 26, 22, 0.10);
+  --bubble: #FFFFFF;
+  --input: #FFFFFF;
+  --hl: rgba(240, 216, 120, 0.55);
 
-  /* the dock: a graphite control surface in both themes */
-  --dk: oklch(0.215 0.006 255);
-  --dk-2: oklch(0.265 0.006 255);
-  --dk-3: oklch(0.32 0.006 255);
-  --dk-rule: oklch(0.33 0.006 255);
-  --dk-ink: oklch(0.95 0.005 95);
-  --dk-ink-2: oklch(0.79 0.006 255);
-  --dk-ink-3: oklch(0.66 0.006 255);
-  --dk-wash: oklch(0.95 0.005 95 / 0.1);
-  --dk-green: oklch(0.8 0.15 152);
-  --dk-amber: oklch(0.83 0.13 75);
+  /* legacy names on the R3 palette */
+  --ground: var(--paper);
+  --sheet: var(--card);
+  --sheet-edge: var(--line-2);
+  --raised: var(--paper);
+  --ink: var(--text);
+  --ink-2: var(--text-2);
+  --ink-3: var(--text-3);
+  --rule: var(--line);
+  --rule-2: var(--line-2);
+  --wash: rgba(28, 26, 22, 0.06);
+  --wash-2: rgba(28, 26, 22, 0.11);
+  --green: var(--group);
+  --amber: #B5392E;
+  --heat: #D8A62B;
+  --ask: #D8A62B;          /* the status dot: the librarian has a question */
+  --doubt-bg: #FBF3DC; --doubt-line: #E8C877; --doubt-text: #8A5A00;   /* the reader is unsure (R3 F_*) */
+  --ok-bg: #E6F1EA; --ok-text: #2F6B4F; --done-dot: #7A9A6B;
+  --fail: #B5392E;         /* the status dot: the run failed */
+  --shadow: 0 1px 2px rgba(28, 26, 22, 0.08), 0 10px 28px -8px rgba(28, 26, 22, 0.18);
+
+  /* the practice dock keeps a dark control surface in both themes */
+  --dk: #1E1C18;
+  --dk-2: #26241F;
+  --dk-3: #3F3B33;
+  --dk-rule: #3A372F;
+  --dk-ink: #EDE7D8;
+  --dk-ink-2: #C9C2B2;
+  --dk-ink-3: #A39C8C;
+  --dk-wash: rgba(237, 231, 216, 0.1);
+  --dk-green: #7FA3DC;
+  --dk-amber: #D8A62B;
 
   --radius: 10px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -53,8 +88,6 @@
   font-family: var(--font-ui);
   font-size: 16px;
   line-height: 1.4;
-  font-feature-settings: 'tnum' 1;
-  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   /* No double-tap-to-zoom anywhere (the second tap of a quick pair must register); panning and pinching stay. */
@@ -64,154 +97,38 @@
   scrollbar-width: thin;
 }
 
-/* Night, by the device's own ambient-light switching, unless the display setting pins a theme. */
+/* R3 dark, by the device's own switching unless the appearance menu pins a theme. */
 @media (prefers-color-scheme: dark) {
   .fo:not([data-theme='light']) {
-    --ground: oklch(0.165 0.005 255);
-    --sheet: oklch(0.212 0.005 255);
-    --sheet-edge: oklch(0.3 0.005 255);
-    --raised: oklch(0.235 0.005 255);
-    --ink: oklch(0.93 0.006 95);
-    --ink-2: oklch(0.79 0.006 255);
-    --ink-3: oklch(0.66 0.006 255);
-    --rule: oklch(0.3 0.005 255);
-    --rule-2: oklch(0.4 0.006 255);
-    --wash: oklch(0.93 0.006 95 / 0.075);
-    --wash-2: oklch(0.93 0.006 95 / 0.13);
-    --green: oklch(0.8 0.15 152);
-    --amber: oklch(0.83 0.13 75);
-    --heat: oklch(0.78 0.14 70);
-    --ask: oklch(0.85 0.15 90);   /* the status dot: the librarian has a question */
-    --fail: oklch(0.68 0.19 27);  /* the status dot: the run failed */
-    --shadow: 0 1px 2px oklch(0 0 0 / 0.4), 0 12px 32px -10px oklch(0 0 0 / 0.6);
-
-    --dk: oklch(0.13 0.005 255);
-    --dk-2: oklch(0.19 0.005 255);
-    --dk-3: oklch(0.245 0.006 255);
-    --dk-rule: oklch(0.27 0.005 255);
+    --paper: #1E1C18; --card: #26241F; --desk: #141311; --seg: #2C2A25; --seg-on: #3F3B33; --chip: #33302A;
+    --line: #3A372F; --line-2: #3F3B33; --line-3: #2C2A25; --hdr-line: #3A372F;
+    --text: #EDE7D8; --text-2: #C9C2B2; --text-3: #A39C8C; --text-4: #6B665C;
+    --solid: #EDE7D8; --on-solid: #1E1C18; --on-solid-2: #4D4840;
+    --group: #7FA3DC; --ring-track: #3F3B33;
+    --scrim: rgba(0, 0, 0, 0.45); --sheet-shadow: 0 -16px 48px rgba(0, 0, 0, 0.5); --dialog-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    --menu-shadow: 0 10px 28px rgba(0, 0, 0, 0.5); --page-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+    --bubble: #1E1C18; --input: #1E1C18;
+    --doubt-bg: #3A3220; --doubt-line: #7A6328; --doubt-text: #E8C877; --ok-bg: #22362B; --ok-text: #9FD0B0; --done-dot: #7A9A6B; --hl: rgba(230, 200, 90, 0.55);
+    --wash: rgba(237, 231, 216, 0.07); --wash-2: rgba(237, 231, 216, 0.13);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -10px rgba(0, 0, 0, 0.6);
+    --dk: #141311; --dk-2: #1E1C18; --dk-3: #33302A;
     color-scheme: dark;
   }
 }
 .fo[data-theme='dark'] {
-    --ground: oklch(0.165 0.005 255);
-    --sheet: oklch(0.212 0.005 255);
-    --sheet-edge: oklch(0.3 0.005 255);
-    --raised: oklch(0.235 0.005 255);
-    --ink: oklch(0.93 0.006 95);
-    --ink-2: oklch(0.79 0.006 255);
-    --ink-3: oklch(0.66 0.006 255);
-    --rule: oklch(0.3 0.005 255);
-    --rule-2: oklch(0.4 0.006 255);
-    --wash: oklch(0.93 0.006 95 / 0.075);
-    --wash-2: oklch(0.93 0.006 95 / 0.13);
-    --green: oklch(0.8 0.15 152);
-    --amber: oklch(0.83 0.13 75);
-    --heat: oklch(0.78 0.14 70);
-    --ask: oklch(0.85 0.15 90);   /* the status dot: the librarian has a question */
-    --fail: oklch(0.68 0.19 27);  /* the status dot: the run failed */
-    --shadow: 0 1px 2px oklch(0 0 0 / 0.4), 0 12px 32px -10px oklch(0 0 0 / 0.6);
-
-    --dk: oklch(0.13 0.005 255);
-    --dk-2: oklch(0.19 0.005 255);
-    --dk-3: oklch(0.245 0.006 255);
-    --dk-rule: oklch(0.27 0.005 255);
-    color-scheme: dark;
-}
-
-/* ---------------------------------------------------------------- token set: Bound */
-
-.fo[data-tokens='bound'] {
-  /* Bound: ecru ground, a lighter leaf, graphite ink, oxblood only for cuts and failures. Serif titles and numerals. */
-  --font-ui: 'Schibsted Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-num: 'EB Garamond', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
-  --font-title: 'EB Garamond', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
-  --num-weight: 500;
-  --num-track: 0;
-  --title-weight: 500;
-  --title-track: 0;
-  --title-scale: 1.12;
-
-  --ground: #e8e1d0;
-  --sheet: #f6f1e5;
-  --sheet-edge: #d6cdb6;
-  --raised: #ddd5c2;
-  --ink: #2a2926;
-  --ink-2: #555249;
-  --ink-3: #6f6a5f;
-  --rule: rgba(42, 41, 38, 0.15);
-  --rule-2: rgba(42, 41, 38, 0.3);
-  --wash: rgba(42, 41, 38, 0.06);
-  --wash-2: rgba(42, 41, 38, 0.12);
-  --green: #3d6b45;
-  --amber: #6b1d24;
-  --heat: #b8863b;
-  --ask: #c99a2e;   /* the status dot: the librarian has a question */
-  --fail: #9b2730;  /* the status dot: the run failed */
-  --shadow: 0 1px 2px rgba(48, 38, 18, 0.12), 0 14px 32px -14px rgba(48, 38, 18, 0.32);
-
-  --dk: #2a2926;
-  --dk-2: #3a3834;
-  --dk-3: #4a4741;
-  --dk-rule: #4a4741;
-  --dk-ink: #f6f1e5;
-  --dk-ink-2: #cfc7b4;
-  --dk-ink-3: #a39c8c;
-  --dk-wash: rgba(246, 241, 229, 0.1);
-  --dk-green: #9fd1a6;
-  --dk-amber: #d99a9f;
-  --radius: 8px;
-}
-@media (prefers-color-scheme: dark) {
-  .fo[data-tokens='bound']:not([data-theme='light']) {
-    --ground: #1d1b18;
-    --sheet: #2b2824;
-    --sheet-edge: #3a3630;
-    --raised: #282521;
-    --ink: #e9e1cf;
-    --ink-2: #b8b09e;
-    --ink-3: #9d9585;
-    --rule: rgba(233, 225, 207, 0.13);
-    --rule-2: rgba(233, 225, 207, 0.28);
-    --wash: rgba(233, 225, 207, 0.06);
-    --wash-2: rgba(233, 225, 207, 0.12);
-    --green: #9fd1a6;
-    --amber: #c9777c;
-    --heat: #c9a35a;
-    --ask: #dcb35a;   /* the status dot: the librarian has a question */
-    --fail: #d0676e;  /* the status dot: the run failed */
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 36px -14px rgba(0, 0, 0, 0.7);
-
-    --dk: #15130f;
-    --dk-2: #221f1a;
-    --dk-3: #2f2b25;
-    --dk-rule: #2f2b25;
-    color-scheme: dark;
-  }
-}
-.fo[data-tokens='bound'][data-theme='dark'] {
-    --ground: #1d1b18;
-    --sheet: #2b2824;
-    --sheet-edge: #3a3630;
-    --raised: #282521;
-    --ink: #e9e1cf;
-    --ink-2: #b8b09e;
-    --ink-3: #9d9585;
-    --rule: rgba(233, 225, 207, 0.13);
-    --rule-2: rgba(233, 225, 207, 0.28);
-    --wash: rgba(233, 225, 207, 0.06);
-    --wash-2: rgba(233, 225, 207, 0.12);
-    --green: #9fd1a6;
-    --amber: #c9777c;
-    --heat: #c9a35a;
-    --ask: #dcb35a;   /* the status dot: the librarian has a question */
-    --fail: #d0676e;  /* the status dot: the run failed */
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 36px -14px rgba(0, 0, 0, 0.7);
-
-    --dk: #15130f;
-    --dk-2: #221f1a;
-    --dk-3: #2f2b25;
-    --dk-rule: #2f2b25;
-    color-scheme: dark;
+  --paper: #1E1C18; --card: #26241F; --desk: #141311; --seg: #2C2A25; --seg-on: #3F3B33; --chip: #33302A;
+  --line: #3A372F; --line-2: #3F3B33; --line-3: #2C2A25; --hdr-line: #3A372F;
+  --text: #EDE7D8; --text-2: #C9C2B2; --text-3: #A39C8C; --text-4: #6B665C;
+  --solid: #EDE7D8; --on-solid: #1E1C18; --on-solid-2: #4D4840;
+  --group: #7FA3DC; --ring-track: #3F3B33;
+  --scrim: rgba(0, 0, 0, 0.45); --sheet-shadow: 0 -16px 48px rgba(0, 0, 0, 0.5); --dialog-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  --menu-shadow: 0 10px 28px rgba(0, 0, 0, 0.5); --page-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+  --bubble: #1E1C18; --input: #1E1C18;
+    --doubt-bg: #3A3220; --doubt-line: #7A6328; --doubt-text: #E8C877; --ok-bg: #22362B; --ok-text: #9FD0B0; --done-dot: #7A9A6B; --hl: rgba(230, 200, 90, 0.55);
+  --wash: rgba(237, 231, 216, 0.07); --wash-2: rgba(237, 231, 216, 0.13);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -10px rgba(0, 0, 0, 0.6);
+  --dk: #141311; --dk-2: #1E1C18; --dk-3: #33302A;
+  color-scheme: dark;
 }
 
 .fo *, .fo *::before, .fo *::after { box-sizing: border-box; }
@@ -230,7 +147,7 @@
 .fo input, .fo textarea, .fo .note-text, .fo .note-quote, .fo .info-brief, .fo .info-log { user-select: text; -webkit-user-select: text; }
 .fo :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .fo .dock :focus-visible { outline-color: var(--dk-ink); }
-.fo .num { font-family: var(--font-num); font-variation-settings: 'wdth' 87.5; font-weight: var(--num-weight); letter-spacing: var(--num-track); font-variant-numeric: tabular-nums; }
+.fo .num { font-family: var(--font-num);  font-weight: var(--num-weight); letter-spacing: var(--num-track); font-variant-numeric: tabular-nums; }
 .fo .title { font-family: var(--font-title); font-weight: var(--title-weight); letter-spacing: var(--title-track); }
 .fo .muted { color: var(--ink-3); }
 .fo .grow { flex: 1 1 auto; }
@@ -251,7 +168,7 @@
   background: var(--raised);
 }
 .fo .hdr-body { flex: 1; min-width: 0; }
-.fo .wordmark { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-family: var(--font-title); font-weight: 700; font-size: calc(16px * var(--title-scale)); letter-spacing: -0.01em; font-variation-settings: 'wdth' 112; color: var(--ink); padding: 8px 6px; margin-left: -6px; border-radius: 8px; }
+.fo .wordmark { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-family: var(--font-title); font-weight: 700; font-size: calc(16px * var(--title-scale)); letter-spacing: -0.01em;  color: var(--ink); padding: 8px 6px; margin-left: -6px; border-radius: 8px; }
 /* The way back on a pushed screen (scan, a score opened from a cover) when there is no browser chrome. */
 .fo .back { display: inline-grid; place-items: center; width: 44px; height: 44px; margin: 0 -8px 0 -10px; border-radius: 8px; color: var(--ink-2); }
 .fo .back + .wordmark { margin-left: 0; }
@@ -357,7 +274,7 @@
 .fo .ruler svg { display: block; overflow: visible; }
 .fo .r-base { stroke: var(--r-ink-3); stroke-width: 1; }
 .fo .r-tick { stroke: var(--r-ink-3); stroke-width: 1; }
-.fo .r-scale { fill: var(--r-ink-3); font-family: var(--font-num); font-size: 10.5px; font-variation-settings: 'wdth' 87.5; }
+.fo .r-scale { fill: var(--r-ink-3); font-family: var(--font-num); font-size: 10.5px;  }
 .fo .r-heat { fill: var(--r-heat); }
 .fo .r-hatch { stroke: var(--r-ink-3); stroke-width: 1.2; }
 .fo .r-cut-edge { stroke: var(--r-ink-3); stroke-width: 1; }
@@ -368,7 +285,7 @@
 .fo .r-span-line { fill: none; stroke: var(--r-ink); stroke-width: 2.5; stroke-linejoin: round; }
 .fo .r-span.is-view .r-span-line { stroke-width: 1.5; stroke: var(--r-ink-2); }
 .fo .r-knob { fill: var(--r-ink); }
-.fo .r-span-label { fill: var(--r-ink); font-family: var(--font-num); font-size: 11.5px; font-weight: 500; font-variation-settings: 'wdth' 87.5; }
+.fo .r-span-label { fill: var(--r-ink); font-family: var(--font-num); font-size: 11.5px; font-weight: 500;  }
 .fo .r-span-count { fill: var(--r-ink-2); font-weight: 400; }
 .fo .ruler.is-dragging .r-span-label { font-weight: 700; }
 .fo .r-play line { stroke: var(--r-ink); stroke-width: 2; }
@@ -487,7 +404,7 @@
 .fo .voice { display: flex; align-items: center; gap: 10px; }
 .fo .voice-track { flex: 1; height: 4px; border-radius: 2px; background: var(--wash-2); overflow: hidden; }
 .fo .voice-track span { display: block; height: 100%; background: var(--ink); }
-.fo .voice-time { font-family: var(--font-num); font-size: 12px; color: var(--ink-3); font-variation-settings: 'wdth' 87.5; }
+.fo .voice-time { font-family: var(--font-num); font-size: 12px; color: var(--ink-3);  }
 
 /* ---------------------------------------------------------------- side panel */
 
@@ -511,7 +428,7 @@
 .fo .c-line { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
 .fo .c-dot { fill: var(--raised); stroke: var(--ink); stroke-width: 2; }
 .fo .c-dot.is-last { fill: var(--ink); }
-.fo .c-val, .fo .c-label { font-family: var(--font-num); font-size: 11px; fill: var(--ink); font-variation-settings: 'wdth' 87.5; }
+.fo .c-val, .fo .c-label { font-family: var(--font-num); font-size: 11px; fill: var(--ink);  }
 .fo .c-label { fill: var(--ink-3); }
 .fo .c-day { font-size: 11.5px; fill: var(--ink-3); }
 
@@ -553,7 +470,7 @@
 .fo .pd-pos { display: flex; flex-direction: column; justify-content: center; gap: 6px; min-width: 0; flex: 1 1 auto; padding-left: 6px; }
 .fo .pd-k { font-size: 13px; font-weight: 600; color: var(--dk-ink-3); }
 .fo .pd-bar-line { display: flex; align-items: baseline; gap: 14px; min-width: 0; }
-.fo .pd-bar { font-family: var(--font-num); font-size: 56px; font-weight: 400; font-variant-numeric: tabular-nums; line-height: 0.95; letter-spacing: -0.04em; font-variation-settings: 'wdth' 75; }
+.fo .pd-bar { font-family: var(--font-num); font-size: 56px; font-weight: 400; font-variant-numeric: tabular-nums; line-height: 0.95; letter-spacing: -0.04em;  }
 .fo .pd-sub { display: flex; align-items: center; gap: 16px; }
 .fo .pd-loop { font-size: 13px; color: var(--dk-ink-2); }
 
@@ -579,7 +496,7 @@
 }
 .fo .pd-tempo-read { display: flex; flex-direction: column; align-items: center; min-width: 172px; }
 .fo .pd-tempo-line { display: flex; align-items: baseline; gap: 6px; }
-.fo .pd-tempo-num { font-family: var(--font-num); font-size: 116px; font-weight: 300; font-variant-numeric: tabular-nums; line-height: 0.88; letter-spacing: -0.05em; font-variation-settings: 'wdth' 75; }
+.fo .pd-tempo-num { font-family: var(--font-num); font-size: 116px; font-weight: 300; font-variant-numeric: tabular-nums; line-height: 0.88; letter-spacing: -0.05em;  }
 .fo .pd-tempo-unit { font-size: 14px; color: var(--dk-ink-3); font-weight: 600; }
 .fo .pd-tempo-of { margin-top: 6px; font-size: 15px; color: var(--dk-ink-2); }
 .fo .pd-tempo-of b { color: var(--dk-ink); font-weight: 650; }
@@ -937,11 +854,10 @@
 .fo .m-quote { font-family: var(--font-title); }
 .fo .m-pending { color: var(--ink-3); }
 .fo .m-note .voice { padding: 0 8px; }
-.fo[data-tokens='bound'] .m-quote, .fo[data-tokens='bound'] .note-quote { font-style: italic; font-size: 15.5px; }
+.fo .m-quote, .fo .note-quote { font-style: italic; font-size: 15.5px; }
 .fo .m-body:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
 
 /* Schibsted's tabular setting widens punctuation too, so Bound keeps tabular figures for measurements (.num) only. */
-.fo[data-tokens='bound'] { font-feature-settings: normal; font-variant-numeric: normal; }
 
 /* ---------------------------------------------------------------- sign-in */
 .fo .signin { height: 100%; overflow-y: auto; display: grid; place-items: center; padding: calc(24px + env(safe-area-inset-top)) 16px calc(24px + var(--kb, 0px)); background: var(--ground); }

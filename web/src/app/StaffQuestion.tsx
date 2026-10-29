@@ -1,161 +1,211 @@
-/** The librarian's confirmation screen (011): one sheet for every parked question, answered through
- *  `POST /jobs/{id}/answer`. Kind `choose_staves` (a split, 008): the librarian could not decide which staves of one
- *  system are the part's; the admin sees the numbered overlay of that system, taps the staves (a run of adjacent ones),
- *  or says the part is not printed there. The answer resumes the job without a recheck. The reader's page question
- *  (`process_pages`, 004): which parts are on page N, top to bottom; the admin picks one of the readings offered or
- *  types the names, and the reading resumes from that page. */
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+/** The reader's questions (011), as R3 dialogs over the dimmed shelf or stand. Only whoever may edit the book sees
+ *  them; "Later" closes and leaves the yellow dot. Each answer goes through `POST /jobs/{id}/answer` and resumes the job.
+ *
+ *  - Which parts are on page N (004, `process_pages`; docs/design/r3/F_Parts): three choices: the parts of the earlier
+ *    pages, what the reader found on this page, or something else (one name per staff, top to bottom). The page beside
+ *    them carries the labels of the current choice on its systems' staves.
+ *  - Choose the staves (008, `part_cut` `choose_staves`; F_Staves): the page with the system in question lit and the
+ *    others dimmed; tap the staves that are the part (tap again to let go), or say it is not on this page. */
+import { useEffect, useMemo, useState } from 'react'
+import type { Score } from '../mock'
 import { answerJob, apiFailure } from '../lib/api'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './auth'
 import type { AskJob, ChooseStaves, StaffBox } from './data'
-import { Sheet } from './Sheet'
-import { SheetHead } from './Parts'
+import { Dialog } from './Surfaces'
+import { MY_LIBRARY } from './data'
 import { useStore } from './store'
-import { ICheck } from './icons'
-
-type Range = [number, number] | null
-
-/** A tap keeps the selection one run of adjacent staves: extend at an end, shrink from an end, or start over. */
-function tapStaff(sel: Range, k: number): Range {
-  if (!sel) return [k, k]
-  const [a, b] = sel
-  if (k === a - 1) return [k, b]
-  if (k === b + 1) return [a, k]
-  if (a === b && k === a) return null
-  if (k === a) return [a + 1, b]
-  if (k === b) return [a, b - 1]
-  return [k, k]
-}
-
-const stavesWord = (r: Range) => (!r ? '' : r[0] === r[1] ? `staff ${r[0]}` : `staves ${r[0]}–${r[1]}`)
-const rangeOf = (xs: unknown): Range => (Array.isArray(xs) && xs.length ? [Math.min(...xs), Math.max(...xs)] : null)
 
 const isStaves = (q: unknown): q is ChooseStaves => !!q && typeof q === 'object' && (q as ChooseStaves).kind === 'choose_staves'
 
-/** The reader's question on a page (`process_pages`): the parts it read, the parts it knows so far, the answer's shape. */
-interface PageParts { page?: number; spark_parts?: string[]; known_parts?: string[]; options?: string[][]; answer_format?: string }
+/** The reader's question on a page (`process_pages`): the parts it read, the parts it knows so far. */
+interface PageParts { page?: number; spark_parts?: string[]; known_parts?: string[]; system_staves?: number[]; interpretation_id?: string; header_parts?: string[] }
+type Box = { x0: number; y0: number; x1: number; y1: number }
+interface GeoSystem { index: number; box: Box; staves: number }
+
+const IChev = () => <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5l7 7-7 7" /></svg>
+const ICheck = () => <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5 9-10" /></svg>
+const ORDINAL = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth']
+const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`
+const KEYBOARD = /piano|organ|harp|cembalo|harpsichord|celest|keyboard/i
 
 export function StaffQuestion({ job, open, onClose }: { job: AskJob | null; open: boolean; onClose: () => void }) {
+  const { world } = useStore()
   const q = job?.questionPayload ?? null
   const staves = isStaves(q) ? q : null
-  const page = !staves && q ? (q as PageParts) : null
-  const title = staves ? `Page ${staves.page}, system ${staves.system}` : page?.page ? `Page ${page.page}` : 'The librarian has a question'
-  const sub = staves ? `Which staves are ${staves.instrument ?? 'the part'}'s?` : 'Which parts are on this page, top to bottom?'
+  const score = world.scores.find(s => s.id === job?.scoreId) ?? null
+  const label = staves ? `Which staves are the ${staves.instrument} on page ${staves.page}?` : `Which parts are on page ${(q as PageParts | null)?.page ?? ''}?`
   return (
-    <Sheet open={open && !!job && !!q} onClose={onClose} label="The librarian's question" portal>
-      <SheetHead title={title} sub={sub} onClose={onClose} />
-      {job && staves && <QuestionBody job={job} q={staves} onClose={onClose} />}
-      {job && page && <PageQuestionBody job={job} q={page} onClose={onClose} />}
-    </Sheet>
+    <Dialog open={open && !!job && !!q} onClose={onClose} label={label} className="ask">
+      {job && staves && <StavesBody key={job.id} job={job} q={staves} score={score} onClose={onClose} />}
+      {job && q && !staves && <PartsBody key={job.id} job={job} q={q as PageParts} score={score} onClose={onClose} />}
+    </Dialog>
   )
 }
 
-/** Which parts are on page N: one of the readings the librarian offers, or the names typed top to bottom. */
-function PageQuestionBody({ job, q, onClose }: { job: AskJob; q: PageParts; onClose: () => void }) {
-  const { session } = useAuth()
-  const { world } = useStore()
-  const options = useMemo(() => {
-    const seen = new Set<string>()
-    return [...(q.options ?? []), q.spark_parts ?? [], q.known_parts ?? []]
-      .filter(o => Array.isArray(o) && o.length)
-      .filter(o => { const k = o.join('|'); if (seen.has(k)) return false; seen.add(k); return true })
-  }, [q])
-  const [typed, setTyped] = useState(() => (options[0] ?? []).join(', '))
+function useSigned(path: string | null | undefined): string | null {
   const [url, setUrl] = useState<string | null>(null)
+  useEffect(() => {
+    if (!path) return
+    let live = true
+    supabase.storage.from('scores').createSignedUrl(path, 900).then(({ data }) => { if (live) setUrl(data?.signedUrl ?? null) })
+    return () => { live = false }
+  }, [path])
+  return path ? url : null
+}
+
+/** A page image's path in reading order: the rendered PDF page, or the photograph in its committed order. */
+function pagePath(s: Score | null, page: number | undefined): string | null {
+  if (!s || !page) return null
+  const src = s.pageSource
+  if (src?.kind === 'images') {
+    const i = src.order ? src.order[page - 1] : page
+    return src.paths[(i ?? page) - 1] ?? null
+  }
+  return `${s.id}/pages/${page}.png`
+}
+
+/** The book's page count: the reading's, else the pages it was made from. */
+const pagesOf = (s: Score | null) => s?.pages || s?.pageSource?.order?.length || (s?.pageSource?.kind === 'images' ? s.pageSource.paths.length : 0)
+
+function AskHead({ where, onLater }: { where: string; onLater: () => void }) {
+  return (
+    <div className="ask-head">
+      <span className="ask-where"><span className="card-dot is-ask is-inline" aria-hidden="true" />Needs you · {where}</span>
+      <button type="button" className="r3-btn is-quiet" onClick={onLater}>Later</button>
+    </div>
+  )
+}
+
+/** One name per staff from a list of part names: a list one short of the staves gives a keyboard its two staves. */
+function perStaff(names: string[], staves: number): { labels: string[]; matches: boolean } {
+  if (names.length === staves) return { labels: names, matches: true }
+  const k = names.findIndex(n => KEYBOARD.test(n))
+  if (names.length === staves - 1 && k >= 0) return { labels: [...names.slice(0, k + 1), names[k], ...names.slice(k + 1)], matches: true }
+  // Two pianos over four staves: each name takes an equal run, a keyboard's two staves each.
+  if (names.length && staves % names.length === 0) {
+    const per = staves / names.length
+    return { labels: names.flatMap(n => Array<string>(per).fill(n)), matches: per === 2 && names.every(n => KEYBOARD.test(n)) }
+  }
+  const labels = Array.from({ length: staves }, (_, i) => names[i] ?? (names.length ? names[names.length - 1] : '?'))
+  return { labels, matches: false }
+}
+
+function PartsBody({ job, q, score, onClose }: { job: AskJob; q: PageParts; score: Score | null; onClose: () => void }) {
+  const { session } = useAuth()
+  const { world, canEditBook } = useStore()
+  const known = q.known_parts ?? []
+  const found = q.spark_parts ?? []
+  const stavesPer = q.system_staves?.length ? Math.max(...q.system_staves) : Math.max(known.length, found.length)
+  const [pick, setPick] = useState<'known' | 'found' | 'other'>(known.length ? 'known' : found.length ? 'found' : 'other')
+  const [typed, setTyped] = useState('')
+  const [systems, setSystems] = useState<GeoSystem[] | null>(null)
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
-  const names = typed.split(/[,;\n]/).map(x => x.trim()).filter(Boolean)
+  const url = useSigned(pagePath(score, q.page))
 
-  // The page as the librarian saw it, when its rendered page is in the bucket.
+  // The page's systems as the reader found them (fractions of the page), so the labels sit on the real staves.
   useEffect(() => {
-    if (!q.page) return
+    if (!q.interpretation_id || !q.page) return
     let live = true
-    supabase.storage.from('scores').createSignedUrl(`${job.scoreId}/pages/${q.page}.png`, 900).then(({ data }) => { if (live) setUrl(data?.signedUrl ?? null) })
+    supabase.from('interpretations').select('pages:params->state->pages').eq('id', q.interpretation_id).maybeSingle().then(({ data }) => {
+      const geo = (data?.pages as Record<string, { geometry?: { systems?: GeoSystem[] } }> | null)?.[String(q.page)]?.geometry
+      if (live) setSystems(geo?.systems ?? null)
+    })
     return () => { live = false }
-  }, [job.scoreId, q.page])
+  }, [q.interpretation_id, q.page])
 
-  const send = async (e?: FormEvent) => {
-    e?.preventDefault()
+  const names = pick === 'known' ? known : pick === 'found' ? found : typed.split(/[,;\n]/).map(x => x.trim()).filter(Boolean)
+  const knownFit = perStaff(known, stavesPer)
+  const foundFit = perStaff(found, stavesPer)
+  const fit = perStaff(names, stavesPer)
+  const canAnswer = !!score && canEditBook(score)
+
+  const send = async () => {
     if (!session || !names.length) return
     setBusy(true); setMsg(null)
     try {
       await answerJob(job.id, { answer: names.join(', ') }, session.access_token)
       world.reload()
       onClose()
-    } catch (err) {
-      setMsg(apiFailure(err, 'Answering the librarian'))
+    } catch (e) {
+      setMsg(apiFailure(e, 'Answering the reader'))
     } finally {
       setBusy(false)
     }
   }
 
+  const n = q.system_staves?.length ?? 0
+  const layout = n ? `the page has ${n === 1 ? 'one system' : `${n} systems`} of ${stavesPer} staves` : ''
+  const story = known.length && found.length && known.length !== found.length ? `Earlier pages had ${plural(known.length, 'part')}; the reader named ${found.length} here.` : !known.length ? 'This is the first page the reader could not name for itself.' : 'The reader was unsure of the names here.'
+  const where = [`page ${q.page}${pagesOf(score) ? ` of ${pagesOf(score)}` : ''}`, score?.answered ? `${score.answered} answered` : null].filter(Boolean).join(' · ')
+  const mine = !score || score.ensembleId === MY_LIBRARY
+
   return (
     <>
-      <form className="sheet-body" onSubmit={send}>
-        {job.question && <p className="sq-ctx">{job.question}</p>}
-        {url && (
-          <div className="sq-page">
-            <img src={url} alt={`Page ${q.page}`} draggable={false} decoding="async" onError={() => setUrl(null)} />
+      <AskHead where={where} onLater={onClose} />
+      <div className="ask-title">
+        <h2>Which parts are on page {q.page}?</h2>
+        <span>{[score?.title, layout].filter(Boolean).join(' · ')}. {story}</span>
+      </div>
+      <div className="ask-body is-parts">
+        <div className="ask-thumb" aria-label={`Page ${q.page}, with the chosen parts labelled`}>
+          <div className="ask-thumb-page">
+          {url ? <img src={url} alt="" draggable={false} decoding="async" onError={e => { e.currentTarget.style.visibility = 'hidden' }} /> : <span className="ask-thumb-wait">Page {q.page}</span>}
+          {systems?.map(sys => {
+            const lab = perStaff(names, sys.staves).labels
+            const h = (sys.box.y1 - sys.box.y0) / sys.staves
+            return lab.map((l, i) => (
+              <span key={`${sys.index}-${i}`} className={`ask-staff-label ${fit.matches ? '' : 'is-doubt'}`} style={{ top: `${(sys.box.y0 + h * (i + 0.5)) * 100}%`, right: `${(1 - sys.box.x0) * 100}%` }}>{l}</span>
+            ))
+          })}
+          <span className="ask-thumb-cap">page {q.page}</span>
           </div>
-        )}
-        {options.length > 0 && (
-          <div className="sq-rows" role="radiogroup" aria-label="What the librarian read">
-            {options.map(o => {
-              const v = o.join(', ')
-              return (
-                <button key={v} type="button" role="radio" aria-checked={typed === v} className="sq-row" onClick={() => setTyped(v)}>
-                  <span className="pick-mark"><ICheck size={15} strokeWidth={2.5} /></span>
-                  <span>{v}</span>
-                </button>
-              )
-            })}
+        </div>
+        <div className="ask-choices" role="radiogroup" aria-label="Parts on this page">
+          {known.length > 0 && (
+            <button type="button" role="radio" aria-checked={pick === 'known'} className="ask-choice" onClick={() => setPick('known')}>
+              <span className="ask-choice-h"><b>Same as earlier pages</b><span className={`ask-chip ${knownFit.matches ? 'is-ok' : 'is-doubt'}`}>{knownFit.matches ? `${stavesPer} staves · matches` : `${plural(known.length, 'name')} · ${stavesPer} staves`}</span></span>
+              <span className="ask-choice-names">{known.join(' · ')}</span>
+            </button>
+          )}
+          {found.length > 0 && found.join('|') !== known.join('|') && (
+            <button type="button" role="radio" aria-checked={pick === 'found'} className="ask-choice" onClick={() => setPick('found')}>
+              <span className="ask-choice-h"><b>What the reader found on this page</b><span className={`ask-chip ${foundFit.matches ? 'is-ok' : 'is-doubt'}`}>{foundFit.matches ? `${stavesPer} staves · matches` : `${plural(found.length, 'name')} · ${stavesPer} staves`}</span></span>
+              <span className="ask-choice-names is-muted">{found.join(' · ')}</span>
+            </button>
+          )}
+          <div role="radio" aria-checked={pick === 'other'} tabIndex={-1} className="ask-choice is-other" onClick={() => setPick('other')}>
+            <span className="ask-choice-h"><b>Something else</b>{pick !== 'other' && <span className="ask-choice-hint">name each staff, top to bottom</span>}</span>
+            {pick === 'other' && (
+              <input className="dt-input is-serif" autoFocus value={typed} onChange={e => setTyped(e.target.value)} placeholder="Violin, Viola, Cello, Piano" aria-label="Parts on this page, top to bottom" autoCapitalize="words" autoComplete="off" />
+            )}
           </div>
-        )}
-        <label className="field">
-          <span>Parts on this page, top to bottom</span>
-          <input value={typed} onChange={e => setTyped(e.target.value)} placeholder={q.answer_format ? 'e.g. Piano I, Piano II' : 'Part names, separated by commas'} autoCapitalize="words" autoComplete="off" />
-        </label>
-      </form>
-      <div className="sheet-foot">
-        {msg && <p className="sheet-msg" role="alert">{msg}</p>}
-        <button type="button" className="btn btn-line" onClick={onClose}>Later</button>
-        <button type="button" className="btn btn-solid" disabled={!names.length || busy} onClick={() => send()}>
-          <ICheck size={18} />{busy ? 'Sending' : 'These are the parts'}
+          <span className="ask-note">The labels on the page follow your choice. Reading continues from page {q.page} once you confirm.</span>
+          {msg && <p className="r3-msg" role="alert">{msg}</p>}
+        </div>
+      </div>
+      <div className="ask-foot">
+        <span className="ask-who">{mine ? 'Only you see this. The book is yours.' : 'Only the admins see this.'}</span>
+        <button type="button" className="r3-btn is-solid is-big" disabled={!names.length || busy || !canAnswer} onClick={() => void send()}>
+          {busy ? 'Sending' : 'Confirm and keep reading'} <IChev />
         </button>
       </div>
     </>
   )
 }
 
-function QuestionBody({ job, q, onClose }: { job: AskJob; q: ChooseStaves; onClose: () => void }) {
+function StavesBody({ job, q, score, onClose }: { job: AskJob; q: ChooseStaves; score: Score | null; onClose: () => void }) {
   const { session } = useAuth()
   const { world } = useStore()
   const boxes: StaffBox[] = useMemo(() => [...(q.staff_boxes ?? [])].sort((x, y) => x.index - y.index), [q])
-  const proposed = useMemo(() => rangeOf(q.proposal) ?? rangeOf(q.last_attempt), [q])
-  const [sel, setSel] = useState<Range>(proposed)
-  const [url, setUrl] = useState<string | null>(null)
+  const proposed = useMemo(() => (Array.isArray(q.proposal) ? q.proposal : Array.isArray(q.last_attempt) ? q.last_attempt : []).map(Number), [q])
+  const [sel, setSel] = useState<Set<number>>(() => new Set(proposed))
   const [size, setSize] = useState<{ w: number; h: number } | null>(null)
   const [busy, setBusy] = useState<'staves' | 'absent' | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
+  const url = useSigned(q.image_key ?? pagePath(score, q.page))
   const instrument = q.instrument || 'the part'
-
-  // The overlay lives in the private `scores` bucket: a short signed URL, made when the sheet opens.
-  useEffect(() => {
-    if (!q.image_key) return
-    let live = true
-    supabase.storage.from('scores').createSignedUrl(q.image_key, 900).then(({ data }) => { if (live) setUrl(data?.signedUrl ?? null) })
-    return () => { live = false }
-  }, [q.image_key])
-
-  // Show only the system in question: from a little above its first staff to a little below its last.
-  const crop = useMemo(() => {
-    if (!boxes.length || !size) return null
-    const pitch = boxes.length > 1 ? (boxes[boxes.length - 1].y_top - boxes[0].y_top) / (boxes.length - 1) : 80
-    const top = Math.max(0, boxes[0].y_top - pitch * 0.7)
-    const bottom = Math.min(size.h, boxes[boxes.length - 1].y_bottom + pitch * 0.7)
-    return { top, h: bottom - top }
-  }, [boxes, size])
 
   const send = async (answer: number[] | 'absent') => {
     if (!session) return
@@ -165,62 +215,55 @@ function QuestionBody({ job, q, onClose }: { job: AskJob; q: ChooseStaves; onClo
       world.reload()
       onClose()
     } catch (e) {
-      setMsg(apiFailure(e, 'Answering the librarian'))
+      setMsg(apiFailure(e, 'Answering the reader'))
     } finally {
       setBusy(null)
     }
   }
-
-  const inSel = (k: number) => !!sel && k >= sel[0] && k <= sel[1]
-  const chosen = sel ? Array.from({ length: sel[1] - sel[0] + 1 }, (_, i) => sel[0] + i) : []
+  const toggle = (k: number) => setSel(s => { const n = new Set(s); if (n.has(k)) n.delete(k); else n.add(k); return n })
+  const band = boxes.length && size ? { top: boxes[0].y_top, bottom: boxes[boxes.length - 1].y_bottom } : null
+  const pitch = boxes.length > 1 ? (boxes[boxes.length - 1].y_top - boxes[0].y_top) / (boxes.length - 1) : 60
+  const chosen = [...sel].sort((a, b) => a - b)
 
   return (
     <>
-      <div className="sheet-body">
-        {q.feedback && <p className="sq-why">{q.feedback}</p>}
-        <p className="sq-ctx">
-          {proposed ? <>The librarian's guess, {stavesWord(proposed)}, is marked. </> : null}
-          Tap a staff to choose it; a part's staves are next to each other.
-        </p>
-
-        {/* Height from the width (padding-bottom), so the crop keeps its shape as a flex child in the scrolling body. */}
-        <div className={`sq-image ${url && size && crop ? 'is-ready' : 'is-loading'}`} style={crop && size ? { paddingBottom: `${(crop.h / size.w) * 100}%` } : undefined}>
-          {url ? (
-            <img src={url} alt="" draggable={false} decoding="async"
-              onLoad={e => setSize({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })}
-              style={crop ? { top: `${(-crop.top / crop.h) * 100}%` } : { position: 'static', visibility: 'hidden' }} />
-          ) : <span>{q.image_key ? 'Loading the page' : 'No picture of this page to choose from'}</span>}
-          {crop && size && boxes.map((b, i) => {
-            // Each box's hit area reaches halfway to its neighbours, so a finger lands on a staff, not between two.
-            const above = i > 0 ? (b.y_top + boxes[i - 1].y_bottom) / 2 : b.y_top - 12
-            const below = i < boxes.length - 1 ? (b.y_bottom + boxes[i + 1].y_top) / 2 : b.y_bottom + 12
+      <AskHead where={`splitting by instrument · page ${q.page}${pagesOf(score) ? ` of ${pagesOf(score)}` : ''}`} onLater={onClose} />
+      <div className="ask-title">
+        <h2>Which staff is the <i>{instrument}</i> in the {ORDINAL[q.system - 1] ?? `${q.system}th`} system?</h2>
+        <span>{q.feedback ? `${q.feedback} ` : 'The reader could not settle it. '}Tap the staff; your answer is final for this page.</span>
+      </div>
+      <div className="ask-body is-staves">
+        <div className="ask-page" aria-label={`Page ${q.page}`}>
+          <div className="ask-page-in" style={size ? { width: `min(100%, calc(56vh * ${(size.w / size.h).toFixed(4)}))` } : undefined}>
+          {url ? <img src={url} alt="" draggable={false} decoding="async" onLoad={e => setSize({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })} /> : <span className="ask-thumb-wait">Loading page {q.page}</span>}
+          {band && size && (
+            <>
+              <span className="ask-dim" style={{ top: 0, height: `${Math.max(0, (band.top - pitch * 0.6) / size.h) * 100}%` }} aria-hidden="true" />
+              <span className="ask-dim" style={{ top: `${Math.min(1, (band.bottom + pitch * 0.6) / size.h) * 100}%`, bottom: 0 }} aria-hidden="true" />
+            </>
+          )}
+          {size && boxes.map((b, i) => {
+            const above = i > 0 ? (b.y_top + boxes[i - 1].y_bottom) / 2 : b.y_top - 10
+            const below = i < boxes.length - 1 ? (b.y_bottom + boxes[i + 1].y_top) / 2 : b.y_bottom + 10
+            const on = sel.has(b.index)
             return (
-              <button key={b.index} type="button" role="checkbox" aria-checked={inSel(b.index)} aria-label={`Staff ${b.index}`} className="sq-box"
-                style={{ left: `${(b.x0 / size.w) * 100}%`, width: `${((b.x1 - b.x0) / size.w) * 100}%`, top: `${((above - crop.top) / crop.h) * 100}%`, height: `${((below - above) / crop.h) * 100}%` }}
-                onClick={() => setSel(s => tapStaff(s, b.index))} />
+              <button key={b.index} type="button" aria-pressed={on} aria-label={`Staff ${i + 1} of the system${on ? ', chosen' : ''}`} className="ask-staff"
+                style={{ left: `${(b.x0 / size.w) * 100}%`, width: `${((b.x1 - b.x0) / size.w) * 100}%`, top: `${(above / size.h) * 100}%`, height: `${((below - above) / size.h) * 100}%` }}
+                onClick={() => toggle(b.index)}>
+                <span className="ask-staff-tag">{on ? instrument : i + 1}</span>
+              </button>
             )
           })}
+          </div>
+          <span className="ask-thumb-cap">page {q.page} · system {q.system}</span>
         </div>
-
-        <div className="sq-rows" role="group" aria-label="Staves of this system">
-          {boxes.map(b => (
-            <button key={b.index} type="button" role="checkbox" aria-checked={inSel(b.index)} aria-label={`Staff ${b.index}`} className="sq-row" onClick={() => setSel(s => tapStaff(s, b.index))}>
-              <span className="pick-mark"><ICheck size={15} strokeWidth={2.5} /></span>
-              <span className="num">{b.index}</span>
-              <span>Staff {b.index}</span>
-              {proposed && b.index >= proposed[0] && b.index <= proposed[1] && <span className="sq-tag">librarian's guess</span>}
-            </button>
-          ))}
-        </div>
-        {sel && <p className="sq-pick">Chosen: {stavesWord(sel)}.</p>}
+        <span className="ask-note">Tap a staff to choose it, tap again to let go. A part can take more than one staff (the piano takes two).</span>
+        {msg && <p className="r3-msg" role="alert">{msg}</p>}
       </div>
-      <div className="sheet-foot">
-        {msg && <p className="sheet-msg" role="alert">{msg}</p>}
-        <button type="button" className="btn btn-line" disabled={!!busy} onClick={() => send('absent')}>
-          {busy === 'absent' ? 'Sending' : `${instrument} is not printed here`}
-        </button>
-        <button type="button" className="btn btn-solid" disabled={!sel || !!busy} onClick={() => send(chosen)}>
-          <ICheck size={18} />{busy === 'staves' ? 'Sending' : sel ? `${stavesWord(sel).replace(/^s/, 'S')} ${sel[0] === sel[1] ? 'is' : 'are'} ${instrument}` : 'Tap the staves'}
+      <div className="ask-foot">
+        <button type="button" className="r3-btn is-line is-big" disabled={!!busy} onClick={() => void send('absent')}>{busy === 'absent' ? 'Sending' : `The ${instrument} isn't on this page`}</button>
+        <button type="button" className="r3-btn is-solid is-big" disabled={!chosen.length || !!busy} onClick={() => void send(chosen)}>
+          {busy === 'staves' ? 'Sending' : chosen.length > 1 ? 'Use these staves' : 'Use this staff'} <ICheck />
         </button>
       </div>
     </>

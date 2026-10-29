@@ -10,11 +10,11 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, token: string, body?: unknown): Promise<T> {
+async function request<T>(path: string, token: string, body?: unknown, method?: 'PATCH'): Promise<T> {
   let res: Response
   try {
     res = await fetch(`${apiBase}${path}`, {
-      method: body === undefined ? 'GET' : 'POST',
+      method: method ?? (body === undefined ? 'GET' : 'POST'),
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: body === undefined ? undefined : JSON.stringify(body),
     })
@@ -66,6 +66,15 @@ export const answerJob = (jobId: string, answer: ChooseStavesAnswer | FreeAnswer
  *  its row; when it is done a `musicxml` source with `meta.transcribed_from` and the `parts` rows appear. */
 export const convertToDigital = (scoreId: string, token: string) =>
   request<JobRow>(`/scores/${scoreId}/convert`, token, {})
+
+/** Details (F_Details): `PATCH /scores/{id}`; only the fields sent change. Key and meter are canonicalised and confirm
+ *  the signature; `first_bar` + `first_bar_page` renumber a PDF book's bars (409 for a book with a Digital copy). */
+export interface DetailsBody {
+  title?: string; composer?: string; key_sig?: string | null; meter?: string | null; tempo_bpm?: number | null; tempo_text?: string
+  cover_clef?: 'treble' | 'bass' | 'alto' | 'grand' | null; first_bar?: number; first_bar_page?: number
+}
+export const saveDetails = (scoreId: string, body: DetailsBody, token: string) =>
+  request<{ score: Record<string, unknown>; shifted_by: number }>(`/scores/${scoreId}`, token, body, 'PATCH')
 
 /** The words for a failed call, in the product's voice. A 404 means the route is not on this server yet. */
 export function apiFailure(e: unknown, what: string): string {

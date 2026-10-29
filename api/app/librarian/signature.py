@@ -11,6 +11,9 @@ Canonical storage (`scores.key_sig`, `scores.meter`; the web parses these, and `
   "C major". Null when Spark is unsure (low confidence, mode unsure, or a key name that contradicts its own count).
 - meter `"<num>/<den>"`: "3/4", "6/8"; common time "4/4", cut time "2/2". Null when no time signature is printed at the
   start of the system or Spark is unsure.
+- The best guess is kept beside them (`scores.key_sig_guess`, `scores.meter_guess`, `scores.signature_confidence`
+  `{key, time}`: high, medium or low), so the book can say "Best guess: G minor" and the owner confirms it in Details.
+  The guess never fills `key_sig` or `meter`; only a confident read or the owner does.
 """
 from __future__ import annotations
 
@@ -113,8 +116,23 @@ def canonical_meter(text: str | None = None, *, numerator: Any = None, denominat
     return f"{num}/{den}"
 
 
+def key_guess(k: dict[str, Any]) -> str | None:
+    """Spark's best guess at the key whatever its confidence: the count in its mode; with the mode unsure, the mode of
+    the key it named when that key has the counted signature, else major."""
+    mode = str(k.get("mode") or "").strip().lower()
+    if mode in ("major", "minor"):
+        return key_from_signature(k.get("accidental"), k.get("count"), mode)
+    named = canonical_key(k.get("name"))
+    if named:
+        m = named.split(" ")[1]
+        if key_from_signature(k.get("accidental"), k.get("count"), m) == named:
+            return named
+    return key_from_signature(k.get("accidental"), k.get("count"), "major")
+
+
 def interpret(data: dict[str, Any]) -> dict[str, Any]:
-    """Spark's answer -> {key_sig, meter, why}. Null where Spark is unsure; never a guess."""
+    """Spark's answer -> {key_sig, meter, key_sig_guess, meter_guess, confidence, why}. key_sig and meter are null
+    where Spark is unsure, never a guess; the guesses and the confidence say what it would have said."""
     why: list[str] = []
     k = data.get("key") if isinstance(data.get("key"), dict) else {}
     t = data.get("time") if isinstance(data.get("time"), dict) else {}
@@ -137,7 +155,11 @@ def interpret(data: dict[str, Any]) -> dict[str, Any]:
         meter = canonical_meter(numerator=t.get("numerator"), denominator=t.get("denominator"), symbol=t.get("symbol") or "digits")
         if meter is None:
             why.append(f"time: {t.get('symbol')} {t.get('numerator')}/{t.get('denominator')} not read as a meter")
-    return {"key_sig": key_sig, "meter": meter, "why": why}
+    key_conf = str(k.get("confidence") or "low").lower() if key_sig else "low"
+    time_conf = str(t.get("confidence") or "low").lower() if meter else "low"
+    meter_guess = meter or (canonical_meter(numerator=t.get("numerator"), denominator=t.get("denominator"), symbol=t.get("symbol") or "digits") if t else None)
+    return {"key_sig": key_sig, "meter": meter, "key_sig_guess": key_sig or (key_guess(k) if k else None), "meter_guess": meter_guess,
+            "confidence": {"key": key_conf, "time": time_conf}, "why": why}
 
 
 # ---------------------------------------------------------------- the crop and the call
@@ -155,9 +177,10 @@ def first_system_crop(png: bytes) -> tuple[bytes, dict[str, Any]] | None:
 
 
 async def read_signature(ctx: JobContext, png: bytes, client: AsyncAnthropic, model: str, *, title: str = "") -> dict[str, Any]:
-    """One Spark call on page 1's first system. Returns {key_sig, meter, read, crop, cost_usd, why[, error]}; a page
+    """One Spark call on page 1's first system. Returns {key_sig, meter, key_sig_guess, meter_guess, confidence, read, crop, cost_usd, why[, error]}; a page
     with no system or a call that never gives JSON returns nulls with the reason, never raises."""
-    out: dict[str, Any] = {"key_sig": None, "meter": None, "read": None, "crop": None, "cost_usd": 0.0, "why": []}
+    out: dict[str, Any] = {"key_sig": None, "meter": None, "key_sig_guess": None, "meter_guess": None, "confidence": {"key": "low", "time": "low"},
+                           "read": None, "crop": None, "cost_usd": 0.0, "why": []}
     try:
         cut = first_system_crop(png)
     except Exception as e:  # noqa: BLE001  (the geometry failing on page 1 must not fail the book)

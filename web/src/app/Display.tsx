@@ -1,25 +1,26 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence } from 'motion/react'
-import { useStore, type Theme, type TokenSet } from './store'
-import { IDisplay } from './icons'
+import { useStore, type DarkPage, type Theme } from './store'
 import { useAuth } from './auth'
 import { Pop, Scrim } from './Sheet'
 
-const sets: { id: TokenSet; label: string }[] = [
-  { id: 'instrument', label: 'Instrument' },
-  { id: 'bound', label: 'Bound' },
-]
 const themes: { id: Theme; label: string }[] = [
   { id: 'system', label: 'Auto' },
   { id: 'light', label: 'Light' },
   { id: 'dark', label: 'Dark' },
 ]
+const pages: { id: DarkPage; label: string; sub: string }[] = [
+  { id: 'dim', label: 'Dimmed paper', sub: 'The page stays paper, turned down for the room' },
+  { id: 'invert', label: 'Inverted', sub: 'Light notes on a dark page' },
+]
 
-/** Display settings: token set and theme. A small popover growing out of its button; a clear scrim swallows the tap that closes it, Escape closes too. */
-export function DisplayButton() {
-  const { display, setDisplay } = useStore()
+/** The account circle (R3): the account's initial; opens appearance (theme, and how a page reads on the stand in the
+ *  dark) and the account itself. A popover growing out of the circle; a clear scrim takes the closing tap; Escape too. */
+export function AccountButton({ className = '' }: { className?: string }) {
+  const { display, setDisplay, world } = useStore()
   const { session, signOut } = useAuth()
   const [open, setOpen] = useState(false)
+  const name = world.account.name || session?.user.email || '?'
 
   useEffect(() => {
     if (!open) return
@@ -29,34 +30,36 @@ export function DisplayButton() {
   }, [open])
 
   return (
-    <div className="disp-wrap">
-      <button type="button" className="btn-icon" aria-label="Display settings" aria-expanded={open} aria-pressed={open} onClick={() => setOpen(v => !v)}>
-        <IDisplay size={22} />
+    <div className={`acct ${className}`}>
+      <button type="button" className="acct-circle" aria-label="Account and appearance" aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(v => !v)}>
+        {name.trim()[0]?.toUpperCase()}
       </button>
       <AnimatePresence>{open && <Scrim key="scrim" clear fixed onClose={() => setOpen(false)} />}</AnimatePresence>
-      <Pop open={open} origin="top right" className="disp" role="dialog" aria-label="Display settings">
-        <h2>Display</h2>
-        <div className="disp-row">
-          <span>Type and colour</span>
-          <div className="seg" role="radiogroup" aria-label="Type and colour">
-            {sets.map(s => (
-              <button key={s.id} type="button" role="radio" aria-checked={display.tokens === s.id} onClick={() => setDisplay(d => ({ ...d, tokens: s.id }))}>{s.label}</button>
-            ))}
-          </div>
-        </div>
-        <div className="disp-row">
-          <span>Theme</span>
-          <div className="seg" role="radiogroup" aria-label="Theme">
+      <Pop open={open} origin="top right" className="r3-pop acct-pop" role="dialog" aria-label="Account and appearance">
+        <p className="acct-who">
+          <span className="acct-name">{name}</span>
+          {session?.user.email && session.user.email !== name && <span className="acct-mail">{session.user.email}</span>}
+        </p>
+        <div className="acct-sec">
+          <span className="r3-label" id="acct-theme">Appearance</span>
+          <div className="r3-seg is-fill" role="radiogroup" aria-labelledby="acct-theme">
             {themes.map(t => (
               <button key={t.id} type="button" role="radio" aria-checked={display.theme === t.id} onClick={() => setDisplay(d => ({ ...d, theme: t.id }))}>{t.label}</button>
             ))}
           </div>
         </div>
-        <p className="disp-note">Auto follows the iPad's own light and dark switching. Settings change type, colour and line only; nothing moves.</p>
-        <div className="disp-row disp-account">
-          <span>{session?.user.email}</span>
-          <button type="button" className="btn btn-line is-small" onClick={() => signOut()}>Sign out</button>
+        <div className="acct-sec">
+          <span className="r3-label" id="acct-page">Pages on the stand in the dark</span>
+          <div className="acct-pages" role="radiogroup" aria-labelledby="acct-page">
+            {pages.map(p => (
+              <button key={p.id} type="button" role="radio" aria-checked={display.page === p.id} className="acct-page" onClick={() => setDisplay(d => ({ ...d, page: p.id }))}>
+                <span className={`acct-swatch is-${p.id}`} aria-hidden="true"><span /><span /><span /></span>
+                <span className="acct-page-text"><b>{p.label}</b><span>{p.sub}</span></span>
+              </button>
+            ))}
+          </div>
         </div>
+        <button type="button" className="r3-btn is-quiet acct-out" onClick={() => signOut()}>Sign out</button>
       </Pop>
     </div>
   )
