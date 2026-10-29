@@ -25,7 +25,7 @@ export default defineConfig({
         background_color: '#e6e8eb',
         display: 'standalone',
         orientation: 'any',
-        // PNGs in public/: the wordmark's bracket glyph on graphite. The maskable one keeps the glyph inside the safe zone.
+        // PNGs in public/: the forte f, ink on paper (icon.svg is the master). The maskable one keeps the f inside the safe zone.
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
