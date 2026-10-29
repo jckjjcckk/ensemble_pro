@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Folio · Stand · an unreadable page</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Noto+Music&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1194px; height: 834px; box-sizing: border-box; background: #EAE5DA; color: #1C1A16; font-family: Inter, system-ui, sans-serif; position: relative; overflow: hidden; display: flex; flex-direction: column">
+
+  <div style="height: 52px; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; padding: 0 12px 0 8px; background: #F3EFE6; border-bottom: 1px solid #D9D3C5">
+    <div style="display: flex; align-items: center; gap: 6px">
+      <button aria-label="Back to the shelf" style="height: 44px; padding: 0 12px 0 6px; border: 0; border-radius: 10px; background: transparent; color: #1C1A16; font: 500 14px Inter, sans-serif; display: flex; align-items: center; gap: 2px">
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>Shelf
+      </button>
+      <div style="display: flex; flex-direction: column; line-height: 1.1">
+        <span style="font-family: 'EB Garamond', serif; font-size: 17px; font-weight: 500">Ave verum corpus — Soprano</span>
+        <span style="font-size: 11px; color: #6B665C">Byrd · bars 17–32 · page 3 could not be read</span>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 2px; background: #E2DCCD; border-radius: 9px; padding: 2px">
+      <button aria-current="true" style="height: 34px; padding: 0 18px; border: 0; border-radius: 7px; background: #FBF9F4; color: #1C1A16; font: 500 14px Inter, sans-serif; box-shadow: 0 1px 1px rgba(28,26,22,0.12)">Read</button>
+      <button style="height: 34px; padding: 0 18px; border: 0; border-radius: 7px; background: transparent; color: #6B665C; font: 500 14px Inter, sans-serif">Practise</button>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px">
+      <div style="display: flex; align-items: center; gap: 2px; border: 1px solid #CFC8B8; border-radius: 9px; padding: 2px">
+        <button aria-current="true" style="height: 32px; padding: 0 12px; border: 0; border-radius: 7px; background: #1C1A16; color: #F3EFE6; font: 500 13px Inter, sans-serif">Mine</button>
+        <button style="height: 32px; padding: 0 12px; border: 0; border-radius: 7px; background: transparent; color: #6B665C; font: 500 13px Inter, sans-serif">Choir</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex: 1; position: relative; display: flex; align-items: center; justify-content: center; gap: 24px">
+    <div style="position: relative; width: 495px; height: 700px; box-sizing: border-box; padding: 30px 34px; background: #FBF9F4; box-shadow: 0 1px 0 #D9D3C5, 0 10px 30px rgba(28,26,22,0.10); display: flex; flex-direction: column; justify-content: space-between">
+      <sc-for list="{{systems}}" as="sys" hint-placeholder-count="4">
+        <div style="display: flex; flex-direction: column; gap: 14px; border-left: 2px solid #1C1A16">
+          <sc-for list="{{sys.staves}}" as="st" hint-placeholder-count="4">
+            <div style="display: flex; height: 24px">
+              <span style="width: 26px; position: relative; flex: none">
+                <span aria-hidden="true" style="position: absolute; left: 3px; top: {{st.ct}}px; font-family: 'Noto Music', serif; font-size: {{st.cs}}px; line-height: 1; color: #1C1A16">{{st.clef}}</span>
+              </span>
+              <div style="flex: 1; display: flex; position: relative; background: repeating-linear-gradient(to bottom, #1C1A16 0 1px, transparent 1px 6px); height: 25px">
+                <sc-for list="{{st.bars}}" as="bar" hint-placeholder-count="4">
+                  <div style="flex: 1; position: relative; border-right: 1px solid #1C1A16">
+                    <sc-if value="{{bar.first}}" hint-placeholder-val="{{false}}">
+                      <span style="position: absolute; left: 2px; top: -16px; font: 500 9px Inter, sans-serif; color: #6B665C">{{bar.num}}</span>
+                    </sc-if>
+                    <sc-for list="{{bar.notes}}" as="n" hint-placeholder-count="3">
+                      <span aria-hidden="true" style="position: absolute; left: {{n.x}}%; top: {{n.y}}px; width: 7px; height: 5px; border-radius: 50%; background: #1C1A16; transform: rotate(-22deg)"></span>
+                      <span aria-hidden="true" style="position: absolute; left: calc({{n.x}}% + 6px); top: {{n.sy}}px; width: 1px; height: 16px; background: #1C1A16"></span>
+                    </sc-for>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+      <span style="position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font-family: 'EB Garamond', serif; font-size: 11px; color: #6B665C">bars 17–32 · p. 2</span>
+    </div>
+
+    <div role="region" aria-label="Page 3 could not be read" style="position: relative; width: 495px; height: 700px; box-sizing: border-box; padding: 30px 34px; background: #F6F2E9; border: 1.5px dashed #CFC8B8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center">
+      <span aria-hidden="true" style="position: absolute; inset: 30px 34px; background: repeating-linear-gradient(to bottom, #E2DCCD 0 1px, transparent 1px 6px, #E2DCCD 6px 7px, transparent 7px 12px, #E2DCCD 12px 13px, transparent 13px 18px, #E2DCCD 18px 19px, transparent 19px 24px, #E2DCCD 24px 25px, transparent 25px 86px); opacity: 0.7"></span>
+      <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 26px 28px; background: #FBF9F4; border: 1px solid #E2DCCD; border-radius: 14px; box-shadow: 0 4px 16px rgba(28,26,22,0.08); max-width: 340px">
+        <span aria-hidden="true" style="width: 14px; height: 14px; border-radius: 50%; background: #B5392E"></span>
+        <span style="font-family: 'EB Garamond', serif; font-size: 26px; font-weight: 500; line-height: 1.1">Page 3 could not be read</span>
+        <span style="font-size: 13px; color: #6B665C; line-height: 1.45">The scan was too dark to find the staves. The other pages are fine; bars 33–48 are missing until this one is rescanned.</span>
+        <div style="display: flex; gap: 8px; margin-top: 6px">
+          <button style="height: 48px; padding: 0 18px; border: 0; border-radius: 12px; background: #1C1A16; color: #F3EFE6; font: 600 14px Inter, sans-serif; display: flex; align-items: center; gap: 8px">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M4 12h16"/></svg>
+            Rescan page 3
+          </button>
+          <button style="height: 48px; padding: 0 16px; border: 1px solid #CFC8B8; border-radius: 12px; background: transparent; color: #1C1A16; font: 500 14px Inter, sans-serif">Show the scan as is</button>
+        </div>
+      </div>
+      <span style="position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font-family: 'EB Garamond', serif; font-size: 11px; color: #6B665C">p. 3</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1194,"height":834}}'>
+class Component extends DCLogic {
+  renderVals() {
+    let s = 31;
+    const rnd = () => { s = (s * 48271) % 2147483647; return s / 2147483647; };
+    const clefs = [
+      { clef: '𝄞', cs: 34, ct: -8 },
+      { clef: '𝄞', cs: 34, ct: -8 },
+      { clef: '𝄞', cs: 34, ct: -8 },
+      { clef: '𝄢', cs: 26, ct: -3 }
+    ];
+    let bar = 17;
+    const systems = [];
+    for (let si = 0; si < 4; si++) {
+      const staves = clefs.map((c, st) => {
+        const bars = [];
+        for (let bi = 0; bi < 4; bi++) {
+          const num = bar + bi;
+          const n = 2 + Math.floor(rnd() * 3);
+          const notes = [];
+          for (let k = 0; k < n; k++) {
+            const x = 8 + Math.round((k + 0.5) * (82 / n));
+            const y = Math.round(rnd() * 8) * 3 - 6;
+            notes.push({ x, y, sy: y - 14 });
+          }
+          bars.push({ num, first: st === 0, notes });
+        }
+        return Object.assign({ bars }, c);
+      });
+      bar += 4;
+      systems.push({ staves });
+    }
+    return { systems };
+  }
+}
+</script>
+</body>
+</html>

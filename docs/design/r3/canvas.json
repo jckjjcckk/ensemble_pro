@@ -13,13 +13,21 @@
     "R2_StandDarkPaper.dc.html": {"h": 834, "title": "Stand — dark, dimmed paper page", "w": 1194, "x": 1274, "y": 3174},
     "R2_StandDarkInk.dc.html": {"h": 834, "title": "Stand — dark, inverted page", "w": 1194, "x": 2548, "y": 3174},
     "R3_StandPortrait.dc.html": {"h": 1194, "title": "Stand — portrait, one page", "w": 834, "x": 0, "y": 4388},
-    "R3_StandZoom.dc.html": {"h": 834, "title": "Stand — landscape, zoomed into one page", "w": 1194, "x": 914, "y": 4388}
+    "R3_StandZoom.dc.html": {"h": 834, "title": "Stand — landscape, zoomed into one page", "w": 1194, "x": 914, "y": 4388},
+    "F_BookUnread.dc.html": {"h": 1194, "title": "Book sheet — key not read (entry to Details)", "w": 834, "x": 0, "y": 5962},
+    "F_Details.dc.html": {"h": 1194, "title": "Details sheet — key · time · clef · speed · numbering", "w": 834, "x": 914, "y": 5962},
+    "F_Parts.dc.html": {"h": 1194, "title": "Needs you — which parts are on this page?", "w": 834, "x": 1828, "y": 5962},
+    "F_Staves.dc.html": {"h": 1194, "title": "Needs you — choose the staves (split)", "w": 834, "x": 2742, "y": 5962},
+    "F_CheckBar.dc.html": {"h": 834, "title": "Doubtful bars — scan above digital", "w": 1194, "x": 0, "y": 7536},
+    "F_Unreadable.dc.html": {"h": 834, "title": "Stand — an unreadable page", "w": 1194, "x": 1274, "y": 7536}
   },
   "createdOnFiles": {"at": "2026-10-28T15:05:00Z", "v": 1},
   "designSystems": [],
   "launch": {"view": "canvas"},
-  "noteOrder": ["n1", "n2", "n3", "n4"],
+  "noteOrder": ["n1", "n2", "n3", "n4", "n5", "n6"],
   "notes": {
+    "n5": {"kind": "title1", "maxW": 3576, "text": "When the reader is unsure — owner only: Details sheet · blocking questions", "w": 240, "x": 0, "y": 5702},
+    "n6": {"kind": "title1", "maxW": 2468, "text": "Doubtful bars after Convert to Digital · an unreadable page", "w": 240, "x": 0, "y": 7276},
     "n1": {"kind": "title1", "maxW": 3576, "text": "Shelf — My Library · Groups (light and dark)", "w": 240, "x": 0, "y": -260},
     "n2": {"kind": "title1", "maxW": 1748, "text": "Sheets — Groups · Book", "w": 240, "x": 0, "y": 1340},
     "n3": {"kind": "title1", "maxW": 3742, "text": "Stand — landscape spread, vertical quick menu: light · dark dimmed paper · dark inverted", "w": 240, "x": 0, "y": 2914},
@@ -30,7 +38,9 @@
     "R2_GroupSheet.dc.html", "R2_BookSheet.dc.html",
     "R2_StandLight.dc.html", "R2_StandDarkPaper.dc.html", "R2_StandDarkInk.dc.html",
     "R3_StandPortrait.dc.html", "R3_StandZoom.dc.html",
-    "Artboard-ny66.dc.html"
+    "Artboard-ny66.dc.html",
+    "F_BookUnread.dc.html", "F_Details.dc.html", "F_Parts.dc.html", "F_Staves.dc.html",
+    "F_CheckBar.dc.html", "F_Unreadable.dc.html"
   ],
   "pages": [
     {"id": "page-1", "name": "Page 1"},
