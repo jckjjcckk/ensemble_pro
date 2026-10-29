@@ -1,0 +1,4 @@
+0.96 chopin-op40-1-p25-v2b.pdf
+0.90 chopin-op40-1-p25-v2b.mpos
+1.02 chopin-op40-1-p25-v2b.mscx
+chopin-op40-1-p25-v2b.musicxml notes in file 628 kept by MuseScore 628 bars short (file, kept): {}

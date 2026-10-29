@@ -1,0 +1,4 @@
+1.45 goldberg-bga-p1-5-v2b.pdf
+1.22 goldberg-bga-p1-5-v2b.mpos
+1.30 goldberg-bga-p1-5-v2b.mscx
+goldberg-bga-p1-5-v2b.musicxml notes in file 1731 kept by MuseScore 1731 bars short (file, kept): {}

@@ -1,0 +1,185 @@
+{
+ "pages": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "page_kinds": [
+  [
+   1,
+   "music"
+  ],
+  [
+   2,
+   "music"
+  ],
+  [
+   3,
+   "music"
+  ],
+  [
+   4,
+   "music"
+  ],
+  [
+   5,
+   "music"
+  ]
+ ],
+ "bars": 119,
+ "wall_s": 172.7,
+ "seconds_per_page": 34.5,
+ "timings": {
+  "kinds_s": 2.4,
+  "box_s": 99.1,
+  "audiveris_s": 89.3,
+  "render_s": 8.7,
+  "upload_s": 0.4,
+  "pull_s": 0.5,
+  "spark_s": 29.9,
+  "write_s": 35.6,
+  "verify_s": 34.6,
+  "engrave_s": 4.5
+ },
+ "spark_calls": 61,
+ "spark_skipped": 0,
+ "cost_usd": 0.2615,
+ "cost_per_page": {
+  "1": 0.0514,
+  "2": 0.0462,
+  "3": 0.0507,
+  "4": 0.0473,
+  "5": 0.0659
+ },
+ "cost_per_step": {
+  "page_kind": 0.0041,
+  "front_matter": 0.0044,
+  "reread": 0.1082,
+  "verify": 0.0027,
+  "verify_render": 0.1421
+ },
+ "items": {
+  "written": {
+   "words": 20,
+   "dynamic": 30
+  },
+  "duplicates": 1,
+  "dropped": 9,
+  "systems_answered": 30,
+  "systems": 30,
+  "verified": {
+   "systems": 28,
+   "reverted_bars": [
+    33,
+    56,
+    57,
+    59,
+    84,
+    88,
+    93,
+    94
+   ],
+   "missing_bars": [
+    9,
+    60,
+    67,
+    103,
+    105
+   ],
+   "skipped": null
+  }
+ },
+ "duplicates": 1,
+ "flagged": 51,
+ "verify": {
+  "asked": 28,
+  "reverted": {
+   "33": "Top has cresc. in m.33 which is missing from bottom.",
+   "56": "bottom missing dim. in m.56 and p in m.57 present on top",
+   "57": "bottom missing dim. in m.56 and p in m.57 present on top",
+   "59": "cresc. poco a poco is in m.59 on top but moved to m.60 on bottom",
+   "84": "dim. in measure 84 present on top is missing on bottom",
+   "88": "Bottom m.88 adds text erase. not present in top m.88.",
+   "93": "f is printed in m94 on top but engraved in m93 on bottom",
+   "94": "f is printed in m94 on top but engraved in m93 on bottom"
+  },
+  "missing": {
+   "9": "Bottom omits cresc. printed in top measure 9.",
+   "60": "cresc. poco a poco is in m.59 on top but moved to m.60 on bottom",
+   "67": "cresc. in m.67 present on top but missing on bottom.",
+   "103": "Bottom omits mf in m103 and cresc. in m105 that are printed on top.",
+   "105": "Bottom omits mf in m103 and cresc. in m105 that are printed on top."
+  },
+  "systems": 28,
+  "skipped": null,
+  "render_s": 6.3
+ },
+ "engraving": {
+  "ok": true,
+  "seconds": 4.5
+ },
+ "junk_written": {
+  "count": 0,
+  "words": []
+ },
+ "dropped_by_reason": {
+  "no Audiveris text glyph within 8 interlines": 9
+ },
+ "front_matter": {
+  "title": "Aria con Variazioni.",
+  "composer": "J. S. Bach.",
+  "movement_or_number": "Aria.",
+  "tempo_heading": "Andante espressivo.",
+  "metronome": {
+   "unit": "quarter",
+   "bpm": 72
+  },
+  "opus": null,
+  "dedication": null,
+  "editor": null,
+  "read": true
+ },
+ "tempo_bar_1": {
+  "bar": 1,
+  "found": true,
+  "words": [
+   "Andante espressivo."
+  ],
+  "per_minute": [
+   "72"
+  ],
+  "metronomes_in_file": 1,
+  "one_direction": true
+ },
+ "score_row": {
+  "id": "22222222-2222-2222-2222-222222222222",
+  "owner_user_id": "u1",
+  "ensemble_id": null,
+  "title": "Goldberg Variations",
+  "composer": "J. S. Bach",
+  "key_sig": "G major",
+  "meter": "3/4",
+  "bars": 119,
+  "work": null,
+  "tempo_bpm": 72,
+  "status": "ready"
+ },
+ "text_strict": {
+  "tp": 55,
+  "pred": 59,
+  "gold": 70,
+  "p": 0.932,
+  "r": 0.786,
+  "f1": 0.853
+ },
+ "text_near": {
+  "tp": 55,
+  "pred": 59,
+  "gold": 70,
+  "p": 0.932,
+  "r": 0.786,
+  "f1": 0.853
+ }
+}
