@@ -5,7 +5,7 @@ Three names on CK's Cloudflare zone `jckjjcckk.com`:
 | What | Where | How |
 |---|---|---|
 | Marketing site | `https://folio.jckjjcckk.com` | A separate project |
-| Web app (`web/dist`) | `https://folio-app.jckjjcckk.com` | Cloudflare Worker `folio-app` with static assets (`web/wrangler.jsonc`) |
+| Web app (`web/dist`) | `https://folio-app.jckjjcckk.com` | Cloudflare Worker `folio-app-web` with static assets (`web/wrangler.jsonc`) |
 | API (`api/`) | `https://folio-api.jckjjcckk.com` | This Mac, behind the named tunnel `macbook_pro_m4` |
 
 The API stays on the Mac on purpose: the Casio, the OMR tooling and the local fixtures live here. CK does
@@ -27,17 +27,17 @@ file. The script refuses a local Supabase or API URL. The same build goes into t
 
 ## Web app: a Worker with static assets (dashboard only)
 
-`web/wrangler.jsonc` names the Worker `folio-app`, serves `./dist` and answers unknown paths with
+`web/wrangler.jsonc` names the Worker `folio-app-web`, serves `./dist` and answers unknown paths with
 `index.html` (React Router). CK builds and deploys from the dashboard (Workers Builds); nothing on this Mac
 logs in to Cloudflare.
 
 1. Workers & Pages → Create → **Import a repository** → `jckjjcckk/folio-pad`, branch `main`: project name
-   `folio-app`, root directory `web`, build command `npm run build:hosted`, deploy command
+   `folio-app-web`, root directory `web`, build command `npm run build:hosted`, deploy command
    `npx wrangler deploy`. Build variables, values taken from `web/.env` on the Mac: `VITE_SUPABASE_URL`,
    `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_API_URL=https://folio-api.jckjjcckk.com`. The build script
    prefers these over `web/.env` (which is gitignored and absent in the build), and never reads
    `web/.env.local`.
-2. `folio-app` → Settings → Domains & Routes → Add → Custom domain → `folio-app.jckjjcckk.com`. Cloudflare
+2. `folio-app-web` → Settings → Domains & Routes → Add → Custom domain → `folio-app.jckjjcckk.com`. Cloudflare
    writes the DNS record and the certificate itself. Every later push to `main` redeploys.
 
 Optional, local path (not the plan): `cd web && npm run deploy:web` builds with the hosted values and runs

@@ -72,7 +72,7 @@ dashboard; nothing on this Mac logs in to Cloudflare. `deploy/README.md` is the 
 
 1. Dashboard → Workers & Pages → Create → **Import a repository** → `jckjjcckk/folio-pad`, branch
    `main`. Build settings:
-   - Project name `folio-app`
+   - Project name `folio-app-web`
    - Root directory `web`
    - Build command `npm run build:hosted`
    - Deploy command `npx wrangler deploy`
@@ -82,7 +82,7 @@ dashboard; nothing on this Mac logs in to Cloudflare. `deploy/README.md` is the 
    `build:hosted` reads those variables first and falls back to `web/.env` only when they are absent, so
    the dashboard's values win and `web/.env.local` is never involved. `web/wrangler.jsonc` tells wrangler
    to serve `dist` as static assets with unknown paths → `index.html`.
-2. `folio-app` → Settings → Domains & Routes → Add → Custom domain → `folio-app.jckjjcckk.com`. Cloudflare
+2. `folio-app-web` → Settings → Domains & Routes → Add → Custom domain → `folio-app.jckjjcckk.com`. Cloudflare
    writes the DNS record and the certificate; live within a minute. Later pushes to `main` redeploy.
 3. The API: Zero Trust → Networks → Tunnels → `macbook_pro_m4` → public hostname `folio-api.jckjjcckk.com` →
    `http://localhost:8000`; save the connector token to `~/.cloudflared/folio-tunnel.token`; then
