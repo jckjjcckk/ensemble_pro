@@ -62,3 +62,56 @@ def v2(transcript: str, facts: ScoreFacts, holdout: set[str], examples: list[dic
             f"Answer a JSON array of marks:\n{SCHEMA_LIST}\n"
             "or, if there is nothing to write on the music, {\"none\": true}.")
     return system, user
+
+
+# Few-shot order of preference: one of each kind and position, two negatives. The first EXAMPLES_N ids not held
+# out are used, so the line being scored (and a retake's base line) is never shown.
+FEW_SHOT_ORDER = ["v02", "v08", "v18", "v21", "v22", "v25", "v14", "v30", "v13", "v15", "v26", "v27", "v20", "v03",
+                  "v17", "v19"]
+EXAMPLES_N = 8
+
+
+def _examples(examples: list[dict], holdout: set[str]) -> str:
+    by_id = {e["id"]: e for e in examples}
+    chosen = [by_id[i] for i in FEW_SHOT_ORDER if i not in holdout][:EXAMPLES_N]
+    def ans(a: object) -> str:
+        return json.dumps(a if isinstance(a, list) or (isinstance(a, dict) and a.get("none")) else [a],
+                          ensure_ascii=False)
+    return "\n\n".join(f"Transcript: \"{e['transcript']}\"\nAnswer: {ans(e['answer'])}" for e in chosen)
+
+
+def v3(transcript: str, facts: ScoreFacts, holdout: set[str], examples: list[dict]) -> tuple[str, str]:
+    system, user = v2(transcript, facts, holdout, examples)
+    head, tail = user.split("Transcript of what the conductor said:", 1)
+    user = (f"{head}Worked examples (other instructions, same score):\n\n{_examples(examples, holdout)}\n\n"
+            f"Transcript of what the conductor said:{tail}")
+    return system, user
+
+
+# v4: rules revised after reading the v1-v3 misses (made-up examples still; tuned on the same 30 lines, so the
+# retakes and a second voice are the check on overfitting).
+RULES_V4 = (RULES
+            .replace('''  is a mark at that bar.''', '''  is a mark at that bar. Telling a part where it comes in (its entry) is a mark.''')
+            .replace('''  Ignore filler, repeated words and false starts.''',
+                     '''  A correction replaces only what it corrects: keep the bar and the instruction already said. Ignore filler,
+  repeated words and false starts.''')
+            .replace('''"mark" when the place
+  is a rehearsal letter (bars null, name the letter in text); "global" when the place has no bar or letter (the
+  whole piece, the beginning, the ending, the coda): bars null.''',
+                     '''"mark" when the place
+  is a landmark the score must resolve: a rehearsal letter, a double bar, a key change, a coda, a section (bars
+  null, name the landmark in text); "global" for the whole piece or its very beginning or end (bars null).''')
+            .replace('''- audience: "ensemble" when everyone is meant or nobody is named.''',
+                     '''- audience: "ensemble" when everyone is meant (the whole group, the whole choir, tutti) or nobody is named.''')
+            .replace('''- When one instruction has marks at different places or for different audiences, give one object per mark.''',
+                     '''- One object per audience: marks for different audiences are separate objects; several places for the same
+  audience in one breath are one mark whose bars cover them.
+- The transcript is machine speech recognition and mishears words. A word that sounds like a part, a seat nickname
+  or a member's name (e.g. "Chelos", "Violets", "Lynn") is that part or person; "accept" or "stop" just before a
+  part may be "except". Numbers are usually right.'''))
+
+
+def v4(transcript: str, facts: ScoreFacts, holdout: set[str], examples: list[dict]) -> tuple[str, str]:
+    system, user = v3(transcript, facts, holdout, examples)
+    assert RULES in user
+    return system, user.replace(RULES, RULES_V4)

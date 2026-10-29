@@ -16,7 +16,7 @@
   "seconds_per_line": 7.2,
   "asr_seconds_per_line": 1.51,
   "spark_seconds_per_line": 5.69,
-  "judge_usd": 0.05503,
+  "judge_usd": 0.05269,
   "position": 23,
   "bar_from": 25,
   "bar_to": 25,
@@ -42,14 +42,14 @@
   "seconds_per_line": 6.22,
   "asr_seconds_per_line": 1.7,
   "spark_seconds_per_line": 4.51,
-  "judge_usd": 0.01788,
+  "judge_usd": 0.01958,
   "position": 9,
   "bar_from": 9,
   "bar_to": 9,
   "audience": 9,
   "kind": 9,
   "expect_exact": 4,
-  "expect_judge": 7,
+  "expect_judge": 6,
   "all_fields": 9
  },
  "retakes": {
@@ -68,14 +68,14 @@
   "seconds_per_line": 7.92,
   "asr_seconds_per_line": 2.11,
   "spark_seconds_per_line": 5.81,
-  "judge_usd": 0.01407,
+  "judge_usd": 0.02551,
   "position": 8,
   "bar_from": 8,
   "bar_to": 8,
   "audience": 7,
   "kind": 7,
   "expect_exact": 4,
-  "expect_judge": 8,
+  "expect_judge": 7,
   "all_fields": 6
  },
  "rows": [
@@ -129,8 +129,8 @@
    "spark_seconds": 3.74,
    "seconds_line": 6.22,
    "usd_line": 0.003548,
-   "judge_usd": 0.001148,
-   "judge_shown": "p at bar 34 [bars 34-34, for ensemble]"
+   "judge_usd": 0.001446,
+   "judge_shown": "p at bar 34 (bar 34, for everyone)"
   },
   {
    "id": "v01c",
@@ -182,8 +182,8 @@
    "spark_seconds": 3.72,
    "seconds_line": 6.62,
    "usd_line": 0.003866,
-   "judge_usd": 0.001395,
-   "judge_shown": "p at bar 34 [bars 34-34, for ensemble]"
+   "judge_usd": 0.002602,
+   "judge_shown": "p at bar 34 (bar 34, for everyone)"
   },
   {
    "id": "v02",
@@ -229,14 +229,14 @@
     "kind": true,
     "expect_exact": true,
     "all_fields": true,
-    "expect_judge": true
+    "expect_judge": false
    },
    "asr_seconds": 2.76,
    "spark_seconds": 4.27,
    "seconds_line": 7.03,
    "usd_line": 0.003613,
-   "judge_usd": 0.001918,
-   "judge_shown": "Cut 42–48 [bars 42-48, for part:Violin II]"
+   "judge_usd": 0.002497,
+   "judge_shown": "Cut 42–48 (bars 42-48, for Violin II)"
   },
   {
    "id": "v02c",
@@ -288,8 +288,8 @@
    "spark_seconds": 3.23,
    "seconds_line": 6.19,
    "usd_line": 0.002863,
-   "judge_usd": 0.002071,
-   "judge_shown": "Cut 42–48 [bars 42-48, for part:Violin II]"
+   "judge_usd": 0.002905,
+   "judge_shown": "Cut 42–48 (bars 42-48, for Violin II)"
   },
   {
    "id": "v03",
@@ -341,8 +341,8 @@
    "spark_seconds": 3.39,
    "seconds_line": 4.93,
    "usd_line": 0.002716,
-   "judge_usd": 0.001401,
-   "judge_shown": "up-bow at bar 12 [bars 12-12, for part:Cello]"
+   "judge_usd": 0.00174,
+   "judge_shown": "up-bow at bar 12 (bar 12, for Cello)"
   },
   {
    "id": "v03c",
@@ -394,8 +394,8 @@
    "spark_seconds": 5.23,
    "seconds_line": 7.66,
    "usd_line": 0.004428,
-   "judge_usd": 0.002352,
-   "judge_shown": "Up bow at bar 12 [bars 12-12, for part:Cello]"
+   "judge_usd": 0.005135,
+   "judge_shown": "Up bow at bar 12 (bar 12, for Cello)"
   },
   {
    "id": "v04",
@@ -447,8 +447,8 @@
    "spark_seconds": 6.61,
    "seconds_line": 8.18,
    "usd_line": 0.004537,
-   "judge_usd": 0.001125,
-   "judge_shown": "Breath after 'rest' at bar 60 [bars 60-60, for part:Alto]"
+   "judge_usd": 0.001874,
+   "judge_shown": "Breath after 'rest' at bar 60 (bar 60, for Alto)"
   },
   {
    "id": "v04c",
@@ -500,8 +500,8 @@
    "spark_seconds": 6.31,
    "seconds_line": 8.41,
    "usd_line": 0.004755,
-   "judge_usd": 0.001813,
-   "judge_shown": "breath after 'rest' at bar 60 [bars 60-60, for part:Soprano]"
+   "judge_usd": 0.00183,
+   "judge_shown": "breath after 'rest' at bar 60 (bar 60, for Soprano)"
   },
   {
    "id": "v05",
@@ -553,8 +553,8 @@
    "spark_seconds": 6.56,
    "seconds_line": 8.1,
    "usd_line": 0.004972,
-   "judge_usd": 0.00244,
-   "judge_shown": "From C: slower, more weight [bars None-None, for ensemble]"
+   "judge_usd": 0.001999,
+   "judge_shown": "From C: slower, more weight (for everyone)"
   },
   {
    "id": "v05c",
@@ -606,8 +606,8 @@
    "spark_seconds": 4.9,
    "seconds_line": 6.99,
    "usd_line": 0.003852,
-   "judge_usd": 0.002566,
-   "judge_shown": "From C: a little slower, more weight [bars None-None, for ensemble]"
+   "judge_usd": 0.002843,
+   "judge_shown": "From C: a little slower, more weight (for everyone)"
   },
   {
    "id": "v06",
@@ -705,8 +705,8 @@
    "spark_seconds": 6.74,
    "seconds_line": 8.45,
    "usd_line": 0.005381,
-   "judge_usd": 0.004089,
-   "judge_shown": "Entry on end of 2 at bar 71 [bars 71-71, for part:Viola]"
+   "judge_usd": 0.003831,
+   "judge_shown": "Entry on end of 2 at bar 71 (bar 71, for Viola)"
   },
   {
    "id": "v07c",
@@ -789,8 +789,8 @@
    "spark_seconds": 3.82,
    "seconds_line": 5.26,
    "usd_line": 0.003206,
-   "judge_usd": 0.001544,
-   "judge_shown": "cresc. 112–116 [bars 112-116, for ensemble]"
+   "judge_usd": 0.002478,
+   "judge_shown": "cresc. 112–116 (bars 112-116, for everyone)"
   },
   {
    "id": "v08c",
@@ -842,8 +842,8 @@
    "spark_seconds": 3.96,
    "seconds_line": 5.53,
    "usd_line": 0.00328,
-   "judge_usd": 0.001387,
-   "judge_shown": "cresc. 112–116 [bars 112-116, for ensemble]"
+   "judge_usd": 0.003171,
+   "judge_shown": "cresc. 112–116 (bars 112-116, for everyone)"
   },
   {
    "id": "v09",
@@ -897,8 +897,8 @@
    "spark_seconds": 3.78,
    "seconds_line": 5.44,
    "usd_line": 0.002991,
-   "judge_usd": 0.002975,
-   "judge_shown": "T before the beat at bar 20 [bars 20-20, for part:Tenor, part:Bass]"
+   "judge_usd": 0.002524,
+   "judge_shown": "T before the beat at bar 20 (bar 20, for Tenor, Bass)"
   },
   {
    "id": "v09c",
@@ -946,14 +946,14 @@
     "kind": true,
     "expect_exact": false,
     "all_fields": true,
-    "expect_judge": true
+    "expect_judge": false
    },
    "asr_seconds": 2.0,
    "spark_seconds": 4.14,
    "seconds_line": 6.13,
    "usd_line": 0.003399,
-   "judge_usd": 0.001219,
-   "judge_shown": "T before the beat at bar 20 [bars 20-20, for part:Tenor, part:Bass]"
+   "judge_usd": 0.005682,
+   "judge_shown": "T before the beat at bar 20 (bar 20, for Tenor, Bass)"
   },
   {
    "id": "v10",
@@ -1005,8 +1005,8 @@
    "spark_seconds": 4.32,
    "seconds_line": 5.6,
    "usd_line": 0.003426,
-   "judge_usd": 0.00124,
-   "judge_shown": "not louder at bar 88 [bars 88-88, for ensemble]"
+   "judge_usd": 0.001194,
+   "judge_shown": "not louder at bar 88 (bar 88, for everyone)"
   },
   {
    "id": "v10c",
@@ -1058,8 +1058,8 @@
    "spark_seconds": 5.67,
    "seconds_line": 7.02,
    "usd_line": 0.003821,
-   "judge_usd": 0.001265,
-   "judge_shown": "rit. at bar 88 [bars 88-88, for ensemble]"
+   "judge_usd": 0.001347,
+   "judge_shown": "rit. at bar 88 (bar 88, for everyone)"
   },
   {
    "id": "v11",
@@ -1111,8 +1111,8 @@
    "spark_seconds": 7.54,
    "seconds_line": 8.88,
    "usd_line": 0.005366,
-   "judge_usd": 0.00358,
-   "judge_shown": "C# at bar 15: tune, listen to Vla [bars 15-15, for ensemble]"
+   "judge_usd": 0.006229,
+   "judge_shown": "C# at bar 15: tune, listen to Vla (bar 15, for everyone)"
   },
   {
    "id": "v12",
@@ -1189,14 +1189,14 @@
     "kind": true,
     "expect_exact": false,
     "all_fields": true,
-    "expect_judge": false
+    "expect_judge": true
    },
    "asr_seconds": 2.03,
    "spark_seconds": 5.54,
    "seconds_line": 7.57,
    "usd_line": 0.004313,
-   "judge_usd": 0.006041,
-   "judge_shown": "Skip repeat at bar 40 - straight on [bars 40-40, for part:Soprano]"
+   "judge_usd": 0.001412,
+   "judge_shown": "Skip repeat at bar 40 - straight on (bar 40, for Soprano)"
   },
   {
    "id": "v14",
@@ -1271,8 +1271,8 @@
    "spark_seconds": 6.33,
    "seconds_line": 7.75,
    "usd_line": 0.004344,
-   "judge_usd": 0.002431,
-   "judge_shown": "pizz. at bar 50 [bars 50-50, for part:Cello]"
+   "judge_usd": 0.00186,
+   "judge_shown": "pizz. at bar 50 (bar 50, for Cello)"
   },
   {
    "id": "v16",
@@ -1324,8 +1324,8 @@
    "spark_seconds": 7.7,
    "seconds_line": 8.98,
    "usd_line": 0.005217,
-   "judge_usd": 0.001762,
-   "judge_shown": "non vib. 96-end [bars 96-None, for part:Violin II]"
+   "judge_usd": 0.00173,
+   "judge_shown": "non vib. 96-end (bar 96, for Violin II)"
   },
   {
    "id": "v17",
@@ -1377,8 +1377,8 @@
    "spark_seconds": 4.01,
    "seconds_line": 5.63,
    "usd_line": 0.003232,
-   "judge_usd": 0.001337,
-   "judge_shown": "low E (octave) at bar 203 [bars 203-203, for part:Bass]"
+   "judge_usd": 0.00151,
+   "judge_shown": "low E (octave) at bar 203 (bar 203, for Bass)"
   },
   {
    "id": "v18",
@@ -1430,8 +1430,8 @@
    "spark_seconds": 15.1,
    "seconds_line": 16.39,
    "usd_line": 0.010863,
-   "judge_usd": 0.001992,
-   "judge_shown": "downbow at bar 7 [bars 7-7, for ensemble]"
+   "judge_usd": 0.001291,
+   "judge_shown": "downbow at bar 7 (bar 7, for everyone)"
   },
   {
    "id": "v19",
@@ -1483,8 +1483,8 @@
    "spark_seconds": 16.41,
    "seconds_line": 17.7,
    "usd_line": 0.012688,
-   "judge_usd": 0.002296,
-   "judge_shown": "Cut after B to D [bars None-None, for ensemble]"
+   "judge_usd": 0.002331,
+   "judge_shown": "Cut after B to D (for everyone)"
   },
   {
    "id": "v20",
@@ -1583,8 +1583,8 @@
    "spark_seconds": 5.0,
    "seconds_line": 7.01,
    "usd_line": 0.004091,
-   "judge_usd": 0.001824,
-   "judge_shown": "breath at bar 64 [bars 64-64, for part:Alto, part:Tenor]; sfz at bar 65 [bars 65-65, for ensemble]"
+   "judge_usd": 0.001577,
+   "judge_shown": "breath at bar 64 (bar 64, for Alto, Tenor); sfz at bar 65 (bar 65, for everyone)"
   },
   {
    "id": "v22",
@@ -1636,8 +1636,8 @@
    "spark_seconds": 5.08,
    "seconds_line": 6.43,
    "usd_line": 0.004067,
-   "judge_usd": 0.002403,
-   "judge_shown": "harmonic on A string at bar 30 [bars 30-30, for member:Inès]"
+   "judge_usd": 0.002086,
+   "judge_shown": "harmonic on A string at bar 30 (bar 30, for Inès)"
   },
   {
    "id": "v23",
@@ -1695,8 +1695,8 @@
    "spark_seconds": 5.23,
    "seconds_line": 6.64,
    "usd_line": 0.004137,
-   "judge_usd": 0.00188,
-   "judge_shown": "dim. to niente (last page) [bars None-None, for part:Soprano, part:Alto, part:Tenor, part:Bass]"
+   "judge_usd": 0.002173,
+   "judge_shown": "dim. to niente (last page) (for Soprano, Alto, Tenor, Bass)"
   },
   {
    "id": "v24",
@@ -1748,8 +1748,8 @@
    "spark_seconds": 4.22,
    "seconds_line": 5.78,
    "usd_line": 0.004043,
-   "judge_usd": 0.002406,
-   "judge_shown": "From 22: don't rush [bars 22-22, for ensemble]"
+   "judge_usd": 0.001106,
+   "judge_shown": "From 22: don't rush (bar 22, for everyone)"
   },
   {
    "id": "v25",
@@ -1823,8 +1823,8 @@
    "spark_seconds": 5.93,
    "seconds_line": 7.29,
    "usd_line": 0.005781,
-   "judge_usd": 0.001919,
-   "judge_shown": "rit. bar before F [bars None-None, for part:Viola]; a tempo at F [bars None-None, for part:Viola]"
+   "judge_usd": 0.001932,
+   "judge_shown": "rit. bar before F (for Viola); a tempo at F (for Viola)"
   },
   {
    "id": "v26",
@@ -1898,8 +1898,8 @@
    "spark_seconds": 4.17,
    "seconds_line": 5.75,
    "usd_line": 0.005191,
-   "judge_usd": 0.001322,
-   "judge_shown": "f at bar 55 [bars 55-55, for part:Violin II]; sub. p at bar 56 [bars 56-56, for part:Violin II]"
+   "judge_usd": 0.001591,
+   "judge_shown": "f at bar 55 (bar 55, for Violin II); sub. p at bar 56 (bar 56, for Violin II)"
   },
   {
    "id": "v27",
@@ -1951,8 +1951,8 @@
    "spark_seconds": 5.24,
    "seconds_line": 6.54,
    "usd_line": 0.004358,
-   "judge_usd": 0.002029,
-   "judge_shown": "fermata on last chord [bars None-None, for ensemble]"
+   "judge_usd": 0.001482,
+   "judge_shown": "fermata on last chord (for everyone)"
   },
   {
    "id": "v28",
@@ -2004,8 +2004,8 @@
    "spark_seconds": 4.1,
    "seconds_line": 5.3,
    "usd_line": 0.003344,
-   "judge_usd": 0.001238,
-   "judge_shown": "Count 4 beats at bar 3 [bars 3-3, for ensemble]"
+   "judge_usd": 0.001438,
+   "judge_shown": "Count 4 beats at bar 3 (bar 3, for everyone)"
   },
   {
    "id": "v29",
@@ -2057,8 +2057,8 @@
    "spark_seconds": 8.58,
    "seconds_line": 10.2,
    "usd_line": 0.008325,
-   "judge_usd": 0.002693,
-   "judge_shown": "From key change till Dakota: down an octave [bars None-None, for part:Soprano]"
+   "judge_usd": 0.00336,
+   "judge_shown": "From key change till Dakota: down an octave (for Soprano)"
   },
   {
    "id": "v30",

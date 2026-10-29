@@ -26,27 +26,8 @@ import time
 import wave
 from pathlib import Path
 
-import dotenv
-
 HERE = Path(__file__).resolve().parent
 API = HERE.parent.parent
-
-
-def _load_env() -> None:
-    cands = [Path(os.environ["FOLIO_ENV"])] if os.environ.get("FOLIO_ENV") else []
-    cands += [API / ".env", Path.home() / "Documents" / "muse" / "api" / ".env"]
-    for p in cands:
-        if p.exists():
-            vals = dotenv.dotenv_values(p)
-            for k in ("META_API_KEY", "META_API_BASE_URL"):
-                if vals.get(k):
-                    os.environ[k] = vals[k]
-            break
-    os.environ["LLM_PROVIDER"] = "meta"
-    os.environ.pop("ANTHROPIC_API_KEY", None)
-
-
-_load_env()
 
 import httpx  # noqa: E402
 
@@ -258,11 +239,24 @@ async def propose(version: str, uid: str, transcript: str) -> dict:
 JUDGE_SYSTEM = "You check rehearsal marks for a music librarian. Answer with JSON only."
 
 
+def _show(m: dict) -> str:
+    """A proposed mark as the stand would label it: text, then bars (when it has any) and who it is for."""
+    aud = m["audience"] if isinstance(m["audience"], list) else [m["audience"]]
+    who = ", ".join("everyone" if a == "ensemble" else a.split(":", 1)[1] for a in aud)
+    bf, bt = m.get("bar_from"), m.get("bar_to")
+    where = "" if bf is None else (f"bar {bf}, " if bt in (None, bf) else f"bars {bf}-{bt}, ")
+    return f"{m['text']} ({where}for {who})"
+
+
+# Judge v2 (2026-10-29): v1 printed "bars None-None" for letter and global marks and refused identical texts.
+JUDGE_VERSION = "judge2"
+
+
 async def judge(version: str, uid: str, expect: str, marks: list[dict]) -> dict:
-    dst = OUT / "runs" / version / f"{uid}.judge.json"
+    dst = OUT / "runs" / version / f"{uid}.{JUDGE_VERSION}.json"
     if dst.exists():
         return json.loads(dst.read_text())
-    shown = "; ".join(f"{m['text']} [bars {m.get('bar_from')}-{m.get('bar_to')}, for {', '.join(m['audience']) if isinstance(m['audience'], list) else m['audience']}]" for m in marks)
+    shown = "; ".join(_show(m) for m in marks)
     user = (f"Expected mark on the stand: \"{expect}\"\nProposed mark: \"{shown}\"\n\n"
             "Would a musician reading the proposed mark on their part accept it as saying the same thing as the "
             "expected one (same place, same instruction; wording may differ)? Answer {\"accept\": true} or "
