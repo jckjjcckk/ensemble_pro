@@ -7,9 +7,10 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from ..auth import User
+from ..auth import CurrentUser, User
 from ..db import db
 from ..librarian import HANDLERS, load_handlers
+from ..librarian.signature import canonical_key, canonical_meter
 from ..spend import BudgetedUser
 from ..worker import run_one
 
@@ -28,6 +29,85 @@ def assert_can_edit(user: User, score_id: str) -> dict:
         if m and m[0]["role"] == "admin":
             return s
     raise HTTPException(403, "Only the owner or an admin can change this score")
+
+
+class DetailsBody(BaseModel):
+    """Details (F_Details): every field optional; only the ones sent change. Empty strings clear a text field."""
+    title: str | None = None
+    composer: str | None = None
+    key_sig: str | None = None          # any spelling canonical_key reads: "G minor", "B-flat major", "E- major"
+    meter: str | None = None            # "3/4", "C", "cut"
+    tempo_bpm: int | None = None
+    tempo_text: str | None = None
+    cover_clef: Literal["treble", "bass", "alto", "grand"] | None = None
+    first_bar: int | None = None        # the first bar on first_bar_page carries this number
+    first_bar_page: int | None = None
+
+
+@router.patch("/scores/{score_id}")
+def update_details(score_id: str, body: DetailsBody, user: CurrentUser) -> dict:
+    """Save Details. Owner or admin only. Key and meter are canonicalised (400 for a name that is not a key or a
+    meter) and confirming either sets `signature_confirmed`, so a re-read never overwrites the owner. Bar numbering
+    renumbers the book's `measures` (marks keep their bar: they point at measures.id) so that the first bar placed on
+    `first_bar_page` in the current interpretation carries `first_bar`; a book with a Digital copy keeps the numbers
+    of its notation (409), because its engraved pages are joined to them. Returns the score row and the shift."""
+    assert_can_edit(user, score_id)
+    sent = body.model_dump(exclude_unset=True)
+    facts: dict = {}
+    for f in ("title", "composer", "tempo_text"):
+        if f in sent:
+            v = (sent[f] or "").strip()
+            if f == "title" and not v:
+                raise HTTPException(400, "A book needs a title")
+            facts[f] = v or None
+    if "key_sig" in sent:
+        k = canonical_key(sent["key_sig"]) if sent["key_sig"] else None
+        if sent["key_sig"] and not k:
+            raise HTTPException(400, f"Not a key: {sent['key_sig']}")
+        facts["key_sig"] = k
+    if "meter" in sent:
+        m = canonical_meter(sent["meter"]) if sent["meter"] else None
+        if sent["meter"] and not m:
+            raise HTTPException(400, f"Not a time signature: {sent['meter']}")
+        facts["meter"] = m
+    if "key_sig" in facts or "meter" in facts:
+        facts["signature_confirmed"] = True
+    if "tempo_bpm" in sent:
+        bpm = sent["tempo_bpm"]
+        if bpm is not None and not 10 <= bpm <= 400:
+            raise HTTPException(400, "Speed is between 10 and 400 beats a minute")
+        facts["tempo_bpm"] = bpm
+    if "cover_clef" in sent:
+        facts["cover_clef"] = sent["cover_clef"]
+    shift = 0
+    if "first_bar" in sent or "first_bar_page" in sent:
+        first, page = sent.get("first_bar"), sent.get("first_bar_page") or 1
+        if first is None or not -10 <= first <= 10000 or page < 1:
+            raise HTTPException(400, "Bar numbering needs a first bar number and a page")
+        shift = renumber_shift(score_id, first, page)
+        facts.update({"first_bar": first, "first_bar_page": page})
+    if shift:
+        db().rpc("shift_measures", {"s": score_id, "delta": shift}).execute()
+    if facts:
+        db().table("scores").update(facts).eq("id", score_id).execute()
+    row = db().table("scores").select("*").eq("id", score_id).single().execute().data
+    return {"score": row, "shifted_by": shift}
+
+
+def renumber_shift(score_id: str, first: int, page: int) -> int:
+    """How far to shift the book's bar numbers so the first bar placed on `page` is bar `first`."""
+    kinds = {s["kind"] for s in db().table("sources").select("kind").eq("score_id", score_id).execute().data or []}
+    if kinds & {"musicxml", "engraving"}:
+        raise HTTPException(409, "This book has a Digital copy; its bar numbers come from the notation")
+    score = db().table("scores").select("current_interpretation_id").eq("id", score_id).single().execute().data or {}
+    interp = score.get("current_interpretation_id")
+    if not interp:
+        raise HTTPException(409, "The book has not been read yet")
+    rows = db().table("measure_placements").select("page,system,box,measures(number)").eq("interpretation_id", interp).eq("page", page).execute().data or []
+    numbers = [r["measures"]["number"] for r in rows if r.get("measures") and r.get("system") is not None]
+    if not numbers:
+        raise HTTPException(400, f"No bars were found on page {page}")
+    return first - min(numbers)
 
 
 class PartsBody(BaseModel):

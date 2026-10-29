@@ -213,7 +213,7 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
         state["log"].append(f"Page {sig_page}, first system: {said}" if said else f"Page {sig_page}, first system: key and meter left blank (not sure)")
         save_state()
         # the identity shows on the cover even while the run waits on a question
-        ctx.db.table("scores").update({"key_sig": sig["key_sig"], "meter": sig["meter"]}).eq("id", score_id).execute()
+        ctx.db.table("scores").update(signature_facts(sig, confirmed(ctx, score_id))).eq("id", score_id).execute()
     signature = state["signature"]
 
     # ---------------------------------------------------------------- the score header: staves per full system, instruments
@@ -366,9 +366,10 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
         "pages": n_pages, "systems": systems_total, "measures": len(placements), "first_measure": first, "last_measure": n - 1,
         "title": title, "composer": composer, "parts": part_names, "difficulty": {p: difficulty.get(p) for p in part_names},
         "key_sig": signature["key_sig"], "meter": signature["meter"],
-        "signature": {k: signature.get(k) for k in ("key_sig", "meter", "read", "why", "crop", "crop_key", "cost_usd", "error", "page") if signature.get(k) is not None},
+        "signature": {k: signature.get(k) for k in ("key_sig", "meter", "key_sig_guess", "meter_guess", "confidence", "read", "why", "crop", "crop_key", "cost_usd", "error", "page") if signature.get(k) is not None},
         "header": {k: header.get(k) for k in ("page", "expected_staves", "instruments", "validation", "overlay_key", "cost_usd", "error") if header.get(k) is not None} if header else None,
         "flagged": {"pages_unreadable": unreadable, "bars_doubtful": doubtful},
+        "unreadable_pages": unreadable_pages(state),
         "models": {"geometry": "opencv", "labels": next((PageLabels.from_dict(state["pages"][k]["labels"]).model for k in pages_read), None)},
         "log": state["log"],
     }
@@ -380,7 +381,7 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
 
     facts: dict[str, Any] = {
         "status": "ready", "progress": 1.0, "failure_reason": None, "pages": n_pages, "bars": len(placements),
-        "key_sig": signature["key_sig"], "meter": signature["meter"], "current_interpretation_id": interp_id,
+        "current_interpretation_id": interp_id, **signature_facts(signature, confirmed(ctx, score_id)),
     }
     if brief:
         facts["brief"] = brief
@@ -402,5 +403,30 @@ def partial_summary(state: dict[str, Any], n_pages: int, question: str) -> dict[
         "measures": sum(len(p["geometry"]["measures"]) for p in read), "parts": state["known_parts"],
         "flagged": {"pages_unreadable": sum(1 for p in state["pages"].values() if p["unreadable"]),
                     "bars_doubtful": sum(1 for p in read for m in p["geometry"]["measures"] if m["confidence"] != "high")},
+        "unreadable_pages": unreadable_pages(state),
         "question": question, "log": state["log"],
     }
+
+
+def unreadable_pages(state: dict[str, Any]) -> list[dict[str, Any]]:
+    """The pages the geometry found no bars on, with the geometry's last word on why, for the stand's placeholder."""
+    out = []
+    for key, p in sorted(state["pages"].items(), key=lambda kv: int(kv[0])):
+        if p["unreadable"]:
+            log = (p.get("geometry") or {}).get("log") or []
+            out.append({"page": int(key), "reason": log[-1] if log else "no staves found"})
+    return out
+
+
+def confirmed(ctx: JobContext, score_id: str) -> bool:
+    row = ctx.db.table("scores").select("signature_confirmed").eq("id", score_id).single().execute().data or {}
+    return bool(row.get("signature_confirmed"))
+
+
+def signature_facts(sig: dict[str, Any], owner_confirmed: bool = False) -> dict[str, Any]:
+    """The score row's signature columns: the confident read (or null) and the best guess with its confidence. Once the
+    owner has confirmed the key and meter in Details (`scores.signature_confirmed`), a reading never touches them."""
+    facts = {"key_sig_guess": sig.get("key_sig_guess"), "meter_guess": sig.get("meter_guess"), "signature_confidence": sig.get("confidence")}
+    if not owner_confirmed:
+        facts.update({"key_sig": sig.get("key_sig"), "meter": sig.get("meter")})
+    return facts

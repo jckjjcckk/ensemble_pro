@@ -6,7 +6,7 @@ from decimal import Decimal
 import pytest
 from fastapi.testclient import TestClient
 
-from app.auth import User
+from app.auth import User, current_user
 from app.main import app
 from app.routes import jobs as jobs_routes, scores as scores_routes
 from app.spend import require_budget
@@ -32,6 +32,7 @@ def world(monkeypatch):
 
 def as_user(user: User) -> None:
     app.dependency_overrides[require_budget] = lambda: user
+    app.dependency_overrides[current_user] = lambda: user
 
 
 def test_parts_route_queues_a_part_cut_job(world):
@@ -104,3 +105,54 @@ def test_answer_route_refuses_when_not_parked_or_not_owner(world):
     as_user(OTHER)
     assert client.post("/jobs/job1/answer", json={"staves": [1]}).status_code == 403
     assert len(db.rows["jobs"]) == 1
+
+
+class RpcDB(FakeDB):
+    def __init__(self):
+        super().__init__()
+        self.calls: list[tuple] = []
+
+    def rpc(self, name, params):
+        self.calls.append((name, params))
+        return type("Q", (), {"execute": lambda _self: type("R", (), {"data": None})})()
+
+
+def test_details_route_saves_canonical_fields_and_confirms_the_signature(world):
+    db, client = world
+    as_user(OWNER)
+    r = client.patch(f"/scores/{SCORE}", json={"title": " Ave verum corpus ", "composer": "William Byrd", "key_sig": "g minor",
+                                              "meter": "cut", "tempo_bpm": 72, "tempo_text": "Andante", "cover_clef": "treble"})
+    assert r.status_code == 200, r.text
+    row = db.rows["scores"][0]
+    assert (row["title"], row["key_sig"], row["meter"], row["tempo_bpm"], row["tempo_text"], row["cover_clef"], row["signature_confirmed"]) == \
+        ("Ave verum corpus", "G minor", "2/2", 72, "Andante", "treble", True)
+    r = client.patch(f"/scores/{SCORE}", json={"composer": ""})                      # only what is sent changes; empty clears
+    assert r.status_code == 200 and row["composer"] is None and row["title"] == "Ave verum corpus"
+    assert client.patch(f"/scores/{SCORE}", json={"key_sig": "H major"}).status_code == 400
+    assert client.patch(f"/scores/{SCORE}", json={"meter": "5/3"}).status_code == 400
+    assert client.patch(f"/scores/{SCORE}", json={"title": "  "}).status_code == 400
+    assert client.patch(f"/scores/{SCORE}", json={"tempo_bpm": 1000}).status_code == 400
+    assert client.patch(f"/scores/{SCORE}", json={"cover_clef": "tenor"}).status_code == 422
+    as_user(OTHER)
+    assert client.patch(f"/scores/{SCORE}", json={"title": "Mine now"}).status_code == 403
+
+
+def test_details_route_renumbers_from_the_first_bar_on_a_page(monkeypatch):
+    db = RpcDB()
+    db.rows["scores"] = [{"id": SCORE, "owner_user_id": "u1", "ensemble_id": None, "current_interpretation_id": "i1"}]
+    db.rows["sources"] = [{"id": "src1", "score_id": SCORE, "kind": "pdf"}]
+    db.rows["measure_placements"] = [{"interpretation_id": "i1", "page": 2, "system": 1, "box": {}, "measures": {"number": n}} for n in (9, 10, 11)]
+    monkeypatch.setattr(scores_routes, "db", lambda: db)
+    client = TestClient(app)
+    as_user(OWNER)
+    try:
+        r = client.patch(f"/scores/{SCORE}", json={"first_bar": 1, "first_bar_page": 2})
+        assert r.status_code == 200, r.text
+        assert r.json()["shifted_by"] == -8 and db.calls == [("shift_measures", {"s": SCORE, "delta": -8})]
+        assert (db.rows["scores"][0]["first_bar"], db.rows["scores"][0]["first_bar_page"]) == (1, 2)
+        assert client.patch(f"/scores/{SCORE}", json={"first_bar": 1, "first_bar_page": 5}).status_code == 400   # no bars there
+        db.rows["sources"].append({"id": "src2", "score_id": SCORE, "kind": "musicxml"})
+        assert client.patch(f"/scores/{SCORE}", json={"first_bar": 1, "first_bar_page": 2}).status_code == 409   # a Digital copy's numbers stay
+        assert len(db.calls) == 1
+    finally:
+        app.dependency_overrides.clear()
