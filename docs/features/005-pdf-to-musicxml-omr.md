@@ -274,9 +274,12 @@ is logged with its cost (`folio.omr`) and recorded per PDF page and per step; `m
 per_step}` and the job result's `cost_usd` / `cost_per_page`. Past the cap the rest keeps Audiveris's reading. Flags
 and the confirmation contract (`POST /jobs/{id}/answer`) are unchanged.
 
-**Measured, 2026-10-28 late, revised build** (`api/experiments/omr/v2_run.py`: the real box and the real Spark on an
-in-memory store; the run dirs in `api/experiments/omr/out/v2d-goldberg-p1-5` and `v2c-chopin-p25`, summaries in
-`api/experiments/engrave/v2/*.summary.json`):
+**Measured, 2026-10-28 late, final build** (`api/experiments/omr/v2_run.py`: the real box and the real Spark on an
+in-memory store; run dirs `api/experiments/omr/out/v2e-goldberg-p1-5` and `v2e-chopin-p25`, summaries in
+`api/experiments/engrave/v2/*-v2e.summary.json`). Two rules CK agreed after the revised build: a word with no glyph
+is still written when it is in the fixed expression vocabulary (`omr_agent.VOCABULARY`: cresc., dim., dolce, poco a
+poco, rit., a tempo, espressivo, legato, ...), in the bar Spark named; and the render check asks about words,
+dynamics and tempo text only, ignoring spacing, line breaks and note layout.
 
 | | Goldberg BGA p1-5 | Chopin Op. 40/1 p25 |
 |---|---|---|
@@ -284,28 +287,26 @@ in-memory store; the run dirs in `api/experiments/omr/out/v2d-goldberg-p1-5` and
 | Front matter | title "Aria con Variazioni.", composer "J. S. Bach.", movement "Aria.", **"Andante espressivo." ♩ = 72**, no opus (BWV not printed) | movement "3b", **"Allegro con brio"**, opus "op. 40 nr 1" → `work`, no metronome |
 | In the file | `<work-title>Aria con Variazioni.`, composer J. S. Bach.; the shelf title "Goldberg Variations" stays in the row | `<movement-title>3b`, `<work-number>op. 40 nr 1` |
 | Tempo line on bar 1 | yes, one direction, the only metronome in the file | yes |
-| Text F1 vs `goldberg_bga_text_gt.json` (119 bars, strict) | **0.853** (P 0.932, R 0.786, 55/59/70). Misses: 6 words Audiveris never found a glyph for (bars 9, 18, 67, 88, 103, 105: free text is never added), bar 80 (the duplicate scan, deduped against Audiveris's bold reading), bar 84's *dim.*, bar 59 reverted by the check (its OCR words came back); first build 0.971 | no ground truth; the page prints one word, *f*, found |
-| Items written (words / dynamic) | 20 / 30; 9 dropped for want of a glyph; 1 duplicate (a hairpin's *cresc.*) | 0 / 1 |
-| Junk written (digits, plate numbers, hairpin characters) | **0** (14 in the first revised run before junk words were cleared for good) | 0 |
-| Render check | 28 systems asked, **8 bars reverted** (33, 56, 57, 59, 84, 88, 93, 94: a word in the wrong bar, OCR "erase." restored once), 5 bars flagged as text the scan prints and the file lacks (9, 60, 67, 103, 105) | 1 system asked, matches, 0 reverted |
-| Flagged bars | 51 | 5 |
-| Spark | 61 calls, **$0.262** ($0.046-0.066 a page: reread $0.108, render check $0.142), 30 s + 35 s | 8 calls, $0.018, 7 s + 7 s |
-| Wall | 173 s = **34.5 s a page** (Audiveris 89 s) | 50 s |
+| Text F1 strict, 119 bars vs `goldberg_bga_text_gt.json` | **0.955** (P 1.00, R 0.914, 64/64/70). **Aria, bars 1-32: 17/17/17, F1 1.00.** Misses: bar 80 (the duplicate scan: deduped against Audiveris's own bold reading of the phrase), bar 88 (Spark's *cresc.* reverted by the check, see below), bar 103 (*mf*, no glyph, not a vocabulary word: flagged as missing) | no ground truth; the page prints one word, *f*, found |
+| Items written (words / dynamic) | 27 / 30, of which 7 words by the vocabulary rule (9, 18, 33, 35, 67, 84, 105); 2 dropped (no glyph, not vocabulary) | 0 / 1 |
+| Junk written (digits, plate numbers, hairpin characters) | **0** | 0 |
+| Doubled markings in the file | **0** (1 item skipped by the dedupe: bar 80's phrase) | 0 |
+| Render check | 29 systems asked, 3 said no: m41 "forte present in scan, absent in transcription" (bar reverted; the *f* is in the file either way: **layout noise**), m88 "adds an extra word" (Spark's own correct *cresc.* reverted: **false no**), m103 "*mf* missing" (untouched bar, flagged: **true text miss**). 2 bars reverted, 1 flagged missing | 1 system asked, matches, 0 reverted |
+| Flagged bars | 44 | 5 |
+| Spark | 62 calls, **$0.260** ($0.045-0.064 a page: reread $0.107, render check $0.144), 34 s + 36 s | 8 calls, $0.037, 9 s + 9 s |
+| Wall | 172 s = **34.4 s a page** (Audiveris 88 s) | 50 s |
 | MuseScore kept | **1731 of 1731 notes** | **628 of 628** |
-| Systems vs scan | page breaks at 29, 49, 70, 91 as the scan; 24 of 27 systems match; p1's 25-28 spills to a page of its own, 61-69 and 82-90 split (MuseScore at Audiveris's page size with the tempo line) | **1-3, 4-6, 7-10, 11-13, 14-16 on one page, exactly the scan** |
+| Systems vs scan | page breaks at 29, 49, 70, 91 as the scan; 24 of 27 systems match; p1's 25-28 spills to a page of its own, 61-69 and 82-90 split (MuseScore at Audiveris's page size, with the tempo line above system 1) | **1-3, 4-6, 7-10, 11-13, 14-16 on one page, exactly the scan** |
 
-Spend for the whole v2 work: $0.69 (first build) + $1.02 (revision, six runs, one killed before its model calls).
+Merge bar (CK): Aria text F1 ≥ 0.95 **met** (1.00); junk 0 **met**; duplicates 0 **met** (nothing doubled); notes kept
+100 % **met** (both books); Chopin systems exact **met**. Spend for all v2 work: $0.69 + $1.02 + $0.30 = $2.01.
 
-What the numbers say. The glyph rule costs recall (Audiveris finds no word glyph for about one *cresc.* in seven) and
-buys the zero junk; the render check catches a word in the wrong bar (93/94, 59) at the price of restoring Audiveris's
-OCR text in that bar ("erase. 11on a pace" in 59) and a few false reverts where Spark's reason is a missing word,
-not a wrong one (33, 56, 57, 84, 88). Two things for CK: whether a reverted bar should keep Audiveris's words or
-lose its text altogether, and whether the glyph rule should allow Spark's reading when Audiveris's OCR found *any*
-glyph in the bar (bars 9 and 67 print *cresc.* clearly). The first build's per-note fingering is gone and not
-missed in the numbers; its measurement is in git history (commit 78a55a7).
+The render check's three "no"s split one true text miss, one layout noise, one false no that cost a correct word
+(bar 88); at $0.14 a book it is the second-largest line. The earlier reverted-bar question is closed: a revert
+restores the filtered base (junk never returns), and with the vocabulary rule only two glyph-less words were dropped.
 
-Renders to open (made by `api/experiments/engrave/v2_render.sh`, not in git): `api/experiments/engrave/v2/goldberg-bga-p1-5-v2b.pdf`,
-`api/experiments/engrave/v2/chopin-op40-1-p25-v2b.pdf`; `.kept.txt`, `.systems.txt` and the summaries beside them.
+Renders to open (made by `api/experiments/engrave/v2_render.sh`, not in git): `api/experiments/engrave/v2/goldberg-bga-p1-5-v2e.pdf`,
+`api/experiments/engrave/v2/chopin-op40-1-p25-v2e.pdf`; `.kept.txt`, `.systems.txt` and the summaries beside them.
 
 ## homr (0.7, studied and rejected for now)
 
