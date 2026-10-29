@@ -9,7 +9,7 @@ the working agreement. Read once; feature files link here by number.
 ## What Folio is
 
 An AI librarian and practice tool for musicians, built for the Meta Global AI Developer Hackathon
-(Oct 27 to Nov 4, 2026). Public repo: https://github.com/jckjjcckk/ensemble_pro. Local folder `~/Documents/muse`.
+(Oct 27 to Nov 4, 2026). Public repo: https://github.com/jckjjcckk/folio-pad. Local folder `~/Documents/muse`.
 Product name **Folio** (decided 2026-10-26). "Muse" stays as the folder name only. Tagline direction:
 "One score for the whole ensemble." No "Pro" suffix (reads as a pricing tier). GitHub repo stays
 `ensemble_pro` unless renamed before the submission form (CK's to-do). Domain is a post-hackathon concern.

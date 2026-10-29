@@ -31,7 +31,7 @@ file. The script refuses a local Supabase or API URL. The same build goes into t
 `index.html` (React Router). CK builds and deploys from the dashboard (Workers Builds); nothing on this Mac
 logs in to Cloudflare.
 
-1. Workers & Pages → Create → **Import a repository** → `jckjjcckk/ensemble_pro`, branch `main`: project name
+1. Workers & Pages → Create → **Import a repository** → `jckjjcckk/folio-pad`, branch `main`: project name
    `folio-app`, root directory `web`, build command `npm run build:hosted`, deploy command
    `npx wrangler deploy`. Build variables, values taken from `web/.env` on the Mac: `VITE_SUPABASE_URL`,
    `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_API_URL=https://folio-api.jckjjcckk.com`. The build script

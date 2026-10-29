@@ -70,7 +70,7 @@ sources, `Info.plist` or the asset catalog, so edits there are safe. Rerun the a
 The reviewer and the testers use the same hosted stack as the web app. CK deploys from the Cloudflare
 dashboard; nothing on this Mac logs in to Cloudflare. `deploy/README.md` is the runbook.
 
-1. Dashboard → Workers & Pages → Create → **Import a repository** → `jckjjcckk/ensemble_pro`, branch
+1. Dashboard → Workers & Pages → Create → **Import a repository** → `jckjjcckk/folio-pad`, branch
    `main`. Build settings:
    - Project name `folio-app`
    - Root directory `web`
