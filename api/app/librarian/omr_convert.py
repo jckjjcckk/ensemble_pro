@@ -364,6 +364,8 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
         verify_s = time.time() - t_verify
         for n, why in checked["reverted"].items():
             extra.setdefault(n, []).append(f"verify: the engraved text did not match the scan ({why}); the engine's reading restored")
+        for n, why in checked["missing"].items():
+            extra.setdefault(n, []).append(f"verify: the scan prints text the transcription lacks ({why})")
         if checked["reverted"]:
             data = await asyncio.to_thread(write_musicxml, sc, page, form.get("opus"))
         for im in scans.values():
@@ -379,7 +381,8 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
     cost = budget.summary()
     items = {"written": {k: counts[k] for k in ("words", "dynamic")}, "duplicates": counts["duplicates"], "dropped": counts["dropped"],
              "systems_answered": counts["systems_answered"], "systems": counts["systems"],
-             "verified": {"systems": checked["asked"], "reverted_bars": sorted(checked["reverted"]), "skipped": checked["skipped"]}}
+             "verified": {"systems": checked["asked"], "reverted_bars": sorted(checked["reverted"]), "missing_bars": sorted(checked["missing"]),
+                          "skipped": checked["skipped"]}}
     meta = {"transcribed_from": src["id"], "engine": ENGINE,
             "flags": {"bars_doubtful": len(flagged), "pages_unreadable": len(doc["unreadable"])},
             "flagged_bars": flags, "pages": book_run["pdf_pages"], "parts": names,

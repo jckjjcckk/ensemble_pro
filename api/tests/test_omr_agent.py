@@ -190,3 +190,10 @@ def test_verify_flags_accidentals_and_removes_false_ornaments():
     assert flags == {7: ["accidental: the engine read a sharp; Spark sees natural (not changed: the PDF is the truth)"]}
     assert c5.expressions == [] and c5.nameWithOctave == "C5"                                # the pitch is never touched
     assert [e["layer"] for e in log] == ["flag", "A"]
+
+
+def test_verify_verdicts_name_bars_within_the_system():
+    from app.librarian.omr_verify import _same
+    assert _same({"same": "yes", "reason": "matches", "differences": []}, [7, 8]) == (True, "matches", [])
+    assert _same({"same": False, "reason": "m8 lacks p", "differences": [{"measure": 8, "what": "p"}, {"measure": "9", "what": "x"}]}, [7, 8]) == (False, "m8 lacks p", [8])
+    assert _same(None, [7]) == (None, "no answer", [])

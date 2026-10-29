@@ -95,10 +95,11 @@ def _same(ans: dict | None, numbers: list[int]) -> tuple[bool | None, str, list[
 
 async def verify_edits(ctx, client, model: str, engraver: Any, run_id: str, data: bytes, doc: dict, scans: dict[int, Image.Image],
                        undos: Undos, budget: Budget) -> dict[str, Any]:
-    """Render `data`, ask per touched system, revert on no. Returns {asked, reverted: {bar: reason}, log, render_s,
+    """Render `data`, ask per touched system, revert on no. Returns {asked, reverted: {bar: reason}, missing: {bar: reason}
+    (text Spark sees on the scan that the file lacks, in bars no edit touched: a flag, not a revert), log, render_s,
     skipped: reason|None}; the caller rewrites the file when `reverted` is not empty."""
     touched = sorted(n for n, u in undos.items() if u.added or u.removed)
-    out: dict[str, Any] = {"asked": 0, "reverted": {}, "log": [], "systems": 0, "skipped": None}
+    out: dict[str, Any] = {"asked": 0, "reverted": {}, "missing": {}, "log": [], "systems": 0, "skipped": None}
     if not touched:
         return out
     systems = [s for s in doc["systems"] if any(n in touched for n in s["numbers"]) and s["page"] in scans]
@@ -154,9 +155,18 @@ async def verify_edits(ctx, client, model: str, engraver: Any, run_id: str, data
             continue
         out["asked"] += 1
         if rec["same"] is False:
-            # Revert the bars Spark names when it names any of this system's edited bars, else every edited bar of the system
-            targets = [n for n in rec["bars"] if n in rec["named"]] or rec["bars"]
-            for n in targets:
-                undos[n].revert()
-                out["reverted"][n] = rec["reason"] or "Spark says the engraved text differs from the scan"
+            # The bars Spark names: an edited one is reverted; one we never touched gets a flag only (Spark is pointing at
+            # text the scan prints and the file lacks, which no revert can supply). Nothing named: every edited bar reverts.
+            reason = rec["reason"] or "Spark says the engraved text differs from the scan"
+            if rec["named"]:
+                for n in rec["named"]:
+                    if n in rec["bars"]:
+                        undos[n].revert()
+                        out["reverted"][n] = reason
+                    else:
+                        out["missing"][n] = reason
+            else:
+                for n in rec["bars"]:
+                    undos[n].revert()
+                    out["reverted"][n] = reason
     return out

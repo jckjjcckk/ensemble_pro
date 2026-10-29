@@ -246,7 +246,7 @@ async def test_convert_writes_the_digital_version_with_flags_and_the_facts():
     assert all(c.kind == "spark" and c.model == "muse-spark-1.3" for c in ctx.charges)
     assert out["cost_usd"] == pytest.approx(7 * CALL_USD, abs=1e-4)
     assert out["cost_per_page"] == {"2": pytest.approx(CALL_USD, abs=1e-4), "3": pytest.approx(6 * CALL_USD, abs=1e-4)}
-    assert out["verify"] == {"asked": 1, "reverted": {}, "systems": 1, "skipped": None, "render_s": 0.5}
+    assert out["verify"] == {"asked": 1, "reverted": {}, "missing": {}, "systems": 1, "skipped": None, "render_s": 0.5}
     assert len(renderer.runs) == 1 and renderer.runs[0][0] == "job-1-verify"
 
     key = digital_path(SCORE)
@@ -280,7 +280,7 @@ async def test_convert_writes_the_digital_version_with_flags_and_the_facts():
     assert xml.count(b"<pedal") == 2 and xml.count(b"<wedge") == 2                 # Audiveris's pedal and hairpin untouched
     assert [p.nameWithOctave for n in back.recurse().notes for p in n.pitches][:2] == ["G4", "A4"]   # notes as Audiveris read them
     assert out["items"]["written"] == {"words": 1, "dynamic": 1} and out["items"]["duplicates"] == 1 and out["items"]["dropped"] == 4
-    assert out["items"]["verified"] == {"systems": 1, "reverted_bars": [], "skipped": None}
+    assert out["items"]["verified"] == {"systems": 1, "reverted_bars": [], "missing_bars": [], "skipped": None}
 
     row = next(r for r in db.rows["sources"] if r["id"] == out["source_id"])
     assert row["kind"] == "musicxml" and row["storage_paths"] == [key]
