@@ -34,17 +34,30 @@ function Digits({ text, x, y, width }: { text: string; x: number; y: number; wid
 }
 
 /** The plate itself. `unit` is CSS px per glyph unit (1.1 draws an 11 px staff space). */
-export function IdentityStaff({ keySig, meter, unit = 1.1, label, minWidth = 0 }: { keySig: KeySig | null; meter: Meter | null; unit?: number; label: string; /** CSS px the staff runs to at least (the shelf card's plate). */ minWidth?: number }) {
+/** Where the cover's clef sits: the staff line its glyph names (top line 0), in Noto Music (one em = four spaces). */
+const CLEF_TEXT: Record<'bass' | 'alto', { ch: string; y: number }> = { bass: { ch: '\u{1D122}', y: 2.5 }, alto: { ch: '\u{1D121}', y: 3.5 } }
+/** A key signature in the bass clef sits one space lower than in the treble, in the alto half a space. */
+const CLEF_SHIFT = { treble: 0, grand: 0, bass: 1, alto: 0.5 } as const
+const DOUBT_W = 34
+
+export function IdentityStaff({ keySig, meter, unit = 1.1, label, minWidth = 0, doubt = false, clef = 'treble' }: {
+  keySig: KeySig | null; meter: Meter | null; unit?: number; label: string; /** CSS px the staff runs to at least (the shelf card's plate). */ minWidth?: number
+  /** The key was not read with confidence: its place shows a dashed amber "?" instead of a signature (F_BookUnread). */
+  doubt?: boolean
+  /** The cover's clef (Details); the grand staff draws its treble half. */
+  clef?: 'treble' | 'bass' | 'alto' | 'grand'
+}) {
   const fadeId = useId().replace(/:/g, '')
   const accs = keySig ? (keySig.fifths > 0 ? SHARP_LINES.slice(0, keySig.fifths).map(line => ({ line, g: GLYPHS.sharp })) : FLAT_LINES.slice(0, -keySig.fifths).map(line => ({ line, g: GLYPHS.flat }))) : []
 
   const keyX = CLEF_X + GLYPHS.gClef.w + AFTER_CLEF
   // One accidental glyph per signature, so each sits a fixed advance from the last.
   const placed = accs.map((a, i) => ({ ...a, x: keyX + i * (a.g.w + ACC_GAP) }))
-  const tsX = placed.length ? keyX + placed.length * (placed[0].g.w + ACC_GAP) - ACC_GAP + AFTER_KEY : keyX
+  const showDoubt = doubt && !keySig
+  const tsX = placed.length ? keyX + placed.length * (placed[0].g.w + ACC_GAP) - ACC_GAP + AFTER_KEY : showDoubt ? keyX + DOUBT_W + AFTER_KEY : keyX
   const tsW = meter ? Math.max(digitsWidth(meter.top), digitsWidth(meter.bottom)) : 0
   // With no signature yet the plate keeps a signature's room, so the box does not jump when the read lands.
-  const sigEnd = keySig || meter ? tsX + tsW : tsX + 30
+  const sigEnd = keySig || meter || showDoubt ? tsX + tsW : tsX + 30
   const W = Math.max(sigEnd + TAIL, minWidth / unit)
   const H = BOTTOM - TOP
 
@@ -65,8 +78,16 @@ export function IdentityStaff({ keySig, meter, unit = 1.1, label, minWidth = 0 }
       <g mask={`url(#${fadeId}-m)`} stroke="currentColor" strokeWidth={0.85} shapeRendering="geometricPrecision">
         {[0, 1, 2, 3, 4].map(i => <line key={i} x1={0} x2={W} y1={i * SP} y2={i * SP} />)}
       </g>
-      <path d={GLYPHS.gClef.d} transform={`translate(${CLEF_X - GLYPHS.gClef.x0} ${3 * SP})`} />
-      {placed.map((a, i) => <path key={i} d={a.g.d} transform={`translate(${a.x - a.g.x0} ${a.line * SP})`} />)}
+      {clef === 'bass' || clef === 'alto'
+        ? <text x={CLEF_X} y={CLEF_TEXT[clef].y * SP} fontFamily="'Noto Music', serif" fontSize={4 * SP}>{CLEF_TEXT[clef].ch}</text>
+        : <path d={GLYPHS.gClef.d} transform={`translate(${CLEF_X - GLYPHS.gClef.x0} ${3 * SP})`} />}
+      {showDoubt && (
+        <g className="id-doubt">
+          <rect x={keyX - 2} y={-7} width={DOUBT_W} height={4 * SP + 14} rx={3} fill="none" stroke="var(--ask, #D8A62B)" strokeWidth={1.3} strokeDasharray="4 3" />
+          <text x={keyX - 2 + DOUBT_W / 2} y={2 * SP + 8} textAnchor="middle" fontFamily="'EB Garamond', serif" fontWeight={700} fontSize={24} fill="var(--ask, #D8A62B)">?</text>
+        </g>
+      )}
+      {placed.map((a, i) => <path key={i} d={a.g.d} transform={`translate(${a.x - a.g.x0} ${(a.line + CLEF_SHIFT[clef]) * SP})`} />)}
       {meter && (
         <>
           <Digits text={meter.top} x={tsX} y={2 * SP} width={tsW} />

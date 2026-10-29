@@ -1,15 +1,17 @@
 /** The Book sheet (R3, docs/design/r3/R2_BookSheet): a bottom sheet over the dimmed shelf. The book's identity (composer,
  *  title, length, its PDF / Digital tag, the engraved key and time signature, dates under the (i)), then what can be done
  *  with it: Open on the stand (where it was left), Split by instrument, Convert to Digital, Share with a group; Export
- *  MusicXML, Rename and Delete book in the foot. The book's state (being read, a question for you, a stop) sits above the
+ *  MusicXML, Details and Delete book in the foot. When the reader kept only a guess at the key, an amber banner says so
+ *  and opens Details (F_BookUnread), and the staff shows a "?" where the signature goes. The book's state (being read, a question for you, a stop) sits above the
  *  actions in one line each, and the question opens the confirmation screen (011). */
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { AnimatePresence, motion } from 'motion/react'
 import type { Score } from '../mock'
-import { MY_LIBRARY, deleteBook, exportName, exportStored, renameBook, type AskJob } from './data'
+import { MY_LIBRARY, deleteBook, exportName, exportStored, type AskJob } from './data'
 import { BottomSheet, Confirm } from './Surfaces'
-import { MiniStaff, IGroupR3 } from './r3bits'
+import { MiniStaff, IGroupR3, keyInDoubt, keyWords, meterInDoubt } from './r3bits'
+import { DetailsDialog } from './Details'
 import { PartsPanel } from './Parts'
 import { ShareSheet } from './Groups'
 import { placeOf, IStand } from './layout'
@@ -60,10 +62,9 @@ function Body({ score: s, state: st, share, onClose, onAsk, onConvert, convertMs
   const place = placeOf(s.id)
   const [parts, setParts] = useState(false)
   const [sharing, setSharing] = useState(false)
-  const [renaming, setRenaming] = useState(false)
-  const [title, setTitle] = useState(s.title)
+  const [details, setDetails] = useState(false)
   const [confirm, setConfirm] = useState(false)
-  const [busy, setBusy] = useState<'rename' | 'delete' | 'export' | null>(null)
+  const [busy, setBusy] = useState<'delete' | 'export' | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
 
   const parts_n = s.partIds.length
@@ -79,13 +80,8 @@ function Body({ score: s, state: st, share, onClose, onAsk, onConvert, convertMs
 
   const go = (prefer?: 'pdf' | 'digital') => { onClose(); navigate(standPath(s, prefer)) }
 
-  const saveTitle = async (e?: FormEvent) => {
-    e?.preventDefault()
-    const t = title.trim()
-    if (!t || t === s.title) { setRenaming(false); return }
-    setBusy('rename'); setMsg(null)
-    try { await renameBook(s.id, t); world.reload(); setRenaming(false) } catch (err) { setMsg((err as Error).message) } finally { setBusy(null) }
-  }
+  const unsureKey = canEdit && keyInDoubt(s)
+  const unsureMeter = canEdit && !unsureKey && meterInDoubt(s)
   const remove = async () => {
     setBusy('delete'); setMsg(null)
     try { await deleteBook(s.id); world.reload(); onClose() } catch (err) { setMsg((err as Error).message); setBusy(null) }
@@ -101,13 +97,7 @@ function Body({ score: s, state: st, share, onClose, onAsk, onConvert, convertMs
       <div className="bs-id">
         <div className="bs-id-text">
           <span className="card-composer bs-composer">{s.composer || ' '}</span>
-          {renaming ? (
-            <form className="bs-rename" onSubmit={saveTitle}>
-              <input value={title} onChange={e => setTitle(e.target.value)} aria-label="Title" autoFocus maxLength={200} enterKeyHint="done" onKeyDown={e => { if (e.key === 'Escape') { e.stopPropagation(); setRenaming(false); setTitle(s.title) } }} />
-              <button type="button" className="r3-btn is-line" onClick={() => { setRenaming(false); setTitle(s.title) }}>Cancel</button>
-              <button type="submit" className="r3-btn is-solid" disabled={!title.trim() || busy === 'rename'}>{busy === 'rename' ? 'Saving' : 'Save'}</button>
-            </form>
-          ) : <h2 className="bs-title">{s.title}</h2>}
+          <h2 className="bs-title">{s.title}</h2>
           <div className="bs-facts">
             {facts && <span>{facts}</span>}
             {st.kinds.map(k => <span key={k} className="r3-tag">{kindWord[k]}</span>)}
@@ -115,10 +105,35 @@ function Body({ score: s, state: st, share, onClose, onAsk, onConvert, convertMs
           </div>
           {share.sharedHere && share.sharedBy && <span className="bs-by">{borrowed ? `Shared by ${share.sharedBy} from their own library` : 'Shared by you from your library'}</span>}
         </div>
-        <div className="bs-staff"><MiniStaff score={s} unit={1.2} width={262} /></div>
+        {canEdit ? (
+          <button type="button" className="bs-staff is-edit" aria-label="Edit the book's details" onClick={() => setDetails(true)} aria-haspopup="dialog">
+            <MiniStaff score={s} unit={1.2} width={262} />
+            <span className="bs-pencil" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h4l10-10-4-4L4 16zM13 7l4 4" /></svg></span>
+          </button>
+        ) : <div className="bs-staff"><MiniStaff score={s} unit={1.2} width={262} /></div>}
       </div>
 
+      {(unsureKey || unsureMeter) && (
+        <button type="button" className="bs-doubt" onClick={() => setDetails(true)} aria-haspopup="dialog">
+          <span className="bs-doubt-in">
+            <span className="card-dot is-ask is-inline" aria-hidden="true" />
+            <span className="bs-doubt-text">
+              <b>{unsureKey ? 'The key could not be read with confidence' : 'The time signature could not be read with confidence'}</b>
+              <span>Best guess: {unsureKey ? keyWords(s.keyGuess) ?? s.keyGuess : s.meterGuess}. Confirm it in Details.</span>
+            </span>
+          </span>
+          <span className="bs-doubt-act">{unsureKey ? 'Set the key' : 'Set the time'} <IChev /></span>
+        </button>
+      )}
+
       <StateLine score={s} state={st} canEdit={canEdit} borrowed={borrowed} onAsk={onAsk} />
+      {canEdit && st.digitalReady && !!s.flaggedBars?.length && (
+        <div className="bs-state">
+          <span className="card-dot is-ask is-inline" aria-hidden="true" />
+          <span className="bs-state-text"><b>{s.flaggedBars.length} {s.flaggedBars.length === 1 ? 'bar' : 'bars'} the reader is unsure about</b><span>Compare them with your scan; a wrong bar shows the scan instead.</span></span>
+          <button type="button" className="r3-btn is-line" onClick={() => { onClose(); navigate(`/score/${s.id}/check`) }}>Check</button>
+        </div>
+      )}
 
       <div className="bs-tiles">
         <button type="button" className="bs-tile is-open" disabled={!canOpen} onClick={() => go()}>
@@ -182,8 +197,8 @@ function Body({ score: s, state: st, share, onClose, onAsk, onConvert, convertMs
         ) : (
           <motion.div key="foot" className="bs-foot" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.16, ease: EASE_OUT }}>
             <div className="bs-foot-l">
+              {canEdit && <button type="button" className="r3-btn is-quiet" onClick={() => setDetails(true)} aria-haspopup="dialog">Details</button>}
               {ready && exportPath && !borrowed && <button type="button" className="r3-btn is-quiet" disabled={busy === 'export'} onClick={() => void exportBook()}>{busy === 'export' ? 'Exporting' : 'Export MusicXML'}</button>}
-              {canEdit && !renaming && <button type="button" className="r3-btn is-quiet" onClick={() => setRenaming(true)}>Rename</button>}
             </div>
             {canEdit && <button type="button" className="r3-btn is-quiet is-red" onClick={() => setConfirm(true)}>Delete book…</button>}
             {msg && <p className="r3-msg bs-foot-msg" role="alert">{msg}</p>}
@@ -196,6 +211,7 @@ function Body({ score: s, state: st, share, onClose, onAsk, onConvert, convertMs
         <div className="r3-scroll parts-sheet-body info"><PartsPanel score={s} /></div>
       </BottomSheet>
       <ShareSheet score={s} open={sharing} onClose={() => setSharing(false)} />
+      <DetailsDialog score={s} open={details} onClose={() => setDetails(false)} />
     </div>
   )
 }

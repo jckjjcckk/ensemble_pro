@@ -11,8 +11,22 @@ export const ICopy = ({ size = 14 }: { size?: number }) => <svg aria-hidden="tru
 export function MiniStaff({ score, unit = 0.8, width = 168 }: { score: Score; unit?: number; width?: number }) {
   const keySig = parseKey(score.key)
   const meter = parseMeter(score.meter)
-  const label = [keySig ? keyName(keySig) : null, meter ? `${meter.top}/${meter.bottom} time` : null].filter(Boolean).join(', ') || 'Signature not read yet'
-  return <span className="card-staff"><IdentityStaff keySig={keySig} meter={meter} unit={unit} minWidth={width} label={label} /></span>
+  const doubt = keyInDoubt(score)
+  const label = [keySig ? keyName(keySig) : doubt ? 'key not read with confidence' : null, meter ? `${meter.top}/${meter.bottom} time` : null].filter(Boolean).join(', ') || 'Signature not read yet'
+  return <span className="card-staff"><IdentityStaff keySig={keySig} meter={meter} unit={unit} minWidth={width} label={label} doubt={doubt} clef={score.coverClef} /></span>
+}
+
+/** The reader left the key blank but kept a guess, and nobody has confirmed it (F_BookUnread). */
+export const keyInDoubt = (s: Score) => !s.key && !!s.keyGuess && !s.sigConfirmed
+/** The meter likewise. */
+export const meterInDoubt = (s: Score) => !s.meter && !!s.meterGuess && !s.sigConfirmed
+
+/** "G minor, 2 flats" from a canonical key ("G minor"), or the key alone when it carries no signature. */
+export function keyWords(raw: string | undefined): string | null {
+  const k = parseKey(raw)
+  if (!k) return null
+  const n = Math.abs(k.fifths)
+  return n === 0 ? `${keyName(k)}, no sharps or flats` : `${keyName(k)}, ${n} ${k.fifths > 0 ? (n === 1 ? 'sharp' : 'sharps') : (n === 1 ? 'flat' : 'flats')}`
 }
 
 export function useCopy(): [string | null, (text: string, id: string) => void] {

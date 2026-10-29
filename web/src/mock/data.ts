@@ -92,7 +92,29 @@ export interface Score {
   /** The engraved page sets of a digital book (one per layout) and the layout it opens in (`scores.digital_layout`). */
   engravings?: Engraving[]
   digitalLayout?: DigitalLayout
+  /** The reader's best guess at the key and meter when it was unsure (`scores.key_sig_guess`, `meter_guess`), its
+   *  confidence, and whether the owner confirmed them in Details (then `key` / `meter` are the owner's). */
+  keyGuess?: string
+  meterGuess?: string
+  sigConfidence?: { key?: string; time?: string }
+  sigConfirmed?: boolean
+  /** Details (F_Details): the tempo marking, the cover's clef, and where bar numbering starts. */
+  tempoText?: string
+  coverClef?: CoverClef
+  firstBar?: number
+  firstBarPage?: number
+  createdAt?: string
+  /** The Digital copy's doubtful bars (`flagged_bars` of the transcription's meta, 005): box = fractions of the PDF page. */
+  flaggedBars?: FlaggedBar[]
+  /** Pages the reader found no staves on, with its reason (the latest interpretation's summary). */
+  unreadable?: { page: number; reason: string }[]
+  /** Questions on this book already answered (jobs carrying `resume_from`). */
+  answered?: number
 }
+
+export type CoverClef = 'treble' | 'bass' | 'alto' | 'grand'
+
+export interface FlaggedBar { number: number; page: number; box?: { x0: number; y0: number; x1: number; y1: number }; reasons: string[] }
 
 /** The one tag every book carries. "MusicXML" names the file format, on import and export only; the book is Digital. */
 export type BookKind = 'pdf' | 'digital'

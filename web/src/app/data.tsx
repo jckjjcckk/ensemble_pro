@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { deliverFile } from '../lib/native'
-import type { DigitalLayout, Engraving, Ensemble, Member, Membership, Part, Score } from '../mock'
+import type { DigitalLayout, Engraving, Ensemble, FlaggedBar, Member, Membership, Part, Score } from '../mock'
 
 export interface Account { id: string; name: string; email: string; memberships: Membership[] }
 export interface World {
@@ -145,7 +145,7 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
       .select('id,kind,status,progress,error,score_id,created_at,payload,note:result->>note,question:result->>question,question_payload:result->question_payload,source_id:result->>source_id,systems_cut:result->systems_cut,log:result->agent->scratch->log,agent_log:result->agent->log')
       .eq('kind', 'part_cut').order('created_at'),
     supabase.from('sources').select('id,score_id,kind,storage_paths,page_order,meta,created_at').order('created_at'),
-    supabase.from('interpretations').select('id,score_id,engine,status,created_at,header:params->state->header->instruments,summary_header:summary->header->instruments,summary_parts:summary->parts,summary_question:summary->>question').order('created_at'),
+    supabase.from('interpretations').select('id,score_id,engine,status,created_at,header:params->state->header->instruments,summary_header:summary->header->instruments,summary_parts:summary->parts,summary_question:summary->>question,unreadable:summary->unreadable_pages').order('created_at'),
     supabase.from('jobs')
       .select('id,kind,status,progress,error,score_id,created_at,payload,question:result->>question,question_payload:result->question_payload')
       .neq('kind', 'part_cut').order('created_at'),
@@ -249,6 +249,11 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
     key: s.key_sig ?? '', meter: s.meter ?? '', durationSec: s.duration_sec ?? 0, updatedAt: s.updated_at,
     partIds: partRows.filter(p => p.score_id === s.id).map(p => p.id), folder: s.folder || 'Scores', brief: s.brief ?? undefined,
     engravings: engravingsOf(sourceRows, s.id), digitalLayout: (s.digital_layout === 'original' ? 'original' : 'display') as DigitalLayout,
+    keyGuess: s.key_sig_guess ?? undefined, meterGuess: s.meter_guess ?? undefined, sigConfidence: s.signature_confidence ?? undefined,
+    sigConfirmed: !!s.signature_confirmed, tempoText: s.tempo_text ?? undefined, coverClef: s.cover_clef ?? undefined,
+    firstBar: s.first_bar ?? undefined, firstBarPage: s.first_bar_page ?? undefined, createdAt: s.created_at,
+    flaggedBars: flaggedOf(sourceRows, s.id), unreadable: unreadableOf(interpRows, s.id),
+    answered: [...jobRows, ...bookJobRows].filter(r => r.score_id === s.id && r.payload?.resume_from).length,
     ...bookOf(s),
   })).map(sc => ({ ...sc, ...formsOf(scoreRows.find(r => r.id === sc.id)!, sc.book) }))
 
@@ -311,6 +316,24 @@ function chainedBookJobs(rows: Row[]): BookJob[] {
 }
 
 /** The engraved page sets of a book (`engraving` sources, one per layout; 005), the newest of each layout. */
+/** The latest transcription's doubtful bars (005), with their PDF page and box, for the check screen (F_CheckBar). */
+function flaggedOf(rows: Row[], scoreId: string): FlaggedBar[] | undefined {
+  const t = rows.filter(r => r.score_id === scoreId && r.kind === 'musicxml' && r.meta?.transcribed_from).pop()
+  const xs = Array.isArray(t?.meta?.flagged_bars) ? t!.meta.flagged_bars : null
+  if (!xs) return undefined
+  return xs.filter((f: Row) => typeof f?.number === 'number').map((f: Row) => ({
+    number: f.number, page: Number(f.page) || 1, box: f.box && typeof f.box.x0 === 'number' ? f.box : undefined,
+    reasons: Array.isArray(f.reasons) ? f.reasons.map(String) : [],
+  }))
+}
+
+/** The pages the latest reading found no staves on (`summary.unreadable_pages`, 004). */
+function unreadableOf(rows: Row[], scoreId: string): { page: number; reason: string }[] | undefined {
+  const latest = rows.filter(r => r.score_id === scoreId).pop()
+  const xs = Array.isArray(latest?.unreadable) ? latest!.unreadable : null
+  return xs?.length ? xs.map((u: Row) => ({ page: Number(u.page), reason: String(u.reason ?? '') })) : undefined
+}
+
 function engravingsOf(rows: Row[], scoreId: string): Engraving[] {
   const out = new Map<DigitalLayout, Engraving>()
   for (const r of rows) {

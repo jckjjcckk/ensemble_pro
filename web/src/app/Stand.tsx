@@ -29,6 +29,7 @@ import { BookModes, placeOf, rememberBook, rememberPlace, useReducedMotion, useV
 import { bookShare, bookState } from './book'
 import { faceColor } from './GroupsDialog'
 import { StaffQuestion } from './StaffQuestion'
+import { ScanPatches, UnreadablePages, useBarDecisions } from './CheckBars'
 
 type Tool = null | 'marking' | 'cut' | 'voice'
 
@@ -205,6 +206,9 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
   const [rec, setRec] = useState<{ on: boolean; sec: number }>({ on: false, sec: 0 })
   const menu = useBarMenu()
   const [scribble, setScribble] = useState(false)
+  const { decisions } = useBarDecisions(!pages && score.flaggedBars?.length ? score.id : undefined)
+  const [shownScans, setShownScans] = useState<Set<number>>(() => new Set())
+  const [rescanMsg, setRescanMsg] = useState<number | null>(null)
   const [inkTool, setInkTool] = useState<InkTool>('pen')
   const [inkColor, setInkColor] = useState<PenColor>('ink')
   const [switching, setSwitching] = useState(false)
@@ -322,6 +326,11 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
 
   const overlay = (g: Geo, z?: ZoomView | null) => (
     <>
+      {!pages && decisions.size > 0 && <ScanPatches geo={g} score={score} decisions={decisions} />}
+      {pages && !!score.unreadable?.length && (
+        <UnreadablePages geo={g} score={score} shown={shownScans} rescanMsg={rescanMsg}
+          onShow={p => setShownScans(s => new Set(s).add(p))} onRescan={p => setRescanMsg(p)} />
+      )}
       <Bubbles geo={g} items={bubbles} big={!!z} selected={pin} colorOf={colorOf} nameOf={nameOf} faceOf={a => initials(membersById[a.authorId]?.name ?? nameOf(a))} onSelect={a => { setPin(a.id); menu.tap(a.barFrom) }} />
       <EdgeFaces geo={g} people={online} zoom={z ?? null} colorOf={colorOf} onJump={jump} />
       <InkLayer
@@ -349,6 +358,9 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
   const where = zoom && view
     ? `${barRange(view.first, view.last).includes('–') ? 'bars' : 'bar'} ${barRange(view.first, view.last)} · p. ${zoom.page + 1}${zoom.bottom - zoom.top < 0.92 ? `, ${zoom.top < 0.12 ? 'upper' : zoom.bottom > 0.88 ? 'lower' : 'middle'} ${zoom.bottom - zoom.top < 0.6 ? 'half' : 'part'}` : ''}`
     : view ? `bars ${view.first}–${view.last}${score.bars ? ` of ${score.bars}` : ''}` : pages ? 'PDF' : ''
+  // A page on view that the reader could not read says so in the where-line (F_Unreadable).
+  const unreadOnView = pages && view ? (score.unreadable ?? []).find(u => !shownScans.has(u.page) && u.page > view.spread * view.perView && u.page <= (view.spread + 1) * view.perView) : undefined
+  const whereLine = [where, unreadOnView ? `page ${unreadOnView.page} could not be read` : null].filter(Boolean).join(' · ')
   const layerName = ownerGroup ? contextFor(ownerGroup)?.ensemble.name : group?.ensemble.name
   const showLayer = !!groupId && !!layerName
   const canLayout = !pages && isFull && canEditBook(score) && !!score.engravings?.length
@@ -375,7 +387,7 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
         </Link>
         <div className="stand-title">
           <span className="stand-name"><span className="stand-name-t">{score.title}</span>{partWord && <span className="stand-name-p"> — {partWord}</span>}</span>
-          <span className="stand-where">{[composerLast, where].filter(Boolean).join(' · ')}</span>
+          <span className="stand-where">{[composerLast, whereLine].filter(Boolean).join(' · ')}</span>
         </div>
       </div>
       <BookModes scoreId={score.id} />
