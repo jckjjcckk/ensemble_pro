@@ -88,6 +88,13 @@ window.
   (a marking, a cut, a voice note) and Open the PDF file. The ruler is gone (the design has none).
   `localStorage` `folio.book` and a per-book place (`folio.place`) are kept. Verified in the browser pane against
   the local stack at 834x1194 and 1194x834, light and dark; screenshots in `docs/design/r3/shots/` (gitignored).
+- **When the reader is unsure (R3, 2026-10-28 night; 011).** A page the reading found no staves on
+  (`summary.unreadable_pages [{page, reason}]`, written by `process_pages`) shows on the PDF Stand as a dashed
+  placeholder: "Page 3 could not be read", the reason in plain words, Rescan page 3 and Show the scan as is; the
+  header's where-line adds "page 3 could not be read". **Rescan page N is not built**: the button says so
+  ("Rescanning a single page is not built yet …"), because the API has no cheap path to replace one page image and
+  re-read only that page (`process_pages` reads the whole book again). On the engraved Stand, a bar the owner
+  marked "Wrong, use the scan here" (011, `bar_decisions`) is drawn from the scan over the engraved bar.
 - **A personal book shared with a group (2026-10-28, 001).** By reference: the group reads the owner's book, its
   pages, its Digital file and its splits' rows from the owner's library; nothing is copied. On the group shelf it sits
   in "Shared with the group" with "Shared by {name}"; for anyone but the owner its page and menu offer only Open PDF
