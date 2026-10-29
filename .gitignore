@@ -44,3 +44,5 @@ docs/design/r3/shots/
 
 # never a symlink either (a worktree once committed one and the merge overwrote the real folder)
 api/fixtures/pdf
+api/fixtures/voice/audio/
+api/experiments/voice/out/
