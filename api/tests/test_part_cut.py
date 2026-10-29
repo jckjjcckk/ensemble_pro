@@ -22,8 +22,8 @@ HEADER = text(json.dumps({"instruments": [{"name": "Flute", "staves": 1}, {"name
                                           {"name": "Piano", "staves": 2}, {"name": "Violin I", "staves": 1}], "key": "C major", "time": "4/4"}))
 LABEL = text(json.dumps({"systems": [{"index": 1, "wanted_staves": [4, 5], "status": "playing"}], "confidence": "high"}))
 LABEL_ABSENT = text(json.dumps({"systems": [{"index": 1, "wanted_staves": [], "status": "absent"}], "confidence": "high"}))
-RECHECK_PIANO = text(json.dumps({"instrument": "Pno.", "confidence": "high", "why": "label"}))
-RECHECK_VIOLIN = text(json.dumps({"instrument": "Violins", "confidence": "medium", "why": "two treble staves"}))
+RECHECK_PIANO = text(json.dumps({"matches": True, "staves_seen": 2, "clefs_seen": ["treble", "bass"], "label_seen": "Pno.", "why": "braced pair, label"}))
+RECHECK_VIOLIN = text(json.dumps({"matches": False, "staves_seen": 1, "clefs_seen": ["treble"], "label_seen": "Vl.", "why": "a violin staff, not the horn"}))
 
 
 def synth_page(staves: int = 6, w: int = 1300, h: int = 1700, vocal_gap: bool = False) -> bytes:
@@ -290,8 +290,9 @@ def multi_label(**staves_by_instrument):
                             "confidence": "high"}))
 
 
-def recheck(name: str):
-    return text(json.dumps({"instrument": name, "confidence": "high", "why": "label"}))
+def recheck(name: str, matches: bool = True, clefs: list[str] | None = None):
+    """The closed recheck's answer: yes (with the margin label seen) unless `matches` is False; `clefs` is what Spark saw."""
+    return text(json.dumps({"matches": matches, "staves_seen": 1, "clefs_seen": clefs or [], "label_seen": name, "why": "label" if matches else f"the margin says {name}"}))
 
 
 @pytest.mark.asyncio
@@ -312,7 +313,7 @@ async def test_two_blocks_are_cut_separately_and_stacked():
     key = f"{job.score_id}/parts/flute+horn/p001-s1.png"
     assert key in ctx.uploads
     fb = json.loads(t.calls[7]["messages"][-1]["content"][0]["content"])
-    assert "block of staves [3]" in fb["error"] and "'Violins'" in fb["error"] and "'Horn'" in fb["error"]
+    assert "block of staves [3] alone against the header" in fb["error"] and "the Horn" in fb["error"] and "does not match" in fb["error"] and "'Vl.'" in fb["error"]
     # the strip is block [1] over block [3] with a gap of 1.5 staff spaces (12 px at spacing 8)
     geom, bw, im = page_geometry(synth_page())
     crop1, _, _ = cut_system(bw, im, geom, geom["systems"][0], [1])
@@ -365,11 +366,11 @@ async def test_adjacent_instruments_are_one_block():
 
 @pytest.mark.asyncio
 async def test_recheck_is_per_block_and_blocks_must_agree_with_the_labels():
-    """The recheck must name the block's own instrument (another instrument of the export is not enough: Beethoven 9
-    S+T run 2 shipped alto + tenor that way), and a block one staff off the labels is refused before any model call."""
+    """The recheck is asked per block against that block's own header entry (checking the export as a whole was tried
+    and shipped alto + tenor on Beethoven 9 S+T run 2), and a block one staff off the labels is refused before any model call."""
     script = [tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), multi_label(Flute=[1], Horn=[3]),
               tool("commit_system", {"page": 1, "system": 1, "blocks": [[2, 3]]}),      # staff 2 is nobody's by the labels: no model call
-              commit(1, [1, 3]), recheck("Cor."),                                       # the flute block named as the horn: refused
+              commit(1, [1, 3]), recheck("Cor.", matches=False),                        # the flute block does not look like the flute: refused
               commit(1, [1, 3]), recheck("Fl."), recheck("Horn"), tool("finish", {})]
     client, t = fake_client(script)
     job, ctx, db = world(1, {"instruments": ["Flute", "Horn"]})
@@ -378,7 +379,7 @@ async def test_recheck_is_per_block_and_blocks_must_agree_with_the_labels():
     fb = json.loads(t.calls[5]["messages"][-1]["content"][0]["content"])
     assert "the labels put Horn on [3] in system 1; the block [2, 3] adds staff [2] that the labels give to no wanted instrument" in fb["error"]
     fb = json.loads(t.calls[7]["messages"][-1]["content"][0]["content"])
-    assert "block of staves [1] alone, the model calls it 'Cor.', not 'Flute'" in fb["error"]
+    assert "block of staves [1] alone against the header (According to the score header and the page's staff labels this block is the Flute: 1 staff" in fb["error"] and "the margin says Cor." in fb["error"]
     assert len(t.calls) == 11
 
 
@@ -471,8 +472,8 @@ HEADER_CHOIR = text(json.dumps({"instruments": [
 ])
 async def test_voice_flags_reach_cut_system_and_the_recheck_gets_the_header_clefs(monkeypatch, wanted, block, flags, above_text):
     """The header's families decide `voice` / `voice_above` for the clean pass (the staff above by score order when
-    the system is full), the commit records them, and the recheck prompt carries the header's clef for the block
-    and, for voices, that these are chorus staves."""
+    the system is full), the commit records them, and the closed recheck prompt states the header's part and clef for
+    the block and, for voices, that these are chorus staves in C clefs."""
     import app.librarian.part_cut as pc
     seen: list[dict] = []
     real = pc.cut_system
@@ -492,11 +493,14 @@ async def test_voice_flags_reach_cut_system_and_the_recheck_gets_the_header_clef
     assert sc["commits"]["1:1"]["voices"][0]["voice"] is flags[0] and sc["commits"]["1:1"]["voices"][0]["voice_above"] is flags[1]
     assert sc["pages"]["1"]["geometry"]["expected_staves"] == 6 and sc["pages"]["1"]["geometry"]["staves_before_recovery"] == [6]   # page 1 re-read with the header
     prompt = t.calls[5]["messages"][0]["content"][1]["text"]
-    assert "According to the score header this block holds 1 staff in the" in prompt
+    expect = {"Alto": "the CORO Alto: 1 staff in the alto clef", "Soprano": "the CORO Soprano: 1 staff in the soprano clef", "Flute": "the Flauti: 1 staff in the treble clef"}[wanted[0]]
+    assert f"this block is {expect}." in prompt and "Does this crop look like that: 1 staff in the" in prompt and '"matches": true|false' in prompt
     if above_text:
-        assert above_text in prompt and "CORO Soprano (soprano)" in prompt and "CORO Alto (alto)" in prompt and 'or "chorus"' in prompt
+        assert above_text in prompt and "soprano clef, C on the bottom line" in prompt
     else:
-        assert "chorus" not in prompt and "treble clef" in prompt
+        assert "chorus" not in prompt
+    rc = sc["commits"]["1:1"]["rechecks"][0]
+    assert rc["verdict"] == "yes" and rc["matches"] is True and rc["label_seen"] == wanted[0]
 
 
 def test_header_position_helpers():
@@ -519,3 +523,65 @@ def test_instruments_payload_forms():
     assert parse_answer({"staves": [11, 12]}) == [11, 12] and parse_answer({"blocks": [[13], [11]]}) == [11, 13]
     assert parse_answer({"staves": "absent"}) == "absent" and parse_answer("absent") == "absent" and parse_answer({"blocks": "absent"}) == "absent"
     assert parse_answer("11, 12") == [11, 12] and parse_answer('{"blocks": [[3], [1]]}') == [1, 3] and parse_answer({"staves": []}) == "absent"
+
+
+@pytest.mark.asyncio
+async def test_closed_recheck_yes_no_and_clef_paths():
+    """The recheck is a closed question against the header: yes commits; no refuses (the run asks the admin after three);
+    yes with a clef that contradicts the header refuses too (a bass clef where the header has the flute's treble); for a
+    voice any C clef or the treble passes (Spark confuses the C clefs: Beethoven 9 soprano read as alto), a bass clef not."""
+    import app.librarian.part_cut as pc
+    # Flute, header clef treble: no -> refused; yes with a bass clef seen -> refused; yes with "G clef" (another spelling) -> accepted
+    script = [tool("read_header", {}), HEADER_CHOIR, tool("read_page", {"page": 1}), multi_label(Flute=[1]),
+              commit(1, [1]), recheck("Fl.", matches=False, clefs=["treble"]),
+              commit(1, [1]), recheck("Fl.", clefs=["bass"]),
+              commit(1, [1]), recheck("", clefs=["G clef"]), tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(1, {"instruments": ["Flute"]})
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1 and out["questions"] == 0
+    fb = json.loads(t.calls[6]["messages"][-1]["content"][0]["content"])
+    assert "the model says it does not match" in fb["error"] and "the margin says Fl." in fb["error"]
+    fb = json.loads(t.calls[8]["messages"][-1]["content"][0]["content"])
+    assert "sees the bass clef where the header expects treble" in fb["error"]
+    rc = ctx.result["agent"]["scratch"]["commits"]["1:1"]["rechecks"]
+    assert [r["verdict"] for r in rc] == ["yes"] and rc[0]["clefs_seen"] == ["G clef"]
+    # Soprano, header clef soprano: seen "alto" passes (lenient C clefs for voices); seen "bass" contradicts
+    script = [tool("read_header", {}), HEADER_CHOIR, tool("read_page", {"page": 1}), multi_label(Soprano=[3]),
+              commit(1, [3]), recheck("S.", clefs=["bass"]),
+              commit(1, [3]), recheck("", clefs=["alto"]), tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(1, {"instruments": ["Soprano"]})
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1
+    fb = json.loads(t.calls[6]["messages"][-1]["content"][0]["content"])
+    assert "sees the bass clef where the header expects soprano" in fb["error"]
+    assert ctx.result["agent"]["scratch"]["commits"]["1:1"]["rechecks"][0]["clefs_seen"] == ["alto"]
+    # three noes in a row park the run with the choose_staves question
+    script = [tool("read_header", {}), HEADER_CHOIR, tool("read_page", {"page": 1}), multi_label(Soprano=[3])]
+    for _ in range(3):
+        script += [commit(1, [3]), recheck("A.", matches=False)]
+    client, t = fake_client(script)
+    job, ctx, db = world(1, {"instruments": ["Soprano"]})
+    out = await part_cut(job, ctx, client=client)
+    assert out["agent"]["status"] == "needs_review" and out["question_payload"]["kind"] == "choose_staves" and out["question_payload"]["last_attempt"] == [3]
+    assert "the margin says A." in out["question_payload"]["feedback"]
+    assert pc.clefs_fit(["tenor"], ["soprano"], True) and not pc.clefs_fit(["treble"], ["bass"], True) and pc.clefs_fit(["C3"], ["treble"], True)
+    assert pc.clefs_fit(["C clef"], ["alto"], False) and not pc.clefs_fit(["C clef"], ["treble"], False) and pc.clefs_fit(["odd"], ["treble"], False)
+
+
+@pytest.mark.asyncio
+async def test_recheck_claim_takes_the_voice_clef_from_a_one_entry_chorus():
+    """Beethoven 9's live header lists the choir as one entry "CORO." of four staves with clefs S A T B: the soprano's
+    claim still names the soprano clef (by the clef named after the voice, else by S A T B order)."""
+    header = text(json.dumps({"instruments": [{"label": "Flauti", "staves": 1, "clefs": ["treble"], "family": "woodwind"},
+                                              {"label": "CORO.", "staves": 4, "clefs": ["soprano", "alto", "tenor", "bass"], "family": "voice"},
+                                              {"label": "Violoncelli", "staves": 1, "clefs": ["bass"], "family": "strings"}]}))
+    script = [tool("read_header", {}), header, tool("read_page", {"page": 1}), multi_label(Tenor=[4]),
+              commit(1, [4]), recheck("", clefs=["tenor"]), tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(1, {"instruments": ["Tenor"]})
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1
+    prompt = t.calls[5]["messages"][0]["content"][1]["text"]
+    assert "this block is the Tenor: 1 staff in the tenor clef." in prompt and "voice staves of the chorus" in prompt
