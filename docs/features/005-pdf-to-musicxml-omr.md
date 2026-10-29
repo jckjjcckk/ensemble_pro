@@ -1,6 +1,6 @@
 # 005 PDF to MusicXML (OMR on the Ryzen Ubuntu box)
 
-Status: working on the local stack (Convert to Digital: `POST /scores/{id}/convert`, job `omr_convert`; engraved pages in two layouts by MuseScore on the box, `engrave.py`, 2026-10-28); experiments on the box in `api/experiments/omr/` | Meta model: Muse Spark 1.3 reads the text layer and answers closed questions about low-grade symbols. Spark never touches notes.
+Status: working on the local stack (Convert to Digital: `POST /scores/{id}/convert`, job `omr_convert`; librarian agent v2 2026-10-28 late, measured on Goldberg p1-5 and Chopin Op. 40/1 p25; engraved pages in two layouts by MuseScore on the box, `engrave.py`); experiments on the box in `api/experiments/omr/` | Meta model: Muse Spark 1.3 sorts the leading pages, fills the front-matter form, lists text, dynamics, fingering, pedal and ornaments per system, and answers closed questions on low-grade accidentals and ornaments. Spark never touches a note.
 
 ## Purpose
 
@@ -214,6 +214,123 @@ flight, transfer and writing a few seconds. A 10-page book: Audiveris 3.5 to 5 m
 **6.5 to 8 minutes** in all, Spark about $0.50 to $0.60. Audiveris and Spark run one after the other (Spark needs
 Audiveris's boxes); more calls in flight is the cheap lever on the Spark half.
 
+## Librarian agent v2 (2026-10-28 late, `omr_agent.py` + `omr_enrich.py` + `omr_verify.py`)
+
+The model stage of Convert rewritten around CK's decisions of 2026-10-28 (Spark never changes a note; a page-level
+read collects exactly title, composer, movement or number, tempo heading and metronome, opus, dedication, editor;
+covers, prefaces and contents or thematic-index pages are never read as music, the cover is kept as the book's
+image; $1 a page), then revised the same night after CK rated the first build against the scan: the per-note items
+(fingering, pedal, ornaments by note index) put digits on the wrong notes in two-voice, chord and grace-note bars, a
+plate number and hairpin characters came through as words, and the library title replaced the page's heading. CK's
+five decisions: keep page kinds, cover and the front-matter read; remove per-note enrichment entirely; text only
+where Audiveris saw a glyph, with a junk filter; the page's heading is the file's title; a verify step that renders
+the edited bars and asks Spark against the scan. `omr_spark.py` and the v1 `apply` in `omr_score.py` are gone;
+Audiveris, the merge, the engraving step and `musicxml_fix.py` are as they were.
+
+**The steps** (`omr_agent`: the prompts and the Spark calls; `omr_enrich`: the deterministic, undoable writers;
+`omr_verify`: the render check):
+
+1. **page_kinds**, before the box. The PDF is rendered on the Mac (PyMuPDF, as the import does) and the 003 geometry
+   (`cut.page_geometry`) says which pages have staves. A page without staves is front matter by geometry alone (the
+   first page of the set, when it has none, is taken as the cover). For the first pages with staves one closed
+   question each (cover / preface / contents or thematic index / music) until the first page of music; every later
+   page is music, unasked; at most 6 questions. Front-matter pages are recorded in `meta.page_kinds`, never
+   transcribed; the cover page goes to `{score}/cover.png`, key in `meta.cover` (the score row has no cover column).
+   Audiveris then runs on the music pages only (the box cuts the subset). No music page: the job fails before the box.
+   An offline box is found before any model call (no charge); the import's 40-page cap applies to the page set, not
+   to the PDF, so a page range of a long book converts.
+2. **front_matter**: one call on the head of the first music page (the page top down through the first system, at
+   least 8 interlines above its first staff, width capped at 1800 px) filling the fixed form; null where nothing is
+   printed. In the file: `<work-title>` and the credits say what the page prints (the form, else the scan's own
+   credits; the library's shelf title is never written in), `<movement-title>`, `<work-number>` (opus), the editor
+   `<creator>`, the dedication, and a `MetronomeMark` with the heading as text and the metronome's unit and number
+   at offset 0 of bar 1 in the top staff (`musicxml_fix.merge_tempo_directions` joins music21's two directions into
+   one: words, then metronome, so MuseScore draws "Andante espressivo. (♩ = 72)" on one line). Audiveris's own
+   metronome marks and bold heading words in the first two bars are removed first (its heading was anchored to bar
+   2). Into the score row where empty: composer, `work` (the opus) and `tempo_bpm` (Spark's metronome, never an
+   unchecked Audiveris mark); the row's title is left alone. The existing key/meter/header reads are untouched.
+3. **reread**: one call per system (v1's crop, 4 interlines of padding, every bar boxed and labelled): dynamics and
+   expression phrases with their centre on a 0-1000 grid and the bar label. `place` snaps each item to the Audiveris
+   text glyph nearest its point (within 8 interlines; Spark says what the ink says, Audiveris says where it is) and
+   **drops anything no glyph confirms** (free text is never added), anything that is only digits or punctuation
+   (fingering, plate and page numbers such as "07'880."), a hairpin character, a single letter, and the tempo
+   heading (the front-matter read owns it). A dynamic takes the bar of the first notehead at or right of its ink, a
+   word the bar under its ink; staff by the nearer staff band. Writers: Audiveris's dynamics and plain words in a
+   bar Spark answered are dropped (v1's measured rule), dynamics written as `<dynamics>` (never as words), phrases as
+   `<words font-style="italic">`, at the note onset nearest the word's position, deduped against the bar (same
+   text, or a "cresc."/"dim." word where a hairpin of that sense starts). Never a pitch, duration, rest or barline
+   change; no fingering, pedal or ornament items.
+4. **verify** (closed questions): only low-grade accidentals (`alter`: a disagreement flags the bar, the pitch is
+   never changed) and ornaments Audiveris itself graded low (one Spark says is not one is removed).
+5. **verify_edits** (the render check): the written file is engraved by MuseScore on the box as 300 dpi PNG pages
+   plus `.mpos` (`engrave.SshEngraver.render_png`, the engraving step's own plumbing); for every system an edit
+   touched, the engraved system (the union of its bars' `.mpos` boxes) is shown under the scan's system in one
+   image, and Spark answers one closed question: same text and markings, yes or no, with a one-line reason. On no,
+   every edited bar of that system is reverted (`omr_enrich.Undo`: Audiveris's reading comes back), flagged with
+   the reason, and the file is written again. Charged like every call, step `verify_render` in the per-page spend.
+
+**Budget.** `max_cost_usd` defaults to $1.00 a page (page-kind questions and the render check included); every call
+is logged with its cost (`folio.omr`) and recorded per PDF page and per step; `meta.cost = {total_usd, per_page,
+per_step}` and the job result's `cost_usd` / `cost_per_page`. Past the cap the rest keeps Audiveris's reading. Flags
+and the confirmation contract (`POST /jobs/{id}/answer`) are unchanged.
+
+**Measured, 2026-10-28 late, final build** (`api/experiments/omr/v2_run.py`: the real box and the real Spark on an
+in-memory store; run dirs `api/experiments/omr/out/v2e-goldberg-p1-5` and `v2e-chopin-p25`, summaries in
+`api/experiments/engrave/v2/*-v2e.summary.json`). Two rules CK agreed after the revised build: a word with no glyph
+is still written when it is in the fixed expression vocabulary (`omr_agent.VOCABULARY`: cresc., dim., dolce, poco a
+poco, rit., a tempo, espressivo, legato, ...), in the bar Spark named; and the render check asks about words,
+dynamics and tempo text only, ignoring spacing, line breaks and note layout.
+
+| | Goldberg BGA p1-5 | Chopin Op. 40/1 p25 |
+|---|---|---|
+| Page kinds | 1 question, p1 music; p2-5 unasked | 1 question, music |
+| Front matter | title "Aria con Variazioni.", composer "J. S. Bach.", movement "Aria.", **"Andante espressivo." ♩ = 72**, no opus (BWV not printed) | movement "3b", **"Allegro con brio"**, opus "op. 40 nr 1" → `work`, no metronome |
+| In the file | `<work-title>Aria con Variazioni.`, composer J. S. Bach.; the shelf title "Goldberg Variations" stays in the row | `<movement-title>3b`, `<work-number>op. 40 nr 1` |
+| Tempo line on bar 1 | yes, one direction, the only metronome in the file | yes |
+| Text F1 strict, 119 bars vs `goldberg_bga_text_gt.json` | **0.955** (P 1.00, R 0.914, 64/64/70). **Aria, bars 1-32: 17/17/17, F1 1.00.** Misses: bar 80 (the duplicate scan: deduped against Audiveris's own bold reading of the phrase), bar 88 (Spark's *cresc.* reverted by the check, see below), bar 103 (*mf*, no glyph, not a vocabulary word: flagged as missing) | no ground truth; the page prints one word, *f*, found |
+| Items written (words / dynamic) | 27 / 30, of which 7 words by the vocabulary rule (9, 18, 33, 35, 67, 84, 105); 2 dropped (no glyph, not vocabulary) | 0 / 1 |
+| Junk written (digits, plate numbers, hairpin characters) | **0** | 0 |
+| Doubled markings in the file | **0** (1 item skipped by the dedupe: bar 80's phrase) | 0 |
+| Render check | 29 systems asked, 3 said no: m41 "forte present in scan, absent in transcription" (bar reverted; the *f* is in the file either way: **layout noise**), m88 "adds an extra word" (Spark's own correct *cresc.* reverted: **false no**), m103 "*mf* missing" (untouched bar, flagged: **true text miss**). 2 bars reverted, 1 flagged missing | 1 system asked, matches, 0 reverted |
+| Flagged bars | 44 | 5 |
+| Spark | 62 calls, **$0.260** ($0.045-0.064 a page: reread $0.107, render check $0.144), 34 s + 36 s | 8 calls, $0.037, 9 s + 9 s |
+| Wall | 172 s = **34.4 s a page** (Audiveris 88 s) | 50 s |
+| MuseScore kept | **1731 of 1731 notes** | **628 of 628** |
+| Systems vs scan | page breaks at 29, 49, 70, 91 as the scan; 24 of 27 systems match; p1's 25-28 spills to a page of its own, 61-69 and 82-90 split (MuseScore at Audiveris's page size, with the tempo line above system 1) | **1-3, 4-6, 7-10, 11-13, 14-16 on one page, exactly the scan** |
+
+Merge bar (CK): Aria text F1 ≥ 0.95 **met** (1.00); junk 0 **met**; duplicates 0 **met** (nothing doubled); notes kept
+100 % **met** (both books); Chopin systems exact **met**. Spend for all v2 work: $0.69 + $1.02 + $0.30 = $2.01.
+
+The render check's three "no"s split one true text miss, one layout noise, one false no that cost a correct word
+(bar 88); at $0.14 a book it is the second-largest line. The earlier reverted-bar question is closed: a revert
+restores the filtered base (junk never returns), and with the vocabulary rule only two glyph-less words were dropped.
+
+**Two defects CK saw in the v2e renders, fixed without a model call (2026-10-28 late, `omr_enrich.fix_hairpins`,
+`false_tuplets`, run right after the merge):**
+
+- *Hairpins as flat lines.* Not a v2 regression: the pre-v2 file carried the same XML. Two causes, both Audiveris's
+  export meeting MuseScore's import. (1) Audiveris writes the ink's opening on each end: `spread="0"` on a
+  crescendo's start; MuseScore takes a hairpin's height from the start wedge, so every crescendo was drawn as a
+  line of height zero (`musicxml_fix.fix_wedge_spread` drops a zero spread on a start; MuseScore then uses its
+  default height). (2) Audiveris anchors a wedge's `type="stop"` to the note right after its start whatever the
+  ink's length (its `default-x` offsets, which music21 drops, were the only trace), so every hairpin spanned one
+  note. Now the stop moves to the note under the right edge of the `wedge` inter Audiveris itself boxed (bar by x,
+  onset by position); when the ink ends under the start note itself (Aria bar 20, a diminuendo under one quaver) the stop runs to the part's next note instead, since MuseScore draws a one-note hairpin as a stray pair of parallel lines reaching the next hairpin. Goldberg: 21 hairpins moved (three had been parsed as running to bars 64, 97 and 118);
+  Chopin: 9. Checked at 300 dpi: Chopin bars 5-6 and Aria bars 22-24 now open as wedges.
+- *Two tuplet brackets on bar 1's bass.* Audiveris read the fingering "3" under the bass as a triplet number
+  (`<time-modification>` on B3 and D4, `tuplet` inter grade under 0.6); v1's closed question removed it, v2 asks no
+  tuplet question. Now a tuplet is dropped when the bar does not add up with it and every voice of the staff adds up
+  exactly without it (bar 1: 2.33 and 2.67 beats with, 3 and 3 without); a tuplet the bar needs is kept (Chopin's
+  real triplets untouched).
+
+Re-scored and re-rendered without Spark (`final-fixed.musicxml` in both run dirs): text F1 unchanged at 0.955 (Aria
+1.00); MuseScore keeps 1731/1731 and 628/628; Chopin's systems unchanged, exactly the scan; Goldberg's lines
+unchanged (23 of 27) but with the longer hairpins the original-size page breaks shift (the display layout reflows
+anyway). Renders: `api/experiments/engrave/v2/goldberg-bga-p1-5-v2f.pdf`, `api/experiments/engrave/v2/chopin-op40-1-p25-v2f.pdf`.
+
+Renders to open (made by `api/experiments/engrave/v2_render.sh`, not in git): `api/experiments/engrave/v2/goldberg-bga-p1-5-v2e.pdf`,
+`api/experiments/engrave/v2/chopin-op40-1-p25-v2e.pdf`; `.kept.txt`, `.systems.txt` and the summaries beside them.
+
 ## homr (0.7, studied and rejected for now)
 
 `out/omr-judge/homr/REPORT.md`. Pipeline: autocrop, resize, CLAHE → segnet UNet → boxes → `detect_staff` →
@@ -333,10 +450,12 @@ page slices), `render.py`, `compare.py`, `build_review.py`, `pipeline.py` (the M
 compare-*.json, base/final.musicxml, slices, render, review.html) and `goldberg-p1-5-gate-tuplet09/`.
 
 In the app: `api/app/librarian/omr_convert.py` (handler, `SshBox`), `omr_box.py` (box side, stdlib, copied over
-per run), `omr_book.py` (bar map and gate), `omr_spark.py` (crops, prompts, placement, the two passes),
-`omr_score.py` (merge, edits, flags), `musicxml_fix.py` (voices per staff, page layout and credits), `engrave.py`
-(MuseScore over ssh, the two layouts, `.mpos` to bar boxes, the `engraving` sources); `api/app/routes/convert.py`;
-tests `api/tests/test_omr_convert.py`, `api/tests/test_musicxml_fix.py`, `api/tests/test_engrave.py`.
+per run), `omr_book.py` (bar map and gate), `omr_agent.py` (v2: page kinds, front-matter form, per-system text,
+closed questions, the budget per page), `omr_enrich.py` (v2 writers with dedupe), `omr_score.py` (merge, flags),
+`musicxml_fix.py` (voices per staff, one tempo direction, page layout and credits), `engrave.py` (MuseScore over
+ssh, the two layouts, `.mpos` to bar boxes, the `engraving` sources); `api/app/routes/convert.py`; tests
+`api/tests/test_omr_convert.py`, `api/tests/test_omr_agent.py`, `api/tests/test_musicxml_fix.py`, `api/tests/test_engrave.py`.
+Measured runs: `api/experiments/omr/v2_run.py`, `api/experiments/engrave/v2_render.sh`, results in `api/experiments/engrave/v2/`.
 
 ## Next steps
 

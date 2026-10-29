@@ -1,0 +1,6749 @@
+[
+ {
+  "page": 1,
+  "system": 1,
+  "numbers": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "p",
+    "number": 1,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "words",
+    "text": "dolce",
+    "number": 1,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 1,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 1,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 1,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 1,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 2,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 2,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 3,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5 4",
+    "number": 3,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 4,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 4,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 4,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 5,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 5,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 6,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 6,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 6,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4 5",
+    "number": 6,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 1,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "trill",
+    "number": 2,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 3,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "trill",
+    "number": 3,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 5,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "turn",
+    "number": 6,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    278,
+    244
+   ],
+   "size": [
+    2137,
+    547
+   ]
+  }
+ },
+ {
+  "page": 1,
+  "system": 2,
+  "numbers": [
+   7,
+   8,
+   9,
+   10,
+   11,
+   12
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "f",
+    "number": 11,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "words",
+    "text": "cresc.",
+    "number": 9,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 7,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 7,
+    "staff": 2,
+    "note": 8,
+    "spark": {
+     "staff": 2,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4 5",
+    "number": 7,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 8,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 8,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 9,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 9,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1 4",
+    "number": 9,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 10,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2 4",
+    "number": 10,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1 5",
+    "number": 11,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 12,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 12,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3 5",
+    "number": 12,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 12,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 8,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 8,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 9,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 10,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "trill",
+    "number": 11,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "trill",
+    "number": 12,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    108,
+    751
+   ],
+   "size": [
+    2309,
+    519
+   ]
+  }
+ },
+ {
+  "page": 1,
+  "system": 3,
+  "numbers": [
+   13,
+   14,
+   15,
+   16
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "mf",
+    "number": 13,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 13,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 14,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 14,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 15,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 15,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 15,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 15,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 15,
+    "staff": 1,
+    "note": 9,
+    "spark": {
+     "staff": 1,
+     "note": 9
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 15,
+    "staff": 1,
+    "note": 10,
+    "spark": {
+     "staff": 1,
+     "note": 10
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "p",
+    "number": 16,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 16,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    107,
+    1230
+   ],
+   "size": [
+    2306,
+    509
+   ]
+  }
+ },
+ {
+  "page": 1,
+  "system": 4,
+  "numbers": [
+   17,
+   18,
+   19,
+   20
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 17,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 17,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 17,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "inverted_mordent",
+    "number": 17,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 17,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 17,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 17,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 18,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 18,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 18,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "words",
+    "text": "cresc.",
+    "number": 18,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5 4",
+    "number": 18,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 19,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3 1",
+    "number": 19,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 19,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 19,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 19,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 20,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 20,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 20,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4 1",
+    "number": 20,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 20,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 20,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 20,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    105,
+    1699
+   ],
+   "size": [
+    2315,
+    511
+   ]
+  }
+ },
+ {
+  "page": 1,
+  "system": 5,
+  "numbers": [
+   21,
+   22,
+   23,
+   24
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "mf",
+    "number": 21,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 21,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 21,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 21,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 21,
+    "staff": 1,
+    "note": 9,
+    "spark": {
+     "staff": 1,
+     "note": 9
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "inverted_mordent",
+    "number": 21,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 22,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 22,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "inverted_mordent",
+    "number": 22,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3 1",
+    "number": 23,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 23,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 23,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "inverted_mordent",
+    "number": 23,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 23,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "f",
+    "number": 23,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 23,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4 1",
+    "number": 23,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 23,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 23,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "turn",
+    "number": 24,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 24,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    106,
+    2171
+   ],
+   "size": [
+    2316,
+    507
+   ]
+  }
+ },
+ {
+  "page": 1,
+  "system": 6,
+  "numbers": [
+   25,
+   26,
+   27,
+   28
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "p",
+    "number": 25,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "words",
+    "text": "cresc. poco",
+    "number": 27,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 25,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 25,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 26,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 26,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1 3",
+    "number": 26,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 27,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 27,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 27,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 28,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 28,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 28,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    110,
+    2639
+   ],
+   "size": [
+    2314,
+    533
+   ]
+  }
+ },
+ {
+  "page": 2,
+  "system": 1,
+  "numbers": [
+   29,
+   30,
+   31,
+   32
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "mf",
+    "number": 29,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "words",
+    "text": "cresc.",
+    "number": 29,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "f",
+    "number": 31,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "words",
+    "text": "dim.",
+    "number": 31,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "p",
+    "number": 32,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 29,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 29,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 29,
+    "staff": 1,
+    "note": 9,
+    "spark": {
+     "staff": 1,
+     "note": 9
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 29,
+    "staff": 1,
+    "note": 10,
+    "spark": {
+     "staff": 1,
+     "note": 10
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 30,
+    "staff": 1,
+    "note": 9,
+    "spark": {
+     "staff": 1,
+     "note": 9
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 30,
+    "staff": 1,
+    "note": 10,
+    "spark": {
+     "staff": 1,
+     "note": 10
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 30,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 31,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 31,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 31,
+    "staff": 1,
+    "note": 13,
+    "spark": {
+     "staff": 1,
+     "note": 13
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 32,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4 1",
+    "number": 32,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 32,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 32,
+    "staff": 2,
+    "note": 6,
+    "spark": {
+     "staff": 2,
+     "note": 6
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    174,
+    66
+   ],
+   "size": [
+    2307,
+    570
+   ]
+  }
+ },
+ {
+  "page": 2,
+  "system": 2,
+  "numbers": [
+   33,
+   34,
+   35
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "p",
+    "number": 33,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "words",
+    "text": "cresc.",
+    "number": 33,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "words",
+    "text": "dim.",
+    "number": 35,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 33,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 33,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 34,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 34,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 35,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 35,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 33,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 33,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 34,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 34,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 34,
+    "staff": 2,
+    "note": 6,
+    "spark": {
+     "staff": 2,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 35,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 35,
+    "staff": 2,
+    "note": 6,
+    "spark": {
+     "staff": 2,
+     "note": 6
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    311,
+    598
+   ],
+   "size": [
+    2175,
+    538
+   ]
+  }
+ },
+ {
+  "page": 2,
+  "system": 3,
+  "numbers": [
+   36,
+   37,
+   38
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "p",
+    "number": 37,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "words",
+    "text": "poco cresc.",
+    "number": 37,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 36,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 36,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 36,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 36,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 36,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 36,
+    "staff": 2,
+    "note": 12,
+    "spark": {
+     "staff": 2,
+     "note": 12
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 37,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 37,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 37,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 37,
+    "staff": 2,
+    "note": 8,
+    "spark": {
+     "staff": 2,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 37,
+    "staff": 2,
+    "note": 9,
+    "spark": {
+     "staff": 2,
+     "note": 9
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 38,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 38,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 38,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 38,
+    "staff": 2,
+    "note": 6,
+    "spark": {
+     "staff": 2,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 38,
+    "staff": 2,
+    "note": 8,
+    "spark": {
+     "staff": 2,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 38,
+    "staff": 2,
+    "note": 9,
+    "spark": {
+     "staff": 2,
+     "note": 9
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    169,
+    1096
+   ],
+   "size": [
+    2318,
+    552
+   ]
+  }
+ },
+ {
+  "page": 2,
+  "system": 4,
+  "numbers": [
+   39,
+   40,
+   41,
+   42
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 39,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 39,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 39,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 40,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 40,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 40,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 40,
+    "staff": 2,
+    "note": 6,
+    "spark": {
+     "staff": 2,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 40,
+    "staff": 2,
+    "note": 7,
+    "spark": {
+     "staff": 2,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 40,
+    "staff": 2,
+    "note": 8,
+    "spark": {
+     "staff": 2,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 40,
+    "staff": 2,
+    "note": 8,
+    "spark": {
+     "staff": 2,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 40,
+    "staff": 2,
+    "note": 9,
+    "spark": {
+     "staff": 2,
+     "note": 9
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 40,
+    "staff": 2,
+    "note": 10,
+    "spark": {
+     "staff": 2,
+     "note": 10
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 40,
+    "staff": 2,
+    "note": 11,
+    "spark": {
+     "staff": 2,
+     "note": 11
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "f",
+    "number": 41,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 41,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 41,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 41,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 41,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 41,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 41,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 42,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 42,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 42,
+    "staff": 1,
+    "note": 9,
+    "spark": {
+     "staff": 1,
+     "note": 9
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 42,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 42,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    167,
+    1609
+   ],
+   "size": [
+    2322,
+    561
+   ]
+  }
+ },
+ {
+  "page": 2,
+  "system": 5,
+  "numbers": [
+   43,
+   44,
+   45
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 43,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 43,
+    "staff": 1,
+    "note": 9,
+    "spark": {
+     "staff": 1,
+     "note": 9
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 43,
+    "staff": 1,
+    "note": 10,
+    "spark": {
+     "staff": 1,
+     "note": 10
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 44,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 44,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 44,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 44,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "words",
+    "text": "dim.",
+    "number": 44,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "p",
+    "number": 45,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "words",
+    "text": "cresc.",
+    "number": 45,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 45,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 45,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 45,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 45,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 45,
+    "staff": 2,
+    "note": 8,
+    "spark": {
+     "staff": 2,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 45,
+    "staff": 2,
+    "note": 9,
+    "spark": {
+     "staff": 2,
+     "note": 9
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    168,
+    2131
+   ],
+   "size": [
+    2322,
+    539
+   ]
+  }
+ },
+ {
+  "page": 2,
+  "system": 6,
+  "numbers": [
+   46,
+   47,
+   48
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 46,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 46,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 46,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 46,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 46,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 46,
+    "staff": 2,
+    "note": 6,
+    "spark": {
+     "staff": 2,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 46,
+    "staff": 2,
+    "note": 10,
+    "spark": {
+     "staff": 2,
+     "note": 10
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 46,
+    "staff": 2,
+    "note": 12,
+    "spark": {
+     "staff": 2,
+     "note": 12
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 47,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 47,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 47,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 47,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 47,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 47,
+    "staff": 1,
+    "note": 10,
+    "spark": {
+     "staff": 1,
+     "note": 10
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "mf",
+    "number": 47,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 47,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 47,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 47,
+    "staff": 2,
+    "note": 6,
+    "spark": {
+     "staff": 2,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 47,
+    "staff": 2,
+    "note": 7,
+    "spark": {
+     "staff": 2,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 48,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 48,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 48,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 48,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 48,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 48,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 48,
+    "staff": 2,
+    "note": 7,
+    "spark": {
+     "staff": 2,
+     "note": 7
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    173,
+    2631
+   ],
+   "size": [
+    2313,
+    563
+   ]
+  }
+ },
+ {
+  "page": 3,
+  "system": 1,
+  "numbers": [
+   49,
+   50,
+   51
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "mf",
+    "number": 49,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 49,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 49,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 49,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 49,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 49,
+    "staff": 2,
+    "note": 7,
+    "spark": {
+     "staff": 2,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 50,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 50,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 50,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "words",
+    "text": "cresc.",
+    "number": 51,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 51,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 51,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 51,
+    "staff": 1,
+    "note": 9,
+    "spark": {
+     "staff": 1,
+     "note": 9
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 51,
+    "staff": 1,
+    "note": 11,
+    "spark": {
+     "staff": 1,
+     "note": 11
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 51,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 51,
+    "staff": 2,
+    "note": 6,
+    "spark": {
+     "staff": 2,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 51,
+    "staff": 2,
+    "note": 7,
+    "spark": {
+     "staff": 2,
+     "note": 7
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    166,
+    49
+   ],
+   "size": [
+    2252,
+    565
+   ]
+  }
+ },
+ {
+  "page": 3,
+  "system": 2,
+  "numbers": [
+   52,
+   53,
+   54
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "rf",
+    "number": 53,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "rf",
+    "number": 54,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 52,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 52,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 53,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 53,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 53,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 53,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 53,
+    "staff": 1,
+    "note": 11,
+    "spark": {
+     "staff": 1,
+     "note": 11
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 53,
+    "staff": 1,
+    "note": 12,
+    "spark": {
+     "staff": 1,
+     "note": 12
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 53,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 53,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 53,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 54,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 54,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 54,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 54,
+    "staff": 1,
+    "note": 9,
+    "spark": {
+     "staff": 1,
+     "note": 9
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 54,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 54,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 54,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 54,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 54,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 54,
+    "staff": 2,
+    "note": 6,
+    "spark": {
+     "staff": 2,
+     "note": 6
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    168,
+    576
+   ],
+   "size": [
+    2254,
+    551
+   ]
+  }
+ },
+ {
+  "page": 3,
+  "system": 3,
+  "numbers": [
+   55,
+   56,
+   57
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "words",
+    "text": "cresc. poco",
+    "number": 55,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 55,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 55,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 55,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 55,
+    "staff": 2,
+    "note": 6,
+    "spark": {
+     "staff": 2,
+     "note": 6
+    }
+   },
+   {
+    "kind": "words",
+    "text": "dim.",
+    "number": 56,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 56,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 56,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 56,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 56,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 56,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 56,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 56,
+    "staff": 2,
+    "note": 11,
+    "spark": {
+     "staff": 2,
+     "note": 11
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "p",
+    "number": 57,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 57,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 57,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 57,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 57,
+    "staff": 2,
+    "note": 8,
+    "spark": {
+     "staff": 2,
+     "note": 8
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    167,
+    1088
+   ],
+   "size": [
+    2257,
+    546
+   ]
+  }
+ },
+ {
+  "page": 3,
+  "system": 4,
+  "numbers": [
+   58,
+   59,
+   60
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 58,
+    "staff": 2,
+    "note": 9,
+    "spark": {
+     "staff": 2,
+     "note": 9
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 59,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 59,
+    "staff": 1,
+    "note": 10,
+    "spark": {
+     "staff": 1,
+     "note": 10
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 59,
+    "staff": 1,
+    "note": 11,
+    "spark": {
+     "staff": 1,
+     "note": 11
+    }
+   },
+   {
+    "kind": "words",
+    "text": "cresc. poco a poco",
+    "number": 59,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 60,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 60,
+    "staff": 1,
+    "note": 9,
+    "spark": {
+     "staff": 1,
+     "note": 9
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 60,
+    "staff": 1,
+    "note": 10,
+    "spark": {
+     "staff": 1,
+     "note": 10
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 60,
+    "staff": 1,
+    "note": 11,
+    "spark": {
+     "staff": 1,
+     "note": 11
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 60,
+    "staff": 1,
+    "note": 12,
+    "spark": {
+     "staff": 1,
+     "note": 12
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 60,
+    "staff": 1,
+    "note": 13,
+    "spark": {
+     "staff": 1,
+     "note": 13
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 60,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    166,
+    1596
+   ],
+   "size": [
+    2259,
+    556
+   ]
+  }
+ },
+ {
+  "page": 3,
+  "system": 5,
+  "numbers": [
+   61,
+   62,
+   63,
+   64
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 61,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 61,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "f",
+    "number": 62,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 62,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 62,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 62,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 62,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 62,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 62,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 62,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 62,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "words",
+    "text": "dim.",
+    "number": 63,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 63,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 63,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 63,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 63,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 64,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 64,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    168,
+    2113
+   ],
+   "size": [
+    2256,
+    566
+   ]
+  }
+ },
+ {
+  "page": 3,
+  "system": 6,
+  "numbers": [
+   65,
+   66,
+   67,
+   68,
+   69
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "p",
+    "number": 65,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "words",
+    "text": "cresc.",
+    "number": 67,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 65,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 65,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 65,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 66,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 66,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 67,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 67,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 67,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 68,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 69,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 69,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 65,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 66,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 67,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    331,
+    2646
+   ],
+   "size": [
+    2099,
+    554
+   ]
+  }
+ },
+ {
+  "page": 4,
+  "system": 1,
+  "numbers": [
+   70,
+   71,
+   72
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "mf",
+    "number": 70,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 70,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 70,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 70,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 70,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 70,
+    "staff": 2,
+    "note": 6,
+    "spark": {
+     "staff": 2,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 71,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 71,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "words",
+    "text": "cresc.",
+    "number": 72,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 72,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 72,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 72,
+    "staff": 1,
+    "note": 13,
+    "spark": {
+     "staff": 1,
+     "note": 13
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 72,
+    "staff": 1,
+    "note": 14,
+    "spark": {
+     "staff": 1,
+     "note": 14
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 72,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 72,
+    "staff": 2,
+    "note": 6,
+    "spark": {
+     "staff": 2,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 72,
+    "staff": 2,
+    "note": 7,
+    "spark": {
+     "staff": 2,
+     "note": 7
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    166,
+    49
+   ],
+   "size": [
+    2252,
+    564
+   ]
+  }
+ },
+ {
+  "page": 4,
+  "system": 2,
+  "numbers": [
+   73,
+   74,
+   75
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "rf",
+    "number": 74,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "rf",
+    "number": 75,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 73,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 73,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 74,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 74,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 74,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 74,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 74,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 74,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 74,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 74,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 75,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 75,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 75,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 75,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 75,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 75,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 75,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 75,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 75,
+    "staff": 2,
+    "note": 6,
+    "spark": {
+     "staff": 2,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 75,
+    "staff": 2,
+    "note": 7,
+    "spark": {
+     "staff": 2,
+     "note": 7
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    168,
+    576
+   ],
+   "size": [
+    2254,
+    551
+   ]
+  }
+ },
+ {
+  "page": 4,
+  "system": 3,
+  "numbers": [
+   76,
+   77,
+   78
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "words",
+    "text": "cresc. poco",
+    "number": 76,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "p",
+    "number": 78,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "words",
+    "text": "dim.",
+    "number": 77,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 77,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 77,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 77,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 77,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 78,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 76,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 76,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 76,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 76,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 77,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 77,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 77,
+    "staff": 2,
+    "note": 7,
+    "spark": {
+     "staff": 2,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 78,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 78,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 78,
+    "staff": 2,
+    "note": 9,
+    "spark": {
+     "staff": 2,
+     "note": 9
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    167,
+    1087
+   ],
+   "size": [
+    2257,
+    547
+   ]
+  }
+ },
+ {
+  "page": 4,
+  "system": 4,
+  "numbers": [
+   79,
+   80,
+   81
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 79,
+    "staff": 2,
+    "note": 9,
+    "spark": {
+     "staff": 2,
+     "note": 9
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 80,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 80,
+    "staff": 1,
+    "note": 9,
+    "spark": {
+     "staff": 1,
+     "note": 9
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 80,
+    "staff": 1,
+    "note": 10,
+    "spark": {
+     "staff": 1,
+     "note": 10
+    }
+   },
+   {
+    "kind": "words",
+    "text": "cresc. poco a poco",
+    "number": 80,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 81,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 81,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 81,
+    "staff": 1,
+    "note": 9,
+    "spark": {
+     "staff": 1,
+     "note": 9
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 81,
+    "staff": 1,
+    "note": 10,
+    "spark": {
+     "staff": 1,
+     "note": 10
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 81,
+    "staff": 1,
+    "note": 11,
+    "spark": {
+     "staff": 1,
+     "note": 11
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 81,
+    "staff": 1,
+    "note": 12,
+    "spark": {
+     "staff": 1,
+     "note": 12
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 81,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    166,
+    1596
+   ],
+   "size": [
+    2259,
+    555
+   ]
+  }
+ },
+ {
+  "page": 4,
+  "system": 5,
+  "numbers": [
+   82,
+   83,
+   84,
+   85
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 82,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 82,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "f",
+    "number": 83,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 83,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 83,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 83,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 83,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 83,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 83,
+    "staff": 1,
+    "note": 9,
+    "spark": {
+     "staff": 1,
+     "note": 9
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 83,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 83,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "words",
+    "text": "dim.",
+    "number": 84,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 84,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 84,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 84,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 84,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 85,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 85,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    168,
+    2113
+   ],
+   "size": [
+    2256,
+    566
+   ]
+  }
+ },
+ {
+  "page": 4,
+  "system": 6,
+  "numbers": [
+   86,
+   87,
+   88,
+   89,
+   90
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "p",
+    "number": 86,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 86,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 86,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "inverted_mordent",
+    "number": 86,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 86,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 87,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "inverted_mordent",
+    "number": 87,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 87,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "words",
+    "text": "cresc.",
+    "number": 88,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 88,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5 2",
+    "number": 88,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 88,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 88,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 88,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 89,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5 2",
+    "number": 90,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    331,
+    2646
+   ],
+   "size": [
+    2099,
+    554
+   ]
+  }
+ },
+ {
+  "page": 5,
+  "system": 1,
+  "numbers": [
+   91,
+   92,
+   93,
+   94,
+   95
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 91,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 91,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 91,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 92,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 93,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "words",
+    "text": "cresc.",
+    "number": 93,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 93,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 93,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "f",
+    "number": 94,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 94,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 94,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 94,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 94,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 94,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 94,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 94,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 94,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 95,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 95,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 95,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    121,
+    91
+   ],
+   "size": [
+    2308,
+    593
+   ]
+  }
+ },
+ {
+  "page": 5,
+  "system": 2,
+  "numbers": [
+   96,
+   97,
+   98,
+   99,
+   100
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 96,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 96,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 96,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 96,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 96,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 96,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 96,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 96,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 97,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 97,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 97,
+    "staff": 2,
+    "note": 8,
+    "spark": {
+     "staff": 2,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 98,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 98,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 98,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 98,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4 2",
+    "number": 98,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "words",
+    "text": "dim.",
+    "number": 98,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 99,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3 2",
+    "number": 99,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 99,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    120,
+    644
+   ],
+   "size": [
+    2311,
+    537
+   ]
+  }
+ },
+ {
+  "page": 5,
+  "system": 3,
+  "numbers": [
+   101,
+   102,
+   103,
+   104,
+   105
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "p",
+    "number": 101,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "mf",
+    "number": 103,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "words",
+    "text": "cresc.",
+    "number": 105,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 103,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 102,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 103,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 104,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 104,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5 1",
+    "number": 104,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 104,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5 2",
+    "number": 105,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 105,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    118,
+    1142
+   ],
+   "size": [
+    2312,
+    533
+   ]
+  }
+ },
+ {
+  "page": 5,
+  "system": 4,
+  "numbers": [
+   106,
+   107,
+   108,
+   109
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 106,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5 2",
+    "number": 106,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 106,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 106,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 106,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 107,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "words",
+    "text": "dim.",
+    "number": 107,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 108,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 108,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 109,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 109,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 109,
+    "staff": 2,
+    "note": 6,
+    "spark": {
+     "staff": 2,
+     "note": 6
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    116,
+    1636
+   ],
+   "size": [
+    2313,
+    527
+   ]
+  }
+ },
+ {
+  "page": 5,
+  "system": 5,
+  "numbers": [
+   110,
+   111,
+   112,
+   113,
+   114
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "dynamic",
+    "text": "p",
+    "number": 110,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "words",
+    "text": "cresc.",
+    "number": 114,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4 1",
+    "number": 110,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 110,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 110,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 110,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 110,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 110,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 111,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 111,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "ornament",
+    "text": "mordent",
+    "number": 111,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5",
+    "number": 112,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 112,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 112,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 113,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 113,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 113,
+    "staff": 2,
+    "note": 1,
+    "spark": {
+     "staff": 2,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 114,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 114,
+    "staff": 1,
+    "note": 6,
+    "spark": {
+     "staff": 1,
+     "note": 6
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 114,
+    "staff": 1,
+    "note": 7,
+    "spark": {
+     "staff": 1,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 114,
+    "staff": 2,
+    "note": 6,
+    "spark": {
+     "staff": 2,
+     "note": 6
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    118,
+    2123
+   ],
+   "size": [
+    2311,
+    562
+   ]
+  }
+ },
+ {
+  "page": 5,
+  "system": 6,
+  "numbers": [
+   115,
+   116,
+   117,
+   118,
+   119
+  ],
+  "ok": true,
+  "items": [
+   {
+    "kind": "fingering",
+    "text": "5 3",
+    "number": 115,
+    "staff": 1,
+    "note": 1,
+    "spark": {
+     "staff": 1,
+     "note": 1
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 115,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4 3 1",
+    "number": 115,
+    "staff": 1,
+    "note": 3,
+    "spark": {
+     "staff": 1,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 115,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 115,
+    "staff": 2,
+    "note": 3,
+    "spark": {
+     "staff": 2,
+     "note": 3
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 115,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 116,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 116,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "dynamic",
+    "text": "f",
+    "number": 116,
+    "staff": 1,
+    "note": 5,
+    "spark": {
+     "staff": 1,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 116,
+    "staff": 2,
+    "note": 2,
+    "spark": {
+     "staff": 2,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "2",
+    "number": 116,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 116,
+    "staff": 2,
+    "note": 5,
+    "spark": {
+     "staff": 2,
+     "note": 5
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "1",
+    "number": 116,
+    "staff": 2,
+    "note": 7,
+    "spark": {
+     "staff": 2,
+     "note": 7
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "5 2",
+    "number": 117,
+    "staff": 1,
+    "note": 2,
+    "spark": {
+     "staff": 1,
+     "note": 2
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 117,
+    "staff": 1,
+    "note": 4,
+    "spark": {
+     "staff": 1,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "3",
+    "number": 117,
+    "staff": 1,
+    "note": 8,
+    "spark": {
+     "staff": 1,
+     "note": 8
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 117,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   },
+   {
+    "kind": "fingering",
+    "text": "4",
+    "number": 118,
+    "staff": 2,
+    "note": 4,
+    "spark": {
+     "staff": 2,
+     "note": 4
+    }
+   }
+  ],
+  "dropped": [],
+  "crop": {
+   "origin": [
+    120,
+    2646
+   ],
+   "size": [
+    2306,
+    547
+   ]
+  }
+ }
+]

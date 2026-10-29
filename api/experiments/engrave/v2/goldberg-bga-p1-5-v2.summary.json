@@ -1,0 +1,131 @@
+{
+ "pages": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "page_kinds": [
+  [
+   1,
+   "music"
+  ],
+  [
+   2,
+   "music"
+  ],
+  [
+   3,
+   "music"
+  ],
+  [
+   4,
+   "music"
+  ],
+  [
+   5,
+   "music"
+  ]
+ ],
+ "bars": 119,
+ "wall_s": 232.4,
+ "seconds_per_page": 46.5,
+ "timings": {
+  "kinds_s": 2.7,
+  "box_s": 98.1,
+  "audiveris_s": 87.9,
+  "render_s": 8.9,
+  "upload_s": 0.6,
+  "pull_s": 0.4,
+  "spark_s": 129.6,
+  "write_s": 0.8
+ },
+ "spark_calls": 33,
+ "spark_skipped": 0,
+ "cost_usd": 0.6479,
+ "cost_per_page": {
+  "1": 0.1414,
+  "2": 0.1277,
+  "3": 0.1237,
+  "4": 0.1263,
+  "5": 0.1288
+ },
+ "cost_per_step": {
+  "page_kind": 0.0043,
+  "front_matter": 0.0061,
+  "enrich": 0.6337,
+  "verify": 0.0038
+ },
+ "items": {
+  "written": {
+   "words": 27,
+   "dynamic": 32,
+   "fingering": 438,
+   "pedal": 0,
+   "ornament": 29
+  },
+  "duplicates": 5,
+  "dropped": 0,
+  "out_of_range": 17,
+  "systems_answered": 30,
+  "systems": 30
+ },
+ "duplicates": 5,
+ "flagged": 41,
+ "front_matter": {
+  "title": "Aria con Variazioni.",
+  "composer": "J. S. Bach.",
+  "movement_or_number": "Aria.",
+  "tempo_heading": "Andante espressivo.",
+  "metronome": {
+   "unit": "quarter",
+   "bpm": 72
+  },
+  "opus": null,
+  "dedication": null,
+  "editor": null,
+  "read": true
+ },
+ "tempo_bar_1": {
+  "bar": 1,
+  "found": true,
+  "words": [
+   "Andante espressivo."
+  ],
+  "per_minute": [
+   "72"
+  ],
+  "metronomes_in_file": 1,
+  "one_direction": true
+ },
+ "score_row": {
+  "id": "22222222-2222-2222-2222-222222222222",
+  "owner_user_id": "u1",
+  "ensemble_id": null,
+  "title": "Goldberg Variations",
+  "composer": "J. S. Bach",
+  "key_sig": "G major",
+  "meter": "3/4",
+  "bars": 119,
+  "work": null,
+  "tempo_bpm": 72,
+  "status": "ready"
+ },
+ "text_strict": {
+  "tp": 66,
+  "pred": 66,
+  "gold": 70,
+  "p": 1.0,
+  "r": 0.943,
+  "f1": 0.971
+ },
+ "text_near": {
+  "tp": 66,
+  "pred": 66,
+  "gold": 70,
+  "p": 1.0,
+  "r": 0.943,
+  "f1": 0.971
+ }
+}

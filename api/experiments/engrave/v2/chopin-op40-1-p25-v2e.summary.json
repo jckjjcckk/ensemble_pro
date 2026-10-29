@@ -1,0 +1,109 @@
+{
+ "pages": [
+  1
+ ],
+ "page_kinds": [
+  [
+   1,
+   "music"
+  ]
+ ],
+ "bars": 16,
+ "wall_s": 49.6,
+ "seconds_per_page": 49.6,
+ "timings": {
+  "kinds_s": 2.0,
+  "box_s": 27.2,
+  "audiveris_s": 25.9,
+  "render_s": 0.9,
+  "upload_s": 0.2,
+  "pull_s": 0.1,
+  "spark_s": 9.1,
+  "write_s": 9.0,
+  "verify_s": 8.8,
+  "engrave_s": 1.7
+ },
+ "spark_calls": 8,
+ "spark_skipped": 0,
+ "cost_usd": 0.0372,
+ "cost_per_page": {
+  "1": 0.0372
+ },
+ "cost_per_step": {
+  "page_kind": 0.0041,
+  "front_matter": 0.0048,
+  "reread": 0.0223,
+  "verify_render": 0.0061
+ },
+ "items": {
+  "written": {
+   "words": 0,
+   "dynamic": 1
+  },
+  "duplicates": 0,
+  "dropped": 0,
+  "systems_answered": 5,
+  "systems": 5,
+  "verified": {
+   "systems": 1,
+   "reverted_bars": [],
+   "missing_bars": [],
+   "skipped": null
+  }
+ },
+ "duplicates": 0,
+ "flagged": 5,
+ "verify": {
+  "asked": 1,
+  "reverted": {},
+  "missing": {},
+  "systems": 1,
+  "skipped": null,
+  "render_s": 1.4
+ },
+ "engraving": {
+  "ok": true,
+  "seconds": 1.7
+ },
+ "verify_no": [],
+ "junk_written": {
+  "count": 0,
+  "words": []
+ },
+ "dropped_by_reason": {},
+ "front_matter": {
+  "title": null,
+  "composer": null,
+  "movement_or_number": "3b",
+  "tempo_heading": "Allegro con brio",
+  "metronome": null,
+  "opus": "op. 40 nr 1",
+  "dedication": null,
+  "editor": null,
+  "read": true
+ },
+ "tempo_bar_1": {
+  "bar": 1,
+  "found": true,
+  "words": [
+   "Allegro con brio"
+  ],
+  "per_minute": [],
+  "metronomes_in_file": 0,
+  "one_direction": true
+ },
+ "score_row": {
+  "id": "22222222-2222-2222-2222-222222222222",
+  "owner_user_id": "u1",
+  "ensemble_id": null,
+  "title": "Polonaise Op. 40 No. 1",
+  "composer": null,
+  "key_sig": "A major",
+  "meter": "3/4",
+  "bars": 16,
+  "work": "op. 40 nr 1",
+  "tempo_bpm": null,
+  "status": "ready",
+  "pages": 1
+ }
+}

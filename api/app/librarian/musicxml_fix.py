@@ -12,12 +12,16 @@ Two defects of a music21 re-export, both found by engraving our file in MuseScor
            holding most of its notes there (ties: the lower staff); a cross-staff note keeps its own `<staff>`.
            Notes, durations, `<backup>` and `<forward>` are untouched; `<forward>` and `<direction>` voices follow
            their voice. A staff with more than four voices in one bar gets numbers past the last staff's range.
+  tempo    a metronome mark with text comes out of music21 as two directions; `merge_tempo_directions` makes them one
+           (words, then metronome), so the heading and the mark draw on one line at the head of the bar.
+  wedges   a crescendo whose start wedge says `spread="0"` engraves flat in MuseScore (it reads the height from the
+           start); `fix_wedge_spread` drops the zero.
   layout   the merge builds a new score, so Audiveris's `<defaults>` (page size, margins, scaling) and its
            `<credit>`s are lost, and music21 writes "Music21" as composer when none is set. `PageLayout.read` takes
            the `<defaults>` and the title and composer credits from the first Audiveris movement file (the first two
            real text credits: OCR'd fingering digits, specks and one-letter credits are dropped; at most one title and
            one composer); `fix_musicxml` puts them back, writes the title and composer (the score's facts first,
-           else the credits' text) into the credits, `<work-title>`, `<movement-title>` and the composer `<creator>`,
+           else the credits' text) into the credits, `<work-title>`, `<movement-title>` (the movement title only when the file has none) and the composer `<creator>`,
            and removes an empty or "Music21" creator. `<print new-system/new-page>` are music21's and are left as is.
 """
 from __future__ import annotations
@@ -130,8 +134,17 @@ def _credit(role: str, text: str, page: tuple[float, float]) -> ET.Element:
     return c
 
 
-def _set_header(root: ET.Element, title: str, composer: str) -> None:
+def _set_header(root: ET.Element, title: str, composer: str, opus: str | None = None) -> None:
     work = root.find("work")
+    if opus:
+        if work is None:
+            work = ET.Element("work")
+            root.insert(0, work)
+        wn = work.find("work-number")
+        if wn is None:
+            wn = ET.Element("work-number")
+            work.insert(0, wn)
+        wn.text = opus
     if title:
         if work is None:
             work = ET.Element("work")
@@ -144,7 +157,8 @@ def _set_header(root: ET.Element, title: str, composer: str) -> None:
         if mt is None:
             mt = ET.Element("movement-title")
             root.insert(list(root).index(work) + 1, mt)
-        mt.text = title
+        if not (mt.text or "").strip() or mt.text.strip().lower() in _PLACEHOLDER:
+            mt.text = title                        # a real movement name (music21's movementName, v2 front matter) stays
     else:
         if work is not None:
             wt = work.find("work-title")
@@ -174,14 +188,63 @@ def _set_header(root: ET.Element, title: str, composer: str) -> None:
             ident.remove(c)
 
 
+def fix_wedge_spread(root: ET.Element) -> int:
+    """Audiveris writes the ink's opening on each end of a hairpin: `spread="0"` on a crescendo's start (and on a
+    diminuendo's stop). MuseScore takes a hairpin's height from the START wedge's spread, so a crescendo that starts at
+    0 is drawn as a flat line (the pre-v2 files had the same). A zero spread on a start is dropped (MuseScore then uses
+    its default height); a non-zero one stays. Returns how many were dropped."""
+    n = 0
+    for w in root.iter("wedge"):
+        if w.get("type") in ("crescendo", "diminuendo") and w.get("spread") is not None:
+            try:
+                zero = float(w.get("spread")) == 0
+            except ValueError:
+                zero = False
+            if zero:
+                del w.attrib["spread"]
+                n += 1
+    return n
+
+
+def merge_tempo_directions(root: ET.Element) -> int:
+    """music21 writes a MetronomeMark with text as two directions at the same spot (the metronome, then the bold words).
+    Engravers draw those as two stacked tempo texts; one direction with the words first and the metronome second draws
+    "Andante espressivo. (quarter = 72)" as the scan prints it. Returns how many pairs were joined."""
+    joined = 0
+    for measure in root.iter("measure"):
+        children = list(measure)
+        for i, el in enumerate(children):
+            if el.tag != "direction" or i + 1 >= len(children) or children[i + 1].tag != "direction":
+                continue
+            nxt = children[i + 1]
+            types_a, types_b = el.findall("direction-type"), nxt.findall("direction-type")
+            if len(types_a) != 1 or len(types_b) != 1:
+                continue
+            metro, words = types_a[0].find("metronome"), types_b[0].find("words")
+            if metro is None or words is None or el.find("offset") is not None or nxt.find("offset") is not None:
+                continue
+            if (el.findtext("staff") or "1") != (nxt.findtext("staff") or "1"):
+                continue
+            el.remove(types_a[0])
+            el.insert(0, types_a[0])
+            el.insert(0, types_b[0])
+            if el.get("placement") is None:
+                el.set("placement", nxt.get("placement") or "above")
+            measure.remove(nxt)
+            joined += 1
+    return joined
+
+
 def fix_musicxml(data: bytes, layout: PageLayout | None = None, *, title: str | None = None,
-                 composer: str | None = None) -> bytes:
+                 composer: str | None = None, opus: str | None = None) -> bytes:
     """The written file with per-staff voice numbers and, when `layout` is given, Audiveris's page layout and title
-    and composer credits. `title` / `composer` are the score's facts; empty ones fall back to the credits' text."""
+    and composer credits. `title` / `composer` are the score's facts; empty ones fall back to the credits' text; `opus` goes to `<work-number>`."""
     prolog = data[: data.find(b"<score-partwise")] if b"<score-partwise" in data else b""
     doctype = re.search(rb"<!DOCTYPE[^>]*>", prolog)
     root = ET.fromstring(data)
     renumber_voices(root)
+    merge_tempo_directions(root)
+    fix_wedge_spread(root)
 
     layout = layout or PageLayout()
     title = (title or "").strip() or layout.text("title")
@@ -226,7 +289,7 @@ def fix_musicxml(data: bytes, layout: PageLayout | None = None, *, title: str | 
         for i, c in enumerate(new):
             root.insert(at + i, c)
 
-    _set_header(root, title, composer)
+    _set_header(root, title, composer, opus)
     ET.indent(root, space="  ")
     out = b'<?xml version="1.0" encoding="UTF-8"?>\n'
     if doctype:
