@@ -12,7 +12,8 @@ Capacitor shell (`web/ios/`). No `server.url`: the assets ship in the binary, th
 | Web assets | `web/dist` → `web/ios/App/App/public` (gitignored; `npx cap sync ios` fills it) |
 | Config | `web/capacitor.config.ts` (`ios/App/App/capacitor.config.json` is generated from it) |
 | Plugins | camera, filesystem, haptics, keyboard, share, splash-screen, status-bar (Swift Package Manager) |
-| Icon and splash sources | `web/assets/` (1024 icon, 2732 splash light and dark), rendered by `@capacitor/assets` |
+| App icon | `ios/App/App/Folio.icon` (Icon Composer, Liquid Glass; target's App Icon = `Folio`); master SVG `web/public/icon.svg`. `AppIcon` in the asset catalog is a fallback only |
+| Splash sources | `web/assets/` (2732 splash light and dark), rendered by `@capacitor/assets` |
 
 ## Build
 
@@ -50,7 +51,7 @@ cd web && npm run build:ios      # or: npm run build:hosted && npx cap sync ios
 ```
 
 `cap sync` copies `dist/` into the project and resolves the plugin packages. It never touches the Swift
-sources, `Info.plist` or the asset catalog, so edits there are safe. Rerun the asset catalog (`npm run build:ios -- --assets`) only when the icon or splash changes.
+sources, `Info.plist` or the asset catalog, so edits there are safe. Rerun the asset catalog (`npm run build:ios -- --assets`) only when the splash changes; the icon is `Folio.icon`, edited in Icon Composer.
 
 ## How the web app behaves inside the shell
 
