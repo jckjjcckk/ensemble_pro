@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Folio · Needs you · which parts are on this page</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Noto+Music&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 834px; height: 1194px; box-sizing: border-box; background: #F3EFE6; color: #1C1A16; font-family: Inter, system-ui, sans-serif; position: relative; overflow: hidden">
+
+  <div aria-hidden="true" style="position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0.5">
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; padding: 56px 40px 14px 40px">
+      <span style="font-family: 'EB Garamond', serif; font-weight: 500; font-size: 46px; line-height: 1">My Library</span>
+      <div style="display: flex; gap: 10px"><span style="width: 96px; height: 48px; border-radius: 12px; border: 1px solid #CFC8B8"></span><span style="width: 86px; height: 48px; border-radius: 12px; border: 1px solid #CFC8B8"></span><span style="width: 48px; height: 48px; border-radius: 50%; border: 1px solid #CFC8B8"></span></div>
+    </div>
+    <div style="padding: 28px 40px; display: flex; gap: 18px"><span style="width: 232px; height: 246px; border-radius: 6px; background: #FBF9F4; border: 1px solid #E2DCCD; position: relative"><span style="position: absolute; top: 14px; right: 14px; width: 12px; height: 12px; border-radius: 50%; background: #D8A62B"></span></span><span style="width: 232px; height: 246px; border-radius: 6px; background: #FBF9F4; border: 1px solid #E2DCCD"></span><span style="width: 232px; height: 246px; border-radius: 6px; background: #FBF9F4; border: 1px solid #E2DCCD"></span></div>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(28,26,22,0.28)"></div>
+
+  <div role="dialog" aria-label="Which parts are on page 4?" style="position: absolute; left: 77px; top: 96px; width: 680px; height: 1000px; box-sizing: border-box; background: #FBF9F4; border-radius: 18px; box-shadow: 0 24px 60px rgba(28,26,22,0.35); display: flex; flex-direction: column; overflow: hidden">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 28px 14px 28px; border-bottom: 1px solid #E2DCCD">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 50%; background: #D8A62B"></span>
+        <span style="font: 500 14px Inter, sans-serif; color: #6B665C">Needs you · page 4 of 12 · 2 answered</span>
+      </div>
+      <button style="height: 40px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: #6B665C; font: 500 15px Inter, sans-serif">Later</button>
+    </div>
+
+    <div style="padding: 20px 28px 0 28px; display: flex; flex-direction: column; gap: 4px">
+      <h2 style="margin: 0; font-family: 'EB Garamond', serif; font-weight: 500; font-size: 30px; line-height: 1.1">Which parts are on page 4?</h2>
+      <span style="font-size: 14px; color: #6B665C">Piano Quintet in A, D.667 "Trout" · the page has two systems of six staves. Earlier pages had five parts; the reader named only four here.</span>
+    </div>
+
+    <div style="flex: 1; padding: 18px 28px 0 28px; display: flex; gap: 22px">
+      <div aria-label="Page 4, with the chosen parts labelled" style="flex: none; width: 272px; height: 384px; box-sizing: border-box; padding: 24px 14px 24px 50px; background: #FFFFFF; border: 1px solid #E2DCCD; box-shadow: 0 2px 8px rgba(28,26,22,0.08); display: flex; flex-direction: column; justify-content: space-between; position: relative">
+        <sc-for list="{{systems}}" as="sys" hint-placeholder-count="2">
+          <div style="display: flex; flex-direction: column; gap: 10px; border-left: 1.5px solid #1C1A16">
+            <sc-for list="{{sys.staves}}" as="st" hint-placeholder-count="6">
+              <div style="position: relative; height: 13px; background: repeating-linear-gradient(to bottom, #5C574C 0 1px, transparent 1px 3px)">
+                <span style="position: absolute; left: -46px; top: -2px; width: 40px; text-align: right; font: 600 10px Inter, sans-serif; color: {{st.color}}">{{st.label}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+        <span style="position: absolute; bottom: 6px; left: 0; right: 0; text-align: center; font: 500 9px Inter, sans-serif; color: #6B665C">page 4</span>
+      </div>
+
+      <div role="radiogroup" aria-label="Parts on this page" style="flex: 1; display: flex; flex-direction: column; gap: 10px">
+        <button role="radio" aria-checked="true" style="padding: 14px 16px; border: 1.5px solid #1C1A16; border-radius: 12px; background: #FFFFFF; color: #1C1A16; text-align: left; display: flex; flex-direction: column; gap: 6px">
+          <span style="display: flex; align-items: center; justify-content: space-between; width: 100%">
+            <span style="font: 600 15px Inter, sans-serif">Same as earlier pages</span>
+            <span style="font: 500 11px Inter, sans-serif; color: #2F6B4F; padding: 2px 7px; border-radius: 6px; background: #E6F1EA">6 staves · matches</span>
+          </span>
+          <span style="font: 400 14px 'EB Garamond', serif; line-height: 1.3">Violin · Viola · Cello · Double bass · Piano (two staves)</span>
+        </button>
+        <button role="radio" aria-checked="false" style="padding: 14px 16px; border: 1px solid #CFC8B8; border-radius: 12px; background: #FFFFFF; color: #1C1A16; text-align: left; display: flex; flex-direction: column; gap: 6px">
+          <span style="display: flex; align-items: center; justify-content: space-between; width: 100%">
+            <span style="font: 600 15px Inter, sans-serif">What the reader found on this page</span>
+            <span style="font: 500 11px Inter, sans-serif; color: #8A5A00; padding: 2px 7px; border-radius: 6px; background: #FBF3DC">4 names · 6 staves</span>
+          </span>
+          <span style="font: 400 14px 'EB Garamond', serif; line-height: 1.3; color: #4D4840">Violin · Viola · Cello · Piano</span>
+        </button>
+        <button role="radio" aria-checked="false" style="padding: 14px 16px; border: 1px solid #CFC8B8; border-radius: 12px; background: transparent; color: #1C1A16; text-align: left; display: flex; align-items: center; justify-content: space-between">
+          <span style="font: 600 15px Inter, sans-serif">Something else</span>
+          <span style="font: 400 12px Inter, sans-serif; color: #6B665C">name each staff, top to bottom</span>
+        </button>
+        <span style="margin-top: 6px; font-size: 12px; color: #6B665C; line-height: 1.4">The labels on the page follow your choice. Reading continues from page 4 once you confirm; pages 5–12 with the same layout will not ask again.</span>
+      </div>
+    </div>
+
+    <div style="padding: 16px 28px 22px 28px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #E2DCCD; margin-top: 16px">
+      <span style="font-size: 13px; color: #6B665C">Only you see this — the book is yours.</span>
+      <button style="height: 52px; padding: 0 22px; border: 0; border-radius: 12px; background: #1C1A16; color: #F3EFE6; font: 600 16px Inter, sans-serif; display: flex; align-items: center; gap: 10px">
+        Confirm and keep reading
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":834,"height":1194}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const labels = ['Violin', 'Viola', 'Cello', 'D. bass', 'Piano', 'Piano'];
+    const mk = () => ({ staves: labels.map((l, i) => ({ label: l, color: i === 3 ? '#1C1A16' : '#6B665C' })) });
+    return { systems: [mk(), mk()] };
+  }
+}
+</script>
+</body>
+</html>

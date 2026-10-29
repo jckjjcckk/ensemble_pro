@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
 import { OpenSheetMusicDisplay } from 'opensheetmusicdisplay'
 import { measureGeo, readModel, type Geo } from './geometry'
-import { useStageGestures } from './stageGestures'
+import { animate, motion, useMotionValue } from 'motion/react'
+import { turnFromDrag, useStageGestures } from './stageGestures'
+import { useReducedMotion } from './layout'
 import { IChevronLeft, IChevronRight } from './icons'
 import { Fade } from './Sheet'
 
@@ -246,7 +248,13 @@ export function ScoreStage({ src, instruments, scale, focus, follow, onUserTurn,
     if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); turn(-1) }
   }
 
-  const { onPointerDown, onPointerMove, onPointerUp, onPointerCancel } = useStageGestures({ geo, stageRef, turn, onBarTap, onEmptyTap, onBarHold })
+  const { onPointerDown, onPointerMove, onPointerUp, onPointerCancel } = useStageGestures({ geo, stageRef, onBarTap, onEmptyTap, onBarHold })
+  // The spread follows the finger on x (motion's drag). On release a flick or a drag past half turns, and the new spread
+  // comes in from that side; otherwise it settles back. Reduced motion: no travel.
+  const reduced = useReducedMotion()
+  const panX = useMotionValue(0)
+  const [dragging, setDragging] = useState(false)
+  const settle = (from: number) => { panX.set(reduced ? 0 : from); if (!reduced) animate(panX, 0, { type: 'spring', stiffness: 320, damping: 38, mass: 0.9 }) }
 
   // The host exists before the size is known so the score can start loading at once. It fades in once settled; while
   // a re-engrave is pending the old drawing dims under the skeleton rather than cutting to nothing.
@@ -263,17 +271,30 @@ export function ScoreStage({ src, instruments, scale, focus, follow, onUserTurn,
       onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerCancel}
       onContextMenu={e => e.preventDefault()}
     >
-      <div className="stage-under" aria-hidden="true">
-        {settled && geo?.pages.map((p, i) => p && <div key={i} className="sheet" style={{ left: p.x, top: p.y, width: p.w, height: p.h }} />)}
-        {settled && geo && underlay?.(geo)}
-      </div>
-      <div className="stage-host" style={hostStyle}>
-        <div className="osmd" data-score-state={state}>
-          <div key={src} ref={hostRef} />
-          {error && <p role="alert">This score could not be engraved: {error}</p>}
+      <motion.div
+        className="stage-pan" style={{ x: panX }}
+        drag={settled && spreads > 1 ? 'x' : false} dragDirectionLock dragMomentum={false}
+        dragConstraints={{ left: 0, right: 0 }} dragElastic={{ left: spread < spreads - 1 ? 1 : 0.12, right: spread > 0 ? 1 : 0.12 }}
+        onDragStart={() => { setDragging(true); onPointerCancel() }}
+        onDragEnd={(_, info) => {
+          setDragging(false)
+          const w = size?.w ?? 800
+          const d = turnFromDrag(info, w)
+          if (d && (d > 0 ? spread < spreads - 1 : spread > 0)) { turn(d); settle(d * w * 0.5) } else settle(panX.get())
+        }}
+      >
+        <div className="stage-under" aria-hidden="true">
+          {settled && geo?.pages.map((p, i) => p && <div key={i} className="sheet" style={{ left: p.x, top: p.y, width: p.w, height: p.h }} />)}
+          {settled && geo && underlay?.(geo)}
         </div>
-      </div>
-      <div className="stage-over">{settled && geo && overlay?.(geo)}</div>
+        <div className="stage-host" style={hostStyle}>
+          <div className="osmd" data-score-state={state}>
+            <div key={src} ref={hostRef} />
+            {error && <p role="alert">This score could not be engraved: {error}</p>}
+          </div>
+        </div>
+      </motion.div>
+      <div className={`stage-over ${dragging ? 'is-dragging' : ''}`}>{settled && geo && overlay?.(geo)}</div>
       <Fade
         show={!!layout && !settled && !error} className="stage-skeleton" aria-label="Engraving the score" role="status"
         style={layout ? { left: layout.padX, top: layout.padY, width: layout.availW, gap: layout.gap } : undefined}

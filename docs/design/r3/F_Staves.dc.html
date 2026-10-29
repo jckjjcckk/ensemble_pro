@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Folio · Needs you · choose the staves</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Noto+Music&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 834px; height: 1194px; box-sizing: border-box; background: #F3EFE6; color: #1C1A16; font-family: Inter, system-ui, sans-serif; position: relative; overflow: hidden">
+
+  <div aria-hidden="true" style="position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0.5">
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; padding: 56px 40px 14px 40px">
+      <span style="font-family: 'EB Garamond', serif; font-weight: 500; font-size: 46px; line-height: 1">My Library</span>
+      <div style="display: flex; gap: 10px"><span style="width: 96px; height: 48px; border-radius: 12px; border: 1px solid #CFC8B8"></span><span style="width: 86px; height: 48px; border-radius: 12px; border: 1px solid #CFC8B8"></span><span style="width: 48px; height: 48px; border-radius: 50%; border: 1px solid #CFC8B8"></span></div>
+    </div>
+    <div style="padding: 28px 40px; display: flex; gap: 18px"><span style="width: 232px; height: 246px; border-radius: 6px; background: #FBF9F4; border: 1px solid #E2DCCD; position: relative"><span style="position: absolute; top: 14px; right: 14px; width: 12px; height: 12px; border-radius: 50%; background: #D8A62B"></span></span><span style="width: 232px; height: 246px; border-radius: 6px; background: #FBF9F4; border: 1px solid #E2DCCD"></span><span style="width: 232px; height: 246px; border-radius: 6px; background: #FBF9F4; border: 1px solid #E2DCCD"></span></div>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(28,26,22,0.28)"></div>
+
+  <div role="dialog" aria-label="Which staves are the Viola on page 7?" style="position: absolute; left: 77px; top: 96px; width: 680px; height: 1000px; box-sizing: border-box; background: #FBF9F4; border-radius: 18px; box-shadow: 0 24px 60px rgba(28,26,22,0.35); display: flex; flex-direction: column; overflow: hidden">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 28px 14px 28px; border-bottom: 1px solid #E2DCCD">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 50%; background: #D8A62B"></span>
+        <span style="font: 500 14px Inter, sans-serif; color: #6B665C">Needs you · splitting by instrument · page 7 of 12</span>
+      </div>
+      <button style="height: 40px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: #6B665C; font: 500 15px Inter, sans-serif">Later</button>
+    </div>
+
+    <div style="padding: 20px 28px 0 28px; display: flex; flex-direction: column; gap: 4px">
+      <h2 style="margin: 0; font-family: 'EB Garamond', serif; font-weight: 500; font-size: 30px; line-height: 1.1">Which staff is the <span style="font-style: italic">Viola</span> in the second system?</h2>
+      <span style="font-size: 14px; color: #6B665C">The reader could not settle it after three tries. Tap the staff; your answer is final for this page.</span>
+    </div>
+
+    <div style="flex: 1; padding: 18px 28px 0 28px">
+      <div aria-label="Page 7" style="height: 640px; box-sizing: border-box; padding: 30px 26px 30px 64px; background: #FFFFFF; border: 1px solid #E2DCCD; box-shadow: 0 2px 8px rgba(28,26,22,0.08); display: flex; flex-direction: column; justify-content: space-between; position: relative">
+        <sc-for list="{{systems}}" as="sys" hint-placeholder-count="2">
+          <div style="display: flex; flex-direction: column; gap: 14px; border-left: 2px solid {{sys.rule}}; opacity: {{sys.opacity}}">
+            <sc-for list="{{sys.staves}}" as="st" hint-placeholder-count="6">
+              <button aria-pressed="{{st.on}}" aria-label="{{st.aria}}" style="position: relative; height: 26px; margin: -5px 0; padding: 5px 0; border: 0; background: transparent; display: block; width: 100%">
+                <span aria-hidden="true" style="position: absolute; left: -8px; right: -8px; top: 0; bottom: 0; border-radius: 6px; border: 2px solid {{st.border}}; background: {{st.bg}}"></span>
+                <span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 5px; height: 17px; background: repeating-linear-gradient(to bottom, #3A362E 0 1px, transparent 1px 4px)"></span>
+                <span style="position: absolute; left: -58px; top: 4px; width: 44px; text-align: right; font: 600 11px Inter, sans-serif; color: {{st.lc}}">{{st.label}}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-for>
+        <span style="position: absolute; bottom: 8px; left: 0; right: 0; text-align: center; font: 500 10px Inter, sans-serif; color: #6B665C">page 7 · system 2 of 2</span>
+      </div>
+      <span style="display: block; margin-top: 10px; font-size: 12px; color: #6B665C">Tap a staff to choose it, tap again to let go. A part can take more than one staff (the piano takes two).</span>
+    </div>
+
+    <div style="padding: 16px 28px 22px 28px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #E2DCCD; margin-top: 16px">
+      <button style="height: 52px; padding: 0 16px; border: 1px solid #CFC8B8; border-radius: 12px; background: transparent; color: #1C1A16; font: 500 15px Inter, sans-serif">The Viola isn't on this page</button>
+      <button style="height: 52px; padding: 0 22px; border: 0; border-radius: 12px; background: #1C1A16; color: #F3EFE6; font: 600 16px Inter, sans-serif; display: flex; align-items: center; gap: 10px">
+        Use this staff
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":834,"height":1194}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const names = ['Violin', 'Viola?', 'Cello', 'D. bass', 'Piano', 'Piano'];
+    const mk = (active) => ({
+      rule: active ? '#1C1A16' : '#CFC8B8',
+      opacity: active ? 1 : 0.35,
+      staves: names.map((n, i) => {
+        const on = active && i === 1;
+        return { label: active ? n : '', aria: 'Staff ' + (i + 1) + (on ? ', chosen' : ''), on,
+          border: on ? '#1C1A16' : 'transparent', bg: on ? 'rgba(240,216,120,0.45)' : 'transparent', lc: on ? '#1C1A16' : '#6B665C' };
+      })
+    });
+    return { systems: [mk(false), mk(true)] };
+  }
+}
+</script>
+</body>
+</html>

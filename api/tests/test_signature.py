@@ -74,7 +74,22 @@ def test_interpret_writes_null_when_spark_is_unsure_never_a_guess():
     assert (none["key_sig"], none["meter"]) == ("B- major", None)
     digits = interpret(json.loads(sig(symbol="digits", num=6, den=8)["text"]))
     assert digits["meter"] == "6/8"
-    assert interpret({}) == {"key_sig": None, "meter": None, "why": ["key: low confidence", "time: low confidence"]}
+    assert interpret({}) == {"key_sig": None, "meter": None, "key_sig_guess": None, "meter_guess": None,
+                             "confidence": {"key": "low", "time": "low"}, "why": ["key: low confidence", "time: low confidence"]}
+
+
+def test_interpret_keeps_the_best_guess_beside_the_blank():
+    low = interpret(json.loads(sig(kconf="low", tconf="low")["text"]))           # 3 sharps minor, 4/4, both low
+    assert (low["key_sig"], low["meter"], low["key_sig_guess"], low["meter_guess"]) == (None, None, "F# minor", "4/4")
+    assert low["confidence"] == {"key": "low", "time": "low"}
+    unsure = interpret(json.loads(sig(mode="unsure", name="")["text"]))          # no mode, no name: major of the count
+    assert (unsure["key_sig"], unsure["key_sig_guess"], unsure["confidence"]["key"]) == (None, "A major", "low")
+    named = interpret(json.loads(sig(mode="unsure", name="F# minor")["text"]))   # no mode, but the name fits the count
+    assert named["key_sig_guess"] == "F# minor"
+    contradiction = interpret(json.loads(sig(name="A major")["text"]))           # the count wins the guess
+    assert (contradiction["key_sig"], contradiction["key_sig_guess"]) == (None, "F# minor")
+    ok = interpret(json.loads(sig()["text"]))
+    assert (ok["key_sig_guess"], ok["meter_guess"], ok["confidence"]) == ("F# minor", "4/4", {"key": "high", "time": "high"})
 
 
 def job(payload: dict) -> Job:
@@ -158,7 +173,17 @@ async def test_process_pages_writes_the_signature_read_not_the_labels_guess():
     c, _ = fake_client([sig(kconf="low", tconf="low"), HEADER])
     await process_pages(job({"score_id": SCORE, "source_id": "src1"}), ctx, client=c, model="muse-spark-1.3")
     assert (db.rows["scores"][0]["key_sig"], db.rows["scores"][0]["meter"]) == (None, None)
+    assert (db.rows["scores"][0]["key_sig_guess"], db.rows["scores"][0]["meter_guess"]) == ("F# minor", "4/4")
+    assert db.rows["scores"][0]["signature_confidence"] == {"key": "low", "time": "low"}
     assert "left blank" in db.rows["interpretations"][0]["summary"]["log"][0]
+    # once the owner has confirmed the key and meter in Details, a re-read keeps them and refreshes only the guess
+    db, pages = pages_world(1)
+    db.rows["scores"][0].update({"key_sig": "G minor", "meter": "2/2", "signature_confirmed": True})
+    ctx = PagesCtx(job({"score_id": SCORE, "source_id": "src1"}), db, pages, labels=[LABELS])
+    c, _ = fake_client([sig(), HEADER])
+    await process_pages(job({"score_id": SCORE, "source_id": "src1"}), ctx, client=c, model="muse-spark-1.3")
+    score = db.rows["scores"][0]
+    assert (score["key_sig"], score["meter"], score["key_sig_guess"], score["status"]) == ("G minor", "2/2", "F# minor", "ready")
 
 
 async def test_process_pages_reads_the_signature_once_across_a_question():

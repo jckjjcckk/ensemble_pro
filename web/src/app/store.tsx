@@ -27,22 +27,23 @@ export interface ScanUI {
   committed: boolean
 }
 
-/** Display settings: a token set and a theme. Tokens change type, colour and line; never the layout. */
-export type TokenSet = 'instrument' | 'bound'
+/** Appearance (R3): the theme, and how a page reads on the stand in the dark. One look; tokens change colour only. */
 export type Theme = 'system' | 'light' | 'dark'
-export interface Display { tokens: TokenSet; theme: Theme }
+/** In the dark the page is either paper dimmed to the room (`dim`) or inverted, light notes on a dark leaf (`invert`). */
+export type DarkPage = 'dim' | 'invert'
+export interface Display { theme: Theme; page: DarkPage }
 
 const DISPLAY_KEY = 'folio.display'
-const defaultDisplay: Display = { tokens: 'instrument', theme: 'system' }
+const defaultDisplay: Display = { theme: 'system', page: 'dim' }
 
-function readDisplay(): Display {
+export function readDisplay(): Display {
   try {
     const raw = window.localStorage.getItem(DISPLAY_KEY)
     if (!raw) return defaultDisplay
     const d = JSON.parse(raw) as Partial<Display>
     return {
-      tokens: d.tokens === 'bound' ? 'bound' : 'instrument',
       theme: d.theme === 'light' || d.theme === 'dark' ? d.theme : 'system',
+      page: d.page === 'invert' ? 'invert' : 'dim',
     }
   } catch {
     return defaultDisplay

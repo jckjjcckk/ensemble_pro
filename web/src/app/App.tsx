@@ -1,44 +1,38 @@
 import { useEffect } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
-import { StoreProvider, useStore, type TokenSet } from './store'
+import { StoreProvider, readDisplay, useStore } from './store'
 import { AuthProvider, SignIn, useAuth } from './auth'
 import { useWorld } from './data'
-import Library from './Library'
+import Shelf from './Shelf'
 import Scan from './Scan'
 import ScoreDoc from './ScoreDoc'
+import { CheckBars } from './CheckBars'
 import Practice from './Practice'
-import Pages from './Pages'
 import { syncStatusBar } from '../lib/native'
 import './styles.css'
+import './r3.css'
 
-/** Each token set brings its own faces. A set's fonts load the first time it is shown and stay for the session. */
-const FONTS: Record<TokenSet, string> = {
-  instrument: 'https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Martian+Mono:wdth,wght@75..112.5,100..800&display=swap',
-  bound: 'https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap',
-}
+/** R3's three faces (docs/design/r3/README.md): EB Garamond for display and numbers, Inter for the interface, Noto Music
+ *  for clefs and accidentals. Loaded once, before sign-in, and kept for the session. */
+const FONTS = 'https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Noto+Music&display=swap'
 
-function useFonts(set: TokenSet) {
+function useFonts() {
   useEffect(() => {
-    if (!document.querySelector('link[rel="preconnect"][href="https://fonts.gstatic.com"]')) {
-      const pre = document.createElement('link')
-      pre.rel = 'preconnect'
-      pre.href = 'https://fonts.gstatic.com'
-      pre.crossOrigin = ''
-      document.head.append(pre)
-    }
-    const id = `fo-fonts-${set}`
-    if (document.getElementById(id)) return
+    if (document.getElementById('fo-fonts')) return
+    const pre = document.createElement('link')
+    pre.rel = 'preconnect'
+    pre.href = 'https://fonts.gstatic.com'
+    pre.crossOrigin = ''
     const link = document.createElement('link')
-    link.id = id
+    link.id = 'fo-fonts'
     link.rel = 'stylesheet'
-    link.href = FONTS[set]
-    document.head.append(link)
-  }, [set])
+    link.href = FONTS
+    document.head.append(pre, link)
+  }, [])
 }
 
 function Shell() {
   const { display } = useStore()
-  useFonts(display.tokens)
   useEffect(() => {
     // The browser chrome (status bar, scrollbars, form controls) follows the theme too.
     const meta = document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]') ?? (() => {
@@ -56,13 +50,15 @@ function Shell() {
     return () => m.removeEventListener('change', apply)
   }, [display.theme])
   return (
-    <div className="fo" data-tokens={display.tokens} data-theme={display.theme === 'system' ? undefined : display.theme}>
+    <div className="fo" data-theme={display.theme === 'system' ? undefined : display.theme} data-page={display.page}>
       <Routes>
-        <Route index element={<Library />} />
-        <Route path="group" element={<Library />} />
+        <Route index element={<Shelf />} />
+        <Route path="groups" element={<Shelf />} />
+        <Route path="group" element={<Shelf />} />
         <Route path="scan" element={<Scan />} />
         <Route path="score/:scoreId" element={<ScoreDoc />} />
-        <Route path="score/:scoreId/pages" element={<Pages />} />
+        <Route path="score/:scoreId/pages" element={<ScoreDoc pages />} />
+        <Route path="score/:scoreId/check" element={<CheckBars />} />
         <Route path="practice" element={<Practice />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
@@ -73,22 +69,16 @@ function Shell() {
 function Gate() {
   const { session, ready } = useAuth()
   const world = useWorld(session)
-  const theme = readTheme()
-  if (!ready) return <div className="fo" data-tokens={theme.tokens} data-theme={theme.theme} />
-  if (!session) return <div className="fo" data-tokens={theme.tokens} data-theme={theme.theme}><SignIn /></div>
+  const d = readDisplay()
+  useFonts()
+  const theme = d.theme === 'system' ? undefined : d.theme
+  if (!ready) return <div className="fo" data-theme={theme} />
+  if (!session) return <div className="fo" data-theme={theme}><SignIn /></div>
   return (
     <StoreProvider world={world}>
       <Shell />
     </StoreProvider>
   )
-}
-
-/** Before the store exists (sign-in), the saved display setting still styles the page. */
-function readTheme(): { tokens: TokenSet; theme?: string } {
-  try {
-    const d = JSON.parse(window.localStorage.getItem('folio.display') ?? '{}')
-    return { tokens: d.tokens === 'bound' ? 'bound' : 'instrument', theme: d.theme === 'light' || d.theme === 'dark' ? d.theme : undefined }
-  } catch { return { tokens: 'instrument' } }
 }
 
 export default function Folio() {
