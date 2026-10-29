@@ -231,6 +231,12 @@ def test_hairpins_end_under_the_right_edge_of_the_wedge_audiveris_saw():
     assert float(sp.getLast().offset) == 2.5 and sp.getLast().nameWithOctave == "E4" and float(sp.getFirst().offset) < 2.5
     assert log == [{"layer": "hairpin", "number": 22, "what": "diminuendo stop moved from bar 22 to bar 22 offset 2.5 (ink right edge)"}]
     assert fix_hairpins(sc, {"measures": [], "systems": [], "inters": []}) == []                    # no wedge inter: left alone
+    # ink that ends under the start note itself: the hairpin runs to the next note instead of collapsing to one note
+    sc = converter.parse(HAIRPIN_XML, format="musicxml")
+    doc["inters"] = [{"tag": "wedge", "shape": "DIMINUENDO", "number": 22, "bounds": [300, 90, 60, 10]}]
+    fix_hairpins(sc, doc)
+    sp = sc.parts[0].getElementsByClass(dynamics.DynamicWedge)[0]
+    assert len(sp.getSpannedElements()) == 2 and float(sp.getLast().offset) > float(sp.getFirst().offset)
 
 
 TUPLET_XML = """<?xml version="1.0"?><score-partwise version="3.1"><part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>

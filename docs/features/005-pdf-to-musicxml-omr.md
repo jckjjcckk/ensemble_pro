@@ -315,7 +315,7 @@ restores the filtered base (junk never returns), and with the vocabulary rule on
   default height). (2) Audiveris anchors a wedge's `type="stop"` to the note right after its start whatever the
   ink's length (its `default-x` offsets, which music21 drops, were the only trace), so every hairpin spanned one
   note. Now the stop moves to the note under the right edge of the `wedge` inter Audiveris itself boxed (bar by x,
-  onset by position). Goldberg: 21 hairpins moved (three had been parsed as running to bars 64, 97 and 118);
+  onset by position); when the ink ends under the start note itself (Aria bar 20, a diminuendo under one quaver) the stop runs to the part's next note instead, since MuseScore draws a one-note hairpin as a stray pair of parallel lines reaching the next hairpin. Goldberg: 21 hairpins moved (three had been parsed as running to bars 64, 97 and 118);
   Chopin: 9. Checked at 300 dpi: Chopin bars 5-6 and Aria bars 22-24 now open as wedges.
 - *Two tuplet brackets on bar 1's bass.* Audiveris read the fingering "3" under the bass as a triplet number
   (`<time-modification>` on B3 and D4, `tuplet` inter grade under 0.6); v1's closed question removed it, v2 asks no

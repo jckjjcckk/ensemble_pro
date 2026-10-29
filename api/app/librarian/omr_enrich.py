@@ -357,6 +357,19 @@ def false_tuplets(sc: stream.Score) -> list[dict]:
     return log_
 
 
+def _next_note(part: stream.Part, pm: dict[int, stream.Measure], m: stream.Measure, first) -> Any:
+    later = sorted(((float(el.offset), vi, el) for vi, v in enumerate(_containers(m)) for el in v.notes
+                    if not el.duration.isGrace and float(el.offset) > float(first.offset)), key=lambda t: (t[0], t[1]))
+    if later:
+        return later[0][2]
+    nxt = pm.get(m.number + 1)
+    if nxt is None:
+        return None
+    notes = sorted(((float(el.offset), vi, el) for vi, v in enumerate(_containers(nxt)) for el in v.notes if not el.duration.isGrace),
+                   key=lambda t: (t[0], t[1]))
+    return notes[0][2] if notes else None
+
+
 def fix_hairpins(sc: stream.Score, doc: dict) -> list[dict]:
     """Move every hairpin's stop to the note under the right edge of the wedge Audiveris saw. Returns the log."""
     log_: list[dict] = []
@@ -394,9 +407,11 @@ def fix_hairpins(sc: stream.Score, doc: dict) -> list[dict]:
                            key=lambda t: (t[0], t[1]))
             at = [el for o, _, el in notes if o >= off - 1e-6]
             new_last = at[0] if at else (notes[-1][2] if notes else None)
+            if new_last is None or new_last is first or (end["number"] == m0.number and float(new_last.offset) <= float(first.offset)):
+                # the ink ends under the start note itself: a one-note hairpin engraves as nothing or as a stray pair of
+                # lines, so it runs to the next note of the part (this bar, else the next bar's first)
+                new_last = _next_note(p, pm, m0, first)
             if new_last is None or new_last is last or new_last is first:
-                continue
-            if end["number"] == m0.number and float(new_last.offset) <= float(first.offset):
                 continue
             if last is first:
                 sp.addSpannedElements(new_last)
