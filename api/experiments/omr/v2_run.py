@@ -165,6 +165,8 @@ async def main() -> None:
                      "cost_per_page": out["cost_per_page"], "cost_per_step": row["meta"]["cost"]["per_step"],
                      "items": out["items"], "duplicates": out["items"]["duplicates"], "flagged": len(out["flagged_bars"]),
                      "verify": out["verify"], "engraving": {k: v for k, v in out["engraving"].items() if k != "layouts"},
+                     "verify_no": [{"page": l.get("page"), "system": l.get("system"), "named": l.get("named"), "reason": l.get("reason")}
+                                   for l in (store.get("verify_edits") or {}).get("log", []) if l.get("same") is False],
                      "junk_written": junk_written(xml), "dropped_by_reason": dropped_reasons(store.get("reread") or []),
                      "front_matter": out["front_matter"], "tempo_bar_1": tempo_on_bar_1(xml, first), "score_row": db.rows["scores"][0]}
     if a.text_gt:

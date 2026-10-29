@@ -23,7 +23,9 @@ The four steps, each a prompt here and a writer in `omr_enrich`:
                 (CK, 2026-10-28 late: Spark may confirm or correct text Audiveris saw, never add free text), and so
                 is anything that is only punctuation, digits, a plate or page number, or a hairpin character. A
                 dynamic takes the bar of the first notehead at or right of its ink, a word the bar under its ink;
-                staff by the nearer staff band. Spark's bar label is a cross-check only. (The per-note items of the
+                staff by the nearer staff band. Without a glyph, a word of the fixed expression vocabulary (`VOCABULARY`:
+                cresc., dim., dolce, poco a poco, rit., a tempo, ...) is still written, in the bar Spark named, at the note
+                nearest its point (CK, 2026-10-28 late). Spark's bar label is otherwise a cross-check. (The per-note items of the
                 first v2 build, fingering, pedal and ornaments, are gone: CK judged them worse than main.)
   verify        the closed questions that remain: one per low-grade accidental (`alter`) or ornament the gate let in
                 (`omr_book.VERIFY_TAGS`). An accidental verdict never edits a pitch: a disagreement flags the bar. An
@@ -336,6 +338,20 @@ async def front_matter(ctx, client, model: str, doc: dict, scans: dict[int, Imag
 
 # ---------------------------------------------------------------------------------------------------- text placement
 
+# Expression words Spark may write without an Audiveris glyph (CK, 2026-10-28 late): lower-cased, punctuation stripped;
+# a multi-word item passes when every word is in the list.
+VOCABULARY = {"cresc", "crescendo", "dim", "dimin", "diminuendo", "decresc", "decrescendo", "dolce", "poco", "a", "rit", "ritard",
+              "ritardando", "rall", "rallentando", "accel", "accelerando", "tempo", "espressivo", "espress", "legato", "staccato",
+              "cantabile", "sempre", "molto", "piu", "più", "meno", "sostenuto", "tenuto", "marcato", "leggiero", "con", "senza",
+              "pedale", "ped", "tr", "fine", "dc", "ds", "d.c", "d.s", "coda"}
+
+
+def in_vocabulary(text: str) -> bool:
+    words = [re.sub(r"[^\w'’]+", "", w).lower().strip("'’") for w in text.split()]
+    words = [w.replace("'", "").replace("’", "") for w in words if w]
+    return bool(words) and all(w in VOCABULARY for w in words) and words != ["a"]
+
+
 JUNK_PLATE = re.compile(r"^[\d\s.'’,:/-]+$")           # "07'880.", "34", "1 2 3": digits and punctuation only
 
 
@@ -451,19 +467,27 @@ def place(items: list[dict[str, Any]], measures: list[dict[str, Any]], staves: l
         X, Y = grid_to_page(min(max(x, 0), GRID), min(max(y if y is not None else GRID / 2, 0), GRID), crop)
         g = _snap(X, Y, glyphs, interline)
         if g is None:
-            dropped.append({"item": it, "why": "no Audiveris text glyph within 8 interlines (free text is never added)"})
-            continue
-        X, Y = _centre(g["bounds"])
-        h = _anchor(g["bounds"][0], X, heads, interline) if kind == "dynamic" else None
-        if h is not None and h["number"] in by_number:
-            m, how = by_number[h["number"]], "glyph+head"
+            # No glyph: only a word of the expression vocabulary may be written, in the bar Spark named (its label alone
+            # scored 1.00 on p1-5), at the note nearest its point; anything else is never added.
+            if kind == "words" and in_vocabulary(text) and label in by_number:
+                m, how = by_number[label], "vocab+label"
+                X = min(max(X, m["px"][0]), m["px"][2] - 1)
+            else:
+                why = "no Audiveris text glyph within 8 interlines" + ("" if kind == "words" and in_vocabulary(text) else " and not an expression word")
+                dropped.append({"item": it, "why": why + " (free text is never added)"})
+                continue
         else:
-            m, how = bar_at(X, measures)
-            how = "glyph+" + how
+            X, Y = _centre(g["bounds"])
+            h = _anchor(g["bounds"][0], X, heads, interline) if kind == "dynamic" else None
+            if h is not None and h["number"] in by_number:
+                m, how = by_number[h["number"]], "glyph+head"
+            else:
+                m, how = bar_at(X, measures)
+                how = "glyph+" + how
         staff, placement = staff_at(Y, staves)
         left_px, right_px = m["px"][0], m["px"][2]
         placed.append({"text": text, "kind": kind, "number": m["number"], "staff": staff, "placement": placement, "how": how,
-                       "glyph": g.get("value"), "spark_bar": label, "label_agrees": (label == m["number"]) if label is not None else None,
+                       "glyph": g.get("value") if g else None, "spark_bar": label, "label_agrees": (label == m["number"]) if label is not None else None,
                        "frac": round(min(max((X - left_px) / (right_px - left_px), 0.0), 1.0), 3) if right_px > left_px else 0.0})
     return placed, dropped
 

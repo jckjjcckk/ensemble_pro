@@ -1,6 +1,6 @@
 """Engraving (005, 010) against a fake MuseScore box: no ssh, no network. The fake engraver writes what MuseScore
 leaves on the real one (`p-1.svg`, `p-2.svg`, `p.mpos`); the `.mpos` sample is the real one MuseScore wrote for the
-Goldberg Aria (`experiments/engrave/goldberg/same-file/F-musescore-fixed.mpos`, 32 bars on two pages)."""
+Goldberg Aria (`tests/fixtures/engrave/goldberg-aria-fixed.mpos`, 32 bars on two pages)."""
 from __future__ import annotations
 
 import re
@@ -17,9 +17,9 @@ from app.librarian.import_musicxml import import_musicxml
 from tests.test_part_split import FIXTURES, QUARTET, StoreCtx, StoreDB, digital_book, SCORE
 
 HERE = Path(__file__).resolve().parent
-GOLDBERG = HERE.parent / "experiments" / "engrave" / "goldberg" / "same-file"
-MPOS = (GOLDBERG / "F-musescore-fixed.mpos").read_text()
-GOLD_XML = (GOLDBERG / "F-input.musicxml").read_bytes()
+GOLDBERG = HERE / "fixtures" / "engrave"      # the Aria through musicxml_fix and MuseScore's .mpos for it (copies of
+MPOS = (GOLDBERG / "goldberg-aria-fixed.mpos").read_text()      # experiments/engrave/goldberg/same-file/F-*, which git ignores)
+GOLD_XML = (GOLDBERG / "goldberg-aria-fixed.musicxml").read_bytes()
 # The page MuseScore wrote for that file: Audiveris's 1434 x 1783 tenths at 6.7733 mm / 40 tenths, in 1200 dpi units.
 GOLD_SVG = (11471.9, 14263.9)
 

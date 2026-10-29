@@ -33,9 +33,9 @@ PAD_PX = 60                                          # around the engraved syste
 MAX_WIDTH = 1600
 
 VERIFY_RENDER_SYSTEM = "You are a music engraver proofreading a transcription against its scanned original. Answer with strict JSON only."
-VERIFY_RENDER_PROMPT = """Two images of the same system, measures {first}..{last} of a piece of piano or chamber music. TOP: the scanned original (300 dpi). BOTTOM: our engraving of the transcription by a different engraver, so note spacing, stems, beams, slurs, staff size and layout differ, and hairpins are drawn as plain lines: ignore all of that.
-Compare only the printed TEXT: dynamic letters (p, mf, f, sf, rf ...) and expression words (dolce, cresc., dim., poco ...), measure by measure. Is every text item of the bottom also printed on the top in the same measure, and every dynamic or expression word of the top present on the bottom? Fingering digits, plate and page numbers, tempo headings and titles may be missing from the bottom; hairpins, slurs and ornaments are not text: never count them.
-Return only JSON: {{"same": true, "reason": "<one line>", "differences": [{{"measure": {first}, "what": "<the text that differs>"}}]}} ("differences" empty when same is true)."""
+VERIFY_RENDER_PROMPT = """Two images of the same system, measures {first}..{last} of a piece of piano or chamber music. TOP: the scanned original (300 dpi). BOTTOM: our engraving of the transcription (a different engraver: spacing, line breaks, note layout, stems, beams, slurs and hairpin shapes differ; ignore all of that).
+Do the words, dynamics and tempo text in the rendering match the scan, ignoring spacing, line breaks and note layout? Compare measure by measure: dynamic letters (p, mf, f, sf, rf ...), expression words (dolce, cresc., dim., poco ...) and tempo text. Fingering digits, plate and page numbers are not text here; hairpins, slurs and ornaments are not text.
+Return only JSON: {{"same": true, "reason": "<one line>", "differences": [{{"measure": {first}, "what": "<which text differs and how>"}}]}} ("differences" empty when same is true)."""
 
 
 def _system_boxes(mpos: str, numbers: list[int], png_sizes: list[tuple[int, int]]) -> dict[int, tuple[int, int, int, int, int]]:

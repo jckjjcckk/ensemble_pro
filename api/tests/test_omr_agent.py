@@ -9,7 +9,7 @@ import pytest
 from music21 import converter, dynamics, expressions, stream, tempo
 
 from app.librarian import Job
-from app.librarian.omr_agent import Budget, Cropper, PAGE_KIND_SYSTEM, junk, normalize_front, normalize_kind, page_kinds, place
+from app.librarian.omr_agent import Budget, Cropper, PAGE_KIND_SYSTEM, in_vocabulary, junk, normalize_front, normalize_kind, page_kinds, place
 from app.librarian.omr_enrich import apply_front, apply_text, apply_verify
 from tests.test_part_cut import Ctx, FakeDB
 
@@ -31,6 +31,11 @@ def test_normalize_front_fills_the_fixed_form():
     assert normalize_front("garbage") == {k: None for k in ("title", "composer", "movement_or_number", "tempo_heading", "metronome", "opus", "dedication", "editor")}
 
 
+def test_vocabulary_is_expression_words_only():
+    assert in_vocabulary("cresc.") and in_vocabulary("Poco a poco") and in_vocabulary("a tempo") and in_vocabulary("D.C.") and in_vocabulary("più mosso") is False
+    assert not in_vocabulary("legato Allegro") and not in_vocabulary("erase.") and not in_vocabulary("a") and not in_vocabulary("")
+
+
 def test_junk_filter_keeps_text_and_drops_numbers_hairpins_and_specks():
     assert junk("cresc. poco a poco") is None and junk("p") is None and junk("dolce") is None and junk("rf") is None
     assert junk("07'880.") and junk("34") and junk("1 2 3") and junk("<") and junk(">") and junk("a") and junk(".") and junk("")
@@ -42,13 +47,18 @@ def test_place_writes_only_what_an_audiveris_glyph_confirms():
     glyph = {"tag": "word", "value": "creso.", "bounds": [540, 85, 60, 10]}
     heads = [{"x": 560, "number": 19}]
     items = [{"text": "cresc.", "x": 520, "y": 900, "bar": 18},           # Spark's point left of the barline; the glyph is in 19
-             {"text": "legato", "x": 150, "y": 900, "bar": 18},           # no glyph near: never added
+             {"text": "marcia", "x": 150, "y": 900, "bar": 18},           # no glyph near, not an expression word: never added
              {"text": "p", "x": 560, "y": 900, "bar": 19},                # a dynamic on the same glyph: anchored to the head
              {"text": "<", "x": 300, "y": 900, "bar": 18}]
     placed, dropped = place(items, ms, staves, crop, [glyph], heads, interline=10)
     assert [(p["text"], p["kind"], p["number"], p["how"], p["label_agrees"]) for p in placed] == [
         ("cresc.", "words", 19, "glyph+x", False), ("p", "dynamic", 19, "glyph+head", True)]
     assert [d["why"][:18] for d in dropped] == ["no Audiveris text ", "a hairpin characte"]
+    # a vocabulary word needs no glyph: it goes to the bar Spark named, at its point
+    (v,), _ = place([{"text": "cresc. poco a poco", "x": 300, "y": 900, "bar": 18}], ms, staves, crop, [], [], interline=10)
+    assert (v["number"], v["how"], v["kind"], v["frac"]) == (18, "vocab+label", "words", 0.5)
+    _, (d,) = place([{"text": "cresc.", "x": 300, "y": 900, "bar": 99}], ms, staves, crop, [], [], interline=10)   # a bar not in the system
+    assert d["why"].startswith("no Audiveris text glyph")
     _, dropped = place([{"text": "Andante", "x": 520, "y": 900, "bar": 18}], ms, staves, crop, [glyph], heads, interline=10, exclude=("Andante.",))
     assert dropped[0]["why"].startswith("the tempo heading")
 
