@@ -41,3 +41,6 @@ api/fixtures/voice/*.mp3
 
 # R3 verification screenshots (local, like the explorations shots)
 docs/design/r3/shots/
+
+# never a symlink either (a worktree once committed one and the merge overwrote the real folder)
+api/fixtures/pdf
