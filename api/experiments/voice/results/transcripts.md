@@ -42,3 +42,4 @@
 | v28 | 1/10 | Cello, bar three, that's four beats not three, count it. | Bar three, that's four beats, not three. Count it. |
 | v29 | 8/13 | Sopranos, from the key change we're all down an octave till the coda. | Sopranos from the key key change, we are all we're all we're all down an octave till Dakota. Dakota. |
 | v30 | 0/6 | Right, bar one, here we go. | right bar one here we go |
+| all | 127/415 | | |

@@ -38,3 +38,286 @@
 {"ts": "2026-10-28T21:53:19", "kind": "asr", "id": "v28", "usd": 0.000212, "secs": 1.2}
 {"ts": "2026-10-28T21:53:19", "kind": "asr", "id": "v30", "usd": 0.000172, "secs": 1.05}
 {"ts": "2026-10-28T21:53:20", "kind": "asr", "id": "v29", "usd": 0.00036, "secs": 1.63}
+{"ts": "2026-10-28T21:53:33", "kind": "propose:v1", "id": "v01", "usd": 0.002743, "secs": 3.71, "input_tokens": 250, "output_tokens": 572}
+{"ts": "2026-10-28T21:53:34", "kind": "propose:v1", "id": "v02", "usd": 0.00268, "secs": 3.89, "input_tokens": 257, "output_tokens": 555}
+{"ts": "2026-10-28T21:53:34", "kind": "propose:v1", "id": "v02c", "usd": 0.00326, "secs": 4.21, "input_tokens": 272, "output_tokens": 687}
+{"ts": "2026-10-28T21:53:35", "kind": "propose:v1", "id": "v01c", "usd": 0.003478, "secs": 4.94, "input_tokens": 256, "output_tokens": 743}
+{"ts": "2026-10-28T21:53:35", "kind": "propose:v1", "id": "v03c", "usd": 0.003978, "secs": 5.47, "input_tokens": 272, "output_tokens": 856}
+{"ts": "2026-10-28T21:53:36", "kind": "propose:v1", "id": "v03", "usd": 0.004261, "secs": 6.03, "input_tokens": 254, "output_tokens": 928}
+{"ts": "2026-10-28T21:53:37", "kind": "propose:v1", "id": "v06", "usd": 0.00141, "secs": 1.97, "input_tokens": 244, "output_tokens": 260}
+{"ts": "2026-10-28T21:53:37", "kind": "propose:v1", "id": "v06c", "usd": 0.001117, "secs": 1.73, "input_tokens": 3, "output_tokens": 262}
+{"ts": "2026-10-28T21:53:38", "kind": "propose:v1", "id": "v04", "usd": 0.003068, "secs": 4.65, "input_tokens": 251, "output_tokens": 648}
+{"ts": "2026-10-28T21:53:40", "kind": "propose:v1", "id": "v04c", "usd": 0.004548, "secs": 6.58, "input_tokens": 262, "output_tokens": 993}
+{"ts": "2026-10-28T21:53:41", "kind": "propose:v1", "id": "v07", "usd": 0.003027, "secs": 4.05, "input_tokens": 256, "output_tokens": 637}
+{"ts": "2026-10-28T21:53:42", "kind": "propose:v1", "id": "v07c", "usd": 0.003612, "secs": 4.6, "input_tokens": 265, "output_tokens": 772}
+{"ts": "2026-10-28T21:53:42", "kind": "propose:v1", "id": "v08", "usd": 0.003118, "secs": 4.23, "input_tokens": 247, "output_tokens": 661}
+{"ts": "2026-10-28T21:53:43", "kind": "propose:v1", "id": "v05", "usd": 0.006056, "secs": 8.59, "input_tokens": 251, "output_tokens": 1351}
+{"ts": "2026-10-28T21:53:44", "kind": "propose:v1", "id": "v05c", "usd": 0.006562, "secs": 9.44, "input_tokens": 255, "output_tokens": 1469}
+{"ts": "2026-10-28T21:53:45", "kind": "propose:v1", "id": "v09c", "usd": 0.003045, "secs": 3.4, "input_tokens": 267, "output_tokens": 638}
+{"ts": "2026-10-28T21:53:46", "kind": "propose:v1", "id": "v08c", "usd": 0.0043, "secs": 5.59, "input_tokens": 251, "output_tokens": 938}
+{"ts": "2026-10-28T21:53:46", "kind": "propose:v1", "id": "v09", "usd": 0.003272, "secs": 5.05, "input_tokens": 261, "output_tokens": 693}
+{"ts": "2026-10-28T21:53:48", "kind": "propose:v1", "id": "v11", "usd": 0.002605, "secs": 4.19, "input_tokens": 251, "output_tokens": 539}
+{"ts": "2026-10-28T21:53:50", "kind": "propose:v1", "id": "v14", "usd": 0.002229, "secs": 3.45, "input_tokens": 246, "output_tokens": 452}
+{"ts": "2026-10-28T21:53:51", "kind": "propose:v1", "id": "v12", "usd": 0.00367, "secs": 5.54, "input_tokens": 253, "output_tokens": 789}
+{"ts": "2026-10-28T21:53:52", "kind": "propose:v1", "id": "v10c", "usd": 0.006633, "secs": 9.44, "input_tokens": 247, "output_tokens": 1488}
+{"ts": "2026-10-28T21:53:52", "kind": "propose:v1", "id": "v10", "usd": 0.006734, "secs": 9.88, "input_tokens": 250, "output_tokens": 1511}
+{"ts": "2026-10-28T21:53:53", "kind": "propose:v1", "id": "v13", "usd": 0.005485, "secs": 7.59, "input_tokens": 267, "output_tokens": 1212}
+{"ts": "2026-10-28T21:53:54", "kind": "propose:v1", "id": "v15", "usd": 0.004564, "secs": 5.9, "input_tokens": 248, "output_tokens": 1001}
+{"ts": "2026-10-28T21:53:55", "kind": "propose:v1", "id": "v20", "usd": 0.001134, "secs": 1.72, "input_tokens": 244, "output_tokens": 195}
+{"ts": "2026-10-28T21:53:57", "kind": "propose:v1", "id": "v17", "usd": 0.003525, "secs": 5.65, "input_tokens": 253, "output_tokens": 755}
+{"ts": "2026-10-28T21:53:57", "kind": "propose:v1", "id": "v19", "usd": 0.004139, "secs": 5.07, "input_tokens": 251, "output_tokens": 900}
+{"ts": "2026-10-28T21:54:00", "kind": "propose:v1", "id": "v16", "usd": 0.007665, "secs": 9.92, "input_tokens": 250, "output_tokens": 1730}
+{"ts": "2026-10-28T21:54:00", "kind": "propose:v1", "id": "v18", "usd": 0.005778, "secs": 8.17, "input_tokens": 250, "output_tokens": 1286}
+{"ts": "2026-10-28T21:54:01", "kind": "propose:v1", "id": "v21", "usd": 0.005083, "secs": 6.55, "input_tokens": 255, "output_tokens": 1121}
+{"ts": "2026-10-28T21:54:01", "kind": "propose:v1", "id": "v22", "usd": 0.004384, "secs": 6.05, "input_tokens": 253, "output_tokens": 957}
+{"ts": "2026-10-28T21:54:04", "kind": "propose:v1", "id": "v23", "usd": 0.005124, "secs": 7.34, "input_tokens": 247, "output_tokens": 1133}
+{"ts": "2026-10-28T21:54:04", "kind": "propose:v1", "id": "v26", "usd": 0.003644, "secs": 3.92, "input_tokens": 256, "output_tokens": 782}
+{"ts": "2026-10-28T21:54:05", "kind": "propose:v1", "id": "v24", "usd": 0.005622, "secs": 7.98, "input_tokens": 248, "output_tokens": 1250}
+{"ts": "2026-10-28T21:54:05", "kind": "propose:v1", "id": "v28", "usd": 0.003313, "secs": 4.23, "input_tokens": 250, "output_tokens": 706}
+{"ts": "2026-10-28T21:54:05", "kind": "propose:v1", "id": "v30", "usd": 0.000794, "secs": 1.4, "input_tokens": 244, "output_tokens": 115}
+{"ts": "2026-10-28T21:54:07", "kind": "propose:v1", "id": "v25", "usd": 0.005823, "secs": 7.83, "input_tokens": 252, "output_tokens": 1296}
+{"ts": "2026-10-28T21:54:08", "kind": "propose:v1", "id": "v27", "usd": 0.005324, "secs": 7.04, "input_tokens": 247, "output_tokens": 1180}
+{"ts": "2026-10-28T21:54:08", "kind": "judge:v1", "id": "v02", "usd": 0.002068, "secs": 2.89, "input_tokens": 114, "output_tokens": 453}
+{"ts": "2026-10-28T21:54:09", "kind": "judge:v1", "id": "v02c", "usd": 0.001708, "secs": 3.17, "input_tokens": 115, "output_tokens": 368}
+{"ts": "2026-10-28T21:54:10", "kind": "judge:v1", "id": "v01", "usd": 0.003281, "secs": 4.87, "input_tokens": 102, "output_tokens": 742}
+{"ts": "2026-10-28T21:54:12", "kind": "judge:v1", "id": "v04c", "usd": 0.001648, "secs": 2.23, "input_tokens": 118, "output_tokens": 353}
+{"ts": "2026-10-28T21:54:12", "kind": "propose:v1", "id": "v29", "usd": 0.006497, "secs": 8.44, "input_tokens": 261, "output_tokens": 1452}
+{"ts": "2026-10-28T21:54:14", "kind": "judge:v1", "id": "v01c", "usd": 0.004144, "secs": 6.1, "input_tokens": 102, "output_tokens": 945}
+{"ts": "2026-10-28T21:54:14", "kind": "judge:v1", "id": "v03", "usd": 0.003827, "secs": 5.7, "input_tokens": 107, "output_tokens": 869}
+{"ts": "2026-10-28T21:54:14", "kind": "judge:v1", "id": "v03c", "usd": 0.004545, "secs": 6.26, "input_tokens": 107, "output_tokens": 1038}
+{"ts": "2026-10-28T21:54:16", "kind": "judge:v1", "id": "v04", "usd": 0.004916, "secs": 7.24, "input_tokens": 115, "output_tokens": 1123}
+{"ts": "2026-10-28T21:54:17", "kind": "judge:v1", "id": "v05", "usd": 0.001988, "secs": 3.17, "input_tokens": 108, "output_tokens": 436}
+{"ts": "2026-10-28T21:54:17", "kind": "judge:v1", "id": "v05c", "usd": 0.00238, "secs": 3.38, "input_tokens": 109, "output_tokens": 528}
+{"ts": "2026-10-28T21:54:17", "kind": "judge:v1", "id": "v07", "usd": 0.003626, "secs": 5.09, "input_tokens": 116, "output_tokens": 819}
+{"ts": "2026-10-28T21:54:19", "kind": "judge:v1", "id": "v08c", "usd": 0.001386, "secs": 2.72, "input_tokens": 109, "output_tokens": 294}
+{"ts": "2026-10-28T21:54:19", "kind": "judge:v1", "id": "v08", "usd": 0.003507, "secs": 6.3, "input_tokens": 106, "output_tokens": 794}
+{"ts": "2026-10-28T21:54:21", "kind": "judge:v1", "id": "v09c", "usd": 0.004751, "secs": 7.33, "input_tokens": 115, "output_tokens": 1084}
+{"ts": "2026-10-28T21:54:21", "kind": "judge:v1", "id": "v15", "usd": 0.002239, "secs": 2.73, "input_tokens": 108, "output_tokens": 495}
+{"ts": "2026-10-28T21:54:23", "kind": "judge:v1", "id": "v10", "usd": 0.003856, "secs": 5.59, "input_tokens": 110, "output_tokens": 875}
+{"ts": "2026-10-28T21:54:24", "kind": "judge:v1", "id": "v21", "usd": 0.001473, "secs": 2.15, "input_tokens": 124, "output_tokens": 310}
+{"ts": "2026-10-28T21:54:24", "kind": "judge:v1", "id": "v09", "usd": 0.005048, "secs": 7.36, "input_tokens": 115, "output_tokens": 1154}
+{"ts": "2026-10-28T21:54:26", "kind": "judge:v1", "id": "v26", "usd": 0.001727, "secs": 2.19, "input_tokens": 117, "output_tokens": 372}
+{"ts": "2026-10-28T21:54:26", "kind": "judge:v1", "id": "v10c", "usd": 0.005638, "secs": 8.67, "input_tokens": 104, "output_tokens": 1296}
+{"ts": "2026-10-28T21:54:27", "kind": "judge:v1", "id": "v13", "usd": 0.005815, "secs": 8.49, "input_tokens": 120, "output_tokens": 1333}
+{"ts": "2026-10-28T21:54:28", "kind": "judge:v1", "id": "v22", "usd": 0.003001, "secs": 4.63, "input_tokens": 113, "output_tokens": 673}
+{"ts": "2026-10-28T21:54:28", "kind": "judge:v1", "id": "v16", "usd": 0.004588, "secs": 6.37, "input_tokens": 111, "output_tokens": 1047}
+{"ts": "2026-10-28T21:54:28", "kind": "judge:v1", "id": "v27", "usd": 0.000793, "secs": 1.18, "input_tokens": 107, "output_tokens": 155}
+{"ts": "2026-10-28T21:54:29", "kind": "judge:v1", "id": "v25", "usd": 0.00184, "secs": 2.62, "input_tokens": 119, "output_tokens": 398}
+{"ts": "2026-10-28T21:54:31", "kind": "judge:v1", "id": "v24", "usd": 0.005014, "secs": 6.97, "input_tokens": 105, "output_tokens": 1149}
+{"ts": "2026-10-28T21:54:34", "kind": "judge:v1", "id": "v28", "usd": 0.005578, "secs": 8.39, "input_tokens": 107, "output_tokens": 1281}
+{"ts": "2026-10-28T21:55:06", "kind": "asr-probe:PUSH_TO_TALK:0", "id": "v11", "usd": 0.000312, "secs": 0}
+{"ts": "2026-10-28T21:55:06", "kind": "asr-probe:PUSH_TO_TALK:1.0", "id": "v11", "usd": 0.000364, "secs": 0}
+{"ts": "2026-10-28T21:55:06", "kind": "asr-probe:DIARIZATION:1.0", "id": "v11", "usd": 0.000364, "secs": 0}
+{"ts": "2026-10-28T21:55:07", "kind": "asr-probe:PUSH_TO_TALK:0", "id": "v28", "usd": 0.000212, "secs": 0}
+{"ts": "2026-10-28T21:55:07", "kind": "asr-probe:PUSH_TO_TALK:1.0", "id": "v28", "usd": 0.000264, "secs": 0}
+{"ts": "2026-10-28T21:55:07", "kind": "asr-probe:DIARIZATION:1.0", "id": "v28", "usd": 0.000264, "secs": 0}
+{"ts": "2026-10-28T21:55:09", "kind": "asr-probe:PUSH_TO_TALK:0", "id": "v15", "usd": 0.00028, "secs": 0}
+{"ts": "2026-10-28T21:55:09", "kind": "asr-probe:PUSH_TO_TALK:1.0", "id": "v15", "usd": 0.000328, "secs": 0}
+{"ts": "2026-10-28T21:55:09", "kind": "asr-probe:DIARIZATION:1.0", "id": "v15", "usd": 0.000328, "secs": 0}
+{"ts": "2026-10-28T21:55:10", "kind": "asr-probe:PUSH_TO_TALK:0", "id": "v16", "usd": 0.000288, "secs": 0}
+{"ts": "2026-10-28T21:55:10", "kind": "asr-probe:PUSH_TO_TALK:1.0", "id": "v16", "usd": 0.00034, "secs": 0}
+{"ts": "2026-10-28T21:55:10", "kind": "asr-probe:DIARIZATION:1.0", "id": "v16", "usd": 0.00034, "secs": 0}
+{"ts": "2026-10-28T21:55:11", "kind": "asr-probe:PUSH_TO_TALK:0", "id": "v18", "usd": 0.000264, "secs": 0}
+{"ts": "2026-10-28T21:55:11", "kind": "asr-probe:PUSH_TO_TALK:1.0", "id": "v18", "usd": 0.000316, "secs": 0}
+{"ts": "2026-10-28T21:55:12", "kind": "asr-probe:DIARIZATION:1.0", "id": "v18", "usd": 0.000316, "secs": 0}
+{"ts": "2026-10-28T21:55:13", "kind": "asr-probe:PUSH_TO_TALK:0", "id": "v12", "usd": 0.000352, "secs": 0}
+{"ts": "2026-10-28T21:55:13", "kind": "asr-probe:DIARIZATION:1.0", "id": "v12", "usd": 0.0004, "secs": 0}
+{"ts": "2026-10-28T21:55:13", "kind": "asr-probe:PUSH_TO_TALK:1.0", "id": "v12", "usd": 0.0004, "secs": 0}
+{"ts": "2026-10-28T21:55:14", "kind": "asr-probe:PUSH_TO_TALK:0", "id": "v10", "usd": 0.00026, "secs": 0}
+{"ts": "2026-10-28T21:55:15", "kind": "asr-probe:PUSH_TO_TALK:1.0", "id": "v10", "usd": 0.000308, "secs": 0}
+{"ts": "2026-10-28T21:55:15", "kind": "asr-probe:DIARIZATION:1.0", "id": "v10", "usd": 0.000308, "secs": 0}
+{"ts": "2026-10-28T21:55:16", "kind": "asr-probe:DIARIZATION:1.0", "id": "v27", "usd": 0.000292, "secs": 0}
+{"ts": "2026-10-28T21:55:16", "kind": "asr-probe:PUSH_TO_TALK:0", "id": "v27", "usd": 0.00024, "secs": 0}
+{"ts": "2026-10-28T21:55:16", "kind": "asr-probe:PUSH_TO_TALK:1.0", "id": "v27", "usd": 0.000292, "secs": 0}
+{"ts": "2026-10-28T21:55:17", "kind": "asr-probe:PUSH_TO_TALK:0", "id": "v04", "usd": 0.00032, "secs": 0}
+{"ts": "2026-10-28T21:55:17", "kind": "asr-probe:PUSH_TO_TALK:1.0", "id": "v04", "usd": 0.000372, "secs": 0}
+{"ts": "2026-10-28T21:55:18", "kind": "asr-probe:DIARIZATION:1.0", "id": "v04", "usd": 0.000372, "secs": 0}
+{"ts": "2026-10-28T21:55:19", "kind": "asr-probe:PUSH_TO_TALK:0", "id": "v07", "usd": 0.000444, "secs": 0}
+{"ts": "2026-10-28T21:55:20", "kind": "asr-probe:DIARIZATION:1.0", "id": "v07", "usd": 0.000492, "secs": 0}
+{"ts": "2026-10-28T21:55:20", "kind": "asr-probe:PUSH_TO_TALK:1.0", "id": "v07", "usd": 0.000492, "secs": 0}
+{"ts": "2026-10-28T21:55:42", "kind": "asr:PUSH_TO_TALK", "id": "v01", "usd": 0.000264, "secs": 1.7}
+{"ts": "2026-10-28T21:55:42", "kind": "asr:PUSH_TO_TALK", "id": "v02", "usd": 0.000464, "secs": 1.93}
+{"ts": "2026-10-28T21:55:43", "kind": "asr:PUSH_TO_TALK", "id": "v01c", "usd": 0.00054, "secs": 2.2}
+{"ts": "2026-10-28T21:55:43", "kind": "asr:PUSH_TO_TALK", "id": "v02c", "usd": 0.000452, "secs": 2.25}
+{"ts": "2026-10-28T21:55:44", "kind": "asr:PUSH_TO_TALK", "id": "v03", "usd": 0.000344, "secs": 1.57}
+{"ts": "2026-10-28T21:55:44", "kind": "asr:PUSH_TO_TALK", "id": "v04", "usd": 0.00032, "secs": 1.21}
+{"ts": "2026-10-28T21:55:45", "kind": "asr:PUSH_TO_TALK", "id": "v03c", "usd": 0.000584, "secs": 2.37}
+{"ts": "2026-10-28T21:55:45", "kind": "asr:PUSH_TO_TALK", "id": "v04c", "usd": 0.000588, "secs": 2.3}
+{"ts": "2026-10-28T21:55:45", "kind": "asr:PUSH_TO_TALK", "id": "v05", "usd": 0.0003, "secs": 1.57}
+{"ts": "2026-10-28T21:55:46", "kind": "asr:PUSH_TO_TALK", "id": "v05c", "usd": 0.00054, "secs": 1.81}
+{"ts": "2026-10-28T21:55:46", "kind": "asr:PUSH_TO_TALK", "id": "v06", "usd": 0.00018, "secs": 1.05}
+{"ts": "2026-10-28T21:55:46", "kind": "asr:PUSH_TO_TALK", "id": "v06c", "usd": 0.000184, "secs": 1.01}
+{"ts": "2026-10-28T21:55:47", "kind": "asr:PUSH_TO_TALK", "id": "v07", "usd": 0.000444, "secs": 1.61}
+{"ts": "2026-10-28T21:55:47", "kind": "asr:PUSH_TO_TALK", "id": "v08", "usd": 0.00032, "secs": 1.25}
+{"ts": "2026-10-28T21:55:48", "kind": "asr:PUSH_TO_TALK", "id": "v08c", "usd": 0.000436, "secs": 1.74}
+{"ts": "2026-10-28T21:55:48", "kind": "asr:PUSH_TO_TALK", "id": "v07c", "usd": 0.000644, "secs": 2.29}
+{"ts": "2026-10-28T21:55:48", "kind": "asr:PUSH_TO_TALK", "id": "v09", "usd": 0.000368, "secs": 1.62}
+{"ts": "2026-10-28T21:55:49", "kind": "asr:PUSH_TO_TALK", "id": "v10", "usd": 0.00026, "secs": 1.19}
+{"ts": "2026-10-28T21:55:49", "kind": "asr:PUSH_TO_TALK", "id": "v09c", "usd": 0.000476, "secs": 1.9}
+{"ts": "2026-10-28T21:55:49", "kind": "asr:PUSH_TO_TALK", "id": "v10c", "usd": 0.000336, "secs": 1.32}
+{"ts": "2026-10-28T21:55:50", "kind": "asr:PUSH_TO_TALK", "id": "v11", "usd": 0.000312, "secs": 1.34}
+{"ts": "2026-10-28T21:55:50", "kind": "asr:PUSH_TO_TALK", "id": "v14", "usd": 0.000232, "secs": 1.02}
+{"ts": "2026-10-28T21:55:50", "kind": "asr:PUSH_TO_TALK", "id": "v12", "usd": 0.000352, "secs": 1.57}
+{"ts": "2026-10-28T21:55:51", "kind": "asr:PUSH_TO_TALK", "id": "v13", "usd": 0.000404, "secs": 1.65}
+{"ts": "2026-10-28T21:55:51", "kind": "asr:PUSH_TO_TALK", "id": "v15", "usd": 0.00028, "secs": 1.09}
+{"ts": "2026-10-28T21:55:51", "kind": "asr:PUSH_TO_TALK", "id": "v16", "usd": 0.000288, "secs": 1.26}
+{"ts": "2026-10-28T21:55:52", "kind": "asr:PUSH_TO_TALK", "id": "v17", "usd": 0.00036, "secs": 1.47}
+{"ts": "2026-10-28T21:55:52", "kind": "asr:PUSH_TO_TALK", "id": "v18", "usd": 0.000264, "secs": 1.39}
+{"ts": "2026-10-28T21:55:52", "kind": "asr:PUSH_TO_TALK", "id": "v19", "usd": 0.000264, "secs": 1.34}
+{"ts": "2026-10-28T21:55:53", "kind": "asr:PUSH_TO_TALK", "id": "v20", "usd": 0.000164, "secs": 1.04}
+{"ts": "2026-10-28T21:55:53", "kind": "asr:PUSH_TO_TALK", "id": "v22", "usd": 0.000252, "secs": 1.3}
+{"ts": "2026-10-28T21:55:53", "kind": "asr:PUSH_TO_TALK", "id": "v23", "usd": 0.000236, "secs": 1.26}
+{"ts": "2026-10-28T21:55:54", "kind": "asr:PUSH_TO_TALK", "id": "v21", "usd": 0.000464, "secs": 1.77}
+{"ts": "2026-10-28T21:55:54", "kind": "asr:PUSH_TO_TALK", "id": "v24", "usd": 0.00028, "secs": 1.24}
+{"ts": "2026-10-28T21:55:55", "kind": "asr:PUSH_TO_TALK", "id": "v25", "usd": 0.000292, "secs": 1.43}
+{"ts": "2026-10-28T21:55:55", "kind": "asr:PUSH_TO_TALK", "id": "v27", "usd": 0.00024, "secs": 1.2}
+{"ts": "2026-10-28T21:55:55", "kind": "asr:PUSH_TO_TALK", "id": "v28", "usd": 0.000212, "secs": 1.14}
+{"ts": "2026-10-28T21:55:55", "kind": "asr:PUSH_TO_TALK", "id": "v26", "usd": 0.000348, "secs": 1.83}
+{"ts": "2026-10-28T21:55:56", "kind": "asr:PUSH_TO_TALK", "id": "v30", "usd": 0.000172, "secs": 1.1}
+{"ts": "2026-10-28T21:55:56", "kind": "asr:PUSH_TO_TALK", "id": "v29", "usd": 0.00036, "secs": 1.57}
+{"ts": "2026-10-28T21:56:33", "kind": "propose:v2", "id": "v01", "usd": 0.002693, "secs": 2.86, "input_tokens": 852, "output_tokens": 383}
+{"ts": "2026-10-28T21:56:33", "kind": "propose:v2", "id": "v03", "usd": 0.001997, "secs": 2.79, "input_tokens": 231, "output_tokens": 402}
+{"ts": "2026-10-28T21:56:34", "kind": "propose:v2", "id": "v02c", "usd": 0.002338, "secs": 3.46, "input_tokens": 249, "output_tokens": 477}
+{"ts": "2026-10-28T21:56:35", "kind": "propose:v2", "id": "v02", "usd": 0.002898, "secs": 4.5, "input_tokens": 234, "output_tokens": 613}
+{"ts": "2026-10-28T21:56:35", "kind": "propose:v2", "id": "v01c", "usd": 0.004519, "secs": 4.79, "input_tokens": 858, "output_tokens": 811}
+{"ts": "2026-10-28T21:56:37", "kind": "propose:v2", "id": "v06", "usd": 0.000871, "secs": 1.49, "input_tokens": 221, "output_tokens": 140}
+{"ts": "2026-10-28T21:56:37", "kind": "propose:v2", "id": "v04", "usd": 0.002873, "secs": 3.81, "input_tokens": 228, "output_tokens": 609}
+{"ts": "2026-10-28T21:56:37", "kind": "propose:v2", "id": "v03c", "usd": 0.006294, "secs": 6.62, "input_tokens": 874, "output_tokens": 1224}
+{"ts": "2026-10-28T21:56:38", "kind": "propose:v2", "id": "v05", "usd": 0.002873, "secs": 3.95, "input_tokens": 228, "output_tokens": 609}
+{"ts": "2026-10-28T21:56:38", "kind": "propose:v2", "id": "v05c", "usd": 0.002836, "secs": 3.04, "input_tokens": 232, "output_tokens": 599}
+{"ts": "2026-10-28T21:56:38", "kind": "propose:v2", "id": "v04c", "usd": 0.003788, "secs": 4.98, "input_tokens": 239, "output_tokens": 821}
+{"ts": "2026-10-28T21:56:39", "kind": "propose:v2", "id": "v06c", "usd": 0.001194, "secs": 1.71, "input_tokens": 221, "output_tokens": 216}
+{"ts": "2026-10-28T21:56:41", "kind": "propose:v2", "id": "v07", "usd": 0.003164, "secs": 3.97, "input_tokens": 233, "output_tokens": 676}
+{"ts": "2026-10-28T21:56:41", "kind": "propose:v2", "id": "v08c", "usd": 0.002406, "secs": 3.09, "input_tokens": 228, "output_tokens": 499}
+{"ts": "2026-10-28T21:56:41", "kind": "propose:v2", "id": "v08", "usd": 0.002524, "secs": 3.38, "input_tokens": 224, "output_tokens": 528}
+{"ts": "2026-10-28T21:56:42", "kind": "propose:v2", "id": "v09c", "usd": 0.003352, "secs": 3.49, "input_tokens": 244, "output_tokens": 717}
+{"ts": "2026-10-28T21:56:44", "kind": "propose:v2", "id": "v09", "usd": 0.005024, "secs": 5.66, "input_tokens": 238, "output_tokens": 1112}
+{"ts": "2026-10-28T21:56:45", "kind": "propose:v2", "id": "v10c", "usd": 0.002991, "secs": 4.1, "input_tokens": 224, "output_tokens": 638}
+{"ts": "2026-10-28T21:56:46", "kind": "propose:v2", "id": "v11", "usd": 0.004169, "secs": 5.07, "input_tokens": 228, "output_tokens": 914}
+{"ts": "2026-10-28T21:56:47", "kind": "propose:v2", "id": "v10", "usd": 0.004891, "secs": 6.26, "input_tokens": 227, "output_tokens": 1084}
+{"ts": "2026-10-28T21:56:48", "kind": "propose:v2", "id": "v07c", "usd": 0.008773, "secs": 10.99, "input_tokens": 242, "output_tokens": 1993}
+{"ts": "2026-10-28T21:56:49", "kind": "propose:v2", "id": "v14", "usd": 0.002948, "secs": 3.46, "input_tokens": 223, "output_tokens": 628}
+{"ts": "2026-10-28T21:56:49", "kind": "propose:v2", "id": "v13", "usd": 0.004678, "secs": 5.22, "input_tokens": 244, "output_tokens": 1029}
+{"ts": "2026-10-28T21:56:50", "kind": "propose:v2", "id": "v12", "usd": 0.00574, "secs": 7.57, "input_tokens": 230, "output_tokens": 1283}
+{"ts": "2026-10-28T21:56:51", "kind": "propose:v2", "id": "v20", "usd": 0.000688, "secs": 1.36, "input_tokens": 221, "output_tokens": 97}
+{"ts": "2026-10-28T21:56:51", "kind": "propose:v2", "id": "v17", "usd": 0.003084, "secs": 3.16, "input_tokens": 230, "output_tokens": 658}
+{"ts": "2026-10-28T21:56:52", "kind": "propose:v2", "id": "v16", "usd": 0.004521, "secs": 5.1, "input_tokens": 227, "output_tokens": 997}
+{"ts": "2026-10-28T21:56:54", "kind": "propose:v2", "id": "v15", "usd": 0.005772, "secs": 7.21, "input_tokens": 225, "output_tokens": 1292}
+{"ts": "2026-10-28T21:56:54", "kind": "propose:v2", "id": "v22", "usd": 0.002825, "secs": 2.97, "input_tokens": 230, "output_tokens": 597}
+{"ts": "2026-10-28T21:56:55", "kind": "propose:v2", "id": "v21", "usd": 0.003495, "secs": 4.09, "input_tokens": 232, "output_tokens": 754}
+{"ts": "2026-10-28T21:56:57", "kind": "propose:v2", "id": "v18", "usd": 0.006251, "secs": 7.86, "input_tokens": 227, "output_tokens": 1404}
+{"ts": "2026-10-28T21:56:58", "kind": "propose:v2", "id": "v23", "usd": 0.004989, "secs": 5.22, "input_tokens": 224, "output_tokens": 1108}
+{"ts": "2026-10-28T21:56:58", "kind": "propose:v2", "id": "v24", "usd": 0.003715, "secs": 4.49, "input_tokens": 225, "output_tokens": 808}
+{"ts": "2026-10-28T21:57:00", "kind": "propose:v2", "id": "v26", "usd": 0.003798, "secs": 4.84, "input_tokens": 233, "output_tokens": 825}
+{"ts": "2026-10-28T21:57:01", "kind": "propose:v2", "id": "v19", "usd": 0.009099, "secs": 11.41, "input_tokens": 228, "output_tokens": 2074}
+{"ts": "2026-10-28T21:57:01", "kind": "propose:v2", "id": "v27", "usd": 0.003829, "secs": 4.72, "input_tokens": 224, "output_tokens": 835}
+{"ts": "2026-10-28T21:57:01", "kind": "propose:v2", "id": "v30", "usd": 0.000842, "secs": 1.51, "input_tokens": 221, "output_tokens": 133}
+{"ts": "2026-10-28T21:57:02", "kind": "propose:v2", "id": "v28", "usd": 0.00325, "secs": 4.16, "input_tokens": 227, "output_tokens": 698}
+{"ts": "2026-10-28T21:57:03", "kind": "judge:v2", "id": "v01", "usd": 0.001238, "secs": 2.23, "input_tokens": 106, "output_tokens": 260}
+{"ts": "2026-10-28T21:57:04", "kind": "judge:v2", "id": "v02", "usd": 0.001374, "secs": 1.88, "input_tokens": 110, "output_tokens": 291}
+{"ts": "2026-10-28T21:57:04", "kind": "judge:v2", "id": "v02c", "usd": 0.001438, "secs": 2.77, "input_tokens": 110, "output_tokens": 306}
+{"ts": "2026-10-28T21:57:05", "kind": "judge:v2", "id": "v03", "usd": 0.001821, "secs": 3.24, "input_tokens": 110, "output_tokens": 396}
+{"ts": "2026-10-28T21:57:06", "kind": "judge:v2", "id": "v01c", "usd": 0.00202, "secs": 2.76, "input_tokens": 106, "output_tokens": 444}
+{"ts": "2026-10-28T21:57:06", "kind": "judge:v2", "id": "v03c", "usd": 0.001087, "secs": 2.1, "input_tokens": 111, "output_tokens": 223}
+{"ts": "2026-10-28T21:57:07", "kind": "propose:v2", "id": "v25", "usd": 0.00908, "secs": 12.72, "input_tokens": 229, "output_tokens": 2069}
+{"ts": "2026-10-28T21:57:07", "kind": "judge:v2", "id": "v04", "usd": 0.001802, "secs": 3.61, "input_tokens": 119, "output_tokens": 389}
+{"ts": "2026-10-28T21:57:09", "kind": "judge:v2", "id": "v05", "usd": 0.002567, "secs": 4.21, "input_tokens": 109, "output_tokens": 572}
+{"ts": "2026-10-28T21:57:09", "kind": "judge:v2", "id": "v04c", "usd": 0.001818, "secs": 2.85, "input_tokens": 118, "output_tokens": 393}
+{"ts": "2026-10-28T21:57:11", "kind": "judge:v2", "id": "v05c", "usd": 0.003417, "secs": 5.62, "input_tokens": 109, "output_tokens": 772}
+{"ts": "2026-10-28T21:57:11", "kind": "judge:v2", "id": "v08", "usd": 0.001625, "secs": 2.73, "input_tokens": 110, "output_tokens": 350}
+{"ts": "2026-10-28T21:57:12", "kind": "judge:v2", "id": "v08c", "usd": 0.002441, "secs": 4.38, "input_tokens": 110, "output_tokens": 542}
+{"ts": "2026-10-28T21:57:13", "kind": "judge:v2", "id": "v07", "usd": 0.003571, "secs": 5.56, "input_tokens": 120, "output_tokens": 805}
+{"ts": "2026-10-28T21:57:13", "kind": "propose:v2", "id": "v29", "usd": 0.010616, "secs": 14.88, "input_tokens": 238, "output_tokens": 2428}
+{"ts": "2026-10-28T21:57:13", "kind": "judge:v2", "id": "v09c", "usd": 0.002706, "secs": 4.16, "input_tokens": 118, "output_tokens": 602}
+{"ts": "2026-10-28T21:57:14", "kind": "judge:v2", "id": "v09", "usd": 0.001587, "secs": 2.6, "input_tokens": 5, "output_tokens": 372}
+{"ts": "2026-10-28T21:57:15", "kind": "judge:v2", "id": "v10c", "usd": 0.00189, "secs": 3.23, "input_tokens": 108, "output_tokens": 413}
+{"ts": "2026-10-28T21:57:15", "kind": "judge:v2", "id": "v10", "usd": 0.001407, "secs": 2.63, "input_tokens": 109, "output_tokens": 299}
+{"ts": "2026-10-28T21:57:16", "kind": "judge:v2", "id": "v11", "usd": 0.002935, "secs": 4.19, "input_tokens": 121, "output_tokens": 655}
+{"ts": "2026-10-28T21:57:17", "kind": "judge:v2", "id": "v17", "usd": 0.001393, "secs": 2.95, "input_tokens": 115, "output_tokens": 294}
+{"ts": "2026-10-28T21:57:17", "kind": "judge:v2", "id": "v15", "usd": 0.001836, "secs": 2.28, "input_tokens": 112, "output_tokens": 399}
+{"ts": "2026-10-28T21:57:18", "kind": "judge:v2", "id": "v07c", "usd": 0.003655, "secs": 5.34, "input_tokens": 143, "output_tokens": 818}
+{"ts": "2026-10-28T21:57:18", "kind": "judge:v2", "id": "v13", "usd": 0.003896, "secs": 5.13, "input_tokens": 121, "output_tokens": 881}
+{"ts": "2026-10-28T21:57:19", "kind": "judge:v2", "id": "v21", "usd": 0.001485, "secs": 2.1, "input_tokens": 144, "output_tokens": 307}
+{"ts": "2026-10-28T21:57:20", "kind": "judge:v2", "id": "v22", "usd": 0.002679, "secs": 3.86, "input_tokens": 117, "output_tokens": 596}
+{"ts": "2026-10-28T21:57:20", "kind": "judge:v2", "id": "v16", "usd": 0.00341, "secs": 5.5, "input_tokens": 117, "output_tokens": 768}
+{"ts": "2026-10-28T21:57:21", "kind": "judge:v2", "id": "v18", "usd": 0.001666, "secs": 3.14, "input_tokens": 109, "output_tokens": 360}
+{"ts": "2026-10-28T21:57:21", "kind": "judge:v2", "id": "v23", "usd": 0.001925, "secs": 2.62, "input_tokens": 126, "output_tokens": 416}
+{"ts": "2026-10-28T21:57:22", "kind": "judge:v2", "id": "v26", "usd": 0.002078, "secs": 2.82, "input_tokens": 136, "output_tokens": 449}
+{"ts": "2026-10-28T21:57:22", "kind": "judge:v2", "id": "v24", "usd": 0.001976, "secs": 3.96, "input_tokens": 109, "output_tokens": 433}
+{"ts": "2026-10-28T21:57:22", "kind": "judge:v2", "id": "v27", "usd": 0.00137, "secs": 2.27, "input_tokens": 107, "output_tokens": 291}
+{"ts": "2026-10-28T21:57:23", "kind": "judge:v2", "id": "v19", "usd": 0.00219, "secs": 3.53, "input_tokens": 110, "output_tokens": 483}
+{"ts": "2026-10-28T21:57:24", "kind": "judge:v2", "id": "v28", "usd": 0.001952, "secs": 2.95, "input_tokens": 110, "output_tokens": 427}
+{"ts": "2026-10-28T21:57:26", "kind": "judge:v2", "id": "v25", "usd": 0.003604, "secs": 4.61, "input_tokens": 126, "output_tokens": 811}
+{"ts": "2026-10-28T21:57:56", "kind": "propose:v2", "id": "v02c", "usd": 0.002411, "secs": 3.23, "input_tokens": 212, "output_tokens": 505}
+{"ts": "2026-10-28T21:57:56", "kind": "propose:v2", "id": "v03", "usd": 0.002372, "secs": 3.39, "input_tokens": 194, "output_tokens": 501}
+{"ts": "2026-10-28T21:57:56", "kind": "propose:v2", "id": "v01", "usd": 0.003284, "secs": 3.74, "input_tokens": 815, "output_tokens": 533}
+{"ts": "2026-10-28T21:57:56", "kind": "propose:v2", "id": "v01c", "usd": 0.003325, "secs": 3.72, "input_tokens": 821, "output_tokens": 541}
+{"ts": "2026-10-28T21:57:57", "kind": "propose:v2", "id": "v02", "usd": 0.003149, "secs": 4.27, "input_tokens": 197, "output_tokens": 683}
+{"ts": "2026-10-28T21:57:58", "kind": "propose:v2", "id": "v03c", "usd": 0.003844, "secs": 5.23, "input_tokens": 212, "output_tokens": 842}
+{"ts": "2026-10-28T21:57:59", "kind": "propose:v2", "id": "v06", "usd": 0.001059, "secs": 1.9, "input_tokens": 184, "output_tokens": 195}
+{"ts": "2026-10-28T21:58:00", "kind": "propose:v2", "id": "v06c", "usd": 0.000986, "secs": 2.14, "input_tokens": 184, "output_tokens": 178}
+{"ts": "2026-10-28T21:58:01", "kind": "propose:v2", "id": "v05c", "usd": 0.003312, "secs": 4.9, "input_tokens": 195, "output_tokens": 722}
+{"ts": "2026-10-28T21:58:02", "kind": "propose:v2", "id": "v04c", "usd": 0.004167, "secs": 6.31, "input_tokens": 202, "output_tokens": 921}
+{"ts": "2026-10-28T21:58:02", "kind": "propose:v2", "id": "v04", "usd": 0.004217, "secs": 6.61, "input_tokens": 191, "output_tokens": 936}
+{"ts": "2026-10-28T21:58:03", "kind": "propose:v2", "id": "v05", "usd": 0.004672, "secs": 6.56, "input_tokens": 191, "output_tokens": 1043}
+{"ts": "2026-10-28T21:58:05", "kind": "propose:v2", "id": "v08", "usd": 0.002886, "secs": 3.82, "input_tokens": 187, "output_tokens": 624}
+{"ts": "2026-10-28T21:58:05", "kind": "propose:v2", "id": "v07", "usd": 0.004937, "secs": 6.74, "input_tokens": 196, "output_tokens": 1104}
+{"ts": "2026-10-28T21:58:06", "kind": "propose:v2", "id": "v09", "usd": 0.002623, "secs": 3.78, "input_tokens": 201, "output_tokens": 558}
+{"ts": "2026-10-28T21:58:06", "kind": "propose:v2", "id": "v08c", "usd": 0.002844, "secs": 3.96, "input_tokens": 191, "output_tokens": 613}
+{"ts": "2026-10-28T21:58:07", "kind": "propose:v2", "id": "v09c", "usd": 0.002923, "secs": 4.14, "input_tokens": 207, "output_tokens": 627}
+{"ts": "2026-10-28T21:58:09", "kind": "propose:v2", "id": "v10", "usd": 0.003166, "secs": 4.32, "input_tokens": 190, "output_tokens": 689}
+{"ts": "2026-10-28T21:58:11", "kind": "propose:v2", "id": "v10c", "usd": 0.003485, "secs": 5.67, "input_tokens": 187, "output_tokens": 765}
+{"ts": "2026-10-28T21:58:12", "kind": "propose:v2", "id": "v14", "usd": 0.001656, "secs": 2.85, "input_tokens": 186, "output_tokens": 335}
+{"ts": "2026-10-28T21:58:12", "kind": "propose:v2", "id": "v13", "usd": 0.003909, "secs": 5.54, "input_tokens": 207, "output_tokens": 859}
+{"ts": "2026-10-28T21:58:14", "kind": "propose:v2", "id": "v11", "usd": 0.005054, "secs": 7.54, "input_tokens": 191, "output_tokens": 1133}
+{"ts": "2026-10-28T21:58:15", "kind": "propose:v2", "id": "v12", "usd": 0.005983, "secs": 9.07, "input_tokens": 193, "output_tokens": 1351}
+{"ts": "2026-10-28T21:58:16", "kind": "propose:v2", "id": "v17", "usd": 0.002872, "secs": 4.01, "input_tokens": 193, "output_tokens": 619}
+{"ts": "2026-10-28T21:58:17", "kind": "propose:v2", "id": "v15", "usd": 0.004064, "secs": 6.33, "input_tokens": 188, "output_tokens": 901}
+{"ts": "2026-10-28T21:58:18", "kind": "propose:v2", "id": "v20", "usd": 0.00057, "secs": 1.76, "input_tokens": 184, "output_tokens": 80}
+{"ts": "2026-10-28T21:58:19", "kind": "propose:v2", "id": "v07c", "usd": 0.010354, "secs": 18.85, "input_tokens": 205, "output_tokens": 2376}
+{"ts": "2026-10-28T21:58:20", "kind": "propose:v2", "id": "v16", "usd": 0.004929, "secs": 7.7, "input_tokens": 190, "output_tokens": 1104}
+{"ts": "2026-10-28T21:58:22", "kind": "propose:v2", "id": "v21", "usd": 0.003627, "secs": 5.0, "input_tokens": 195, "output_tokens": 796}
+{"ts": "2026-10-28T21:58:23", "kind": "propose:v2", "id": "v22", "usd": 0.003815, "secs": 5.08, "input_tokens": 193, "output_tokens": 841}
+{"ts": "2026-10-28T21:58:24", "kind": "propose:v2", "id": "v23", "usd": 0.003902, "secs": 5.23, "input_tokens": 187, "output_tokens": 863}
+{"ts": "2026-10-28T21:58:24", "kind": "propose:v2", "id": "v24", "usd": 0.003762, "secs": 4.22, "input_tokens": 188, "output_tokens": 830}
+{"ts": "2026-10-28T21:58:27", "kind": "propose:v2", "id": "v26", "usd": 0.004843, "secs": 4.17, "input_tokens": 196, "output_tokens": 1082}
+{"ts": "2026-10-28T21:58:28", "kind": "propose:v2", "id": "v28", "usd": 0.003132, "secs": 4.1, "input_tokens": 190, "output_tokens": 681}
+{"ts": "2026-10-28T21:58:28", "kind": "propose:v2", "id": "v25", "usd": 0.005489, "secs": 5.93, "input_tokens": 192, "output_tokens": 1235}
+{"ts": "2026-10-28T21:58:29", "kind": "propose:v2", "id": "v18", "usd": 0.010599, "secs": 15.1, "input_tokens": 190, "output_tokens": 2438}
+{"ts": "2026-10-28T21:58:29", "kind": "propose:v2", "id": "v27", "usd": 0.004118, "secs": 5.24, "input_tokens": 187, "output_tokens": 914}
+{"ts": "2026-10-28T21:58:30", "kind": "propose:v2", "id": "v30", "usd": 0.001084, "secs": 1.57, "input_tokens": 184, "output_tokens": 201}
+{"ts": "2026-10-28T21:58:31", "kind": "judge:v2", "id": "v01", "usd": 0.001148, "secs": 1.64, "input_tokens": 106, "output_tokens": 239}
+{"ts": "2026-10-28T21:58:31", "kind": "judge:v2", "id": "v03", "usd": 0.001401, "secs": 2.2, "input_tokens": 111, "output_tokens": 297}
+{"ts": "2026-10-28T21:58:31", "kind": "judge:v2", "id": "v02c", "usd": 0.002071, "secs": 2.6, "input_tokens": 110, "output_tokens": 455}
+{"ts": "2026-10-28T21:58:32", "kind": "propose:v2", "id": "v19", "usd": 0.012424, "secs": 16.41, "input_tokens": 191, "output_tokens": 2867}
+{"ts": "2026-10-28T21:58:32", "kind": "judge:v2", "id": "v01c", "usd": 0.001395, "secs": 2.09, "input_tokens": 106, "output_tokens": 297}
+{"ts": "2026-10-28T21:58:33", "kind": "judge:v2", "id": "v02", "usd": 0.001918, "secs": 2.59, "input_tokens": 110, "output_tokens": 419}
+{"ts": "2026-10-28T21:58:33", "kind": "judge:v2", "id": "v03c", "usd": 0.002352, "secs": 2.49, "input_tokens": 110, "output_tokens": 521}
+{"ts": "2026-10-28T21:58:33", "kind": "judge:v2", "id": "v04", "usd": 0.001125, "secs": 1.67, "input_tokens": 118, "output_tokens": 230}
+{"ts": "2026-10-28T21:58:34", "kind": "judge:v2", "id": "v04c", "usd": 0.001813, "secs": 2.46, "input_tokens": 5, "output_tokens": 425}
+{"ts": "2026-10-28T21:58:34", "kind": "judge:v2", "id": "v05c", "usd": 0.002566, "secs": 3.14, "input_tokens": 111, "output_tokens": 571}
+{"ts": "2026-10-28T21:58:36", "kind": "judge:v2", "id": "v08", "usd": 0.001544, "secs": 2.22, "input_tokens": 110, "output_tokens": 331}
+{"ts": "2026-10-28T21:58:36", "kind": "propose:v2", "id": "v29", "usd": 0.007965, "secs": 8.58, "input_tokens": 201, "output_tokens": 1815}
+{"ts": "2026-10-28T21:58:36", "kind": "judge:v2", "id": "v08c", "usd": 0.001387, "secs": 2.09, "input_tokens": 110, "output_tokens": 294}
+{"ts": "2026-10-28T21:58:37", "kind": "judge:v2", "id": "v05", "usd": 0.00244, "secs": 3.3, "input_tokens": 109, "output_tokens": 542}
+{"ts": "2026-10-28T21:58:38", "kind": "judge:v2", "id": "v09", "usd": 0.002975, "secs": 3.83, "input_tokens": 119, "output_tokens": 665}
+{"ts": "2026-10-28T21:58:38", "kind": "judge:v2", "id": "v09c", "usd": 0.001219, "secs": 2.47, "input_tokens": 6, "output_tokens": 285}
+{"ts": "2026-10-28T21:58:38", "kind": "judge:v2", "id": "v10", "usd": 0.00124, "secs": 2.49, "input_tokens": 108, "output_tokens": 260}
+{"ts": "2026-10-28T21:58:39", "kind": "judge:v2", "id": "v10c", "usd": 0.001265, "secs": 2.42, "input_tokens": 108, "output_tokens": 266}
+{"ts": "2026-10-28T21:58:39", "kind": "judge:v2", "id": "v07", "usd": 0.004089, "secs": 5.91, "input_tokens": 7, "output_tokens": 960}
+{"ts": "2026-10-28T21:58:40", "kind": "judge:v2", "id": "v17", "usd": 0.001337, "secs": 1.93, "input_tokens": 118, "output_tokens": 280}
+{"ts": "2026-10-28T21:58:41", "kind": "judge:v2", "id": "v21", "usd": 0.001824, "secs": 1.86, "input_tokens": 143, "output_tokens": 387}
+{"ts": "2026-10-28T21:58:41", "kind": "judge:v2", "id": "v16", "usd": 0.001762, "secs": 2.94, "input_tokens": 114, "output_tokens": 381}
+{"ts": "2026-10-28T21:58:42", "kind": "judge:v2", "id": "v15", "usd": 0.002431, "secs": 3.28, "input_tokens": 112, "output_tokens": 539}
+{"ts": "2026-10-28T21:58:43", "kind": "judge:v2", "id": "v11", "usd": 0.00358, "secs": 5.13, "input_tokens": 8, "output_tokens": 840}
+{"ts": "2026-10-28T21:58:43", "kind": "judge:v2", "id": "v26", "usd": 0.001322, "secs": 1.61, "input_tokens": 136, "output_tokens": 271}
+{"ts": "2026-10-28T21:58:43", "kind": "judge:v2", "id": "v22", "usd": 0.002403, "secs": 3.33, "input_tokens": 117, "output_tokens": 531}
+{"ts": "2026-10-28T21:58:44", "kind": "judge:v2", "id": "v23", "usd": 0.00188, "secs": 2.82, "input_tokens": 127, "output_tokens": 405}
+{"ts": "2026-10-28T21:58:44", "kind": "judge:v2", "id": "v13", "usd": 0.006041, "secs": 7.56, "input_tokens": 117, "output_tokens": 1387}
+{"ts": "2026-10-28T21:58:44", "kind": "judge:v2", "id": "v28", "usd": 0.001238, "secs": 1.52, "input_tokens": 110, "output_tokens": 259}
+{"ts": "2026-10-28T21:58:45", "kind": "judge:v2", "id": "v24", "usd": 0.002406, "secs": 3.4, "input_tokens": 109, "output_tokens": 534}
+{"ts": "2026-10-28T21:58:46", "kind": "judge:v2", "id": "v25", "usd": 0.001919, "secs": 2.41, "input_tokens": 128, "output_tokens": 414}
+{"ts": "2026-10-28T21:58:47", "kind": "judge:v2", "id": "v27", "usd": 0.002029, "secs": 3.01, "input_tokens": 107, "output_tokens": 446}
+{"ts": "2026-10-28T21:58:47", "kind": "judge:v2", "id": "v18", "usd": 0.001992, "secs": 3.8, "input_tokens": 108, "output_tokens": 437}
+{"ts": "2026-10-28T21:58:48", "kind": "judge:v2", "id": "v19", "usd": 0.002296, "secs": 3.44, "input_tokens": 106, "output_tokens": 509}
+{"ts": "2026-10-28T21:58:48", "kind": "judge:v2", "id": "v29", "usd": 0.002693, "secs": 3.75, "input_tokens": 118, "output_tokens": 599}

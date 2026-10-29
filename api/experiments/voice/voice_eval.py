@@ -62,6 +62,9 @@ assert settings.llm_provider == "meta", "voice eval calls Meta only"
 AUDIO = Path(os.environ.get("FOLIO_VOICE_DIR", API / "fixtures" / "voice" / "audio"))
 SCRIPT = API / "fixtures" / "voice" / "script.csv"
 OUT = HERE / "out"
+# Voice Transcribe mode: DIARIZATION (turns + speaker) or PUSH_TO_TALK (one transcript). Each has its own cache.
+ASR_MODE = os.environ.get("VOICE_ASR_MODE", "DIARIZATION")
+TRANS_DIR = OUT / ("transcripts" if ASR_MODE == "DIARIZATION" else f"transcripts_{ASR_MODE.lower()}")
 RESULTS = HERE / "results"
 LEDGER = HERE / "spend.jsonl"
 BUDGET_USD = 5.0
@@ -136,7 +139,7 @@ def to_wav(m4a: Path) -> Path:
 
 
 async def transcribe_one(client: httpx.AsyncClient, sem: asyncio.Semaphore, m4a: Path) -> None:
-    dst = OUT / "transcripts" / f"{m4a.stem}.json"
+    dst = TRANS_DIR / f"{m4a.stem}.json"
     if dst.exists():
         return
     wav = to_wav(m4a)
@@ -144,7 +147,7 @@ async def transcribe_one(client: httpx.AsyncClient, sem: asyncio.Semaphore, m4a:
         secs = w.getnframes() / w.getframerate()
     usd = secs / 3600 * ASR_USD_PER_HOUR
     guard(usd)
-    req = {"model": "muse-voice-transcribe-1.0", "audioEncoding": "WAV", "mode": "DIARIZATION",
+    req = {"model": "muse-voice-transcribe-1.0", "audioEncoding": "WAV", "mode": ASR_MODE,
            "keywords": KEYWORDS}
     async with sem:
         t0 = time.monotonic()
@@ -157,13 +160,13 @@ async def transcribe_one(client: httpx.AsyncClient, sem: asyncio.Semaphore, m4a:
         raise RuntimeError(f"{m4a.name}: HTTP {r.status_code} {r.text[:300]}")
     body = r.json()
     usd = body.get("audioDurationMs", secs * 1000) / 3_600_000 * ASR_USD_PER_HOUR
-    log_spend(kind="asr", id=m4a.stem, usd=round(usd, 6), secs=round(took, 2))
+    log_spend(kind=f"asr:{ASR_MODE}", id=m4a.stem, usd=round(usd, 6), secs=round(took, 2))
     dst.write_text(json.dumps({**body, "_seconds": took, "_usd": usd}, ensure_ascii=False, indent=1))
     print(f"{m4a.stem}: {took:.1f}s {body['transcript']!r}")
 
 
 async def cmd_transcribe() -> None:
-    (OUT / "transcripts").mkdir(parents=True, exist_ok=True)
+    TRANS_DIR.mkdir(parents=True, exist_ok=True)
     files = sorted(AUDIO.glob("v*.m4a"))
     sem = asyncio.Semaphore(4)
     async with httpx.AsyncClient() as client:
@@ -172,7 +175,7 @@ async def cmd_transcribe() -> None:
 
 
 def load_transcripts() -> dict[str, dict]:
-    return {p.stem: json.loads(p.read_text()) for p in sorted((OUT / "transcripts").glob("v*.json"))}
+    return {p.stem: json.loads(p.read_text()) for p in sorted(TRANS_DIR.glob("v*.json"))}
 
 
 def write_transcripts_md() -> None:
@@ -182,7 +185,10 @@ def write_transcripts_md() -> None:
         e, n = wer(lab[base_id(uid)]["text"], t["transcript"])
         rows.append(f"| {uid} | {e}/{n} | {lab[base_id(uid)]['text']} | {t['transcript']} |")
     RESULTS.mkdir(exist_ok=True)
-    (RESULTS / "transcripts.md").write_text("# Transcripts (Muse Voice Transcribe, DIARIZATION, keywords)\n\n"
+    tot = [wer(lab[base_id(u)]["text"], t["transcript"]) for u, t in load_transcripts().items()]
+    rows.append(f"| all | {sum(e for e, _ in tot)}/{sum(n for _, n in tot)} | | |")
+    name = "transcripts.md" if ASR_MODE == "DIARIZATION" else f"transcripts_{ASR_MODE.lower()}.md"
+    (RESULTS / name).write_text(f"# Transcripts (Muse Voice Transcribe, {ASR_MODE}, keywords)\n\n"
                                             + "\n".join(rows) + "\n")
 
 

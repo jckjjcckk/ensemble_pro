@@ -1,0 +1,1862 @@
+{
+ "version": "v1",
+ "base": {
+  "lines": 30,
+  "positives": 26,
+  "negatives": 4,
+  "wer": 0.1774,
+  "wer_counts": [
+   55,
+   310
+  ],
+  "produced": 19,
+  "refused": 3,
+  "negatives_ok": 4,
+  "usd_per_line": 0.00439,
+  "seconds_per_line": 7.18,
+  "asr_seconds_per_line": 1.51,
+  "spark_seconds_per_line": 5.67,
+  "judge_usd": 0.06419,
+  "position": 17,
+  "bar_from": 18,
+  "bar_to": 16,
+  "audience": 14,
+  "kind": 13,
+  "expect_exact": 0,
+  "expect_judge": 10,
+  "all_fields": 9
+ },
+ "base_1_10": {
+  "lines": 10,
+  "positives": 9,
+  "negatives": 1,
+  "wer": 0.1048,
+  "wer_counts": [
+   11,
+   105
+  ],
+  "produced": 9,
+  "refused": 0,
+  "negatives_ok": 1,
+  "usd_per_line": 0.00396,
+  "seconds_per_line": 6.91,
+  "asr_seconds_per_line": 1.7,
+  "spark_seconds_per_line": 5.21,
+  "judge_usd": 0.03212,
+  "position": 9,
+  "bar_from": 9,
+  "bar_to": 9,
+  "audience": 8,
+  "kind": 8,
+  "expect_exact": 0,
+  "expect_judge": 5,
+  "all_fields": 7
+ },
+ "retakes": {
+  "lines": 10,
+  "positives": 9,
+  "negatives": 1,
+  "wer": 0.6857,
+  "wer_counts": [
+   72,
+   105
+  ],
+  "produced": 8,
+  "refused": 0,
+  "negatives_ok": 1,
+  "usd_per_line": 0.00453,
+  "seconds_per_line": 7.65,
+  "asr_seconds_per_line": 2.11,
+  "spark_seconds_per_line": 5.54,
+  "judge_usd": 0.0262,
+  "position": 8,
+  "bar_from": 8,
+  "bar_to": 8,
+  "audience": 7,
+  "kind": 6,
+  "expect_exact": 0,
+  "expect_judge": 4,
+  "all_fields": 5
+ },
+ "rows": [
+  {
+   "id": "v01",
+   "transcript": "Everyone, bar 34, piano, please. Really piano.",
+   "wer": [
+    0,
+    7
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 34,
+    "bar_to": null,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "dynamic",
+    "text": "p",
+    "quote": "bar 34, piano, please."
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 34,
+     "bar_to": null,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "dynamic",
+     "text": "p",
+     "quote": "bar 34, piano, please."
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true,
+    "expect_judge": true
+   },
+   "asr_seconds": 2.49,
+   "spark_seconds": 3.71,
+   "seconds_line": 6.19,
+   "usd_line": 0.003007,
+   "judge_usd": 0.003281,
+   "judge_shown": "p [bars 34-None, for ensemble]"
+  },
+  {
+   "id": "v01c",
+   "transcript": "Okay, now everyone bar 32. no no uh 34 please piano just piano piano",
+   "wer": [
+    9,
+    7
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 34,
+    "bar_to": null,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "dynamic",
+    "text": "p",
+    "quote": "34 please piano just piano piano"
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 34,
+     "bar_to": null,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "dynamic",
+     "text": "p",
+     "quote": "34 please piano just piano piano"
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true,
+    "expect_judge": false
+   },
+   "asr_seconds": 2.9,
+   "spark_seconds": 4.94,
+   "seconds_line": 7.84,
+   "usd_line": 0.004018,
+   "judge_usd": 0.004144,
+   "judge_shown": "p [bars 34-None, for ensemble]"
+  },
+  {
+   "id": "v02",
+   "transcript": "Second violins from 42 to 48 we are cutting that. Go straight to 49.",
+   "wer": [
+    2,
+    13
+   ],
+   "answer": {
+    "position": "range",
+    "bar_from": 42,
+    "bar_to": 48,
+    "audience": [
+     "part:Violin II"
+    ],
+    "kind": "cut",
+    "text": "Cut 42-48 → to 49",
+    "quote": "Second violins from 42 to 48 we are cutting that. Go straight to 49."
+   },
+   "marks": [
+    {
+     "position": "range",
+     "bar_from": 42,
+     "bar_to": 48,
+     "audience": [
+      "part:Violin II"
+     ],
+     "kind": "cut",
+     "text": "Cut 42-48 → to 49",
+     "quote": "Second violins from 42 to 48 we are cutting that. Go straight to 49."
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true,
+    "expect_judge": true
+   },
+   "asr_seconds": 2.76,
+   "spark_seconds": 3.89,
+   "seconds_line": 6.65,
+   "usd_line": 0.003144,
+   "judge_usd": 0.002068,
+   "judge_shown": "Cut 42-48 → to 49 [bars 42-48, for part:Violin II]"
+  },
+  {
+   "id": "v02c",
+   "transcript": "Okay, first and second, actually, no, just the second. Just second violins from 42 to 48, we're cutting that. Go straight to 49.",
+   "wer": [
+    10,
+    13
+   ],
+   "answer": {
+    "position": "range",
+    "bar_from": 42,
+    "bar_to": 48,
+    "audience": [
+     "part:Violin II"
+    ],
+    "kind": "cut",
+    "text": "Cut 42-48 → go to 49",
+    "quote": "Just second violins from 42 to 48, we're cutting that. Go straight to 49."
+   },
+   "marks": [
+    {
+     "position": "range",
+     "bar_from": 42,
+     "bar_to": 48,
+     "audience": [
+      "part:Violin II"
+     ],
+     "kind": "cut",
+     "text": "Cut 42-48 → go to 49",
+     "quote": "Just second violins from 42 to 48, we're cutting that. Go straight to 49."
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true,
+    "expect_judge": true
+   },
+   "asr_seconds": 2.97,
+   "spark_seconds": 4.21,
+   "seconds_line": 7.17,
+   "usd_line": 0.003712,
+   "judge_usd": 0.001708,
+   "judge_shown": "Cut 42-48 → go to 49 [bars 42-48, for part:Violin II]"
+  },
+  {
+   "id": "v03",
+   "transcript": "cellos bar 12 that's an up bow up up bow on the first note",
+   "wer": [
+    1,
+    13
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 12,
+    "bar_to": null,
+    "audience": [
+     "part:Cello"
+    ],
+    "kind": "bowing",
+    "text": "Up-bow",
+    "quote": "cellos bar 12 that's an up bow up up bow on the first note"
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 12,
+     "bar_to": null,
+     "audience": [
+      "part:Cello"
+     ],
+     "kind": "bowing",
+     "text": "Up-bow",
+     "quote": "cellos bar 12 that's an up bow up up bow on the first note"
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true,
+    "expect_judge": true
+   },
+   "asr_seconds": 1.54,
+   "spark_seconds": 6.03,
+   "seconds_line": 7.58,
+   "usd_line": 0.004605,
+   "judge_usd": 0.003827,
+   "judge_shown": "Up-bow [bars 12-None, for part:Cello]"
+  },
+  {
+   "id": "v03c",
+   "transcript": "Drums and and cellos bar 12 12, that's a up bar. No, not just not no drums up bow for the cello on the first note",
+   "wer": [
+    15,
+    13
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 12,
+    "bar_to": null,
+    "audience": [
+     "part:Cello"
+    ],
+    "kind": "bowing",
+    "text": "Up-bow",
+    "quote": "up bow for the cello on the first note"
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 12,
+     "bar_to": null,
+     "audience": [
+      "part:Cello"
+     ],
+     "kind": "bowing",
+     "text": "Up-bow",
+     "quote": "up bow for the cello on the first note"
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true,
+    "expect_judge": true
+   },
+   "asr_seconds": 2.43,
+   "spark_seconds": 5.47,
+   "seconds_line": 7.9,
+   "usd_line": 0.004562,
+   "judge_usd": 0.004545,
+   "judge_shown": "Up-bow [bars 12-None, for part:Cello]"
+  },
+  {
+   "id": "v04",
+   "transcript": "Autos breathe after the word rest in bar 60, not before.",
+   "wer": [
+    1,
+    11
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 60,
+    "bar_to": null,
+    "audience": [
+     "part:Alto"
+    ],
+    "kind": "breath",
+    "text": "Breathe after 'rest'",
+    "quote": "breathe after the word rest in bar 60, not before."
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 60,
+     "bar_to": null,
+     "audience": [
+      "part:Alto"
+     ],
+     "kind": "breath",
+     "text": "Breathe after 'rest'",
+     "quote": "breathe after the word rest in bar 60, not before."
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true,
+    "expect_judge": true
+   },
+   "asr_seconds": 1.57,
+   "spark_seconds": 4.65,
+   "seconds_line": 6.22,
+   "usd_line": 0.003388,
+   "judge_usd": 0.004916,
+   "judge_shown": "Breathe after 'rest' [bars 60-None, for part:Alto]"
+  },
+  {
+   "id": "v04c",
+   "transcript": "Breathe after the word rest in bar 60, not before. No, sorry. I mean mean sopranos.",
+   "wer": [
+    7,
+    11
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 60,
+    "bar_to": null,
+    "audience": [
+     "part:Soprano"
+    ],
+    "kind": "breath",
+    "text": "Breathe after 'rest' - not before",
+    "quote": "Breathe after the word rest in bar 60, not before."
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 60,
+     "bar_to": null,
+     "audience": [
+      "part:Soprano"
+     ],
+     "kind": "breath",
+     "text": "Breathe after 'rest' - not before",
+     "quote": "Breathe after the word rest in bar 60, not before."
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": false,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": true
+   },
+   "asr_seconds": 2.09,
+   "spark_seconds": 6.58,
+   "seconds_line": 8.68,
+   "usd_line": 0.005136,
+   "judge_usd": 0.001648,
+   "judge_shown": "Breathe after 'rest' - not before [bars 60-None, for part:Soprano]"
+  },
+  {
+   "id": "v05",
+   "transcript": "From letter C everybody we take it a little slower, more weight.",
+   "wer": [
+    0,
+    12
+   ],
+   "answer": {
+    "position": "mark",
+    "bar_from": null,
+    "bar_to": null,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "marking",
+    "text": "A little slower, more weight",
+    "quote": "a little slower, more weight"
+   },
+   "marks": [
+    {
+     "position": "mark",
+     "bar_from": null,
+     "bar_to": null,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "marking",
+     "text": "A little slower, more weight",
+     "quote": "a little slower, more weight"
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.53,
+   "spark_seconds": 8.59,
+   "seconds_line": 10.12,
+   "usd_line": 0.006356,
+   "judge_usd": 0.001988,
+   "judge_shown": "A little slower, more weight [bars None-None, for ensemble]"
+  },
+  {
+   "id": "v05c",
+   "transcript": "from letter D everybody everybody no from letter C everybody just a little slower more weight okay",
+   "wer": [
+    9,
+    12
+   ],
+   "answer": {
+    "position": "mark",
+    "bar_from": null,
+    "bar_to": null,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "marking",
+    "text": "A little slower, with more weight",
+    "quote": "from letter C everybody just a little slower more weight"
+   },
+   "marks": [
+    {
+     "position": "mark",
+     "bar_from": null,
+     "bar_to": null,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "marking",
+     "text": "A little slower, with more weight",
+     "quote": "from letter C everybody just a little slower more weight"
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 2.1,
+   "spark_seconds": 9.44,
+   "seconds_line": 11.53,
+   "usd_line": 0.007102,
+   "judge_usd": 0.00238,
+   "judge_shown": "A little slower, with more weight [bars None-None, for ensemble]"
+  },
+  {
+   "id": "v06",
+   "transcript": "Let's take it from the top.",
+   "wer": [
+    0,
+    6
+   ],
+   "answer": {
+    "none": true
+   },
+   "marks": [],
+   "refused": [],
+   "score": {
+    "negative": true,
+    "ok": true
+   },
+   "asr_seconds": 1.05,
+   "spark_seconds": 1.97,
+   "seconds_line": 3.02,
+   "usd_line": 0.00159,
+   "judge_usd": 0.0,
+   "judge_shown": null
+  },
+  {
+   "id": "v06c",
+   "transcript": "Let's take it from the top.",
+   "wer": [
+    0,
+    6
+   ],
+   "answer": {
+    "none": true
+   },
+   "marks": [],
+   "refused": [],
+   "score": {
+    "negative": true,
+    "ok": true
+   },
+   "asr_seconds": 0.96,
+   "spark_seconds": 1.73,
+   "seconds_line": 2.69,
+   "usd_line": 0.001301,
+   "judge_usd": 0.0,
+   "judge_shown": null
+  },
+  {
+   "id": "v07",
+   "transcript": "Violas, you are late at 71. The entry is on the end of two.",
+   "wer": [
+    3,
+    13
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 71,
+    "bar_to": null,
+    "audience": [
+     "part:Viola"
+    ],
+    "kind": "text",
+    "text": "Entry on end of 2",
+    "quote": "The entry is on the end of two."
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 71,
+     "bar_to": null,
+     "audience": [
+      "part:Viola"
+     ],
+     "kind": "text",
+     "text": "Entry on end of 2",
+     "quote": "The entry is on the end of two."
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.72,
+   "spark_seconds": 4.05,
+   "seconds_line": 5.77,
+   "usd_line": 0.003471,
+   "judge_usd": 0.003626,
+   "judge_shown": "Entry on end of 2 [bars 71-None, for part:Viola]"
+  },
+  {
+   "id": "v07c",
+   "transcript": "The first violin you are late at 71. What was that? Okay, violas, the entry is on the end end of two.",
+   "wer": [
+    12,
+    13
+   ],
+   "answer": {
+    "none": true
+   },
+   "marks": [],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": false,
+    "position": false,
+    "bar_from": false,
+    "bar_to": false,
+    "audience": false,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 2.74,
+   "spark_seconds": 4.6,
+   "seconds_line": 7.33,
+   "usd_line": 0.004256,
+   "judge_usd": 0.0,
+   "judge_shown": null
+  },
+  {
+   "id": "v08",
+   "transcript": "bar 112 everyone crescendo through 116",
+   "wer": [
+    1,
+    7
+   ],
+   "answer": {
+    "position": "range",
+    "bar_from": 112,
+    "bar_to": 116,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "dynamic",
+    "text": "cresc.",
+    "quote": "bar 112 everyone crescendo through 116"
+   },
+   "marks": [
+    {
+     "position": "range",
+     "bar_from": 112,
+     "bar_to": 116,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "dynamic",
+     "text": "cresc.",
+     "quote": "bar 112 everyone crescendo through 116"
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.44,
+   "spark_seconds": 4.23,
+   "seconds_line": 5.67,
+   "usd_line": 0.003438,
+   "judge_usd": 0.003507,
+   "judge_shown": "cresc. [bars 112-116, for ensemble]"
+  },
+  {
+   "id": "v08c",
+   "transcript": "bar 112 everyone bar 112 crescendo through the 116.",
+   "wer": [
+    3,
+    7
+   ],
+   "answer": {
+    "position": "range",
+    "bar_from": 112,
+    "bar_to": 116,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "dynamic",
+    "text": "crescendo through 116",
+    "quote": "bar 112 everyone bar 112 crescendo through the 116."
+   },
+   "marks": [
+    {
+     "position": "range",
+     "bar_from": 112,
+     "bar_to": 116,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "dynamic",
+     "text": "crescendo through 116",
+     "quote": "bar 112 everyone bar 112 crescendo through the 116."
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true,
+    "expect_judge": true
+   },
+   "asr_seconds": 1.57,
+   "spark_seconds": 5.59,
+   "seconds_line": 7.15,
+   "usd_line": 0.004736,
+   "judge_usd": 0.001386,
+   "judge_shown": "crescendo through 116 [bars 112-116, for ensemble]"
+  },
+  {
+   "id": "v09",
+   "transcript": "tenors and basses, bar 20, sing the consonant consonant early, the T before the beat.",
+   "wer": [
+    1,
+    14
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 20,
+    "bar_to": null,
+    "audience": [
+     "part:Tenor",
+     "part:Bass"
+    ],
+    "kind": "text",
+    "text": "T before the beat",
+    "quote": "sing the consonant consonant early, the T before the beat."
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 20,
+     "bar_to": null,
+     "audience": [
+      "part:Tenor",
+      "part:Bass"
+     ],
+     "kind": "text",
+     "text": "T before the beat",
+     "quote": "sing the consonant consonant early, the T before the beat."
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true,
+    "expect_judge": true
+   },
+   "asr_seconds": 1.65,
+   "spark_seconds": 5.05,
+   "seconds_line": 6.7,
+   "usd_line": 0.003639,
+   "judge_usd": 0.005048,
+   "judge_shown": "T before the beat [bars 20-None, for part:Tenor, part:Bass]"
+  },
+  {
+   "id": "v09c",
+   "transcript": "Soprano and alto, you're good. Tenors and basses, bar 20, sing the consonant early, the T before the beat.",
+   "wer": [
+    5,
+    14
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 20,
+    "bar_to": null,
+    "audience": [
+     "part:Tenor",
+     "part:Bass"
+    ],
+    "kind": "text",
+    "text": "T before the beat",
+    "quote": "bar 20, sing the consonant early, the T before the beat."
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 20,
+     "bar_to": null,
+     "audience": [
+      "part:Tenor",
+      "part:Bass"
+     ],
+     "kind": "text",
+     "text": "T before the beat",
+     "quote": "bar 20, sing the consonant early, the T before the beat."
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true,
+    "expect_judge": false
+   },
+   "asr_seconds": 2.0,
+   "spark_seconds": 3.4,
+   "seconds_line": 5.4,
+   "usd_line": 0.003521,
+   "judge_usd": 0.004751,
+   "judge_shown": "T before the beat [bars 20-None, for part:Tenor, part:Bass]"
+  },
+  {
+   "id": "v10",
+   "transcript": "No louder, Ing 88. The opposite. Hold it back.",
+   "wer": [
+    2,
+    9
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 88,
+    "bar_to": null,
+    "audience": [
+     "member:Inès"
+    ],
+    "kind": "dynamic",
+    "text": "hold back — no louder",
+    "quote": "No louder, Ing 88. The opposite. Hold it back."
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 88,
+     "bar_to": null,
+     "audience": [
+      "member:Inès"
+     ],
+     "kind": "dynamic",
+     "text": "hold back — no louder",
+     "quote": "No louder, Ing 88. The opposite. Hold it back."
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": false,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.27,
+   "spark_seconds": 9.88,
+   "seconds_line": 11.16,
+   "usd_line": 0.006994,
+   "judge_usd": 0.003856,
+   "judge_shown": "hold back — no louder [bars 88-None, for member:Inès]"
+  },
+  {
+   "id": "v10c",
+   "transcript": "in 88, the opposite hold it back.",
+   "wer": [
+    2,
+    9
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 88,
+    "bar_to": null,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "marking",
+    "text": "hold back",
+    "quote": "hold it back"
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 88,
+     "bar_to": null,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "marking",
+     "text": "hold back",
+     "quote": "hold it back"
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.35,
+   "spark_seconds": 9.44,
+   "seconds_line": 10.78,
+   "usd_line": 0.006969,
+   "judge_usd": 0.005638,
+   "judge_shown": "hold back [bars 88-None, for ensemble]"
+  },
+  {
+   "id": "v11",
+   "transcript": "C sharp in bar 15 is flat. Listen to the viola there.",
+   "wer": [
+    2,
+    14
+   ],
+   "answer": {
+    "none": true
+   },
+   "marks": [],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": false,
+    "position": false,
+    "bar_from": false,
+    "bar_to": false,
+    "audience": false,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.35,
+   "spark_seconds": 4.19,
+   "seconds_line": 5.53,
+   "usd_line": 0.002916,
+   "judge_usd": 0.0,
+   "judge_shown": null
+  },
+  {
+   "id": "v12",
+   "transcript": "Pick up to thirty-four. First that's where you come in. Nobody else.",
+   "wer": [
+    3,
+    11
+   ],
+   "answer": {
+    "none": true
+   },
+   "marks": [],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": false,
+    "position": false,
+    "bar_from": false,
+    "bar_to": false,
+    "audience": false,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.53,
+   "spark_seconds": 5.54,
+   "seconds_line": 7.07,
+   "usd_line": 0.004021,
+   "judge_usd": 0.0,
+   "judge_shown": null
+  },
+  {
+   "id": "v13",
+   "transcript": "Sopranos, we will skip the repeat on the second time through, so after bar 40, go 40, go straight eight on.",
+   "wer": [
+    6,
+    16
+   ],
+   "answer": {
+    "position": "range",
+    "bar_from": 40,
+    "bar_to": 48,
+    "audience": [
+     "part:Soprano"
+    ],
+    "kind": "cut",
+    "text": "2nd time: 40 → 48, no repeat",
+    "quote": "we will skip the repeat on the second time through, so after bar 40, go 40, go straight eight on."
+   },
+   "marks": [
+    {
+     "position": "range",
+     "bar_from": 40,
+     "bar_to": 48,
+     "audience": [
+      "part:Soprano"
+     ],
+     "kind": "cut",
+     "text": "2nd time: 40 → 48, no repeat",
+     "quote": "we will skip the repeat on the second time through, so after bar 40, go 40, go straight eight on."
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": false,
+    "bar_from": true,
+    "bar_to": false,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": true
+   },
+   "asr_seconds": 2.03,
+   "spark_seconds": 7.59,
+   "seconds_line": 9.62,
+   "usd_line": 0.005889,
+   "judge_usd": 0.005815,
+   "judge_shown": "2nd time: 40 → 48, no repeat [bars 40-48, for part:Soprano]"
+  },
+  {
+   "id": "v14",
+   "transcript": "Okay, that's launched back at 130.",
+   "wer": [
+    3,
+    7
+   ],
+   "answer": {
+    "none": true
+   },
+   "marks": [],
+   "refused": [],
+   "score": {
+    "negative": true,
+    "ok": true
+   },
+   "asr_seconds": 1.16,
+   "spark_seconds": 3.45,
+   "seconds_line": 4.61,
+   "usd_line": 0.002461,
+   "judge_usd": 0.0,
+   "judge_shown": null
+  },
+  {
+   "id": "v15",
+   "transcript": "stop the cello,o bar 50 pizzicato",
+   "wer": [
+    3,
+    7
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 50,
+    "bar_to": null,
+    "audience": [
+     "part:Cello"
+    ],
+    "kind": "marking",
+    "text": "pizzicato",
+    "quote": "bar 50 pizzicato"
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 50,
+     "bar_to": null,
+     "audience": [
+      "part:Cello"
+     ],
+     "kind": "marking",
+     "text": "pizzicato",
+     "quote": "bar 50 pizzicato"
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": false,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": true
+   },
+   "asr_seconds": 1.43,
+   "spark_seconds": 5.9,
+   "seconds_line": 7.32,
+   "usd_line": 0.004844,
+   "judge_usd": 0.002239,
+   "judge_shown": "pizzicato [bars 50-None, for part:Cello]"
+  },
+  {
+   "id": "v16",
+   "transcript": "and second from 96 to the end, no vibrato.",
+   "wer": [
+    2,
+    10
+   ],
+   "answer": {
+    "position": "range",
+    "bar_from": 96,
+    "bar_to": 240,
+    "audience": [
+     "part:Violin II"
+    ],
+    "kind": "text",
+    "text": "no vibrato",
+    "quote": "second from 96 to the end, no vibrato"
+   },
+   "marks": [
+    {
+     "position": "range",
+     "bar_from": 96,
+     "bar_to": 240,
+     "audience": [
+      "part:Violin II"
+     ],
+     "kind": "text",
+     "text": "no vibrato",
+     "quote": "second from 96 to the end, no vibrato"
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": false,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": true
+   },
+   "asr_seconds": 1.27,
+   "spark_seconds": 9.92,
+   "seconds_line": 11.2,
+   "usd_line": 0.007953,
+   "judge_usd": 0.004588,
+   "judge_shown": "no vibrato [bars 96-240, for part:Violin II]"
+  },
+  {
+   "id": "v17",
+   "transcript": "Bar 203, basses that's a low E, you're singing the octave",
+   "wer": [
+    0,
+    11
+   ],
+   "answer": {
+    "none": true
+   },
+   "marks": [],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": false,
+    "position": false,
+    "bar_from": false,
+    "bar_to": false,
+    "audience": false,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.62,
+   "spark_seconds": 5.65,
+   "seconds_line": 7.27,
+   "usd_line": 0.003885,
+   "judge_usd": 0.0,
+   "judge_shown": null
+  },
+  {
+   "id": "v18",
+   "transcript": "Vidos, bar seven, down bow, both of you.",
+   "wer": [
+    1,
+    8
+   ],
+   "answer": {
+    "none": true
+   },
+   "marks": [],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": false,
+    "position": false,
+    "bar_from": false,
+    "bar_to": false,
+    "audience": false,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.29,
+   "spark_seconds": 8.17,
+   "seconds_line": 9.46,
+   "usd_line": 0.006042,
+   "judge_usd": 0.0,
+   "judge_shown": null
+  },
+  {
+   "id": "v19",
+   "transcript": "From the double bar after letter B we are cutting to letter D.",
+   "wer": [
+    2,
+    12
+   ],
+   "answer": {
+    "position": "range",
+    "bar_from": null,
+    "bar_to": null,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "cut",
+    "text": "Cut from after B to D",
+    "quote": "From the double bar after letter B we are cutting to letter D."
+   },
+   "marks": [],
+   "refused": [
+    "bar position without bar_from"
+   ],
+   "score": {
+    "negative": false,
+    "produced": false,
+    "position": false,
+    "bar_from": false,
+    "bar_to": false,
+    "audience": false,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.29,
+   "spark_seconds": 5.07,
+   "seconds_line": 6.36,
+   "usd_line": 0.004403,
+   "judge_usd": 0.0,
+   "judge_shown": null
+  },
+  {
+   "id": "v20",
+   "transcript": "Can someone open a window?",
+   "wer": [
+    0,
+    5
+   ],
+   "answer": {
+    "none": true
+   },
+   "marks": [],
+   "refused": [],
+   "score": {
+    "negative": true,
+    "ok": true
+   },
+   "asr_seconds": 0.93,
+   "spark_seconds": 1.72,
+   "seconds_line": 2.66,
+   "usd_line": 0.001298,
+   "judge_usd": 0.0,
+   "judge_shown": null
+  },
+  {
+   "id": "v21",
+   "transcript": "bar 64 altos and tenors, breath mark, then 65 sforzato everyone",
+   "wer": [
+    1,
+    11
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 64,
+    "bar_to": null,
+    "audience": [
+     "part:Alto",
+     "part:Tenor"
+    ],
+    "kind": "breath",
+    "text": "breath mark",
+    "quote": "bar 64 altos and tenors, breath mark"
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 64,
+     "bar_to": null,
+     "audience": [
+      "part:Alto",
+      "part:Tenor"
+     ],
+     "kind": "breath",
+     "text": "breath mark",
+     "quote": "bar 64 altos and tenors, breath mark"
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": false,
+    "audience": false,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 2.01,
+   "spark_seconds": 6.55,
+   "seconds_line": 8.57,
+   "usd_line": 0.005547,
+   "judge_usd": 0.001473,
+   "judge_shown": "breath mark [bars 64-None, for part:Alto, part:Tenor]"
+  },
+  {
+   "id": "v22",
+   "transcript": "Inès, bar 30, then then that harmonic tried on the A string.",
+   "wer": [
+    4,
+    11
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 30,
+    "bar_to": null,
+    "audience": [
+     "member:Inès"
+    ],
+    "kind": "marking",
+    "text": "harmonic on A string",
+    "quote": "that harmonic tried on the A string"
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 30,
+     "bar_to": null,
+     "audience": [
+      "member:Inès"
+     ],
+     "kind": "marking",
+     "text": "harmonic on A string",
+     "quote": "that harmonic tried on the A string"
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.35,
+   "spark_seconds": 6.05,
+   "seconds_line": 7.4,
+   "usd_line": 0.004635,
+   "judge_usd": 0.003001,
+   "judge_shown": "harmonic on A string [bars 30-None, for member:Inès]"
+  },
+  {
+   "id": "v23",
+   "transcript": "Whole choir the last page diminuendo to nothing",
+   "wer": [
+    0,
+    8
+   ],
+   "answer": {
+    "position": "range",
+    "bar_from": null,
+    "bar_to": null,
+    "audience": [
+     "part:Soprano",
+     "part:Alto",
+     "part:Tenor",
+     "part:Bass"
+    ],
+    "kind": "dynamic",
+    "text": "dim. to niente",
+    "quote": "Whole choir the last page diminuendo to nothing"
+   },
+   "marks": [],
+   "refused": [
+    "bar position without bar_from"
+   ],
+   "score": {
+    "negative": false,
+    "produced": false,
+    "position": false,
+    "bar_from": false,
+    "bar_to": false,
+    "audience": false,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.41,
+   "spark_seconds": 7.34,
+   "seconds_line": 8.74,
+   "usd_line": 0.00536,
+   "judge_usd": 0.0,
+   "judge_shown": null
+  },
+  {
+   "id": "v24",
+   "transcript": "Once more from 22 and this time don't rush.",
+   "wer": [
+    3,
+    12
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 22,
+    "bar_to": null,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "text",
+    "text": "Don't rush",
+    "quote": "don't rush."
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 22,
+     "bar_to": null,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "text",
+     "text": "Don't rush",
+     "quote": "don't rush."
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.56,
+   "spark_seconds": 7.98,
+   "seconds_line": 9.54,
+   "usd_line": 0.005902,
+   "judge_usd": 0.005014,
+   "judge_shown": "Don't rush [bars 22-None, for ensemble]"
+  },
+  {
+   "id": "v25",
+   "transcript": "Viola retard in the bar before letter F then a tempo at F.",
+   "wer": [
+    1,
+    13
+   ],
+   "answer": {
+    "position": "mark",
+    "bar_from": null,
+    "bar_to": null,
+    "audience": [
+     "part:Viola"
+    ],
+    "kind": "marking",
+    "text": "rit. (bar before F) - a tempo at F",
+    "quote": "Viola retard in the bar before letter F then a tempo at F"
+   },
+   "marks": [
+    {
+     "position": "mark",
+     "bar_from": null,
+     "bar_to": null,
+     "audience": [
+      "part:Viola"
+     ],
+     "kind": "marking",
+     "text": "rit. (bar before F) - a tempo at F",
+     "quote": "Viola retard in the bar before letter F then a tempo at F"
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": true
+   },
+   "asr_seconds": 1.35,
+   "spark_seconds": 7.83,
+   "seconds_line": 9.19,
+   "usd_line": 0.006115,
+   "judge_usd": 0.00184,
+   "judge_shown": "rit. (bar before F) - a tempo at F [bars None-None, for part:Viola]"
+  },
+  {
+   "id": "v26",
+   "transcript": "Seconds, mark it. Bar Bar 55 is forte, 56 is piano, subito.",
+   "wer": [
+    1,
+    11
+   ],
+   "answer": {
+    "position": "range",
+    "bar_from": 55,
+    "bar_to": 56,
+    "audience": [
+     "part:Violin II"
+    ],
+    "kind": "dynamic",
+    "text": "55 f, 56 subito p",
+    "quote": "Bar Bar 55 is forte, 56 is piano, subito."
+   },
+   "marks": [
+    {
+     "position": "range",
+     "bar_from": 55,
+     "bar_to": 56,
+     "audience": [
+      "part:Violin II"
+     ],
+     "kind": "dynamic",
+     "text": "55 f, 56 subito p",
+     "quote": "Bar Bar 55 is forte, 56 is piano, subito."
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true,
+    "expect_judge": true
+   },
+   "asr_seconds": 1.57,
+   "spark_seconds": 3.92,
+   "seconds_line": 5.49,
+   "usd_line": 0.003992,
+   "judge_usd": 0.001727,
+   "judge_shown": "55 f, 56 subito p [bars 55-56, for part:Violin II]"
+  },
+  {
+   "id": "v27",
+   "transcript": "Right in a menta on the last chord.",
+   "wer": [
+    3,
+    9
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 240,
+    "bar_to": null,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "dynamic",
+    "text": "dim. a niente",
+    "quote": "Right in a menta on the last chord."
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 240,
+     "bar_to": null,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "dynamic",
+     "text": "dim. a niente",
+     "quote": "Right in a menta on the last chord."
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": false,
+    "bar_from": false,
+    "bar_to": false,
+    "audience": true,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.3,
+   "spark_seconds": 7.04,
+   "seconds_line": 8.34,
+   "usd_line": 0.005564,
+   "judge_usd": 0.000793,
+   "judge_shown": "dim. a niente [bars 240-None, for ensemble]"
+  },
+  {
+   "id": "v28",
+   "transcript": "Bar three, that's four beats, not three. Count it.",
+   "wer": [
+    1,
+    10
+   ],
+   "answer": {
+    "position": "bar",
+    "bar_from": 3,
+    "bar_to": null,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "text",
+    "text": "4 beats - count!",
+    "quote": "Bar three, that's four beats, not three. Count it."
+   },
+   "marks": [
+    {
+     "position": "bar",
+     "bar_from": 3,
+     "bar_to": null,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "text",
+     "text": "4 beats - count!",
+     "quote": "Bar three, that's four beats, not three. Count it."
+    }
+   ],
+   "refused": [],
+   "score": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": false,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.2,
+   "spark_seconds": 4.23,
+   "seconds_line": 5.43,
+   "usd_line": 0.003525,
+   "judge_usd": 0.005578,
+   "judge_shown": "4 beats - count! [bars 3-None, for ensemble]"
+  },
+  {
+   "id": "v29",
+   "transcript": "Sopranos from the key key change, we are all we're all we're all down an octave till Dakota. Dakota.",
+   "wer": [
+    8,
+    13
+   ],
+   "answer": {
+    "position": "range",
+    "bar_from": null,
+    "bar_to": null,
+    "audience": [
+     "part:Soprano"
+    ],
+    "kind": "marking",
+    "text": "Down an octave till Dakota",
+    "quote": "down an octave till Dakota"
+   },
+   "marks": [],
+   "refused": [
+    "bar position without bar_from"
+   ],
+   "score": {
+    "negative": false,
+    "produced": false,
+    "position": false,
+    "bar_from": false,
+    "bar_to": false,
+    "audience": false,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false,
+    "expect_judge": false
+   },
+   "asr_seconds": 1.63,
+   "spark_seconds": 8.44,
+   "seconds_line": 10.06,
+   "usd_line": 0.006857,
+   "judge_usd": 0.0,
+   "judge_shown": null
+  },
+  {
+   "id": "v30",
+   "transcript": "right bar one here we go",
+   "wer": [
+    0,
+    6
+   ],
+   "answer": {
+    "none": true
+   },
+   "marks": [],
+   "refused": [],
+   "score": {
+    "negative": true,
+    "ok": true
+   },
+   "asr_seconds": 1.05,
+   "spark_seconds": 1.4,
+   "seconds_line": 2.45,
+   "usd_line": 0.000966,
+   "judge_usd": 0.0,
+   "judge_shown": null
+  }
+ ]
+}
