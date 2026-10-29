@@ -2,7 +2,7 @@
 
 The App Store app is the same React build that runs at `https://folio-app.jckjjcckk.com`, bundled inside a
 Capacitor shell (`web/ios/`). No `server.url`: the assets ship in the binary, the API is reached at
-`https://folio-api.jckjjcckk.com`, Supabase at the hosted project. Feature file: `docs/features/015-ios-wrapper.md`.
+`https://folio-api-stable.jckjjcckk.com`, Supabase at the hosted project. Feature file: `docs/features/015-ios-wrapper.md`.
 
 | Thing | Value |
 |---|---|
@@ -25,7 +25,7 @@ npx cap open ios              # Xcode; pick an iPad simulator or the connected i
 `npm run build:hosted` (`scripts/build-hosted.sh`) passes the hosted values as environment variables, so
 `web/.env.local` (the local Docker stack for the dev server) never leaks into the binary. It needs `web/.env`
 with the hosted `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`; `VITE_API_URL` is fixed to
-`https://folio-api.jckjjcckk.com`. The same command makes the build that is deployed to
+`https://folio-api-stable.jckjjcckk.com`. The same command makes the build that is deployed to
 `folio-app.jckjjcckk.com` (`deploy/README.md`).
 
 Without Xcode's UI, a simulator build proves the project compiles:
@@ -78,13 +78,13 @@ dashboard; nothing on this Mac logs in to Cloudflare. `deploy/README.md` is the 
    - Deploy command `npx wrangler deploy`
    - Build variables (values from `web/.env` on the Mac; never written into a doc or the repo):
      `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and `VITE_API_URL` set to
-     `https://folio-api.jckjjcckk.com`.
+     `https://folio-api-stable.jckjjcckk.com`.
    `build:hosted` reads those variables first and falls back to `web/.env` only when they are absent, so
    the dashboard's values win and `web/.env.local` is never involved. `web/wrangler.jsonc` tells wrangler
    to serve `dist` as static assets with unknown paths → `index.html`.
 2. `folio-app-web` → Settings → Domains & Routes → Add → Custom domain → `folio-app.jckjjcckk.com`. Cloudflare
    writes the DNS record and the certificate; live within a minute. Later pushes to `main` redeploy.
-3. The API: Zero Trust → Networks → Tunnels → `macbook_pro_m4` → public hostname `folio-api.jckjjcckk.com` →
+3. The API: Zero Trust → Networks → Tunnels → `macbook_pro_m4` → public hostname `folio-api-dev.jckjjcckk.com` →
    `http://localhost:8000`; save the connector token to `~/.cloudflared/folio-tunnel.token`; then
    `./install.sh --serve` from the main checkout.
 
@@ -135,7 +135,7 @@ App Store Connect → My Apps → New App: platform iOS, name Folio, primary lan
 - **Guideline 5.1.1**: sign-in is required because every score belongs to an ensemble; say so in the notes
   and that accounts are created by the ensemble's admin (the reviewer's demo account covers this).
 - **Guideline 2.1**: the reviewer's account must work on the first try: before submitting, run
-  `curl https://folio-api.jckjjcckk.com/health` and sign in on the hosted site with that account.
+  `curl https://folio-api-stable.jckjjcckk.com/health` and sign in on the hosted site with that account.
 
 ## Known limits of the shell today
 

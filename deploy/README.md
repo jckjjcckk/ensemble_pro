@@ -1,12 +1,13 @@
 # Hosting Folio
 
-Three names on CK's Cloudflare zone `jckjjcckk.com`:
+Four names on CK's Cloudflare zone `jckjjcckk.com`:
 
 | What | Where | How |
 |---|---|---|
 | Marketing site | `https://folio.jckjjcckk.com` | A separate project |
 | Web app (`web/dist`) | `https://folio-app.jckjjcckk.com` | Cloudflare Worker `folio-app-web` with static assets (`web/wrangler.jsonc`) |
-| API (`api/`) | `https://folio-api.jckjjcckk.com` | This Mac, behind the named tunnel `macbook_pro_m4` |
+| API, dev (`api/`) | `https://folio-api-dev.jckjjcckk.com` | This Mac, port 8000, behind the named tunnel `macbook_pro_m4` |
+| API, stable | `https://folio-api-stable.jckjjcckk.com` | yoga, port 18000 (`deploy/yoga/`); the hosted build's default `VITE_API_URL` |
 
 The API stays on the Mac on purpose: the Casio, the OMR tooling and the local fixtures live here. CK does
 every Cloudflare login and dashboard step; nothing here logs in or deploys on its own.
@@ -20,7 +21,7 @@ cd web && npm run build:hosted
 `scripts/build-hosted.sh` builds `web/dist` with the hosted values passed as real environment variables.
 `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` and `VITE_API_URL` are taken from the environment when
 set (Workers Builds' build variables), otherwise from `web/.env` (the hosted project; public values), with
-`VITE_API_URL` defaulting to `https://folio-api.jckjjcckk.com`. `web/.env.local` points the dev server at
+`VITE_API_URL` defaulting to `https://folio-api-stable.jckjjcckk.com`. `web/.env.local` points the dev server at
 the local Docker stack and is never read here, because Vite ranks environment variables above every `.env`
 file. The script refuses a local Supabase or API URL. The same build goes into the iPad shell
 (`npm run build:ios`).
@@ -34,7 +35,7 @@ logs in to Cloudflare.
 1. Workers & Pages → Create → **Import a repository** → `jckjjcckk/folio-pad`, branch `main`: project name
    `folio-app-web`, root directory `web`, build command `npm run build:hosted`, deploy command
    `npx wrangler deploy`. Build variables, values taken from `web/.env` on the Mac: `VITE_SUPABASE_URL`,
-   `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_API_URL=https://folio-api.jckjjcckk.com`. The build script
+   `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_API_URL=https://folio-api-stable.jckjjcckk.com`. The build script
    prefers these over `web/.env` (which is gitignored and absent in the build), and never reads
    `web/.env.local`.
 2. `folio-app-web` → Settings → Domains & Routes → Add → Custom domain → `folio-app.jckjjcckk.com`. Cloudflare
@@ -45,11 +46,11 @@ Optional, local path (not the plan): `cd web && npm run deploy:web` builds with 
 
 ## API: the Mac behind the named tunnel
 
-`deploy/cloudflared/config.yml` routes `folio-api.jckjjcckk.com` to `http://localhost:8000` and everything
+`deploy/cloudflared/config.yml` routes `folio-api-dev.jckjjcckk.com` to `http://localhost:8000` and everything
 else to 404. It is written, not run. Two ways to run the tunnel, CK's choice:
 
 **A. Dashboard-managed (token).** Zero Trust → Networks → Tunnels → `macbook_pro_m4` → Configure:
-- Public hostname: subdomain `api`, domain `folio.jckjjcckk.com`, service `HTTP` `localhost:8000`.
+- Public hostname: subdomain `folio-api-dev`, domain `jckjjcckk.com`, service `HTTP` `localhost:8000`.
 - Install connector → copy the token from the `cloudflared service install <token>` line, and save only
   the token to `~/.cloudflared/folio-tunnel.token` (`chmod 600`). Nothing else from that line is needed.
 - `./install.sh --serve` then runs `cloudflared tunnel run --token ...` under launchd.
@@ -57,7 +58,7 @@ else to 404. It is written, not run. Two ways to run the tunnel, CK's choice:
 **B. Locally managed (config file).** `cloudflared tunnel login` (browser, pick the zone), then
 `cloudflared tunnel list` must show `macbook_pro_m4` with its credentials at `~/.cloudflared/<UUID>.json`
 (if the tunnel was created elsewhere: `cloudflared tunnel delete macbook_pro_m4 && cloudflared tunnel create
-macbook_pro_m4`), then `cloudflared tunnel route dns macbook_pro_m4 folio-api.jckjjcckk.com`.
+macbook_pro_m4`), then `cloudflared tunnel route dns macbook_pro_m4 folio-api-dev.jckjjcckk.com`.
 `./install.sh --serve` copies the config to `~/.cloudflared/folio.yml` with the UUID and credentials path.
 
 Either way, `./install.sh --serve` (from `~/Documents/muse`, the main checkout) installs two launchd agents
@@ -82,7 +83,8 @@ legacy scheme. Supabase needs no redirect URL: sign-in is by password with sign-
 ## Checks
 
 ```
-curl -s https://folio-api.jckjjcckk.com/health       # {"status":"ok"}
+curl -s https://folio-api-dev.jckjjcckk.com/health   # {"status":"ok"} (dev, this Mac)
+curl -s https://folio-api-stable.jckjjcckk.com/health   # {"status":"ok"} (stable, yoga)
 curl -sI https://folio-app.jckjjcckk.com | head -1    # HTTP/2 200
 ```
 

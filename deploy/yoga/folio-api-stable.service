@@ -1,0 +1,16 @@
+[Unit]
+Description=Folio API, stable release (port 18000)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=ck
+WorkingDirectory=/home/ck/folio-stable/api
+EnvironmentFile=/home/ck/folio-stable/api/.env
+Environment=PATH=/home/ck/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/ck/.local/bin/uv run uvicorn app.main:app --host 127.0.0.1 --port 18000
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

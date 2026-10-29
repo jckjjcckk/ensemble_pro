@@ -4,7 +4,7 @@
 #   ./install.sh --stop   just stop anything running on the dev ports
 #   ./install.sh --check  only run the requirement checks
 #   ./install.sh --serve  install launchd agents: the API on :8000 and the named Cloudflare tunnel
-#                         (folio-api.jckjjcckk.com, by token or config); both restart after a crash or reboot. deploy/README.md
+#                         (folio-api-dev.jckjjcckk.com, by token or config); both restart after a crash or reboot. deploy/README.md
 #   ./install.sh --unserve  stop and remove those agents
 set -euo pipefail
 
@@ -57,7 +57,7 @@ fi
 API_LABEL="com.jckjjcckk.folio.api"
 TUNNEL_LABEL="com.jckjjcckk.folio.tunnel"
 TUNNEL_NAME="macbook_pro_m4"
-API_HOST="folio-api.jckjjcckk.com"
+API_HOST="folio-api-dev.jckjjcckk.com"
 AGENTS="$HOME/Library/LaunchAgents"
 unload_agent() { launchctl bootout "gui/$(id -u)/$1" >/dev/null 2>&1 || true; }
 
@@ -72,7 +72,7 @@ if [ "$MODE" = "--serve" ]; then
   echo "Serving the API behind the named tunnel"
   need uv "brew install uv"; need cloudflared "brew install cloudflared"
   env_filled "$ROOT/api/.env" SUPABASE_URL SUPABASE_SECRET_KEY CORS_ORIGINS
-  grep -qE '^CORS_ORIGINS=.*https://app\.folio\.jckjjcckk\.com' "$ROOT/api/.env" || { red "  CORS_ORIGINS in api/.env must include https://folio-app.jckjjcckk.com (and capacitor://localhost for the iPad app)"; fail=1; }
+  grep -qE '^CORS_ORIGINS=.*https://folio-app\.jckjjcckk\.com' "$ROOT/api/.env" || { red "  CORS_ORIGINS in api/.env must include https://folio-app.jckjjcckk.com (and capacitor://localhost for the iPad app)"; fail=1; }
   # Two ways to run the tunnel (deploy/README.md): a dashboard-managed tunnel with its token saved to
   # ~/.cloudflared/folio-tunnel.token, or a locally managed one (cert.pem + credentials JSON) with the config template.
   TOKEN_FILE="$HOME/.cloudflared/folio-tunnel.token"
