@@ -76,11 +76,23 @@ export interface DetailsBody {
 export const saveDetails = (scoreId: string, body: DetailsBody, token: string) =>
   request<{ score: Record<string, unknown>; shifted_by: number }>(`/scores/${scoreId}`, token, body, 'PATCH')
 
+/** `GET /me`: the account and what it may still spend. The shared project cap comes back too; the web never shows it. */
+export interface MeBudget { budget_usd: number; spent_usd: number; shared_cap_usd: number; shared_spent_usd: number; can_call_models: boolean }
+export interface Membership { member_id: string; ensemble_id: string; ensemble_name: string | null; role: 'admin' | 'player'; part: string | null }
+export interface Me { id: string; email: string; display_name: string | null; memberships: Membership[]; budget: MeBudget }
+export const getMe = (token: string) => request<Me>('/me', token)
+
+/** The API's two 402 refusals (`require_budget` in `api/app/spend.py`), word for word, so the account menu and the
+ *  refusal say the same thing. */
+export const ownBudgetSpent = 'Your budget for model calls is spent'
+export const sharedBudgetSpent = 'The shared budget for model calls is spent'
+const sentence = (s: string) => (/[.!?]$/.test(s) ? s : `${s}.`)
+
 /** The words for a failed call, in the product's voice. A 404 means the route is not on this server yet. */
 export function apiFailure(e: unknown, what: string): string {
   if (e instanceof ApiError) {
     if (e.status === 404) return `${what} is not available yet.`
-    if (e.status === 402) return 'The reading budget is used up for now.'
+    if (e.status === 402) return sentence(e.message)
     if (e.status === 403) return 'Only the owner or an admin can do this.'
     return e.message
   }
