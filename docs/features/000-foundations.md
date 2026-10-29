@@ -12,7 +12,7 @@ An AI librarian and practice tool for musicians, built for the Meta Global AI De
 (Oct 27 to Nov 4, 2026). Public repo: https://github.com/jckjjcckk/folio-pad. Local folder `~/Documents/muse`.
 Product name **Folio** (decided 2026-10-26). "Muse" stays as the folder name only. Tagline direction:
 "One score for the whole ensemble." No "Pro" suffix (reads as a pricing tier). GitHub repo stays
-`ensemble_pro` unless renamed before the submission form (CK's to-do). Domain is a post-hackathon concern.
+`folio-pad` (renamed 2026-10-28). Domain is a post-hackathon concern.
 
 One score object serves the whole life of the music: scan or import, split into parts, distribute to every
 member's iPad, keep markings and cuts in sync live, and practise from the same score with loop, tempo,
