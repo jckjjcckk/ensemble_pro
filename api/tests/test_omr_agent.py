@@ -207,3 +207,57 @@ def test_verify_verdicts_name_bars_within_the_system():
     assert _same({"same": "yes", "reason": "matches", "differences": []}, [7, 8]) == (True, "matches", [])
     assert _same({"same": False, "reason": "m8 lacks p", "differences": [{"measure": 8, "what": "p"}, {"measure": "9", "what": "x"}]}, [7, 8]) == (False, "m8 lacks p", [8])
     assert _same(None, [7]) == (None, "no answer", [])
+
+
+HAIRPIN_XML = """<?xml version="1.0"?><score-partwise version="3.1"><part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+<part id="P1"><measure number="22"><attributes><divisions>2</divisions><time><beats>3</beats><beat-type>4</beat-type></time><clef><sign>G</sign><line>2</line></clef></attributes>
+<note><pitch><step>E</step><octave>5</octave></pitch><duration>2</duration><voice>1</voice><type>quarter</type></note>
+<direction placement="below"><direction-type><wedge type="diminuendo" spread="11"/></direction-type></direction>
+<note><pitch><step>E</step><octave>5</octave></pitch><duration>1</duration><voice>1</voice><type>eighth</type></note>
+<direction placement="below"><direction-type><wedge type="stop" spread="0"/></direction-type></direction>
+<note><pitch><step>G</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>eighth</type></note>
+<note><pitch><step>F</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>eighth</type></note>
+<note><pitch><step>E</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>eighth</type></note>
+</measure></part></score-partwise>"""
+
+
+def test_hairpins_end_under_the_right_edge_of_the_wedge_audiveris_saw():
+    from app.librarian.omr_enrich import fix_hairpins
+    sc = converter.parse(HAIRPIN_XML, format="musicxml")
+    doc = {"measures": [{"number": 22, "px": [100, 0, 700, 100]}], "systems": [{"page": 1, "system": 1, "numbers": [22]}],
+           "inters": [{"tag": "wedge", "shape": "DIMINUENDO", "number": 22, "bounds": [400, 90, 250, 10]}]}   # ink from x 400 to 650
+    log = fix_hairpins(sc, doc)
+    sp = sc.parts[0].getElementsByClass(dynamics.DynamicWedge)[0]
+    assert float(sp.getLast().offset) == 2.5 and sp.getLast().nameWithOctave == "E4" and float(sp.getFirst().offset) < 2.5
+    assert log == [{"layer": "hairpin", "number": 22, "what": "diminuendo stop moved from bar 22 to bar 22 offset 2.5 (ink right edge)"}]
+    assert fix_hairpins(sc, {"measures": [], "systems": [], "inters": []}) == []                    # no wedge inter: left alone
+
+
+TUPLET_XML = """<?xml version="1.0"?><score-partwise version="3.1"><part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+<part id="P1"><measure number="1"><attributes><divisions>6</divisions><time><beats>3</beats><beat-type>4</beat-type></time><clef><sign>F</sign><line>4</line></clef></attributes>
+<note><pitch><step>G</step><octave>2</octave></pitch><duration>18</duration><voice>1</voice><type>half</type><dot/></note>
+<backup><duration>18</duration></backup>
+<forward><duration>6</duration></forward>
+{voices}
+</measure></part></score-partwise>"""
+TM = "<time-modification><actual-notes>3</actual-notes><normal-notes>2</normal-notes></time-modification>"
+
+
+def tnote(step: str, octave: int, dur: int, typ: str, voice: int) -> str:
+    return f"<note><pitch><step>{step}</step><octave>{octave}</octave></pitch><duration>{dur}</duration><voice>{voice}</voice><type>{typ}</type>{TM}</note>"
+
+
+def test_a_tuplet_the_bar_adds_up_without_is_dropped_and_a_real_one_kept():
+    from app.librarian.omr_enrich import false_tuplets
+    # Goldberg bar 1's bass: a fingering "3" read as a triplet over a half (voice 2) and a quarter (voice 3); neither
+    # voice fills the bar with the triplet, both do without it
+    false = TUPLET_XML.format(voices=tnote("B", 3, 8, "half", 2) + "<backup><duration>14</duration></backup><forward><duration>12</duration></forward>" + tnote("D", 4, 4, "quarter", 3))
+    sc = converter.parse(false, format="musicxml")
+    log = false_tuplets(sc)
+    m = sc.parts[0].measure(1)
+    assert not any(n.duration.tuplets for n in m.recurse().notes) and sorted(n.quarterLength for n in m.recurse().notes) == [1.0, 2.0, 3.0]
+    assert log == [{"layer": "tuplet", "number": 1, "what": "staff 1: dropped a tuplet the bar adds up without (2 notes)"}]
+    # a real triplet: three triplet quarters fill the two beats exactly with the tuplet, overflow without it
+    real = TUPLET_XML.format(voices=tnote("B", 3, 4, "quarter", 2) + tnote("D", 4, 4, "quarter", 2) + tnote("F", 4, 4, "quarter", 2))
+    sc2 = converter.parse(real, format="musicxml")
+    assert false_tuplets(sc2) == [] and all(n.duration.tuplets for n in sc2.parts[0].measure(1).recurse().notes if n.nameWithOctave != "G2")

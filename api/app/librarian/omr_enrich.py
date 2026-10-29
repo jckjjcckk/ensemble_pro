@@ -16,6 +16,13 @@ duration, rest or barline change. No model. Every write is undoable by bar (`Und
                 `<words font-style="italic">`, below the top staff of a part and above the staves under it. Dedupe
                 first: the same text already in the bar, or a "cresc."/"dim." word where a hairpin of that sense
                 starts in the bar, is skipped and counted (`duplicates`).
+  fix_hairpins  Audiveris anchors a hairpin's stop to the note right after its start, whatever the ink's length, so
+                every wedge spans one note and engraves as a flat stub (the pre-v2 file had the same). The wedge inter's
+                own bounds say how long the ink is: the stop moves to the note under its right edge (the bar by x, the
+                onset nearest the position in that bar), in the same part. No model; nothing but Audiveris's geometry.
+  false_tuplets Audiveris reads a fingering digit under a note as a tuplet number now and then (Goldberg bar 1's bass
+                "3"), and its own rhythm check then flags the bar. A tuplet is dropped when the bar does not add up
+                with it and every voice of that staff adds up exactly without it; a tuplet the bar needs is kept.
   apply_verify  an accidental the engine graded low: Spark's verdict never edits the pitch; a disagreement flags
                 the bar. An ornament that Spark says is not one is removed from that bar's staff.
   flags         `omr_score.flagged_bars` as before (abnormal, rhythm, missing bars) plus the verify flags.
@@ -27,7 +34,9 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-from music21 import dynamics, duration, expressions, metadata, stream, tempo
+from fractions import Fraction
+
+from music21 import dynamics, duration, expressions, metadata, meter, stream, tempo
 
 from .omr_agent import UNITS, junk
 from .omr_score import staff_groups
@@ -307,3 +316,91 @@ def apply_verify(sc: stream.Score, verify: list[dict]) -> tuple[list[dict], dict
                         k += 1
             log_.append({"layer": "A", "number": n, "what": f"ornament {shape} is {verdict} {ans.get('value') or ''!s}: removed {k}".strip()})
     return log_, flags
+
+
+# ---------------------------------------------------------------------------------------------------- Audiveris's own geometry
+
+def _voice_sums(m: stream.Measure, tuplets: bool = True) -> list[Fraction]:
+    out = []
+    for v in _containers(m):
+        total = Fraction(0)
+        for el in v.notesAndRests:
+            if el.duration.isGrace:
+                continue
+            ql = el.duration.quarterLength if tuplets else duration.Duration(type=el.duration.type, dots=el.duration.dots).quarterLength
+            total = max(total, Fraction(el.offset) + Fraction(ql))
+        out.append(total)
+    return out
+
+
+def false_tuplets(sc: stream.Score) -> list[dict]:
+    """Drop the tuplets of a bar that adds up only without them. Returns the log."""
+    log_: list[dict] = []
+    for i, p in enumerate(sc.parts, start=1):
+        for m in p.getElementsByClass(stream.Measure):
+            if not any(el.duration.tuplets for v in _containers(m) for el in v.notesAndRests):
+                continue
+            ts = m.timeSignature or m.getContextByClass(meter.TimeSignature)
+            if ts is None:
+                continue
+            bar = Fraction(ts.barDuration.quarterLength)
+            with_t, without = _voice_sums(m), _voice_sums(m, tuplets=False)
+            if all(t == bar for t in with_t) or not all(t == bar for t in without):
+                continue
+            k = 0
+            for v in _containers(m):
+                for el in v.notesAndRests:
+                    if el.duration.tuplets:
+                        el.duration = duration.Duration(type=el.duration.type, dots=el.duration.dots)
+                        k += 1
+            log_.append({"layer": "tuplet", "number": m.number, "what": f"staff {i}: dropped a tuplet the bar adds up without ({k} notes)"})
+    return log_
+
+
+def fix_hairpins(sc: stream.Score, doc: dict) -> list[dict]:
+    """Move every hairpin's stop to the note under the right edge of the wedge Audiveris saw. Returns the log."""
+    log_: list[dict] = []
+    measures = {m["number"]: m for m in doc["measures"]}
+    system_of = {n: s for s in doc["systems"] for n in s["numbers"]}
+    wedges = [i for i in doc["inters"] if i["tag"] == "wedge" and i.get("number") in measures]
+    for p in sc.parts:
+        pm = _measures(p)
+        for sp in list(p.getElementsByClass(dynamics.DynamicWedge)):
+            first, last = sp.getFirst(), sp.getLast()
+            if first is None or last is None:
+                continue
+            m0 = first.getContextByClass(stream.Measure)
+            if m0 is None:
+                continue
+            want = "CRESCENDO" if isinstance(sp, dynamics.Crescendo) else "DIMINUENDO"
+            cands = [w for w in wedges if w["number"] == m0.number and (w.get("shape") or "").upper() == want]
+            if not cands:
+                continue
+            w = cands[0]
+            right = w["bounds"][0] + w["bounds"][2]
+            system = system_of.get(m0.number)
+            if system is None:
+                continue
+            ms = [measures[n] for n in system["numbers"] if n in measures]
+            end = next((m for m in ms if m["px"][0] <= right < m["px"][2]), None)
+            if end is None:
+                end = ms[-1] if right >= ms[-1]["px"][2] else ms[0]
+            if end["number"] < m0.number or end["number"] not in pm:
+                continue
+            target_m = pm[end["number"]]
+            frac = (right - end["px"][0]) / max(end["px"][2] - end["px"][0], 1)
+            off = _snap_offset([target_m], frac)
+            notes = sorted(((float(el.offset), vi, el) for vi, v in enumerate(_containers(target_m)) for el in v.notes if not el.duration.isGrace),
+                           key=lambda t: (t[0], t[1]))
+            at = [el for o, _, el in notes if o >= off - 1e-6]
+            new_last = at[0] if at else (notes[-1][2] if notes else None)
+            if new_last is None or new_last is last or new_last is first:
+                continue
+            if end["number"] == m0.number and float(new_last.offset) <= float(first.offset):
+                continue
+            if last is first:
+                sp.addSpannedElements(new_last)
+            else:
+                sp.replaceSpannedElement(last, new_last)
+            log_.append({"layer": "hairpin", "number": m0.number, "what": f"{want.lower()} stop moved from bar {last.getContextByClass(stream.Measure).number} to bar {end['number']} offset {float(new_last.offset):g} (ink right edge)"})
+    return log_

@@ -78,7 +78,7 @@ from .import_musicxml import book_facts, part_groups, write_measures, write_part
 from .musicxml_fix import PageLayout, fix_musicxml
 from .omr_agent import USD_PER_PAGE, Budget, PdfPages, front_matter, page_kinds, reread, verify
 from .omr_book import load_run
-from .omr_enrich import Undos, apply_front, apply_text, apply_verify
+from .omr_enrich import Undos, apply_front, apply_text, apply_verify, false_tuplets, fix_hairpins
 from .omr_verify import verify_edits
 from .omr_score import BarsDoNotLineUp, flagged_bars, merge, movement_files
 
@@ -327,6 +327,7 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
         except BarsDoNotLineUp as e:
             await _fail(ctx, EngineFailed(f"The transcription's bars do not line up with its pages ({e})"))
         page = PageLayout.read(movement_files(run)[0])
+        geometry_log = await asyncio.to_thread(lambda: fix_hairpins(sc, doc) + false_tuplets(sc))   # Audiveris's own geometry, no model
 
         await ctx.progress(0.6, f"Reading the heading, the text of {len(doc['systems'])} systems and {len(doc['doubtful'])} doubtful symbols")
         index = {pg: i for i, pg in enumerate(book_run["pdf_pages"], start=1)}
@@ -349,7 +350,7 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
                                       credit_composer=page.text("composer"))
         text_log, counts = await asyncio.to_thread(apply_text, sc, doc, texts, undos)
         verify_log, extra = await asyncio.to_thread(apply_verify, sc, answers)
-        log += text_log + verify_log
+        log = geometry_log + log + text_log + verify_log
         for n, whys in filled.items():
             extra.setdefault(n, []).extend(whys)
         existing = [r["name"] for r in (ctx.db.table("parts").select("name,position").eq("score_id", score_id).order("position").execute().data or [])]
@@ -424,7 +425,7 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
         "pages": book_run["pdf_pages"], "page_kinds": [(k["pdf_page"], k["kind"]) for k in kinds], "cover": cover_key,
         "pages_unreadable": doc["unreadable"], "spark_calls": budget.calls, "spark_skipped": budget.skipped,
         "front_matter": form | {"read": form_ok}, "items": items,
-        "edits": {k: sum(1 for e in log if e["layer"] == k) for k in ("front", "words", "dynamic", "dup", "A", "flag")},
+        "edits": {k: sum(1 for e in log if e["layer"] == k) for k in ("hairpin", "tuplet", "front", "words", "dynamic", "dup", "A", "flag")},
         "verify": {k: v for k, v in checked.items() if k != "log"},
         "timings": {"kinds_s": round(kinds_s, 1), "box_s": book_run.get("box_s"), "audiveris_s": book_run.get("audiveris_s"),
                     "render_s": book_run.get("render_s"), "upload_s": book_run.get("upload_s"), "pull_s": book_run.get("pull_s"),

@@ -305,6 +305,25 @@ The render check's three "no"s split one true text miss, one layout noise, one f
 (bar 88); at $0.14 a book it is the second-largest line. The earlier reverted-bar question is closed: a revert
 restores the filtered base (junk never returns), and with the vocabulary rule only two glyph-less words were dropped.
 
+**Two defects CK saw in the v2e renders, fixed without a model call (2026-10-28 late, `omr_enrich.fix_hairpins`,
+`false_tuplets`, run right after the merge):**
+
+- *Hairpins as flat stubs.* Not a v2 regression: the pre-v2 file carried the same XML. Audiveris anchors a wedge's
+  `type="stop"` to the note right after its start whatever the ink's length (its `default-x` offsets, which music21
+  drops, were the only trace), so every hairpin spanned one note; MuseScore draws a one-note hairpin as a stub. Now
+  the stop moves to the note under the right edge of the `wedge` inter Audiveris itself boxed (bar by x, onset by
+  position). Goldberg: 21 hairpins moved (three of them had been parsed as running to bars 64, 97 and 118); Chopin: 9.
+- *Two tuplet brackets on bar 1's bass.* Audiveris read the fingering "3" under the bass as a triplet number
+  (`<time-modification>` on B3 and D4, `tuplet` inter grade under 0.6); v1's closed question removed it, v2 asks no
+  tuplet question. Now a tuplet is dropped when the bar does not add up with it and every voice of the staff adds up
+  exactly without it (bar 1: 2.33 and 2.67 beats with, 3 and 3 without); a tuplet the bar needs is kept (Chopin's
+  real triplets untouched).
+
+Re-scored and re-rendered without Spark (`final-fixed.musicxml` in both run dirs): text F1 unchanged at 0.955 (Aria
+1.00); MuseScore keeps 1731/1731 and 628/628; Chopin's systems unchanged, exactly the scan; Goldberg's lines
+unchanged (23 of 27) but with the longer hairpins the original-size page breaks shift (the display layout reflows
+anyway). Renders: `api/experiments/engrave/v2/goldberg-bga-p1-5-v2f.pdf`, `api/experiments/engrave/v2/chopin-op40-1-p25-v2f.pdf`.
+
 Renders to open (made by `api/experiments/engrave/v2_render.sh`, not in git): `api/experiments/engrave/v2/goldberg-bga-p1-5-v2e.pdf`,
 `api/experiments/engrave/v2/chopin-op40-1-p25-v2e.pdf`; `.kept.txt`, `.systems.txt` and the summaries beside them.
 
