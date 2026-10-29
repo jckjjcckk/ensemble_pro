@@ -14,6 +14,8 @@ Two defects of a music21 re-export, both found by engraving our file in MuseScor
            their voice. A staff with more than four voices in one bar gets numbers past the last staff's range.
   tempo    a metronome mark with text comes out of music21 as two directions; `merge_tempo_directions` makes them one
            (words, then metronome), so the heading and the mark draw on one line at the head of the bar.
+  wedges   a crescendo whose start wedge says `spread="0"` engraves flat in MuseScore (it reads the height from the
+           start); `fix_wedge_spread` drops the zero.
   layout   the merge builds a new score, so Audiveris's `<defaults>` (page size, margins, scaling) and its
            `<credit>`s are lost, and music21 writes "Music21" as composer when none is set. `PageLayout.read` takes
            the `<defaults>` and the title and composer credits from the first Audiveris movement file (the first two
@@ -186,6 +188,24 @@ def _set_header(root: ET.Element, title: str, composer: str, opus: str | None = 
             ident.remove(c)
 
 
+def fix_wedge_spread(root: ET.Element) -> int:
+    """Audiveris writes the ink's opening on each end of a hairpin: `spread="0"` on a crescendo's start (and on a
+    diminuendo's stop). MuseScore takes a hairpin's height from the START wedge's spread, so a crescendo that starts at
+    0 is drawn as a flat line (the pre-v2 files had the same). A zero spread on a start is dropped (MuseScore then uses
+    its default height); a non-zero one stays. Returns how many were dropped."""
+    n = 0
+    for w in root.iter("wedge"):
+        if w.get("type") in ("crescendo", "diminuendo") and w.get("spread") is not None:
+            try:
+                zero = float(w.get("spread")) == 0
+            except ValueError:
+                zero = False
+            if zero:
+                del w.attrib["spread"]
+                n += 1
+    return n
+
+
 def merge_tempo_directions(root: ET.Element) -> int:
     """music21 writes a MetronomeMark with text as two directions at the same spot (the metronome, then the bold words).
     Engravers draw those as two stacked tempo texts; one direction with the words first and the metronome second draws
@@ -224,6 +244,7 @@ def fix_musicxml(data: bytes, layout: PageLayout | None = None, *, title: str | 
     root = ET.fromstring(data)
     renumber_voices(root)
     merge_tempo_directions(root)
+    fix_wedge_spread(root)
 
     layout = layout or PageLayout()
     title = (title or "").strip() or layout.text("title")

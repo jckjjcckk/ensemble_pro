@@ -162,3 +162,15 @@ def test_write_musicxml_fixes_a_merged_score_and_never_writes_music21(tmp_path):
     assert sorted(x[1:3] for x in notes(out)) == sorted(x[1:3] for x in notes(FLIPPED))
     assert b'new-system="yes"' in out and b'new-page="yes"' in out
     assert b"Music21" not in write_musicxml(sc)
+
+
+def test_a_zero_spread_on_a_wedge_start_is_dropped_so_musescore_draws_a_wedge():
+    from app.librarian.musicxml_fix import fix_wedge_spread
+    root = ET.fromstring('<score-partwise><part id="P1"><measure number="5">'
+                         '<direction><direction-type><wedge number="1" spread="0" type="crescendo"/></direction-type></direction>'
+                         '<direction><direction-type><wedge number="1" spread="15" type="stop"/></direction-type></direction>'
+                         '<direction><direction-type><wedge number="2" spread="15" type="diminuendo"/></direction-type></direction>'
+                         '<direction><direction-type><wedge number="2" spread="0" type="stop"/></direction-type></direction>'
+                         '</measure></part></score-partwise>')
+    assert fix_wedge_spread(root) == 1
+    assert [(w.get("type"), w.get("spread")) for w in root.iter("wedge")] == [("crescendo", None), ("stop", "15"), ("diminuendo", "15"), ("stop", "0")]
