@@ -647,7 +647,7 @@
 }
 
 /* On the stand: a rejected bar drawn from the scan; an unreadable page */
-.fo .scan-patch { position: absolute; background-repeat: no-repeat; background-color: var(--card); border-radius: 2px; box-shadow: 0 0 0 1px color-mix(in oklch, var(--ask) 70%, transparent); pointer-events: none; }
+.fo .scan-patch { position: absolute; background-repeat: no-repeat; background-color: var(--card); pointer-events: none; }
 .fo .unread { pointer-events: auto; position: absolute; display: grid; place-items: center; padding: 30px 34px; background: #F6F2E9; border: 1.5px dashed #CFC8B8; color: #1C1A16; z-index: 2; }
 .fo .unread-lines { position: absolute; inset: 30px 34px; opacity: 0.7; background: repeating-linear-gradient(to bottom, #E2DCCD 0 1px, transparent 1px 6px, #E2DCCD 6px 7px, transparent 7px 12px, #E2DCCD 12px 13px, transparent 13px 18px, #E2DCCD 18px 19px, transparent 19px 24px, #E2DCCD 24px 25px, transparent 25px 86px); pointer-events: none; }
 .fo .unread-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 12px; max-width: 340px; padding: 26px 28px; text-align: center; background: #FBF9F4; border: 1px solid #E2DCCD; border-radius: 14px; box-shadow: 0 4px 16px rgba(28, 26, 22, 0.08); }

@@ -94,7 +94,9 @@ window.
   header's where-line adds "page 3 could not be read". **Rescan page N is not built**: the button says so
   ("Rescanning a single page is not built yet …"), because the API has no cheap path to replace one page image and
   re-read only that page (`process_pages` reads the whole book again). On the engraved Stand, a bar the owner
-  marked "Wrong, use the scan here" (011, `bar_decisions`) is drawn from the scan over the engraved bar.
+  marked "Wrong, use the scan here" (011, `bar_decisions`) is drawn from the scan over the engraved bar, unmarked.
+  CK's rule: the reader never marks a flagged bar (no outline, dot or badge); doubtful bars appear only on the check
+  screen and as the count on the Book sheet, and the music is shown as read.
 - **A personal book shared with a group (2026-10-28, 001).** By reference: the group reads the owner's book, its
   pages, its Digital file and its splits' rows from the owner's library; nothing is copied. On the group shelf it sits
   in "Shared with the group" with "Shared by {name}"; for anyone but the owner its page and menu offer only Open PDF

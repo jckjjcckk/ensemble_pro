@@ -63,8 +63,9 @@ Two kinds of doubt that are not job questions use the same voice:
   plain words (beats, not whole-note fractions); for the chosen bar the scan's crop (the flagged box on the page
   image) sits above the engraved copy's crop (the bar's box from the engraving's `.mpos`). "Wrong, use the scan
   here" / "Looks right" upsert `bar_decisions (score_id, bar, decision 'scan' | 'digital', decided_by,
-  decided_at)`; the engraved Stand then draws the scan's bar over the engraved one (`ScanPatches`). The reader never
-  rewrites music.
+  decided_at)`; the engraved Stand then draws the scan's bar over the engraved one (`ScanPatches`), unmarked. The reader never
+  rewrites music and never marks a merely flagged bar on the stand (CK): doubt shows only on this screen and as the
+  Book sheet's count.
 
 ## Rules and decisions
 

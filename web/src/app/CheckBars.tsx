@@ -64,7 +64,8 @@ function useSignedMany(paths: string[]): Map<string, string> {
   return urls
 }
 
-/** On the engraved stand: each bar the owner rejected shows the scan's bar instead, stretched over the engraved one. */
+/** On the engraved stand: each bar the owner rejected shows the scan's bar instead, stretched over the engraved one,
+ *  unmarked. A bar that is only flagged is drawn as read; doubt lives on the check screen alone (CK, 2026-10-28). */
 export function ScanPatches({ geo, score, decisions }: { geo: Geo; score: Score; decisions: Map<number, Decision> }) {
   const patches = (score.flaggedBars ?? []).filter(f => f.box && decisions.get(f.number) === 'scan')
   const urls = useSignedMany(patches.map(f => scanPath(score, f.page)))
