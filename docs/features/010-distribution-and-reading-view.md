@@ -88,6 +88,17 @@ window.
   (a marking, a cut, a voice note) and Open the PDF file. The ruler is gone (the design has none).
   `localStorage` `folio.book` and a per-book place (`folio.place`) are kept. Verified in the browser pane against
   the local stack at 834x1194 and 1194x834, light and dark; screenshots in `docs/design/r3/shots/` (gitignored).
+- **Page turns (CK, 2026-10-28 night): a horizontal pan with standard components.** The spread is a `motion` drag on
+  x (`EngravedStage`, and the OSMD `ScoreStage` the same way): the page follows the finger; on release a flick
+  (faster than 400 px/s) turns towards it, a slow drag turns once past half the stage, otherwise the spread settles
+  back; at the first or last spread the drag only gives a little. The turn is a pan (the old spread leaves by the
+  stage's width as the new one comes in); with reduced motion it is a short fade. The custom swipe in
+  `stageGestures.ts` is gone (it keeps tap and hold; `turnFromDrag` only reads motion's offset and velocity). The
+  turn buttons are full-height tap zones at the page edges (44 px wide), the second way to turn; arrow keys and Page
+  Up / Down still turn. Overlays (notes, faces, the quick menu) fade out while the page moves. Disabled while zoomed
+  (the zoomed page pans by scrolling) and while scribbling. Checked in the pane: a slow 300 px drag settles back, a
+  slow 700 px drag turns with the page following the finger, a flick turns exactly one spread each way, a tap still
+  opens the bar's menu, the edge zone turns.
 - **When the reader is unsure (R3, 2026-10-28 night; 011).** A page the reading found no staves on
   (`summary.unreadable_pages [{page, reason}]`, written by `process_pages`) shows on the PDF Stand as a dashed
   placeholder: "Page 3 could not be read", the reason in plain words, Rescan page 3 and Show the scan as is; the

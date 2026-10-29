@@ -669,3 +669,8 @@
 }
 /* Details and the questions open over the Book sheet: they dim it too. */
 .fo .r3-dialog-place:has(> .r3-dialog.details), .fo .r3-dialog-place:has(> .r3-dialog.ask) { z-index: 27; background: var(--scrim); }
+/* Page turns: the spread is dragged on x (motion); overlays step aside while it moves. The edge zones turn too. */
+.fo .stage-pan { position: absolute; inset: 0; z-index: 2; }
+.fo .stage-over { transition: opacity 120ms var(--ease, ease); }
+.fo .stage-over.is-dragging { opacity: 0; }
+.fo .stand .turn { height: min(70%, 640px); }

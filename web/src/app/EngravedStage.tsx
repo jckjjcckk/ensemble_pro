@@ -12,7 +12,7 @@ import { supabase } from '../lib/supabase'
 import type { Engraving } from '../mock'
 import type { BarBox, Geo, Rect } from './geometry'
 import type { StageView } from './ScoreStage'
-import { useStageGestures } from './stageGestures'
+import { turnFromDrag, useStageGestures } from './stageGestures'
 import { useReducedMotion } from './layout'
 
 export interface ZoomView { k: number; page: number; /** visible part of the page, as fractions of its height */ top: number; bottom: number; /** visible left and right edges, in content px */ left: number; right: number }
@@ -224,7 +224,8 @@ export function EngravedStage({ engraving, aspect: aspectIn, focus, follow, onUs
     if (e.key === '-' && zoom) { e.preventDefault(); zoomBy(0.8, layout ? layout.w / 2 : 0, layout ? layout.h / 2 : 0) }
     if (e.key === '0' && zoom) { e.preventDefault(); unzoom() }
   }
-  const gestures = useStageGestures({ geo, stageRef: contentRef, turn, onBarTap, onEmptyTap, onBarHold })
+  const gestures = useStageGestures({ geo, stageRef: contentRef, onBarTap, onEmptyTap, onBarHold })
+  const [dragging, setDragging] = useState(false)
 
   // ---------------------------------------------------------------- zoom
 
@@ -315,7 +316,9 @@ export function EngravedStage({ engraving, aspect: aspectIn, focus, follow, onUs
   const [turned, setTurned] = useState({ spread, dir: 0 })
   if (turned.spread !== spread) setTurned({ spread, dir: spread > turned.spread ? 1 : -1 })
   const dir = turned.dir
-  const slide = reduced || zoom ? 0 : 36
+  // A horizontal pan: the old spread leaves by the stage's width as the new one comes in (a fade alone with reduced motion).
+  const slide = reduced || zoom ? 0 : (layout?.w ?? 800)
+  const canDrag = !zoom && !still && spreads > 1
   const contentStyle: CSSProperties = { width: contentW || '100%', height: contentH || '100%' }
 
   return (
@@ -333,12 +336,18 @@ export function EngravedStage({ engraving, aspect: aspectIn, focus, follow, onUs
           <motion.div
             key={pageKey} className="stage-turn" custom={dir}
             variants={{
-              enter: (d: number) => ({ opacity: 0, x: d * slide }),
+              enter: (d: number) => ({ opacity: reduced ? 0 : 1, x: d * slide }),
               center: { opacity: 1, x: 0 },
-              leave: (d: number) => ({ opacity: 0, x: -d * slide, transition: { duration: 0.16, ease: [0.22, 1, 0.36, 1] } }),
+              leave: (d: number) => ({ opacity: reduced ? 0 : 1, x: -d * slide }),
             }}
             initial="enter" animate="center" exit="leave"
-            transition={reduced ? { duration: 0.12 } : { type: 'spring', stiffness: 360, damping: 36, mass: 0.8 }}
+            transition={reduced ? { duration: 0.12 } : { type: 'spring', stiffness: 320, damping: 38, mass: 0.9 }}
+            // The page follows the finger (motion's drag); on release a flick turns, a slow drag turns past half the
+            // stage, otherwise the spread snaps back. No neighbour at an end: the drag only gives a little.
+            drag={canDrag ? 'x' : false} dragDirectionLock dragMomentum={false} dragSnapToOrigin
+            dragConstraints={{ left: 0, right: 0 }} dragElastic={{ left: spread < spreads - 1 ? 1 : 0.12, right: spread > 0 ? 1 : 0.12 }}
+            onDragStart={() => { setDragging(true); gestures.onPointerCancel() }}
+            onDragEnd={(_, info) => { setDragging(false); const d = turnFromDrag(info, layout?.w ?? 800); if (d) turn(d) }}
           >
             <div className="stage-under" aria-hidden="true">
               {geo?.pages.map((p, i) => p && <div key={i} className="sheet page-paper" style={{ left: p.x, top: p.y, width: p.w, height: p.h }} />)}
@@ -365,7 +374,7 @@ export function EngravedStage({ engraving, aspect: aspectIn, focus, follow, onUs
             </div>
           </motion.div>
         </AnimatePresence>
-        <div className="stage-over">{settled && geo && overlay?.(geo, zoomView)}</div>
+        <div className={`stage-over ${dragging ? 'is-dragging' : ''}`}>{settled && geo && overlay?.(geo, zoomView)}</div>
       </div>
     </div>
       {view && !zoom && (
