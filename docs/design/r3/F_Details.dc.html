@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Folio · Details sheet</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Noto+Music&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 834px; height: 1194px; box-sizing: border-box; background: #F3EFE6; color: #1C1A16; font-family: Inter, system-ui, sans-serif; position: relative; overflow: hidden">
+
+  <div aria-hidden="true" style="position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0.5">
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; padding: 56px 40px 14px 40px">
+      <span style="font-family: 'EB Garamond', serif; font-weight: 500; font-size: 46px; line-height: 1">My Library</span>
+      <div style="display: flex; gap: 10px"><span style="width: 96px; height: 48px; border-radius: 12px; border: 1px solid #CFC8B8"></span><span style="width: 86px; height: 48px; border-radius: 12px; border: 1px solid #CFC8B8"></span><span style="width: 48px; height: 48px; border-radius: 50%; border: 1px solid #CFC8B8"></span></div>
+    </div>
+    <div style="padding: 28px 40px; display: flex; gap: 18px"><span style="width: 232px; height: 246px; border-radius: 6px; background: #FBF9F4; border: 1px solid #E2DCCD"></span><span style="width: 232px; height: 246px; border-radius: 6px; background: #FBF9F4; border: 2px solid #1C1A16"></span><span style="width: 232px; height: 246px; border-radius: 6px; background: #FBF9F4; border: 1px solid #E2DCCD"></span></div>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(28,26,22,0.28)"></div>
+
+  <div role="dialog" aria-label="Details" style="position: absolute; left: 77px; top: 60px; width: 680px; height: 1074px; box-sizing: border-box; background: #FBF9F4; border-radius: 18px; box-shadow: 0 24px 60px rgba(28,26,22,0.35); display: flex; flex-direction: column; overflow: hidden">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 28px 12px 28px; border-bottom: 1px solid #E2DCCD">
+      <button style="height: 40px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: #6B665C; font: 500 16px Inter, sans-serif">Cancel</button>
+      <h2 style="margin: 0; font-family: 'EB Garamond', serif; font-weight: 500; font-size: 26px">Details</h2>
+      <button style="height: 40px; padding: 0 16px; border: 0; border-radius: 10px; background: #1C1A16; color: #F3EFE6; font: 600 16px Inter, sans-serif">Save</button>
+    </div>
+
+    <div style="flex: 1; padding: 18px 28px 20px 28px; display: flex; flex-direction: column; gap: 18px; overflow: hidden">
+
+      <div style="display: flex; align-items: center; gap: 24px; padding: 14px 18px; border-radius: 12px; background: #F3EFE6">
+        <div style="position: relative; width: 262px; height: 84px; flex: none">
+          <span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 18px; height: 49px; background: repeating-linear-gradient(to bottom, #1C1A16 0 1px, transparent 1px 12px)"></span>
+          <span aria-hidden="true" style="position: absolute; left: 3px; top: -9px; font-family: 'Noto Music', serif; font-size: 72px; line-height: 1; color: #1C1A16">𝄞</span>
+          <span aria-hidden="true" style="position: absolute; left: 64px; top: 27px; font-family: 'Noto Music', serif; font-size: 30px; line-height: 30px; color: #1C1A16">♭</span>
+          <span aria-hidden="true" style="position: absolute; left: 96px; top: 20px; font-family: 'Noto Music', serif; font-size: 44px; line-height: 44px; color: #1C1A16">𝄵</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #6B665C">
+          <span style="font-family: 'EB Garamond', serif; font-size: 20px; color: #1C1A16">G minor · 2/2 · ♩ = 72</span>
+          <span>This is what the cover will show.</span>
+          <span style="color: #8A5A00">Key is the reader's best guess — confirm or change it below.</span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <label for="d-title" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #6B665C">Title</label>
+          <input id="d-title" type="text" value="Ave verum corpus" style="height: 48px; box-sizing: border-box; padding: 0 14px; border: 1px solid #CFC8B8; border-radius: 10px; background: #FFFFFF; font: 500 17px 'EB Garamond', serif; color: #1C1A16">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <label for="d-composer" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #6B665C">Composer</label>
+          <input id="d-composer" type="text" value="William Byrd" style="height: 48px; box-sizing: border-box; padding: 0 14px; border: 1px solid #CFC8B8; border-radius: 10px; background: #FFFFFF; font: 500 17px 'EB Garamond', serif; color: #1C1A16">
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #6B665C">Key</span>
+          <div role="tablist" style="display: flex; gap: 2px; background: #E2DCCD; border-radius: 8px; padding: 2px">
+            <button role="tab" aria-selected="false" style="height: 28px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: #6B665C; font: 500 12px Inter, sans-serif">Major</button>
+            <button role="tab" aria-selected="true" style="height: 28px; padding: 0 12px; border: 0; border-radius: 6px; background: #FBF9F4; color: #1C1A16; font: 500 12px Inter, sans-serif; box-shadow: 0 1px 1px rgba(28,26,22,0.12)">Minor</button>
+          </div>
+        </div>
+        <div role="radiogroup" aria-label="Key" style="display: grid; grid-template-columns: repeat(15, minmax(0, 1fr)); gap: 3px">
+          <sc-for list="{{keys}}" as="k" hint-placeholder-count="15">
+            <button role="radio" aria-checked="{{k.on}}" style="height: 64px; padding: 0; border: 1px solid {{k.border}}; border-radius: 8px; background: {{k.bg}}; color: {{k.fg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px">
+              <span style="font: 600 15px 'EB Garamond', serif; line-height: 1">{{k.name}}</span>
+              <span style="font: 400 10px Inter, sans-serif; opacity: 0.8">{{k.acc}}</span>
+            </button>
+          </sc-for>
+        </div>
+        <span style="font-size: 12px; color: #6B665C">Outlined in amber: the reader's guess. Tap it to confirm, or pick another.</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #6B665C">Time signature</span>
+          <div role="radiogroup" aria-label="Time signature" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{times}}" as="t" hint-placeholder-count="10">
+              <button role="radio" aria-checked="{{t.on}}" style="height: 52px; padding: 0; border: 1px solid {{t.border}}; border-radius: 8px; background: {{t.bg}}; color: {{t.fg}}; display: flex; flex-direction: column; align-items: center; justify-content: center">
+                <span style="font: 600 15px/14px 'EB Garamond', serif">{{t.n}}</span>
+                <span style="font: 600 15px/14px 'EB Garamond', serif">{{t.d}}</span>
+              </button>
+            </sc-for>
+          </div>
+          <span style="font-size: 12px; color: #6B665C">One time signature for the whole book.</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #6B665C">Clef on the cover</span>
+          <div role="radiogroup" aria-label="Clef" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+            <button role="radio" aria-checked="true" aria-label="Treble" style="height: 52px; border: 1.5px solid #1C1A16; border-radius: 8px; background: #1C1A16; color: #F3EFE6; font-family: 'Noto Music', serif; font-size: 30px; line-height: 1">𝄞</button>
+            <button role="radio" aria-checked="false" aria-label="Bass" style="height: 52px; border: 1px solid #CFC8B8; border-radius: 8px; background: #FFFFFF; color: #1C1A16; font-family: 'Noto Music', serif; font-size: 26px; line-height: 1">𝄢</button>
+            <button role="radio" aria-checked="false" aria-label="Alto" style="height: 52px; border: 1px solid #CFC8B8; border-radius: 8px; background: #FFFFFF; color: #1C1A16; font-family: 'Noto Music', serif; font-size: 26px; line-height: 1">𝄡</button>
+            <button role="radio" aria-checked="false" aria-label="Grand staff" style="height: 52px; border: 1px solid #CFC8B8; border-radius: 8px; background: #FFFFFF; color: #1C1A16; font-family: 'Noto Music', serif; font-size: 18px; line-height: 1">𝄞𝄢</button>
+          </div>
+          <span style="font-size: 12px; color: #6B665C">Only the cover uses this; the pages keep their own clefs.</span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #6B665C">Speed</span>
+          <div style="display: flex; gap: 8px; align-items: center">
+            <span aria-hidden="true" style="font-family: 'Noto Music', serif; font-size: 22px">♩</span>
+            <span style="font-size: 16px; color: #6B665C">=</span>
+            <input aria-label="Beats per minute" type="text" inputmode="numeric" value="72" style="width: 80px; height: 48px; box-sizing: border-box; padding: 0 12px; border: 1px solid #CFC8B8; border-radius: 10px; background: #FFFFFF; font: 500 18px 'EB Garamond', serif; color: #1C1A16; text-align: center">
+            <input aria-label="Tempo marking" type="text" value="Andante" style="flex: 1; height: 48px; box-sizing: border-box; padding: 0 12px; border: 1px solid #CFC8B8; border-radius: 10px; background: #FFFFFF; font: italic 500 16px 'EB Garamond', serif; color: #1C1A16">
+          </div>
+          <span style="font-size: 12px; color: #6B665C">One speed for the whole book. Practise uses it for the metronome.</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #6B665C">Bar numbering</span>
+          <div style="display: flex; gap: 8px; align-items: center; font-size: 14px; color: #1C1A16">
+            <span>Bar</span>
+            <input aria-label="First bar number" type="text" inputmode="numeric" value="1" style="width: 64px; height: 48px; box-sizing: border-box; padding: 0 10px; border: 1px solid #CFC8B8; border-radius: 10px; background: #FFFFFF; font: 500 18px 'EB Garamond', serif; color: #1C1A16; text-align: center">
+            <span>starts on page</span>
+            <input aria-label="Page of the first bar" type="text" inputmode="numeric" value="1" style="width: 64px; height: 48px; box-sizing: border-box; padding: 0 10px; border: 1px solid #CFC8B8; border-radius: 10px; background: #FFFFFF; font: 500 18px 'EB Garamond', serif; color: #1C1A16; text-align: center">
+          </div>
+          <span style="font-size: 12px; color: #6B665C">Later pages continue from the previous page's last bar.</span>
+        </div>
+      </div>
+
+      <span style="margin-top: auto; font-size: 12px; color: #6B665C">Read from the scan on 28 Oct · 3 pages · 46 bars. Anything here can be changed later from the book.</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":834,"height":1194}}'>
+class Component extends DCLogic {
+  renderVals() {
+    // minor keys around the circle of fifths, flats to sharps
+    const names = ['A♭','E♭','B♭','F','C','G','D','A','E','B','F♯','C♯','G♯','D♯','A♯'];
+    const accs = ['7♭','6♭','5♭','4♭','3♭','2♭','1♭','—','1♯','2♯','3♯','4♯','5♯','6♯','7♯'];
+    const keys = names.map((n, i) => {
+      const guess = n === 'G';
+      return { name: n, acc: accs[i], on: guess,
+        border: guess ? '#D8A62B' : '#CFC8B8', bg: guess ? '#FBF3DC' : '#FFFFFF', fg: '#1C1A16' };
+    });
+    const T = [['2','4'],['3','4'],['4','4'],['6','8'],['2','2'],['3','8'],['9','8'],['12','8'],['5','4'],['7','8']];
+    const times = T.map(([n, d]) => {
+      const on = n === '2' && d === '2';
+      return { n, d, on, border: on ? '#1C1A16' : '#CFC8B8', bg: on ? '#1C1A16' : '#FFFFFF', fg: on ? '#F3EFE6' : '#1C1A16' };
+    });
+    return { keys, times };
+  }
+}
+</script>
+</body>
+</html>
