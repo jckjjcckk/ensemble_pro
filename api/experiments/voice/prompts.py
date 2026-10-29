@@ -132,3 +132,49 @@ v4r2 = v4
 from app.librarian import voice_prompt as _app  # noqa: E402
 
 assert _app.RULES.split("\n", 1)[1] == RULES_V4.split("\n", 1)[1] and _app.SCHEMA == SCHEMA_LIST
+
+
+# Prompts that read both recognisers' transcripts (diarisation and push-to-talk) of the same file.
+TWO_TRANSCRIPTS: set[str] = set()
+
+_HEARD_V4 = RULES_V4[RULES_V4.index("- The transcript is machine speech recognition"):]
+assert _HEARD_V4.endswith("Numbers are usually right.")
+
+# v6: v4 with the mishearing rule made generic (no example names, no "accept/stop" = except): how much of v4 is
+# the hint written for v15 and v18?
+RULES_V6 = RULES_V4.replace(_HEARD_V4, '''- The transcript is machine speech recognition and mishears words. A word that sounds like a part, a seat nickname
+  or a member's name is that part or person. Numbers are usually right.''')
+
+
+def v6(transcript: str, facts: ScoreFacts, holdout: set[str], examples: list[dict]) -> tuple[str, str]:
+    system, user = v3(transcript, facts, holdout, examples)
+    return system, user.replace(RULES, RULES_V6)
+
+
+# v7: v4 plus fidelity of the stand text (the judge's refusals were dropped negations and invented detail).
+RULES_V7 = RULES_V4.replace('''- quote: copy a contiguous span''', '''- text keeps what was said, including negations and contrasts ("not the octave", "instead of", "the opposite");
+  never add an instruction that was not said.
+- quote: copy a contiguous span''')
+
+
+def v7(transcript: str, facts: ScoreFacts, holdout: set[str], examples: list[dict]) -> tuple[str, str]:
+    system, user = v3(transcript, facts, holdout, examples)
+    return system, user.replace(RULES, RULES_V7)
+
+
+# v8: v6's generic rules, but Spark reads both recognisers' transcripts (diarisation and push-to-talk mode of the
+# same file; they mishear differently). Does a second hearing replace the hint v4 wrote for v15 and v18?
+TWO_TRANSCRIPTS.add("v8")
+
+
+def v8(transcript: str, facts: ScoreFacts, holdout: set[str], examples: list[dict], alt: str | None = None
+       ) -> tuple[str, str]:
+    system, user = v6(transcript, facts, holdout, examples)
+    one = f"Transcript of what the conductor said:\n\"{transcript}\"\n\n"
+    assert one in user
+    if alt is None:
+        return system, user
+    two = ("Two speech recognisers transcribed the same recording and mishear differently; use both to decide what "
+           "was said. The quote must be copied exactly from one of them.\n"
+           f"Transcript 1:\n\"{transcript}\"\nTranscript 2:\n\"{alt}\"\n\n")
+    return system, user.replace(one, two)

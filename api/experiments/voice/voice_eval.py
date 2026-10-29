@@ -48,7 +48,7 @@ ASR_MODE = os.environ.get("VOICE_ASR_MODE", "DIARIZATION")
 TRANS_DIR = OUT / ("transcripts" if ASR_MODE == "DIARIZATION" else f"transcripts_{ASR_MODE.lower()}")
 RESULTS = HERE / "results"
 LEDGER = HERE / "spend.jsonl"
-BUDGET_USD = 5.0
+BUDGET_USD = 20.0  # raised from $5 by CK, 2026-10-29
 ASR_USD_PER_HOUR = 0.18
 ASR_URL = "https://api.meta.ai/v1/asr/transcribe"
 
@@ -222,12 +222,26 @@ def expected_marks(uid: str, r: dict) -> object:
             "quote": r["text"]}
 
 
+def run_tag(version: str) -> str:
+    """Cache and results name: the prompt version, suffixed by the ASR mode when it is not the default."""
+    return version if ASR_MODE == "DIARIZATION" else f"{version}_{ASR_MODE.lower()}"
+
+
+def alt_transcript(uid: str) -> str | None:
+    """The other mode's transcript of the same file, for prompts that read both recognisers."""
+    other = OUT / ("transcripts_push_to_talk" if ASR_MODE == "DIARIZATION" else "transcripts") / f"{uid}.json"
+    return json.loads(other.read_text())["transcript"] if other.exists() else None
+
+
 async def propose(version: str, uid: str, transcript: str) -> dict:
-    dst = OUT / "runs" / version / f"{uid}.json"
+    dst = OUT / "runs" / run_tag(version) / f"{uid}.json"
     if dst.exists():
         return json.loads(dst.read_text())
     build = getattr(prompts, version)
-    system, user = build(transcript, FACTS, {uid, base_id(uid)}, few_shot_pool())
+    if version in prompts.TWO_TRANSCRIPTS:
+        system, user = build(transcript, FACTS, {uid, base_id(uid)}, few_shot_pool(), alt=alt_transcript(uid))
+    else:
+        system, user = build(transcript, FACTS, {uid, base_id(uid)}, few_shot_pool())
     text, usd, took, tin, tout = await spark(system, user, tag=f"propose:{version}", uid=uid)
     rec = {"id": uid, "version": version, "reply": text, "usd": usd, "seconds": took, "input_tokens": tin,
            "output_tokens": tout, "prompt_user": user}
@@ -253,7 +267,7 @@ JUDGE_VERSION = "judge2"
 
 
 async def judge(version: str, uid: str, expect: str, marks: list[dict]) -> dict:
-    dst = OUT / "runs" / version / f"{uid}.{JUDGE_VERSION}.json"
+    dst = OUT / "runs" / run_tag(version) / f"{uid}.{JUDGE_VERSION}.json"
     if dst.exists():
         return json.loads(dst.read_text())
     shown = "; ".join(_show(m) for m in marks)
@@ -350,7 +364,10 @@ async def cmd_run(version: str) -> None:
             rec = await propose(version, uid, t["transcript"])
         try:
             ans = parse_answer(rec["reply"])
-            marks, refused = checked_marks(ans, t["transcript"], FACTS)
+            heard = t["transcript"]
+            if version in prompts.TWO_TRANSCRIPTS:  # a quote may come from either recogniser
+                heard = f"{heard}\n{alt_transcript(uid) or ''}"
+            marks, refused = checked_marks(ans, heard, FACTS)
         except Exception as e:  # noqa: BLE001
             ans, marks, refused = None, [], [f"unparseable: {e}"]
         sc = score_line(base_id(uid), r, marks)
@@ -373,10 +390,10 @@ async def cmd_run(version: str) -> None:
     retake = [r for r in rows if r["id"].endswith("c")]
     # the base lines the retakes repeat, for a like-for-like comparison
     base10 = [r for r in base if r["id"] in {base_id(x["id"]) for x in retake}]
-    res = {"version": version, "base": aggregate(base), "base_1_10": aggregate(base10) if base10 else None,
+    res = {"version": run_tag(version), "base": aggregate(base), "base_1_10": aggregate(base10) if base10 else None,
            "retakes": aggregate(retake) if retake else None, "rows": rows}
     RESULTS.mkdir(exist_ok=True)
-    (RESULTS / f"{version}.json").write_text(json.dumps(res, ensure_ascii=False, indent=1))
+    (RESULTS / f"{run_tag(version)}.json").write_text(json.dumps(res, ensure_ascii=False, indent=1))
     print(json.dumps({k: res[k] for k in ("base", "base_1_10", "retakes")}, indent=1))
     for r in rows:
         s = r["score"]

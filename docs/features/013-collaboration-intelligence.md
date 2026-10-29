@@ -84,6 +84,24 @@ and "last page" places given as `bar` with no bar); v2 rules 16/26, 20/26, 4/4; 
 $0.0040 a line (the examples cut Spark's reasoning, so v4 is also the cheaper one). Full table:
 `api/experiments/voice/results/summary.md`; transcripts `results/transcripts.md`.
 
+Round two (cap raised to $20 by CK), base all five fields / judge, retakes all five fields:
+
+| version | what changed | base | judge | retakes |
+|---|---|---|---|---|
+| v4 / v4r2 (chosen) | rules + held-out few-shot | 22/26, 21/26 | 22/26, 23/26 | 7/9, 7/9 |
+| v6 | v4 with the mishearing rule made generic (no "accept/stop" = except, no example names) | 19/26 | 24/26 | 6/9 |
+| v7 | v4 + "keep negations, add nothing" in the stand text | 20/26 | 22/26 | 7/9 |
+| v8 | v6's generic rules + both recognisers' transcripts (diarisation and push-to-talk) | 21/26 | 24/26 | 7/9 |
+| v4 on PTT transcripts | second scoring pass, other ASR mode | 20/26 | 23/26 | 6/9 |
+| v6 on PTT transcripts | second scoring pass, other ASR mode | 20/26 | 21/26 | 6/9 |
+
+Readings: the hint v4 wrote for v15/v18 is worth about two lines (v6 loses v15 "stop the cello" = except); a second
+recogniser gets most of that back without a tuned hint (v8 = v4's repeat, +$0.0003 a line for the second
+transcription), so v8 is the candidate if a second voice shows v4 overfitting. The fidelity rule (v7) moved
+nothing: the judge's refusals (v07 "end of 2", v17 lost "not") are in the transcript, not the prompt. On PTT
+transcripts the retakes drop to 6/9 (v07c loses bar 71), so DIARIZATION stays. No version, mode or pass produced a
+false positive on the 5 negatives; v11, v16, v28 (addressee absent from both transcripts) miss in every run.
+
 Honest caveats: the v2 and v4 rules were written after reading this set's misses (their examples are made up, but
 the rule topics come from these 30 lines), so 22/26 is optimistic; the retakes and a second voice are the check.
 A first v2 draft quoted scored lines' answers in its rules and was thrown away unscored ($0.26 in the ledger).
@@ -94,7 +112,8 @@ Voice Transcribe format: `afconvert -d LEI16@16000 -c 1` writes WAVE_FORMAT_EXTE
 refused ("must be a mono 16-bit PCM WAV"); the same samples rewritten with a plain 44-byte PCM header pass. PUSH_TO_TALK
 mode gave base WER 0.158 against DIARIZATION's 0.177 (within call-to-call noise; it heard "Fiddles" and "Altos"
 where diarisation heard "Vidos" and "Autos", and wrote some numbers as words); kept DIARIZATION for the speaker
-labels a long take will need. Whole eval: $1.93 of Meta spend (transcribe $0.04, propose $1.03, judge $0.86).
+labels a long take will need. Whole eval: $3.02 of Meta spend, every call in `spend.jsonl` (transcribe $0.04, propose
+$1.69, judge $1.29); round one $1.93, round two $1.09.
 
 ### Failure modes
 
@@ -125,7 +144,8 @@ labels a long take will need. Whole eval: $1.93 of Meta spend (transcribe $0.04,
 
 ## Open issues
 
-- Only one voice. A second voice (README `v01b.m4a`…) is the overfitting check for the v4 rules.
+- Only one voice. A second voice (README `v01b.m4a`…) is the overfitting check: run v4 and v8 on it; keep v4
+  unless v8 wins there.
 - No long continuous take yet: a rehearsal recording needs splitting into utterances before the one-call-per-line
   step. Planned splitter: Silero VAD (or Voice Transcribe's own `ENDPOINTING`/`DIARIZATION` turns, to compare),
   each turn to Spark with the previous turn as context.
