@@ -21,11 +21,14 @@ async function request<T>(path: string, token: string, body?: unknown, method?: 
   } catch {
     throw new ApiError(0, 'The librarian could not be reached. Check the connection and try again.')
   }
-  if (!res.ok) {
-    const detail = (await res.json().catch(() => ({})))?.detail
-    throw new ApiError(res.status, typeof detail === 'string' ? detail : `The librarian could not do that just now (error ${res.status}). Try again in a moment.`)
-  }
+  if (!res.ok) throw await refusal(res)
   return res.json() as Promise<T>
+}
+
+/** A refused call as an `ApiError` carrying the API's own words (`detail`), else a plain sentence. */
+async function refusal(res: Response): Promise<ApiError> {
+  const detail = (await res.json().catch(() => ({})))?.detail
+  return new ApiError(res.status, typeof detail === 'string' ? detail : `The librarian could not do that just now (error ${res.status}). Try again in a moment.`)
 }
 
 export async function apiHealth(): Promise<{ status: string }> {
@@ -97,4 +100,26 @@ export function apiFailure(e: unknown, what: string): string {
     return e.message
   }
   return (e as Error)?.message ?? 'Something went wrong.'
+}
+
+/** Feature 013, voice notes: one push-to-talk recording. `POST /scores/{id}/voice` with the WAV itself as the body
+ *  (`audio/wav`: mono, 16-bit PCM, 16 kHz, a plain 44-byte header, at most 2 min); the mark layer the stand shows is
+ *  `ensemble_id` (left out for the book's own layer). 202 `{job_id, utterance_id}`; the `transcribe_voice` job then
+ *  writes the proposals as `annotations` with `status = 'proposed'`. */
+export interface VoiceStart { job_id: string; utterance_id: string }
+export async function sendVoice(scoreId: string, wav: Blob, where: { ensembleId: string | null; sessionId?: string | null }, token: string): Promise<VoiceStart> {
+  const q = new URLSearchParams()
+  if (where.ensembleId) q.set('ensemble_id', where.ensembleId)
+  if (where.sessionId) q.set('session_id', where.sessionId)
+  const qs = q.toString()
+  let res: Response
+  try {
+    res = await fetch(`${apiBase}/scores/${scoreId}/voice${qs ? `?${qs}` : ''}`, {
+      method: 'POST', headers: { 'Content-Type': 'audio/wav', Authorization: `Bearer ${token}` }, body: wav,
+    })
+  } catch {
+    throw new ApiError(0, 'The librarian could not be reached. Check the connection and try again.')
+  }
+  if (!res.ok) throw await refusal(res)
+  return res.json() as Promise<VoiceStart>
 }

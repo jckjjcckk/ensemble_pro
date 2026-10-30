@@ -1,0 +1,189 @@
+/* Voice notes (013, VoiceNotes.tsx): the push-to-talk pill, the tray's proposed cards and the ghosts on the page. Values
+   from docs/design liquid_glass M5_GlassSurface and the glass probe: a light frost (1.2 px), a silver hairline rim, a
+   glint; listening lights the glass from inside in Muse blue, brighter with the voice (--level, 0..1); placing a note
+   drifts a soft multicolour wash through it. Muse blue (--muse) is used here only. No SVG refraction: the frost is a
+   plain backdrop-filter, which iPad Safari and the app's webview draw. */
+
+/* ---------------------------------------------------------------- the glass */
+
+.fo .vglass {
+  --level: 0;
+  position: relative; isolation: isolate; border: 0;
+  background: hsl(0 0% 100% / 0.14);
+  -webkit-backdrop-filter: blur(1.2px) saturate(1.2) brightness(1.03);
+  backdrop-filter: blur(1.2px) saturate(1.2) brightness(1.03);
+  box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.12) inset, 0 0 10px 4px rgba(0, 0, 0, 0.06) inset, 0 4px 16px rgba(17, 17, 26, 0.06), 0 12px 36px rgba(17, 17, 26, 0.08);
+  color: var(--text);
+}
+.fo .vglass > .v-glow, .fo .vglass > .v-wash, .fo .vglass > .v-glint, .fo .vglass > .v-rim {
+  position: absolute; inset: 0; z-index: 0; border-radius: inherit; pointer-events: none;
+}
+.fo .vglass > .v-rim {
+  padding: 1.5px;
+  background: linear-gradient(150deg, hsl(0 0% 100% / 0.9), hsl(0 0% 100% / 0.12) 42%, hsl(0 0% 100% / 0.06) 62%, hsl(0 0% 100% / 0.55));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.fo .vglass > .v-glint { background: radial-gradient(120% 60% at 30% 0%, hsl(0 0% 100% / 0.35), transparent 55%); }
+.fo .vglass > .v-glow { opacity: 0; transition: opacity 180ms cubic-bezier(0.16, 1, 0.3, 1); }
+.fo .vglass > .v-wash { overflow: hidden; opacity: 0; transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1); }
+.fo .vglass > .v-wash::before {
+  content: ''; position: absolute; inset: -70% -30%;
+  background:
+    radial-gradient(closest-side at 18% 72%, #B68CF2, transparent),
+    radial-gradient(closest-side at 32% 26%, #9DBBFF, transparent),
+    radial-gradient(closest-side at 46% 48%, #F3A27E, transparent),
+    radial-gradient(closest-side at 66% 40%, #F6BE4F, transparent),
+    radial-gradient(closest-side at 58% 86%, #A9D266, transparent),
+    radial-gradient(closest-side at 88% 18%, #FFF7DF, transparent),
+    #F7E9E4;
+  filter: blur(12px);
+  animation: v-drift 11s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes v-drift {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  50% { transform: translate(6%, -8%) rotate(28deg) scale(1.12); }
+  100% { transform: translate(-6%, 6%) rotate(-18deg) scale(1.04); }
+}
+
+/* Lit: the glass itself glows, light pooling at the rim like edge-lit acrylic, the halo spilling out. */
+.fo .vglass.is-lit, .fo .v-pill[data-state='listening'] {
+  box-shadow: 0 0 0 1px rgb(var(--muse-rgb) / calc(0.25 + 0.3 * var(--level))), 0 0 calc(14px + 22px * var(--level)) rgb(var(--muse-rgb) / calc(0.22 + 0.38 * var(--level))), 0 8px 24px rgba(17, 17, 26, 0.08);
+}
+.fo .vglass.is-lit > .v-glow, .fo .v-pill[data-state='listening'] > .v-glow {
+  opacity: 1;
+  background: radial-gradient(90% 120% at 50% 50%, rgb(var(--muse-rgb) / 0.06), rgb(var(--muse-rgb) / calc(0.14 + 0.16 * var(--level))));
+  box-shadow: inset 0 0 calc(10px + 12px * var(--level)) calc(1px + 3px * var(--level)) rgb(var(--muse-rgb) / calc(0.35 + 0.4 * var(--level))), inset 0 0 2px 1px rgba(210, 230, 255, 0.9);
+}
+.fo .vglass.is-lit > .v-glint, .fo .v-pill[data-state='listening'] > .v-glint { background: radial-gradient(120% 60% at 30% 0%, hsl(214 100% 97% / 0.55), transparent 55%); }
+.fo .vglass.is-lit > .v-rim, .fo .v-pill[data-state='listening'] > .v-rim { background: linear-gradient(150deg, #fff, rgb(150 195 255 / 0.95) 30%, rgb(var(--muse-rgb) / 0.55) 62%, #d6e7ff); }
+
+/* Placing the note: the wash drifts through the pane. It is pale in both themes, so the words over it stay dark. */
+.fo .v-pill[data-state='working'] { color: #1C1A16; box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.08) inset, 0 4px 16px rgba(17, 17, 26, 0.06), 0 12px 36px rgba(17, 17, 26, 0.08); }
+.fo .v-pill[data-state='working'] > .v-wash { opacity: 0.82; }
+.fo .v-pill[data-state='working'] > .v-wash::before { animation-play-state: running; }
+
+/* ---------------------------------------------------------------- the button */
+
+/* Bottom right, in thumb reach: inside the page-turn edge, clear of the composer and the Follow pill (bottom centre);
+   raised over the zoom map while a page is zoomed. */
+.fo .v-dock {
+  position: absolute; z-index: 8; right: calc(60px + env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom));
+  display: flex; flex-direction: column; align-items: flex-end; gap: 10px; pointer-events: none;
+  transition: bottom 180ms var(--ease);
+}
+.fo .v-dock.is-lifted { bottom: calc(132px + env(safe-area-inset-bottom)); }
+.fo .v-dock > * { pointer-events: auto; }
+.fo .v-dock.is-under { visibility: hidden; }
+.fo .v-row { display: flex; align-items: center; gap: 10px; }
+
+.fo .v-pill {
+  width: 236px; height: 56px; padding: 0; border-radius: 28px; font: 600 14px/1 var(--font-ui);
+  touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
+  transition: transform 120ms var(--ease), box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fo .v-pill:active { transform: scale(0.98); }
+.fo .v-pill-in { position: relative; z-index: 1; height: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; pointer-events: none; }
+.fo .v-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--muse); box-shadow: 0 0 10px rgb(var(--muse-rgb) / 0.9); }
+.fo .v-time { font-size: 17px; letter-spacing: 0.04em; }
+
+.fo .v-count { height: 48px; padding: 0 16px; border-radius: 24px; display: inline-flex; align-items: center; gap: 7px; font: 500 13px/1 var(--font-ui); }
+.fo .v-count > span:not([aria-hidden]) { position: relative; z-index: 1; }
+.fo .v-count-n { font-size: 17px; color: var(--muse); }
+
+/* One line over the button: how it works after a tap, or what went wrong with a retry. */
+.fo .v-say {
+  display: flex; align-items: center; gap: 4px; max-width: min(460px, calc(100vw - 92px)); min-height: 44px; padding: 4px 4px 4px 14px;
+  border: 1px solid var(--line-2); border-radius: 12px; background: var(--paper); box-shadow: var(--menu-shadow);
+  font: 500 13px/1.3 var(--font-ui); color: var(--text);
+}
+.fo p.v-say { padding-right: 14px; }
+.fo .v-say.is-problem > span { flex: 1; min-width: 0; color: var(--fail); }
+.fo .v-say-btn { flex: none; height: 36px; padding: 0 12px; border: 0; border-radius: 9px; background: var(--seg); font: 600 13px/1 var(--font-ui); color: var(--text); position: relative; }
+.fo .v-say-btn::after { content: ''; position: absolute; inset: -4px 0; }
+.fo .v-say-x { flex: none; display: inline-grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 9px; background: transparent; color: var(--text-3); }
+
+/* Choosing a bar for something Muse could not place. */
+.fo .v-pickhint {
+  position: absolute; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 9; --level: 0.25;
+  display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 6px 0 20px; border-radius: 28px; max-width: calc(100% - 140px);
+  background: var(--paper);
+}
+.fo .v-pickhint-text { position: relative; z-index: 1; font: 500 14px/1.2 var(--font-ui); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.fo .v-pickhint .v-btn { position: relative; z-index: 1; }
+
+/* ---------------------------------------------------------------- ghosts on the page */
+
+.fo .v-ghost {
+  position: absolute; z-index: 2; padding: 0; border-radius: 10px; pointer-events: auto; --level: 0.45;
+  background: hsl(0 0% 100% / 0.1);
+  box-shadow: 0 0 0 1px rgb(var(--muse-rgb) / calc(0.25 + 0.3 * var(--level))), 0 0 calc(14px + 22px * var(--level)) rgb(var(--muse-rgb) / calc(0.22 + 0.38 * var(--level)));
+  transition: box-shadow 180ms var(--ease);
+}
+.fo .v-ghost > .v-glow {
+  opacity: 1;
+  background: radial-gradient(90% 120% at 50% 50%, rgb(var(--muse-rgb) / 0.04), rgb(var(--muse-rgb) / calc(0.08 + 0.12 * var(--level))));
+  box-shadow: inset 0 0 calc(8px + 10px * var(--level)) calc(1px + 2px * var(--level)) rgb(var(--muse-rgb) / calc(0.3 + 0.4 * var(--level)));
+}
+.fo .v-ghost > .v-rim { background: linear-gradient(150deg, #fff, rgb(150 195 255 / 0.95) 30%, rgb(var(--muse-rgb) / 0.55) 62%, #d6e7ff); }
+.fo .v-ghost.is-focus { --level: 1; }
+.fo .v-ghost-label {
+  position: absolute; left: 4px; top: -21px; z-index: 1; padding: 2px 5px; border-radius: 4px; background: var(--pg, var(--card));
+  font: 500 11px/1.1 var(--font-ui); color: var(--pg-muse, var(--muse)); white-space: nowrap; pointer-events: none;
+}
+
+/* ---------------------------------------------------------------- the tray */
+
+.fo .v-groups { display: flex; flex-direction: column; gap: 26px; }
+.fo .v-group { display: flex; flex-direction: column; gap: 12px; }
+.fo .v-group-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.fo .v-heard { font: italic 400 16px/1.4 var(--font-title); color: var(--text); }
+.fo .v-muse { flex: none; font: 500 11px/1 var(--font-ui); color: var(--muse); white-space: nowrap; }
+.fo .v-group-msg { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; font-size: 14px; color: var(--text-3); }
+.fo .v-group-msg > span { flex: 1 1 auto; }
+.fo .v-group-msg.is-problem > span { color: var(--fail); }
+.fo .v-refused { font-size: 13px; line-height: 1.4; color: var(--text-3); }
+.fo .v-all { align-self: flex-start; }
+
+.fo .v-card { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 18px; transition: box-shadow 180ms var(--ease), opacity 160ms var(--ease); }
+.fo .v-card > :not(.v-glow):not(.v-wash):not(.v-glint):not(.v-rim) { position: relative; z-index: 1; }
+.fo .v-card.is-focus { --level: 0.3; box-shadow: 0 0 0 1px rgb(var(--muse-rgb) / 0.4), 0 0 18px rgb(var(--muse-rgb) / 0.25), 0 8px 24px rgba(17, 17, 26, 0.08); }
+.fo .v-card.is-busy { opacity: 0.7; }
+.fo .v-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 24px; }
+.fo .v-kind { display: inline-flex; align-items: center; gap: 6px; font: 600 12px/1.2 var(--font-ui); color: var(--text-2); }
+.fo .v-place { height: 44px; margin: -10px -4px; padding: 0 4px; border: 0; background: none; font-size: 14px; color: var(--text); white-space: nowrap; }
+.fo .v-place.is-none { display: inline-flex; align-items: center; font: 400 13px/1.2 var(--font-ui); color: var(--text-3); }
+.fo .v-text { font-size: 16px; font-weight: 500; line-height: 1.35; }
+.fo .v-input { height: 44px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--input); font: 500 16px/1 var(--font-ui); color: var(--text); }
+.fo .v-input:focus { outline: 2px solid var(--text); outline-offset: 1px; border-color: transparent; }
+.fo .v-bars { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.fo .v-step { display: inline-flex; align-items: center; gap: 6px; }
+.fo .v-step .r3-label { margin-right: 2px; }
+.fo .v-step-btn { width: 44px; height: 44px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--card); font: 400 20px/1 var(--font-ui); color: var(--text); }
+.fo .v-step-val { min-width: 34px; text-align: center; font-size: 18px; }
+.fo .v-who, .fo .v-pick-list { display: flex; flex-wrap: wrap; gap: 8px 6px; }
+.fo .v-pick-list { padding: 10px; border-radius: 12px; background: var(--wash); }
+.fo .v-chip {
+  position: relative; height: 32px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 16px; background: var(--card);
+  font: 500 13px/1 var(--font-ui); color: var(--text); white-space: nowrap;
+}
+.fo .v-chip::after { content: ''; position: absolute; inset: -6px -2px; }
+.fo .v-chip.is-on, .fo .v-chip[aria-pressed='true'] { background: var(--solid); color: var(--on-solid); border-color: transparent; }
+.fo .v-chip.is-on:disabled { opacity: 1; }
+.fo .v-chip.is-person:not([aria-pressed='true']) { border-style: dashed; }
+.fo .v-quote { font: italic 400 14.5px/1.45 var(--font-title); color: var(--text-2); padding-left: 10px; border-left: 1px solid var(--line-2); user-select: text; -webkit-user-select: text; }
+.fo .v-acts { display: flex; gap: 6px; margin-top: 2px; }
+.fo .v-btn { height: 44px; padding: 0 14px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--card); font: 500 14px/1 var(--font-ui); color: var(--text); white-space: nowrap; transition: transform 120ms var(--ease), background-color 140ms var(--ease); }
+.fo .v-btn.is-accept { flex: 1; border-color: transparent; background: var(--solid); color: var(--on-solid); font-weight: 600; }
+.fo .v-btn.is-quiet { border-color: transparent; background: transparent; color: var(--text-2); }
+.fo .v-btn[aria-pressed='true'] { background: var(--seg); }
+.fo .v-btn:disabled { opacity: 0.55; }
+.fo .v-btn:active:not(:disabled) { transform: scale(0.97); transition-duration: 40ms; }
+
+/* ---------------------------------------------------------------- reduced motion: no drift, a steady glow */
+
+@media (prefers-reduced-motion: reduce) {
+  .fo .vglass > .v-wash::before { animation: none; }
+  .fo .vglass, .fo .vglass > .v-glow, .fo .vglass > .v-wash, .fo .v-dock, .fo .v-card, .fo .v-ghost { transition: none; }
+}

@@ -361,21 +361,21 @@
    by screening its black onto the leaf), so a highlight under the notes shows through the page. */
 .fo .stand {
   --pg: #FBF9F4; --pg-edge: transparent; --pg-label: #6B665C; --pg-shadow: 0 1px 0 #D9D3C5, 0 10px 30px rgba(28, 26, 22, 0.10);
-  --pg-filter: none; --pg-blend: multiply; --pg-ink: #1C1A16;
+  --pg-filter: none; --pg-blend: multiply; --pg-ink: #1C1A16; --pg-muse: #0066E8;
   --mark: rgba(240, 216, 120, 0.55);
   --qm-bg: var(--card); --qm-text: var(--text); --qm-muted: var(--text-3); --qm-line: var(--line-3); --qm-border: var(--line-2);
 }
 @media (prefers-color-scheme: dark) {
-  .fo:not([data-theme='light']) .stand { --pg: #D8D2C2; --pg-label: #4D4840; --pg-shadow: 0 14px 40px rgba(0, 0, 0, 0.5); --mark: rgba(230, 200, 90, 0.55); }
+  .fo:not([data-theme='light']) .stand { --pg: #D8D2C2; --pg-label: #4D4840; --pg-shadow: 0 14px 40px rgba(0, 0, 0, 0.5); --mark: rgba(230, 200, 90, 0.55); --pg-muse: #0052BD; }
   .fo:not([data-theme='light'])[data-page='invert'] .stand {
-    --pg: #26241F; --pg-edge: #3A372F; --pg-label: #A39C8C; --pg-shadow: none; --pg-filter: invert(0.93) hue-rotate(180deg); --pg-blend: screen; --pg-ink: #EDE7D8;
+    --pg: #26241F; --pg-edge: #3A372F; --pg-label: #A39C8C; --pg-shadow: none; --pg-filter: invert(0.93) hue-rotate(180deg); --pg-blend: screen; --pg-ink: #EDE7D8; --pg-muse: #5AA2FF;
     --mark: rgba(224, 176, 60, 0.30);
     --qm-bg: #EDE7D8; --qm-text: #1C1A16; --qm-muted: #6B665C; --qm-line: #D9D3C5; --qm-border: transparent;
   }
 }
-.fo[data-theme='dark'] .stand { --pg: #D8D2C2; --pg-label: #4D4840; --pg-shadow: 0 14px 40px rgba(0, 0, 0, 0.5); --mark: rgba(230, 200, 90, 0.55); }
+.fo[data-theme='dark'] .stand { --pg: #D8D2C2; --pg-label: #4D4840; --pg-shadow: 0 14px 40px rgba(0, 0, 0, 0.5); --mark: rgba(230, 200, 90, 0.55); --pg-muse: #0052BD; }
 .fo[data-theme='dark'][data-page='invert'] .stand {
-  --pg: #26241F; --pg-edge: #3A372F; --pg-label: #A39C8C; --pg-shadow: none; --pg-filter: invert(0.93) hue-rotate(180deg); --pg-blend: screen; --pg-ink: #EDE7D8;
+  --pg: #26241F; --pg-edge: #3A372F; --pg-label: #A39C8C; --pg-shadow: none; --pg-filter: invert(0.93) hue-rotate(180deg); --pg-blend: screen; --pg-ink: #EDE7D8; --pg-muse: #5AA2FF;
   --mark: rgba(224, 176, 60, 0.30);
   --qm-bg: #EDE7D8; --qm-text: #1C1A16; --qm-muted: #6B665C; --qm-line: #D9D3C5; --qm-border: transparent;
 }

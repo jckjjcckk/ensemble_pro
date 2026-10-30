@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Folio photographs the pages of a printed score so the librarian can read them into the ensemble's library.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Folio listens only while you hold the voice button, to turn what you say into marks on the music.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Folio can save a page or an exported file to your photo library when you ask it to.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

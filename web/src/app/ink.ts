@@ -78,17 +78,39 @@ const tempId = (p: string) => `${p}-${Date.now().toString(36)}-${(seq++).toStrin
  */
 export type Layer = string | null | undefined
 
-/** An annotation as the reader holds it: the stored record, its bars resolved to numbers. */
-interface Rec {
+/** An annotation as the reader holds it: the stored record, its bars resolved to numbers. `proposed` rows are voice
+ *  proposals (013) waiting for the admin: never drawn as marks, only as ghosts and tray cards. */
+export interface MarkRec {
   id: string; scoreId: string; kind: AnnotationKind; body: string | null
-  audience: 'ensemble' | 'part' | 'member'; audiencePart: string | null
+  audience: 'ensemble' | 'part' | 'member'; audiencePart: string | null; audienceMember: string | null
   authorId: string; createdAt: string; barFrom: number; barTo: number
+  status: 'live' | 'proposed'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payload: Record<string, any> | null
+}
+type Rec = MarkRec
+
+/** Who one stored row is for. */
+export type Who = { audience: 'ensemble' } | { audience: 'part'; part: string } | { audience: 'member'; member: string }
+export const whoOf = (r: Pick<Rec, 'audience' | 'audiencePart' | 'audienceMember'>): Who =>
+  r.audience === 'part' && r.audiencePart ? { audience: 'part', part: r.audiencePart }
+    : r.audience === 'member' && r.audienceMember ? { audience: 'member', member: r.audienceMember }
+      : { audience: 'ensemble' }
+export const sameWho = (a: Who, b: Who) =>
+  a.audience === b.audience && (a.audience !== 'part' || a.part === (b as typeof a).part) && (a.audience !== 'member' || a.member === (b as typeof a).member)
+
+/** A row to write in one `commit`: a change to a held row (only the fields given), or a new one. */
+export interface MarkPatch { id: string; body?: string | null; barFrom?: number; barTo?: number; who?: Who; status?: 'live' | 'proposed' }
+export interface MarkInsert {
+  kind: AnnotationKind; body: string | null; barFrom: number; barTo: number; who: Who; status: 'live' | 'proposed'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payload: Record<string, any>
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Row = Record<string, any>
 
-const COLS = 'id,score_id,kind,body,payload,audience,audience_part,author_id,status,created_at,measure_from,measure_to'
+const COLS = 'id,score_id,kind,body,payload,audience,audience_part,audience_member_id,author_id,status,created_at,measure_from,measure_to'
 const BARS = 'mf:measures!annotations_measure_from_fkey(number),mt:measures!annotations_measure_to_fkey(number)'
 const markSelect = () => `${COLS}${layerColumn.missing ? '' : ',ensemble_id'},${BARS}`
 
@@ -104,8 +126,9 @@ function toRec(r: Row, bars: Map<string, number>): Rec | null {
   const to = posInt(r.mt?.number) ?? bars.get(r.measure_to) ?? posInt(r.payload?.bar_to) ?? from
   return {
     id: r.id, scoreId: r.score_id, kind: r.kind, body: r.body ?? null, audience: r.audience,
-    audiencePart: r.audience_part ?? null, authorId: r.author_id, createdAt: r.created_at ?? new Date().toISOString(),
-    barFrom: from, barTo: to,
+    audiencePart: r.audience_part ?? null, audienceMember: r.audience_member_id ?? null, authorId: r.author_id,
+    createdAt: r.created_at ?? new Date().toISOString(), barFrom: from, barTo: to,
+    status: r.status === 'proposed' ? 'proposed' : 'live', payload: r.payload ?? null,
   }
 }
 
@@ -214,7 +237,8 @@ export function useBarMarks(scoreId: string, me: Me | null, opts: { partIdByName
   }, [synced, refetch])
   const status = useLiveRows(synced ? scoreId : null, ['annotations'], apply, () => void refetch())
 
-  const rows = useMemo<BarMark[]>(() => recs.map(r => {
+  // Proposed rows (013) are the admin's to confirm: they never draw as marks (pins, margin, cuts, the ruler).
+  const rows = useMemo<BarMark[]>(() => recs.filter(r => r.status !== 'proposed').map(r => {
     const mine = r.authorId === me?.userId
     return {
       id: r.id, scoreId: r.scoreId, kind: r.kind,
@@ -227,6 +251,8 @@ export function useBarMarks(scoreId: string, me: Me | null, opts: { partIdByName
   }), [recs, me, authors, partIds, arrivals.ids])
 
   const marks = synced ? rows : local
+  /** The reader's own voice proposals on this layer, waiting in the tray. */
+  const proposed = useMemo(() => recs.filter(r => r.status === 'proposed' && r.authorId === me?.userId), [recs, me?.userId])
 
   const add = useCallback(async (n: NewMark): Promise<void> => {
     const m = meRef.current
@@ -246,7 +272,8 @@ export function useBarMarks(scoreId: string, me: Me | null, opts: { partIdByName
     pending.current.add(id)
     upsert({
       id, scoreId, kind: n.kind, body: n.text ?? null, audience, audiencePart: typeof aud === 'object' ? aud.part : null,
-      authorId: m!.userId!, createdAt: new Date().toISOString(), barFrom: n.barFrom, barTo,
+      audienceMember: null, authorId: m!.userId!, createdAt: new Date().toISOString(), barFrom: n.barFrom, barTo,
+      status: 'live', payload: null,
     })
     try {
       const nums = [...new Set([n.barFrom, barTo])]
@@ -300,7 +327,89 @@ export function useBarMarks(scoreId: string, me: Me | null, opts: { partIdByName
     return add({ kind: 'highlight', barFrom: bar, audience: 'ensemble', part })
   }, [marks, add, remove])
 
-  return { marks, add, remove, toggleHighlight, synced, error, live: status }
+  /**
+   * Several row writes as one step (013, accepting or dismissing a voice proposal): removes, changes to held rows and
+   * new rows, applied here at once and then written. Bars are given as numbers and resolved to `measures.id`. On a
+   * refusal the score's rows are fetched again, so the screen shows what the database holds. Resolves to whether
+   * every write went through.
+   */
+  const commit = useCallback(async (w: { remove?: string[]; update?: MarkPatch[]; insert?: MarkInsert[] }): Promise<boolean> => {
+    if (!synced) return false
+    const m = meRef.current
+    const del = w.remove ?? [], upd = w.update ?? []
+    const ins = (w.insert ?? []).map(x => ({ ...x, id: newId() }))
+    const now = new Date().toISOString()
+    const patched = (r: Rec, p: MarkPatch): Rec => {
+      const who = p.who ?? whoOf(r)
+      return {
+        ...r, body: p.body !== undefined ? p.body : r.body, barFrom: p.barFrom ?? r.barFrom, barTo: p.barTo ?? r.barTo, status: p.status ?? r.status,
+        audience: who.audience, audiencePart: who.audience === 'part' ? who.part : null, audienceMember: who.audience === 'member' ? who.member : null,
+      }
+    }
+    del.forEach(id => removing.current.add(id))
+    upd.forEach(p => pending.current.add(p.id))
+    ins.forEach(x => pending.current.add(x.id))
+    setRecs(xs => [
+      ...xs.filter(x => !del.includes(x.id)).map(x => { const p = upd.find(u => u.id === x.id); return p ? patched(x, p) : x }),
+      ...ins.map(x => patched({
+        id: x.id, scoreId, kind: x.kind, body: x.body, audience: 'ensemble', audiencePart: null, audienceMember: null,
+        authorId: m!.userId!, createdAt: now, barFrom: x.barFrom, barTo: x.barTo, status: x.status, payload: x.payload,
+      }, { id: x.id, who: x.who })),
+    ])
+    const whoCols = (who: Who) => ({
+      audience: who.audience, audience_part: who.audience === 'part' ? who.part : null, audience_member_id: who.audience === 'member' ? who.member : null,
+    })
+    try {
+      const nums = [...new Set([...upd.flatMap(p => [p.barFrom, p.barTo]), ...ins.flatMap(x => [x.barFrom, x.barTo])].filter((n): n is number => n != null))]
+      const idOf = new Map<number, string>()
+      if (nums.length) {
+        const { data, error: e1 } = await supabase.rpc('measure_ids', { p_score: scoreId, p_numbers: nums })
+        if (e1) throw e1
+        for (const r of data as { number: number; id: string }[]) { idOf.set(r.number, r.id); bars.current.set(r.id, r.number) }
+        const missing = nums.find(n => !idOf.has(n))
+        if (missing != null) throw new Error(`This score has no bar ${missing}.`)
+      }
+      if (del.length) {
+        const { error: e } = await supabase.from('annotations').delete().in('id', del)
+        if (e) throw e
+      }
+      for (const p of upd) {
+        const row: Row = {
+          ...(p.status ? { status: p.status } : {}), ...(p.body !== undefined ? { body: p.body } : {}),
+          ...(p.barFrom != null ? { measure_from: idOf.get(p.barFrom) } : {}), ...(p.barTo != null ? { measure_to: idOf.get(p.barTo) } : {}),
+          ...(p.who ? whoCols(p.who) : {}),
+        }
+        const { data, error: e } = await supabase.from('annotations').update(row).eq('id', p.id).select(markSelect()).single()
+        if (e) throw e
+        const rec = toRec(data as unknown as Row, bars.current)
+        if (rec) upsert(rec)
+      }
+      if (ins.length) {
+        const lay = layerRef.current
+        const rows: Row[] = ins.map(x => ({
+          id: x.id, score_id: scoreId, kind: x.kind, measure_from: idOf.get(x.barFrom), measure_to: idOf.get(x.barTo),
+          author_id: m!.userId, body: x.body, status: x.status, payload: { ...x.payload, bar: x.barFrom, bar_to: x.barTo }, ...whoCols(x.who),
+          ...(lay !== undefined && !layerColumn.missing ? { ensemble_id: lay } : {}),
+        }))
+        const { data, error: e } = await supabase.from('annotations').insert(rows).select(markSelect())
+        if (e) throw e
+        for (const r of (data ?? []) as unknown as Row[]) { const rec = toRec(r, bars.current); if (rec) upsert(rec) }
+      }
+      setError(null)
+      return true
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String((e as { message?: string })?.message ?? e))
+      // After a refusal the optimistic rows are wrong: read the truth again, once the guards above are let go.
+      window.setTimeout(() => void refetch(), 0)
+      return false
+    } finally {
+      del.forEach(id => removing.current.delete(id))
+      upd.forEach(p => pending.current.delete(p.id))
+      ins.forEach(x => pending.current.delete(x.id))
+    }
+  }, [scoreId, synced, upsert, refetch])
+
+  return { marks, proposed, add, remove, commit, toggleHighlight, synced, error, live: status }
 }
 
 // ---------------------------------------------------------------- scribbles

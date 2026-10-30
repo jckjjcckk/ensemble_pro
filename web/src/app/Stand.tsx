@@ -6,7 +6,7 @@
  *  page images and engraved digital pages are the same stage (`EngravedStage`); a single part or a split without
  *  engraved pages is engraved on the device (`ScoreStage`). Three appearances: light, dark with the paper dimmed, dark
  *  with the page inverted (the account menu). */
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { AnimatePresence, motion } from 'motion/react'
 import type { Annotation, AnnotationKind, Engraving, Member, Score } from '../mock'
@@ -30,6 +30,8 @@ import { bookShare, bookState } from './book'
 import { faceColor } from './GroupsDialog'
 import { StaffQuestion } from './StaffQuestion'
 import { ScanPatches, UnreadablePages, useBarDecisions } from './CheckBars'
+import { useVoice, type Card } from './voice'
+import { PickHint, VoiceButton, VoiceGhosts, VoiceTray } from './VoiceNotes'
 
 type Tool = null | 'marking' | 'cut' | 'voice'
 
@@ -213,6 +215,24 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
   const [inkColor, setInkColor] = useState<PenColor>('ink')
   const [switching, setSwitching] = useState(false)
 
+  // Voice notes (013): whoever leads the layer on screen (a group's admin, a book's owner) speaks marks; Muse proposes,
+  // they confirm. Proposals live in Supabase, so only a synced book has them.
+  const canVoice = canCut && quick.synced
+  const [trayOpen, setTrayOpen] = useState(false)
+  const [voiceFocus, setVoiceFocus] = useState<string | null>(null)
+  const [picking, setPicking] = useState<Card | null>(null)
+  const listening = useRef(false)
+  const voice = useVoice({
+    scoreId: score.id, layer, token: session?.access_token ?? null, proposed: canVoice ? quick.proposed : [],
+    // A take that found something opens the tray, unless the admin is in the middle of another tool.
+    onArrive: () => { if (!tool && !scribble && !menu.menu && !picking && !listening.current) setTrayOpen(true) },
+  })
+  const voiceCards = useMemo(() => voice.groups.flatMap(g => g.cards), [voice.groups])
+  const roster = useMemo(() => ({
+    parts: ensemble ? parts.map(p => p.name) : [],
+    members: (ensemble?.members ?? []).map(m => ({ id: m.id, name: memberName(m) })),
+  }), [ensemble, parts])
+
   // Follow the admin (players): the spread follows the admin's bar; the reader's own turn lets go.
   const [following, setFollowing] = useState(false)
   const canFollow = hasPresence && role === 'player'
@@ -248,7 +268,12 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [annotations, quick.marks, score.id, isFull, isSplit, splitKey, partSel, filterMine],
   )
-  const cuts = visible.filter(a => a.kind === 'cut').map(a => ({ from: a.barFrom, to: a.barTo, arriving: a.arriving, label: `Cut ${barRange(a.barFrom, a.barTo)} · ${a.text ?? ''}`.replace(/ · $/, '') }))
+  // A voice cut's text is already "Cut 42–48" (013): say it once.
+  const cuts = visible.filter(a => a.kind === 'cut').map(a => {
+    const title = `Cut ${barRange(a.barFrom, a.barTo)}`
+    const text = (a.text ?? '').trim()
+    return { from: a.barFrom, to: a.barTo, arriving: a.arriving, label: text && text.replace(/[–-]/g, '-') !== title.replace(/[–-]/g, '-') ? `${title} · ${text}` : title }
+  })
   const bubbles = visible.filter(a => a.kind !== 'cut' && a.kind !== 'highlight')
   const inkRows = filterMine ? ink.rows.filter(r => r.userId === ink.uid) : ink.rows
 
@@ -282,6 +307,13 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
   }
 
   const onBarTap = (bar: number) => {
+    if (picking?.unplaced) {
+      voice.placeUnplaced(picking.unplaced.takeKey, picking.unplaced.id, bar)
+      setVoiceFocus(picking.key)
+      setPicking(null)
+      setTrayOpen(true)
+      return
+    }
     if (tool === 'marking' || tool === 'voice') setDraftBar(bar)
     else if (tool === 'cut') setDraftSpan(s => (bar < s.from ? { from: bar, to: s.to } : { from: s.from, to: bar }))
     else if (pin) setPin(null)
@@ -331,6 +363,7 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
         <UnreadablePages geo={g} score={score} shown={shownScans} rescanMsg={rescanMsg}
           onShow={p => setShownScans(s => new Set(s).add(p))} onRescan={p => setRescanMsg(p)} />
       )}
+      {canVoice && <VoiceGhosts geo={g} cards={voiceCards} focus={voiceFocus} onOpen={k => { setVoiceFocus(k); setTrayOpen(true) }} />}
       <Bubbles geo={g} items={bubbles} big={!!z} selected={pin} colorOf={colorOf} nameOf={nameOf} faceOf={a => initials(membersById[a.authorId]?.name ?? nameOf(a))} onSelect={a => { setPin(a.id); menu.tap(a.barFrom) }} />
       <EdgeFaces geo={g} people={online} zoom={z ?? null} colorOf={colorOf} onJump={jump} />
       <InkLayer
@@ -449,7 +482,7 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
                 <span className="r3-label">Add</span>
                 <button type="button" role="menuitem" className="sm-item" onClick={() => startTool('marking')}>A marking</button>
                 <button type="button" role="menuitem" className="sm-item" onClick={() => startTool('cut')}>A cut</button>
-                <button type="button" role="menuitem" className="sm-item" onClick={() => startTool('voice')}>A voice note</button>
+                {!canVoice && <button type="button" role="menuitem" className="sm-item" onClick={() => startTool('voice')}>A voice note</button>}
               </div>
             )}
             {pages && pdfFile && <button type="button" role="menuitem" className="sm-item" onClick={() => { setMoreOpen(false); void openPdfFile() }}>Open the PDF file</button>}
@@ -566,6 +599,10 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
           )}
         </AnimatePresence>
         <AnimatePresence initial={false}>{composer}</AnimatePresence>
+        {canVoice && !tool && !scribble && !picking && (
+          <VoiceButton voice={voice} reduced={reduced} lifted={!!zoom} under={trayOpen} onListening={on => { listening.current = on }} onOpen={() => setTrayOpen(true)} />
+        )}
+        <PickHint card={picking} onCancel={() => { setPicking(null); setTrayOpen(true) }} />
         <InkBar open={scribble} tool={inkTool} color={inkColor} status={ink.synced ? ink.state : 'local'} onTool={setInkTool} onColor={setInkColor} onDone={endScribble} />
         <Fade show={!!quick.error} className="mark-error" role="alert">Could not save that mark. {quick.error}</Fade>
       </main>
@@ -590,6 +627,13 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
           {visible.length === 0 && <p className="side-sub">Nothing marked yet. Tap a bar to highlight it, write a note or draw on the page.</p>}
         </div>
       </Sheet>
+      {canVoice && (
+        <VoiceTray
+          open={trayOpen} onClose={() => setTrayOpen(false)} voice={voice} commit={quick.commit} roster={roster} focus={voiceFocus}
+          onShow={c => { if (c.barFrom != null) { setVoiceFocus(c.key); jump(c.barFrom) } }}
+          onPick={c => { setPicking(c); setVoiceFocus(c.key); setTrayOpen(false); menu.close() }}
+        />
+      )}
       <StaffQuestion job={st.ask} open={asking && !!st.ask} onClose={() => setAsking(false)} />
     </div>
   )
