@@ -2,7 +2,10 @@
  *  the WAV goes to the API (`sendVoice`), the `transcribe_voice` job is watched on Realtime with a 2 s poll beside it,
  *  and its proposals arrive as `annotations` rows with `status = 'proposed'` through the marks hook (`useBarMarks`).
  *  What it heard but could not place on a bar comes back in the job's result (`unplaced`) and waits here, in memory,
- *  for the admin to tap a bar. Nothing goes live without the admin's Accept. */
+ *  for the admin to tap a bar. Nothing goes live without the admin's Accept.
+ *  What was said stays the sender's: the transcript and each mark's quote live only on the sender's own job row
+ *  (`result.transcript`, `result.quotes[mark_id]`), never on an annotation, so a player who later sees an accepted
+ *  mark reads only its stand text. */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { AnnotationKind } from '../mock'
 import { supabase } from '../lib/supabase'
@@ -14,7 +17,12 @@ import { sameWho, whoOf, type Layer, type MarkInsert, type MarkPatch, type MarkR
 /** Heard, but not on a bar the score has (a rehearsal letter it lacks, "the last page"). */
 export interface Unplaced { text: string; kind: string; position: string; audience: string[]; quote: string }
 /** A finished job's `result`. */
-export interface VoiceResult { utterance_id: string; transcript: string; proposed: number; unplaced: Unplaced[]; refused: string[]; seconds?: number; cost_usd?: number }
+export interface VoiceResult {
+  utterance_id: string; transcript: string; proposed: number; unplaced: Unplaced[]; refused: string[]
+  /** Each proposed mark's quote, by `mark_id`. */
+  quotes: Record<string, string>
+  seconds?: number; cost_usd?: number
+}
 
 type Phase = 'sending' | 'queued' | 'running' | 'done' | 'failed'
 export interface TakeProblem { kind: 'offline' | 'server' | 'job'; message: string }
@@ -82,6 +90,7 @@ function parseResult(r: unknown): VoiceResult {
       audience: Array.isArray(u.audience) ? u.audience.map(String) : [], quote: String(u.quote ?? ''),
     })) : [],
     refused: Array.isArray(x.refused) ? x.refused.map(String) : [],
+    quotes: x.quotes && typeof x.quotes === 'object' ? Object.fromEntries(Object.entries(x.quotes).map(([k, v]) => [k, String(v)])) : {},
     seconds: typeof x.seconds === 'number' ? x.seconds : undefined, cost_usd: typeof x.cost_usd === 'number' ? x.cost_usd : undefined,
   }
 }
@@ -111,20 +120,20 @@ export function parseAudience(words: string[], parts: string[], members: { id: s
   return out.some(w => w.audience === 'ensemble') || !out.length ? [{ audience: 'ensemble' }] : out
 }
 
-/** The rows of a mark as one card. */
-function cardOf(rows: MarkRec[]): Card {
+/** The rows of a mark as one card; its quote from the sender's job result. */
+function cardOf(rows: MarkRec[], quotes: Map<string, string>): Card {
   const r = rows[0]
   const who: Who[] = []
   for (const x of rows) { const w = whoOf(x); if (!who.some(y => sameWho(y, w))) who.push(w) }
   return {
     key: String(r.payload?.mark_id ?? r.id), kind: r.kind, body: r.body ?? '', barFrom: r.barFrom, barTo: r.barTo, who,
-    quote: typeof r.payload?.quote === 'string' ? r.payload.quote : null, rows,
+    quote: quotes.get(String(r.payload?.mark_id ?? '')) ?? null, rows,
   }
 }
 
 /** The writes that accept a card with the admin's edits: every row of the mark goes live; an audience added becomes a
  *  new row (or reuses a row whose audience was taken away), one taken away and not reused is deleted. */
-export function acceptWrites(card: Card, d: Draft, transcript: string | null, utteranceId: string | null): { update: MarkPatch[]; insert: MarkInsert[]; remove: string[] } {
+export function acceptWrites(card: Card, d: Draft, utteranceId: string | null): { update: MarkPatch[]; insert: MarkInsert[]; remove: string[] } {
   const want = d.who.length ? d.who : [{ audience: 'ensemble' } as Who]
   const body = d.body.trim() || card.body
   if (card.unplaced) {
@@ -133,7 +142,7 @@ export function acceptWrites(card: Card, d: Draft, transcript: string | null, ut
       update: [], remove: [],
       insert: want.map(who => ({
         kind: card.kind, body, barFrom: d.barFrom, barTo: d.barTo, who, status: 'live',
-        payload: { source: 'voice', utterance_id: utteranceId, mark_id: markId, quote: card.unplaced!.item.quote, transcript, position: card.unplaced!.item.position },
+        payload: { source: 'voice', utterance_id: utteranceId, mark_id: markId, position: card.unplaced!.item.position },
       })),
     }
   }
@@ -267,13 +276,31 @@ export function useVoice({ scoreId, layer, token, proposed, onArrive }: {
 
   // ---------------------------------------------------------------- the tray
 
+  // Proposals spoken on an earlier visit: their transcript and quotes are on the sender's own job rows (RLS: only
+  // the job's creator reads it), fetched once per utterance.
+  const [earlier, setEarlier] = useState<Map<string, VoiceResult>>(() => new Map())
+  const asked = useRef(new Set<string>())
+  useEffect(() => {
+    const live = new Set(takes.map(t => t.utteranceId).filter(Boolean))
+    const ids = [...new Set(proposed.map(r => r.payload?.utterance_id as string | undefined))]
+      .filter((u): u is string => !!u && !live.has(u) && !asked.current.has(u))
+    if (!ids.length) return
+    ids.forEach(u => asked.current.add(u))
+    void supabase.from('jobs').select('result').eq('kind', 'transcribe_voice').in('payload->>utterance_id', ids).then(({ data }) => {
+      if (!data?.length) return
+      setEarlier(m => { const n = new Map(m); for (const j of data) { const r = parseResult(j.result); if (r.utterance_id) n.set(r.utterance_id, r) } return n })
+    })
+  }, [proposed, takes])
+
   const groups = useMemo<Group[]>(() => {
+    const quotes = new Map<string, string>()
+    for (const r of [...earlier.values(), ...takes.map(t => t.result).filter((x): x is VoiceResult => !!x)]) for (const [k, v] of Object.entries(r.quotes)) quotes.set(k, v)
     const byMark = new Map<string, MarkRec[]>()
     for (const r of proposed) {
       const k = String(r.payload?.mark_id ?? r.id)
       byMark.set(k, [...(byMark.get(k) ?? []), r])
     }
-    const cards = [...byMark.values()].map(cardOf).sort((a, b) => (a.barFrom ?? 0) - (b.barFrom ?? 0))
+    const cards = [...byMark.values()].map(rows => cardOf(rows, quotes)).sort((a, b) => (a.barFrom ?? 0) - (b.barFrom ?? 0))
     const utt = (c: Card) => (c.rows[0]?.payload?.utterance_id as string | undefined) ?? null
     const out: Group[] = []
     const claimed = new Set<string>()
@@ -289,17 +316,17 @@ export function useVoice({ scoreId, layer, token, proposed, onArrive }: {
       // A finished take whose cards were all accepted or dismissed leaves the tray. One whose proposals have not
       // arrived yet stays, still placing.
       if (t.phase === 'done' && !all.length && t.settled > 0) continue
-      out.push({ key: t.key, at: t.at, transcript: t.result?.transcript ?? (mine[0]?.rows[0]?.payload?.transcript as string | undefined) ?? null, take: t, cards: all, refused: t.result?.refused ?? [] })
+      out.push({ key: t.key, at: t.at, transcript: t.result?.transcript ?? null, take: t, cards: all, refused: t.result?.refused ?? [] })
     }
     // Proposals from an earlier visit (or another device), grouped by what was said.
     const rest = new Map<string, Card[]>()
     for (const c of cards) if (!claimed.has(c.key)) { const k = utt(c) ?? c.key; rest.set(k, [...(rest.get(k) ?? []), c]) }
     for (const [k, cs] of rest) {
       const at = Math.min(...cs.flatMap(c => c.rows.map(r => Date.parse(r.createdAt) || Date.now())))
-      out.push({ key: `u:${k}`, at, transcript: (cs[0].rows[0]?.payload?.transcript as string | undefined) ?? null, cards: cs, refused: [] })
+      out.push({ key: `u:${k}`, at, transcript: earlier.get(k)?.transcript ?? null, cards: cs, refused: [] })
     }
     return out.sort((a, b) => b.at - a.at)
-  }, [takes, proposed])
+  }, [takes, proposed, earlier])
 
   const close = useCallback((key: string) => patch(key, t => ({ ...t, closed: true, wav: null })), [patch])
   const settle = useCallback((key: string) => patch(key, t => ({ ...t, settled: t.settled + 1 })), [patch])

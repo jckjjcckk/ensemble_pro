@@ -44,11 +44,16 @@ Done means: "Second violins, start at 34, skip 42 to 48" becomes a confirmed cut
   seats when no parts are read; members' first names; bar range from `measures`; letters from the current
   interpretation's `measure_placements.rehearsal_mark`), keywords from them, Voice Transcribe in diarisation mode,
   one Spark call (`provider="meta"` whatever LLM_PROVIDER says), `checked_marks`, then one `annotations` row per
-  audience with `status = 'proposed'` and `payload = {source: 'voice', utterance_id, mark_id, quote, transcript,
-  position}`. A letter is placed by the score's marks ("before F" = the bar before); "global" is the whole piece,
+  audience with `status = 'proposed'` and `payload = {source: 'voice', utterance_id, mark_id, position, bar,
+  bar_to}`. A letter is placed by the score's marks ("before F" = the bar before); "global" is the whole piece,
   or its first or last bar when the words say so; a landmark with no record (double bar, coda) goes to
-  `result.unplaced` for the admin to place by hand. `result = {utterance_id, transcript, proposed, rows, unplaced,
-  refused, seconds, cost_usd, audio_path}`. Both calls are charged (`voice`, `spark`). Takes are kept 30 days.
+  `result.unplaced` for the admin to place by hand. `result = {utterance_id, transcript, quotes: {mark_id: quote},
+  proposed, rows, unplaced, refused, seconds, cost_usd}`. Both calls are charged (`voice`, `spark`).
+- What was said stays the sender's (CK, 2026-10-30, after the audit): the raw take is deleted as soon as it is
+  transcribed (a sweep removes one left by a failed job after an hour); the transcript and the quotes live only on
+  the job row, which only its creator reads (`jobs_select`); an annotation carries its stand text and ids, never
+  the take's other words. A retry after transcription reuses the saved transcript (no second ASR charge). The tray
+  reads quotes from the job result, and from the sender's own earlier jobs by `utterance_id`.
 - Real run through the handler (fake database, eval takes v02, v11, v28, v14): 2.7 to 5.8 s and $0.003 to $0.006
   a take; v02 → Cut 42–48 on Violin II; v14 → nothing; v11 and v28 lost their addressee in transcription (the
   known failure, below) and came out for the ensemble.

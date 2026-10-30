@@ -261,7 +261,7 @@ export function VoiceTray({ open, onClose, voice, commit, roster, focus, onShow,
   const accept = async (g: Group, c: Card) => {
     if (c.barFrom == null || busy.has(c.key)) return
     mark(c.key, true, setBusy); mark(c.key, false, setFailed)
-    const ok = await commit(acceptWrites(c, draftOf(c), g.transcript, g.take?.utteranceId ?? (c.rows[0]?.payload?.utterance_id as string | undefined) ?? null))
+    const ok = await commit(acceptWrites(c, draftOf(c), g.take?.utteranceId ?? (c.rows[0]?.payload?.utterance_id as string | undefined) ?? null))
     mark(c.key, false, setBusy)
     if (ok) settled(g, c); else mark(c.key, true, setFailed)
   }

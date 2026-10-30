@@ -8,6 +8,11 @@ is not verbatim, whose bars fall outside the score or whose audience is unknown.
 proposed row (`can_see_annotation`). A mark the score cannot place (a landmark it has no record of) is returned in
 `result.unplaced` for the admin to put on a bar by hand. Nothing here ever makes a mark live.
 
+What was said stays the sender's (CK, 2026-10-30): the raw take is deleted as soon as it is transcribed (a sweep
+removes any left by a failed job within the hour), and the transcript and each mark's quote live only on this job
+row (`result.transcript`, `result.quotes`), which only its creator can read. An annotation carries its stand text
+and ids, nothing of what else was said in the take. A retry after transcription reuses the saved transcript.
+
 The job row has no `score_id` on purpose: a failed take must not mark the book failed (worker.run_one).
 """
 from __future__ import annotations
@@ -35,7 +40,7 @@ ASR_MODEL = "muse-voice-transcribe-1.0"
 ASR_MODE = "DIARIZATION"          # the eval's choice: 22/26 lines fully right against 20/26 for PUSH_TO_TALK
 ASR_USD_PER_HOUR = Decimal("0.18")
 MAX_SECONDS = 150                  # the button stops at 120 s; a little slack for the header and rounding
-KEEP_AUDIO_DAYS = 30
+AUDIO_MAX_AGE = timedelta(hours=1)   # a take is deleted once transcribed; this only catches failed jobs
 
 Transcriber = Callable[[bytes, list[str]], Awaitable[dict]]
 
@@ -203,11 +208,18 @@ async def meta_transcribe(wav: bytes, keywords: list[str]) -> dict:
 
 # ---------- the handler ----------
 
+def delete_audio(ctx: JobContext, path: str) -> None:
+    try:
+        ctx.db.storage.from_("scores").remove([path])
+    except Exception:  # noqa: BLE001  (the sweep removes it within the hour)
+        pass
+
+
 def sweep_old_audio(ctx: JobContext, score_id: str) -> None:
-    """Takes are kept 30 days (to check a mark against what was said), then deleted. Best effort."""
+    """Takes left behind by a failed job are deleted after an hour. Best effort."""
     try:
         bucket = ctx.db.storage.from_("scores")
-        cutoff = datetime.now(timezone.utc) - timedelta(days=KEEP_AUDIO_DAYS)
+        cutoff = datetime.now(timezone.utc) - AUDIO_MAX_AGE
         old = [f"{score_id}/voice/{o['name']}" for o in bucket.list(f"{score_id}/voice") or []
                if o.get("created_at") and datetime.fromisoformat(o["created_at"].replace("Z", "+00:00")) < cutoff]
         if old:
@@ -222,15 +234,20 @@ async def transcribe_voice(job: Job, ctx: JobContext, *, transcribe: Transcriber
     score_id, utterance = p["score_id"], p["utterance_id"]
     t0 = time.monotonic()
     score = Score(ctx.db, score_id, p.get("ensemble_id"))
-    wav, secs = pcm_wav(ctx.storage_download(p["audio_path"]))
-
-    heard = await (transcribe or meta_transcribe)(wav, score.keywords())
-    ms = heard.get("audioDurationMs") or secs * 1000
-    asr_cost = Decimal(str(ms)) / Decimal(3_600_000) * ASR_USD_PER_HOUR
-    ctx.charge(Charge("meta", ASR_MODEL, "voice", asr_cost, units=round(ms / 1000, 2)))
-    transcript = (heard.get("transcript") or " ".join(t.get("transcript", "") for t in heard.get("turns") or [])).strip()
+    before = (ctx.db.table("jobs").select("result").eq("id", job.id).execute().data or [{}])[0].get("result") or {}
+    if "transcript" in before:                       # a retry: the take was transcribed (and deleted) last time
+        transcript, asr_cost = before["transcript"], Decimal("0")
+    else:
+        wav, secs = pcm_wav(ctx.storage_download(p["audio_path"]))
+        heard = await (transcribe or meta_transcribe)(wav, score.keywords())
+        ms = heard.get("audioDurationMs") or secs * 1000
+        asr_cost = Decimal(str(ms)) / Decimal(3_600_000) * ASR_USD_PER_HOUR
+        ctx.charge(Charge("meta", ASR_MODEL, "voice", asr_cost, units=round(ms / 1000, 2)))
+        transcript = (heard.get("transcript") or " ".join(t.get("transcript", "") for t in heard.get("turns") or [])).strip()
+        ctx.db.table("jobs").update({"result": {"utterance_id": utterance, "transcript": transcript}}).eq("id", job.id).execute()
+        delete_audio(ctx, p["audio_path"])
     result: dict[str, Any] = {"utterance_id": utterance, "transcript": transcript, "proposed": 0, "rows": 0,
-                              "unplaced": [], "refused": [], "audio_path": p["audio_path"]}
+                              "unplaced": [], "refused": [], "quotes": {}}
     cost = asr_cost
     if transcript:
         system, user = build_prompt(transcript, score.facts)
@@ -254,9 +271,11 @@ async def transcribe_voice(job: Job, ctx: JobContext, *, transcribe: Transcriber
                     "score_id": score_id, "ensemble_id": p.get("ensemble_id"), "session_id": p.get("session_id"),
                     "kind": m["kind"], "body": m["text"].strip(), "status": "proposed", "author_id": job.created_by,
                     "measure_from": score.bar_ids[bars[0]], "measure_to": score.bar_ids[bars[1]], **a,
-                    "payload": {"source": "voice", "utterance_id": utterance, "mark_id": mark_id, "quote": m["quote"],
-                                "transcript": transcript, "position": m["position"], "bar": bars[0], "bar_to": bars[1]},
+                    # Only this mark: never the take's transcript or quote, which may speak to other people.
+                    "payload": {"source": "voice", "utterance_id": utterance, "mark_id": mark_id,
+                                "position": m["position"], "bar": bars[0], "bar_to": bars[1]},
                 })
+            result["quotes"][mark_id] = m["quote"]
             result["proposed"] += 1
         if rows:
             ctx.db.table("annotations").insert(rows).execute()

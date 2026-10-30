@@ -41,10 +41,15 @@ check(r.status_code == 201, f"60 bars ({r.status_code})")
 rest(svc, "POST", "parts", json=[{"score_id": score, "name": p, "position": i} for i, p in enumerate(["Violin I", "Violin II", "Viola", "Cello"])])
 
 env = {k: v for k, v in os.environ.items() if not k.startswith(("ANTHROPIC", "SUPABASE", "META"))}
-for line in (ROOT / "api/.env").read_text().splitlines():
-    if line.startswith(("META_API_KEY=", "META_API_BASE_URL=")):
-        k, v = line.split("=", 1); env[k] = v.strip().strip('"')
-env.update(SUPABASE_URL=URL, SUPABASE_SECRET_KEY=SECRET, LLM_PROVIDER="meta", ANTHROPIC_API_KEY="")
+for k in ("META_API_KEY", "META_API_BASE_URL"):     # from the environment, else this checkout's api/.env
+    if os.environ.get(k):
+        env[k] = os.environ[k]
+if "META_API_KEY" not in env:
+    for line in (ROOT / "api/.env").read_text().splitlines():
+        if line.startswith(("META_API_KEY=", "META_API_BASE_URL=")):
+            k, v = line.split("=", 1); env[k] = v.strip().strip('"')
+# WORKER=0: the route runs each take itself; no worker loop to pick up anything else queued on the stack.
+env.update(SUPABASE_URL=URL, SUPABASE_SECRET_KEY=SECRET, LLM_PROVIDER="meta", ANTHROPIC_API_KEY="", WORKER="0")
 s = socket.socket(); s.bind(("127.0.0.1", 0)); port = s.getsockname()[1]; s.close()
 proc = subprocess.Popen([sys.executable, "-m", "uvicorn", "app.main:app", "--port", str(port)], cwd=WT / "api", env=env,
                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -53,7 +58,8 @@ try:
     for _ in range(60):
         try: api.get("/health"); break
         except Exception: time.sleep(0.5)
-    wav = lambda n: (ROOT / f"api/fixtures/voice/audio/wav/{n}.wav").read_bytes()
+    audio_dir = pathlib.Path(os.environ.get("FOLIO_VOICE_DIR", ROOT / "api/fixtures/voice/audio"))
+    wav = lambda n: (audio_dir / f"wav/{n}.wav").read_bytes()
     H = lambda n: {"Authorization": f"Bearer {tok[n]}", "Content-Type": "audio/wav"}
     r = api.post(f"/scores/{score}/voice", content=wav("v02"), headers=H("voiceviola"))
     check(r.status_code == 403, f"a player cannot send a take ({r.status_code})")
@@ -72,6 +78,11 @@ try:
         j = j[0]; jobs[take] = j
         print(f"    {take}: {j['status']} in {time.monotonic() - t0:.1f}s | {j['result'].get('transcript')!r} | proposed {j['result'].get('proposed')} | usd {j['result'].get('cost_usd')} | {j.get('error') or ''}")
         check(j["status"] == "done", f"{take}: the admin reads their own job, done")
+        audio = j["payload"]["audio_path"]
+        for who in ("voiceviola", "voiceadmin"):
+            r = cl[who].get(f"/storage/v1/object/scores/{audio}")
+            check(r.status_code >= 400, f"{take}: the take is gone once transcribed ({who}: {r.status_code})")
+        check(rest(cl["voiceviola"], "GET", f"jobs?id=eq.{jid}").json() == [], f"{take}: the player cannot read the job (transcript)")
     mine = rest(cl["voiceadmin"], "GET", f"annotations?score_id=eq.{score}&select=id,kind,body,status,audience,audience_part,payload").json()
     for a in mine: print("    ", a["kind"], a["body"], a["status"], a["audience"], a["audience_part"] or "")
     check(len(mine) >= 2 and all(a["status"] == "proposed" for a in mine), "the admin sees the proposals, all proposed")
@@ -83,6 +94,7 @@ try:
         check(r.status_code == 200 and r.json() and r.json()[0]["status"] == "live", "the admin accepts a mark (status live)")
         seen = rest(cl["voiceviola"], "GET", f"annotations?score_id=eq.{score}").json()
         check(len(seen) == 1 and seen[0]["payload"]["mark_id"] == mid, "the player sees exactly the accepted ensemble mark")
+        check(not ({"transcript", "quote"} & set(seen[0]["payload"])), "the accepted mark carries no transcript or quote")
     cut = [a for a in mine if a["kind"] == "cut"]
     if cut:
         r = rest(cl["voiceadmin"], "DELETE", f"annotations?id=eq.{cut[0]['id']}")

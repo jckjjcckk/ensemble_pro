@@ -18,7 +18,7 @@ from app.main import app
 from app.routes import voice as voice_routes
 from app.spend import Charge, require_budget
 from tests.test_part_cut import Ctx
-from tests.test_part_split import OWNER, StoreDB
+from tests.test_part_split import OWNER, Bucket, StoreDB
 
 SCORE = "22222222-2222-2222-2222-222222222222"
 GROUP = "33333333-3333-3333-3333-333333333333"
@@ -35,8 +35,18 @@ def wav(seconds: float = 1.0, rate: int = 16000, channels: int = 1) -> bytes:
     return buf.getvalue()
 
 
+class VoiceBucket(Bucket):
+    def remove(self, paths: list[str]) -> None:
+        for p in paths:
+            self.files.pop(p, None)
+
+    def list(self, prefix: str) -> list[dict]:
+        return []
+
+
 def book(audio: bytes | None = None) -> StoreDB:
-    db = StoreDB({PATH: audio or wav()})
+    db = StoreDB({})
+    db.storage = VoiceBucket({PATH: audio or wav()})
     db.rows["scores"] = [{"id": SCORE, "owner_user_id": "u9", "ensemble_id": GROUP, "current_interpretation_id": "i1"}]
     db.rows["measures"] = [{"id": f"m{n}", "score_id": SCORE, "number": n, "part": None} for n in range(1, 241)]
     db.rows["parts"] = [{"score_id": SCORE, "name": n, "position": i} for i, n in enumerate(["Violin I", "Violin II", "Viola", "Cello"])]
@@ -101,6 +111,11 @@ async def test_a_take_becomes_proposed_rows_one_per_audience_sharing_a_mark_id()
     assert {r["audience_part"] for r in soft} == {"Violin I", "Violin II"} and len({r["payload"]["mark_id"] for r in soft}) == 1
     assert cut["payload"]["mark_id"] != soft[0]["payload"]["mark_id"]
     assert [c.kind for c in ctx.charges] == ["voice", "spark"] and ctx.charges[0].units == 4.0
+    # What was said stays the sender's: no row carries the take's transcript or any quote; the job result does.
+    assert all(set(r["payload"]) == {"source", "utterance_id", "mark_id", "position", "bar", "bar_to"} for r in rows)
+    assert not any("forty" in json.dumps(r) for r in rows)
+    assert out["transcript"] == SAID and out["quotes"][cut["payload"]["mark_id"]].startswith("Second violins")
+    assert PATH not in db.storage.files                                          # the take is gone once transcribed
     assert ctx.prompts[0][1]["provider"] == "meta" and ctx.prompts[0][1]["effort"] == "low"
     assert "Lin" in ctx.prompts[0][0] and "Rehearsal letters: A, F." in ctx.prompts[0][0]
     assert {"Violin II", "violins", "firsts", "seconds", "Lin", "letter F"} <= set(asr.keywords)
@@ -152,6 +167,16 @@ def test_refusals_read_as_words():
     assert plain("audience 'part:Alto'") == "Alto is not a part in this book"
     assert plain("audience 'member:Ana'") == "Ana is not in this group"
     assert plain("kind 'tempo'") == "a mark Muse could not read"
+
+
+async def test_a_retry_after_transcription_reuses_the_transcript_without_the_audio():
+    db = book()
+    db.rows["jobs"] = [{"id": "j1", "result": {"utterance_id": "u1", "transcript": "Bar three, four beats. Count it."}}]
+    db.storage.files.clear()                                                     # deleted on the first attempt
+    answer = [mark(bar_from=3, bar_to=3, text="4 beats at bar 3", quote="Bar three, four beats.")]
+    out, ctx, db, asr = await run("never heard again", answer, db)
+    assert not hasattr(asr, "keywords") and [c.kind for c in ctx.charges] == ["spark"]
+    assert out["transcript"] == "Bar three, four beats. Count it." and out["proposed"] == 1
 
 
 def test_only_mono_16_bit_speech_rates_pass():
