@@ -1,6 +1,6 @@
 # 013 Collaboration intelligence: voice notes to proposed marks
 
-Status: evaluated (30 lines + 10 retakes recorded by CK, transcribe + propose + score built, prompt chosen 2026-10-29; no handler yet) | Meta models: Muse Voice Transcribe (speech to text, diarisation) then Muse Spark 1.3 (one call or a short agent run that decides position, audience and kind).
+Status: built, push-to-talk (server, recording, tray and ghosts on 2026-10-30; eval 2026-10-29; listening mode not built) | Meta models: Muse Voice Transcribe (speech to text, diarisation) then Muse Spark 1.3 (one call per take).
 
 ## Purpose
 
@@ -31,6 +31,29 @@ Done means: "Second violins, start at 34, skip 42 to 48" becomes a confirmed cut
   `propose(kind, measure_from, measure_to, audience, text, quote)` (commit: `quote` must be a verbatim span
   of the transcript, bars inside the range, audience a known part or `ensemble`, else refuse), `finish`.
 - Schema support: `annotations.status proposed | live`, `audio_path`, `session_id`; `rehearsal_sessions`.
+
+## Built: push-to-talk (2026-10-30)
+
+- `POST /scores/{id}/voice` (`api/app/routes/voice.py`): the raw WAV body (16 kHz mono 16-bit, at most two minutes),
+  `?ensemble_id=` the mark layer, `?session_id=` optional. Only the layer's leader (`can_lead_layer`: the group's
+  admin, or the owner of a personal book); 402 when the budget is spent. Stores `{score}/voice/{utterance}.wav`,
+  inserts a `transcribe_voice` job as `running` and runs it in the API process right after answering `202
+  {job_id, utterance_id}` (the worker's stale sweep requeues it if the process dies). The job has no `score_id`, so
+  a failed take never marks the book failed.
+- `transcribe_voice` (`api/app/librarian/transcribe_voice.py`): score facts from the database (parts, or the group's
+  seats when no parts are read; members' first names; bar range from `measures`; letters from the current
+  interpretation's `measure_placements.rehearsal_mark`), keywords from them, Voice Transcribe in diarisation mode,
+  one Spark call (`provider="meta"` whatever LLM_PROVIDER says), `checked_marks`, then one `annotations` row per
+  audience with `status = 'proposed'` and `payload = {source: 'voice', utterance_id, mark_id, quote, transcript,
+  position}`. A letter is placed by the score's marks ("before F" = the bar before); "global" is the whole piece,
+  or its first or last bar when the words say so; a landmark with no record (double bar, coda) goes to
+  `result.unplaced` for the admin to place by hand. `result = {utterance_id, transcript, proposed, rows, unplaced,
+  refused, seconds, cost_usd, audio_path}`. Both calls are charged (`voice`, `spark`). Takes are kept 30 days.
+- Real run through the handler (fake database, eval takes v02, v11, v28, v14): 2.7 to 5.8 s and $0.003 to $0.006
+  a take; v02 → Cut 42–48 on Violin II; v14 → nothing; v11 and v28 lost their addressee in transcription (the
+  known failure, below) and came out for the ensemble.
+- Tests: `api/tests/test_transcribe_voice.py` (rows per audience, member and ensemble, letters, to the end,
+  global, refusals, nothing to mark, WAV checks, the route's permissions).
 
 ## Rules and decisions
 

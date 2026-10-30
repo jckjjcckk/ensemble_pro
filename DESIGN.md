@@ -33,6 +33,12 @@ OSMD draws black ink; `.osmd svg` is repainted from `--ink` so dark themes inver
 
 Green means only "following" and the metronome pulse. Amber (oxblood in Bound) means only lost, warnings and failure. Heat is trouble spots and scan warnings. A book's one status dot is yellow (`--ask`) while the librarian has a question and red (`--fail`) when its run failed; a book being read or converted wears a breathing ink ring, never a spinner. Selection, the current bar, the loop tint and cuts are drawn in ink and ink washes, never in a colour.
 
+Muse blue (`--muse`, `#0066E8`, from CK's swatch) means only "Muse is listening or proposing": the voice button while it hears you, the ghost of a proposed mark, the ruler tick for one. It never marks anything a person made, and a mark the admin accepts is drawn in ink like any other.
+
+## Glass: Muse's material
+
+Only Muse's surfaces are glass (feature 013): the voice button, the proposal cards and the ghost over proposed bars. Everything a person made stays paper and ink. The glass is a light frost (`backdrop-filter: blur(1.2px)`, a tenth of a frosted panel), a near-clear white fill, a silver hairline rim brighter at the top left, an inner shadow for thickness and a soft drop shadow; no refraction (the SVG lens works in WebKit but is not worth its cost yet). Listening: the glass itself lights up in Muse blue from the inside, light pooling at the rim, brightness following the voice level (`--level`, fast attack, slow release). Working: a soft multicolour wash drifts slowly inside the glass (thinking, about 6 s). `prefers-reduced-motion` holds the wash and the glow still. The reference artboard is `M5_GlassSurface` (CK's Downloads, 2026-10-29); the probe that proved it on iPad Safari is described in docs/features/013.
+
 ## Density
 
 Medium. Three horizontal bands at most: header (56 px), the work, the dock (ruler 60 to 72 px plus a row of 76 px, or 164 px tall in practice on wide landscape). No side rails. Panels (Markings, History, the library's information box) dock as a right column at 1100 px and wider and slide over the work below that. No modals anywhere; sheets close with ✕ or Escape or a tap outside.
