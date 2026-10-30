@@ -3,6 +3,10 @@
 One Spark call per utterance (effort low, JSON only). The answer is one mark, a list of marks, or
 `{"none": true}`. A mark the check refuses is dropped: the quote must be a verbatim span of the transcript,
 bars inside the score, the audience a known part, member or the ensemble. The admin confirms every survivor.
+
+The facts carry the book's groups (`derive_groups`, from the part names: strings, voices, woodwinds, brass,
+percussion, keyboard; a concerto is a Soloist plus the Orchestra), which the exclusion rule refers to (prompt v4e,
+docs/features/013-v4e-eval.md part b).
 """
 
 from __future__ import annotations
@@ -11,8 +15,75 @@ import json
 import re
 from dataclasses import dataclass, field
 
+from .header import family
+
 POSITIONS = {"bar", "range", "mark", "global"}
 KINDS = {"cut", "dynamic", "marking", "text", "breath", "bowing"}
+
+
+# ---------- the book's groups (v4e part b) ----------
+
+SECTION_OF_FAMILY = {
+    "violin": "Strings", "viola": "Strings", "cello": "Strings", "double bass": "Strings",
+    "flute": "Woodwinds", "piccolo": "Woodwinds", "oboe": "Woodwinds", "english horn": "Woodwinds",
+    "clarinet": "Woodwinds", "bassoon": "Woodwinds",
+    "horn": "Brass", "trumpet": "Brass", "trombone": "Brass", "tuba": "Brass",
+    "timpani": "Percussion",
+    "piano": "Keyboard", "organ": "Keyboard",
+    "soprano": "Voices", "alto": "Voices", "tenor": "Voices", "bass": "Voices", "chorus": "Voices",
+}
+# Names the header's synonym table does not know, checked first (an "Alto Saxophone" is not an alto voice).
+EXTRA_SECTION = [
+    (r"\b(saxophones?|sax|contrabassoon|cor anglais|recorders?)\b", "Woodwinds"),
+    (r"\b(cornets?|euphonium|flugelhorn)\b", "Brass"),
+    (r"\b(percussion|drums?|snare|cymbals?|triangle|glockenspiel|xylophone|marimba|vibraphone|tam-tam|tambourine|"
+     r"bells|chimes)\b", "Percussion"),
+    (r"\b(celesta|harpsichord|cembalo|keyboard|harmonium)\b", "Keyboard"),
+    (r"\b(mezzo|baritone|countertenor|contralto|voice|voices|choir)\b", "Voices"),
+]
+INSTRUMENT_SECTIONS = ("Strings", "Woodwinds", "Brass", "Percussion")
+
+
+def section_of(name: str, parts: list[str] | None = None) -> str | None:
+    """The section a part sits in ("Strings", "Woodwinds", "Brass", "Percussion", "Keyboard", "Voices"), else None
+    (a harp, a guitar). "Bass" is the voice in a book with other voices or no strings, else the double bass."""
+    low = name.lower()
+    for pat, sec in EXTRA_SECTION:
+        if re.search(pat, low):
+            return sec
+    fam = family(name)             # the header's synonym table (Italian, German, abbreviations)
+    sec = SECTION_OF_FAMILY.get(fam or "")
+    if fam == "bass" and parts is not None:
+        others = [section_of(p) for p in parts if p != name]
+        if "Voices" not in others and "Strings" in others:
+            return "Strings"
+    return sec
+
+
+def derive_groups(parts: list[str]) -> list[tuple[str, list[str]]]:
+    """The book's groups from its part names, in the order the facts list them.
+
+    A book whose instruments span two or more of strings, woodwinds, brass and percussion has an Orchestra (its
+    instruments; voices are their own group). In such a book a part named "solo", or failing that its one piano, is
+    the Soloist and is not in the Orchestra or any section. Then each section with parts, in score order. A string
+    quartet is Strings; a choir is Voices; strings and choir are Strings and Voices (the v4d rule's two groups)."""
+    sec = {p: section_of(p, parts) for p in parts}
+    orchestral = {s for s in sec.values() if s in INSTRUMENT_SECTIONS}
+    has_orchestra = len(orchestral) >= 2
+    soloists = [p for p in parts if re.search(r"\bsolo\b", p, re.I)]
+    if not soloists and has_orchestra:
+        pianos = [p for p in parts if sec[p] == "Keyboard" and family(p) == "piano"]
+        soloists = pianos if len(pianos) == 1 else []
+    out: list[tuple[str, list[str]]] = []
+    if soloists:
+        out.append(("Soloist" if len(soloists) == 1 else "Soloists", soloists))
+    if has_orchestra:
+        out.append(("Orchestra", [p for p in parts if p not in soloists and sec[p] != "Voices"]))
+    for s in dict.fromkeys(v for v in sec.values() if v):
+        members = [p for p in parts if sec[p] == s and p not in soloists]
+        if members and all(members != g for _, g in out):
+            out.append((s, members))
+    return out
 
 
 @dataclass(frozen=True)
@@ -22,12 +93,17 @@ class ScoreFacts:
     bar_first: int = 1
     bar_last: int = 240
     rehearsal_marks: list[str] = field(default_factory=lambda: list("ABCDEF"))
+    # None: the line is left out (the eval prompts before v4e); the app always passes a list (`derive_groups`).
+    groups: list[tuple[str, list[str]]] | None = None
 
     def as_text(self) -> str:
-        return (f"Parts: {', '.join(self.parts) or 'none named'}.\n"
-                f"Members (players addressed by name): {', '.join(self.members) or 'none'}.\n"
-                f"Bars: {self.bar_first} to {self.bar_last}.\n"
-                f"Rehearsal letters: {', '.join(self.rehearsal_marks) or 'none'}.")
+        out = (f"Parts: {', '.join(self.parts) or 'none named'}.\n"
+               f"Members (players addressed by name): {', '.join(self.members) or 'none'}.\n"
+               f"Bars: {self.bar_first} to {self.bar_last}.\n"
+               f"Rehearsal letters: {', '.join(self.rehearsal_marks) or 'none'}.")
+        if self.groups:
+            out += "\nGroups: " + " ".join(f"{g}: {', '.join(ps)}." for g, ps in self.groups)
+        return out
 
 
 def parse_answer(text: str) -> object:
@@ -105,7 +181,7 @@ def checked_marks(answer: object, transcript: str, facts: ScoreFacts) -> tuple[l
 
 
 # ---------- the prompt (eval version v4, chosen 2026-10-29; v4d rule edits 2026-10-30: flow marks and roster
-# scope, docs/features/013-text-eval.md) ----------
+# scope, docs/features/013-text-eval.md; v4e 2026-10-30: the book's groups, docs/features/013-v4e-eval.md) ----------
 
 SYSTEM = ("You turn a conductor's spoken rehearsal instruction into proposed marks on the players' parts. "
           "Answer with JSON only.")
@@ -128,8 +204,10 @@ RULES = """Rules:
   null, name the landmark in text); "global" for the whole piece or its very beginning or end (bars null).
 - audience: "ensemble" when everyone is meant (the whole group, the whole choir, tutti) or nobody is named. Seat nicknames: firsts = Violin I, seconds =
   Violin II, fiddles = both violin parts. When the speaker excludes a part ("everyone except X", "everyone else",
-  "all but X"), list every other part of X's group only, never parts of the other group (strings: Violin I,
-  Violin II, Viola, Cello; voices: Soprano, Alto, Tenor, Bass). A player addressed by name is
+  "all but X"), list every other part of the widest group in the score facts that holds X (or of the group the
+  speaker names: "strings except the cellos"), never parts of another group; a soloist alone in its group
+  is excluded from the Orchestra ("everyone but the piano" = every Orchestra part). A group the speaker
+  names ("the strings", "the orchestra") is every part listed in it. A player addressed by name is
   "member:<name>", only when the name is clearly said.
 - kind: "dynamic" for loudness and its changes; "marking" for a symbol or playing technique written on the music
   (pizz., arco, mute, accent, fermata, vibrato); "bowing" for up/down bow; "breath" for a breath mark; "cut" for a

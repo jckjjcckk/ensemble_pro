@@ -128,7 +128,7 @@ def v5(transcript: str, facts: ScoreFacts, holdout: set[str], examples: list[dic
 v4r2 = v4
 
 
-# The app's prompt is v4d with the full example list (no hold-out in production): keep the two in step.
+# The app's prompt is v4e (below) with the full example list (no hold-out in production): keep the two in step.
 from app.librarian import voice_prompt as _app  # noqa: E402
 
 # v4d (2026-10-30, docs/features/013-text-eval.md): v4 plus three rule edits found by the text eval. Flow marks: a
@@ -161,7 +161,25 @@ def v4d(transcript: str, facts: ScoreFacts, holdout: set[str], examples: list[di
     return system, user.replace(RULES, RULES_V4D)
 
 
-assert _app.RULES.split("\n", 1)[1] == RULES_V4D.split("\n", 1)[1] and _app.SCHEMA == SCHEMA_LIST
+# v4e (2026-10-30, docs/features/013-v4e-eval.md): v4d plus the eval's parts (a) and (b), not (c) (the musical-terms
+# mishearing line had no measured gain). (b) the book's groups are listed in the facts and an exclusion refers to them
+# instead of the two hardcoded groups; (a) the book's landmarks with bars, and a place named from one resolves to bars.
+# The app's prompt is v4e; v4d stays above for reproducibility.
+GROUPS_V4E_OLD = """list every other part of X's group only, never parts of the other group (strings: Violin I,
+  Violin II, Viola, Cello; voices: Soprano, Alto, Tenor, Bass)."""
+GROUPS_V4E_NEW = """list every other part of the widest group in the score facts that holds X (or of the group the
+  speaker names: "strings except the cellos"), never parts of another group; a soloist alone in its group
+  is excluded from the Orchestra ("everyone but the piano" = every Orchestra part). A group the speaker
+  names ("the strings", "the orchestra") is every part listed in it."""
+V4E_EDITS = [(GROUPS_V4E_OLD, GROUPS_V4E_NEW)]
+
+RULES_V4E = RULES_V4D
+for _old, _new in V4E_EDITS:
+    assert RULES_V4E.count(_old) == 1, _old
+    RULES_V4E = RULES_V4E.replace(_old, _new)
+
+# The app's prompt is checked here at import: its rules are v4e (the header line aside) and its schema the list one.
+assert _app.RULES.split("\n", 1)[1] == RULES_V4E.split("\n", 1)[1] and _app.SCHEMA == SCHEMA_LIST
 
 
 # Prompts that read both recognisers' transcripts (diarisation and push-to-talk) of the same file.

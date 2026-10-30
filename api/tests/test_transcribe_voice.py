@@ -119,6 +119,15 @@ async def test_a_take_becomes_proposed_rows_one_per_audience_sharing_a_mark_id()
     assert ctx.prompts[0][1]["provider"] == "meta" and ctx.prompts[0][1]["effort"] == "low"
     assert "Lin" in ctx.prompts[0][0] and "Rehearsal letters: A, F." in ctx.prompts[0][0]
     assert {"Violin II", "violins", "firsts", "seconds", "Lin", "letter F"} <= set(asr.keywords)
+    assert {"fermata", "sforzando", "pizzicato", "double bar"} <= set(asr.keywords)
+    assert "Groups: Strings: Violin I, Violin II, Viola, Cello." in ctx.prompts[0][0]
+
+
+def test_the_glossary_leaves_out_the_short_generic_words():
+    """v4e eval: "pizz" and "cut" split "pizzicato" into "pizz cut"; piano, mute, bar, letter are covered elsewhere."""
+    from app.librarian.transcribe_voice import MUSIC_TERMS
+    assert not {"pizz", "cut", "piano", "mute", "bar", "letter", "forte", "mezzo"} & set(MUSIC_TERMS)
+    assert len(set(MUSIC_TERMS)) == len(MUSIC_TERMS) and {"fermata", "sforzando"} <= set(MUSIC_TERMS)
 
 
 async def test_a_named_player_is_their_member_row_and_the_ensemble_swallows_parts():

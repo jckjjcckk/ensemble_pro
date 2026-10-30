@@ -34,7 +34,7 @@ import httpx
 from ..settings import settings
 from ..spend import Charge
 from . import Job, JobContext, ScoreFailure, handler
-from .voice_prompt import ScoreFacts, build_prompt, checked_marks, parse_answer
+from .voice_prompt import ScoreFacts, build_prompt, checked_marks, derive_groups, parse_answer
 
 ASR_MODEL = "muse-voice-transcribe-1.0"
 ASR_MODE = "DIARIZATION"          # the eval's choice: 22/26 lines fully right against 20/26 for PUSH_TO_TALK
@@ -43,6 +43,15 @@ MAX_SECONDS = 150                  # the button stops at 120 s; a little slack f
 AUDIO_MAX_AGE = timedelta(hours=1)   # a take is deleted once transcribed; this only catches failed jobs
 
 Transcriber = Callable[[bytes, list[str]], Awaitable[dict]]
+
+# Musical terms the recogniser mangles ("fermenta", "sforzato"), as ASR keywords (v4e eval, docs/features/013-v4e-eval.md:
+# term-word errors 5 -> 3 of 34 in both runs, no WER cost). Trimmed: short or common words that pulled real words
+# apart ("pizz" + "cut" made "pizzicato" into "pizz cut") or that the parts and letters already cover are left out:
+# pizz, cut, piano, forte, mezzo, mute, bar, letter.
+MUSIC_TERMS = ["pizzicato", "arco", "fermata", "ritardando", "ritard", "a tempo", "sforzando", "subito",
+               "crescendo", "diminuendo", "staccato", "legato", "tenuto", "marcato", "accent", "sordino", "divisi",
+               "tutti", "downbeat", "double bar", "coda", "segno", "key change", "vibrato", "harmonic", "up bow",
+               "down bow", "breath mark", "repeat", "fortissimo", "pianissimo"]
 
 
 # ---------- what the score knows ----------
@@ -88,10 +97,12 @@ class Score:
                     self.letters[mark] = n
         bars = sorted(self.bar_ids)
         self.facts = ScoreFacts(parts=self.parts, members=sorted(self.members), bar_first=bars[0], bar_last=bars[-1],
-                                rehearsal_marks=sorted(self.letters, key=lambda k: self.letters[k]))
+                                rehearsal_marks=sorted(self.letters, key=lambda k: self.letters[k]),
+                                groups=derive_groups(self.parts))
 
     def keywords(self) -> list[str]:
-        """Words the recogniser should prefer: parts and their plurals, seat nicknames, names, letters."""
+        """Words the recogniser should prefer: parts and their plurals, seat nicknames, names, letters, and the
+        trimmed glossary of musical terms (`MUSIC_TERMS`)."""
         out: list[str] = []
         for p in self.parts:
             base = re.sub(r"\s+(I{1,3}|IV|V|\d+)$", "", p).strip()
@@ -100,7 +111,7 @@ class Score:
             out.append("firsts")
         if any(re.search(r"\bII\b|\b2\b", p) for p in self.parts):
             out.append("seconds")
-        out += list(self.members) + ["bar", "pickup"] + [f"letter {c}" for c in self.letters]
+        out += list(self.members) + ["bar", "pickup"] + [f"letter {c}" for c in self.letters] + MUSIC_TERMS
         return list(dict.fromkeys(w for w in out if w))
 
     def member_id(self, name: str) -> str | None:
