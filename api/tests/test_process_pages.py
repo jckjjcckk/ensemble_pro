@@ -224,3 +224,51 @@ async def test_a_page_with_no_music_before_the_first_system_costs_no_header_call
     summary = db.rows["interpretations"][0]["summary"]
     assert len(t.calls) == 2 and summary["header"]["page"] == 2 and summary["signature"]["page"] == 2
     assert db.rows["scores"][0]["status"] == "ready" and db.rows["scores"][0]["bars"] == 4
+
+
+# ---------------------------------------------------------------- 013 v4e: printed landmarks at the bars geometry gives them
+
+def test_page_landmarks_keep_only_a_known_kind_pointed_at_a_box_on_the_page():
+    from app.librarian.labels import page_landmarks
+    kept, dropped = page_landmarks([
+        {"kind": "tempo", "text": "Allegro moderato", "provisional_measure": 1},
+        {"kind": "double bar", "text": "double bar", "provisional_measure": 4},
+        {"kind": "tempo", "text": "Allegro moderato", "provisional_measure": 1},          # the same twice: once
+        {"kind": "tempo", "text": "meno mosso", "provisional_measure": None},              # no box: dropped
+        {"kind": "section", "text": "Var. 2", "provisional_measure": 9},                   # not on this page
+        {"kind": "dynamic", "text": "ff", "provisional_measure": 2},                       # not a landmark
+        {"kind": "tempo", "text": "", "provisional_measure": 2}, "nonsense"], n_boxes=6)
+    assert kept == [{"kind": "tempo", "text": "Allegro moderato", "provisional": 1},
+                    {"kind": "double_bar", "text": "double bar", "provisional": 4}]
+    assert [d["why"] for d in dropped] == ["no box", "box 9 not on the page", "kind dynamic", "no text"]
+
+
+def test_the_label_prompt_asks_for_a_box_never_a_bar_number():
+    from app.librarian.labels import PROMPT
+    p = PROMPT.format(n=6, systems_desc="1 has 2 staves", parts_context="")
+    assert "8. landmarks:" in p and "Do not count bars or give bar numbers; only point at a box." in p
+    assert "never infer a start repeat from an end repeat" in p
+    assert "If you cannot tell which box it belongs to, give null." in p and '"provisional_measure": 12' in p
+
+
+async def test_landmarks_get_their_bars_from_the_count_and_ambiguous_ones_are_left_out():
+    """Two one-bar pages: page 2's box 1 is bar 2 by the count, whatever Spark would have said; a double bar closing
+    the book's last bar has no bar after it; a landmark with no box is logged and left out."""
+    job, db, pages = bowed_world(2)
+    first = {**LABELS, "landmarks": [{"kind": "tempo", "text": "Allegro", "provisional_measure": 1},
+                                     {"kind": "tempo", "text": "rit.", "provisional_measure": None}]}
+    second = {**LABELS, "landmarks": [{"kind": "tempo", "text": "Adagio", "provisional_measure": 1},
+                                      {"kind": "repeat", "text": "end repeat", "provisional_measure": 1},
+                                      {"kind": "section", "text": "Trio", "provisional_measure": 2}]}
+    ctx = PromptCtx(job, db, pages, labels=[first, second])
+    c, _ = fake_client([sig(), HEADER])
+    await process_pages(job, ctx, client=c, model="muse-spark-1.3")
+    state = db.rows["interpretations"][0]["params"]["state"]
+    assert [len(state["pages"][k]["geometry"]["measures"]) for k in ("1", "2")] == [1, 1] and "8. landmarks:" in ctx.prompts[0]
+    assert db.rows["scores"][0]["landmarks"] == [
+        {"kind": "tempo", "label": "Allegro", "bar": 1, "bar_after": None, "source": "page"},
+        {"kind": "tempo", "label": "Adagio", "bar": 2, "bar_after": None, "source": "page"},
+        {"kind": "repeat", "label": "end repeat", "bar": 2, "bar_after": None, "source": "page"}]
+    log = db.rows["interpretations"][0]["summary"]["log"]
+    assert "Page 1: landmark 'rit.' left out (no box)" in log and "Page 2: landmark 'Trio' left out (box 2 not on the page)" in log
+    assert "3 landmarks read" in " ".join(log) and db.rows["interpretations"][0]["summary"]["landmarks"] == 3

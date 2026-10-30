@@ -3,8 +3,11 @@ header once per book.
 
 Spark sees the page with the geometry's measure boxes drawn and provisionally numbered, and is asked only
 for what geometry cannot know: the real number of the first measure, the part names of each system's staves,
-rehearsal marks, measures that do not look real, title, composer, key and meter, a 1..5 difficulty per part
-and a two-sentence brief. It never moves a box. The call goes through `ctx.complete`, so it is charged to the
+rehearsal marks, measures that do not look real, title, composer, key and meter, a 1..5 difficulty per part,
+a two-sentence brief, and (item 8, 013 v4e) the printed landmarks (tempo words, key and meter changes, double bars,
+repeats, segno, coda, Fine, section titles), each pointed at a box as rehearsal marks are. It never moves a box, never
+counts bars: the page's geometry count gives each box its bar number (`process_pages`), and a landmark whose box is
+missing or not on the page is dropped (`page_landmarks`). The call goes through `ctx.complete`, so it is charged to the
 job's user with the job id (model from settings: `muse-spark-1.3` when LLM_PROVIDER=meta).
 
 Prompt lifted from `api/experiments/grounding/label_with_spark.py` (experiment README, "Exact prompts"), plus
@@ -42,6 +45,7 @@ Answer these questions about the page. Do not re-locate anything; only label wha
 5. title and composer if printed; key_signature (e.g. "G major") and time_signature (e.g. "3/4") as printed at the start, else null.
 6. parts_difficulty: for every distinct part name on the page, a difficulty from 1 (easy) to 5 (virtuoso) for an amateur player, judged from the notation on this page.
 7. brief: two sentences a librarian would write about this music for the ensemble: what it is and what will take the most work. No preamble.
+8. landmarks: what is printed on this page that marks a place in the music, each with the provisional measure (the blue box number) it is printed over, exactly as for rehearsal marks: tempo words (Allegro, Adagio, meno mosso, a tempo, rit., ritenuto, Tempo I) and metronome marks; a key signature or time signature that changes (not the ones repeated at the start of every system); double barlines; repeat signs; segno, coda, "To Coda", Fine, D.C., D.S.; section titles (Trio, Var. 2, Cadenza). Give "text" as printed (for a key change the new signature, e.g. "3 flats"; for a time signature, e.g. "3/4"; for repeat signs "start repeat" or "end repeat"; for a double barline "double bar"). For a double barline or an end repeat give the box it closes (the box to its left); for everything else the box it stands over or begins. Do not count bars or give bar numbers; only point at a box. If you cannot tell which box it belongs to, give null. List only what you can see printed: a repeat sign is two dots beside a double barline, so never infer a start repeat from an end repeat or from the form of the music; for a key change count the sharps or flats of the new signature; one barline can carry two landmarks (an end repeat and Fine). Leave out dynamics, hairpins, articulations, fingering, pedal marks, expression words (dolce, cresc., espress., con forza), the clef, key and time signature at the start of each system, and the final barline of the piece.
 
 Return only JSON:
 {{"first_measure_number": 1, "is_pickup": false, "confidence": "high|medium|low",
@@ -50,7 +54,10 @@ Return only JSON:
  "doubtful_measures": [{{"provisional_measure": 5, "reason": "..."}}],
  "title": "", "composer": "", "key_signature": null, "time_signature": null,
  "parts_difficulty": [{{"part": "Piano", "difficulty": 3}}],
- "brief": ""}}"""
+ "brief": "",
+ "landmarks": [{{"kind": "tempo|key_change|meter_change|double_bar|repeat|coda|segno|fine|section", "text": "Adagio", "provisional_measure": 12}}]}}"""
+
+PAGE_LANDMARK_KINDS = ("tempo", "key_change", "meter_change", "double_bar", "repeat", "coda", "segno", "fine", "section")
 
 
 @dataclass
@@ -67,6 +74,10 @@ class PageLabels:
     time_signature: str | None = None
     parts_difficulty: dict[str, int] = field(default_factory=dict)
     brief: str = ""
+    # 013 v4e: printed landmarks, each tied to a provisional box: [{kind, text, provisional}]; and the ones dropped
+    # because the box was missing or not on the page ([{kind, text, provisional, why}]), for the log.
+    landmarks: list[dict[str, Any]] = field(default_factory=list)
+    landmarks_dropped: list[dict[str, Any]] = field(default_factory=list)
     cost_usd: Decimal = Decimal(0)
     model: str = ""
     raw: dict[str, Any] = field(default_factory=dict)
@@ -85,6 +96,7 @@ class PageLabels:
             "systems": self.systems, "rehearsal_marks": self.rehearsal_marks, "doubtful": self.doubtful,
             "title": self.title, "composer": self.composer, "key_signature": self.key_signature, "time_signature": self.time_signature,
             "parts_difficulty": self.parts_difficulty, "brief": self.brief, "cost_usd": float(self.cost_usd), "model": self.model,
+            "landmarks": self.landmarks, "landmarks_dropped": self.landmarks_dropped,
         }
 
     @staticmethod
@@ -94,6 +106,7 @@ class PageLabels:
             {int(k): v for k, v in (d.get("rehearsal_marks") or {}).items()}, {int(k): v for k, v in (d.get("doubtful") or {}).items()},
             d.get("title") or "", d.get("composer") or "", d.get("key_signature"), d.get("time_signature"),
             {k: int(v) for k, v in (d.get("parts_difficulty") or {}).items()}, d.get("brief") or "",
+            d.get("landmarks") or [], d.get("landmarks_dropped") or [],
             Decimal(str(d.get("cost_usd") or 0)), d.get("model") or "",
         )
 
@@ -147,6 +160,31 @@ def extract_json(text: str) -> dict[str, Any]:
     return json.loads(text[start : end + 1])
 
 
+def page_landmarks(raw: Any, n_boxes: int) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """(kept, dropped) from Spark's `landmarks` answer. A landmark is kept only when it names a kind the book records,
+    has printed text and points at a box drawn on this page (1..n_boxes); a missing, null or out-of-range box is
+    dropped, never guessed: the box is how geometry gives it a bar number."""
+    kept: list[dict[str, Any]] = []
+    dropped: list[dict[str, Any]] = []
+    for d in raw if isinstance(raw, list) else []:
+        if not isinstance(d, dict):
+            continue
+        kind = str(d.get("kind") or "").strip().lower().replace(" ", "_").replace("-", "_")
+        text = re.sub(r"\s+", " ", str(d.get("text") or d.get("label") or "")).strip()
+        box = d.get("provisional_measure")
+        box = _int(box, -1) if not isinstance(box, bool) else -1
+        item = {"kind": kind, "text": text, "provisional": box}
+        if kind not in PAGE_LANDMARK_KINDS:
+            dropped.append({**item, "why": f"kind {kind or 'missing'}"})
+        elif not text and kind not in ("double_bar", "segno", "coda", "fine"):
+            dropped.append({**item, "why": "no text"})
+        elif not 1 <= box <= n_boxes:
+            dropped.append({**item, "why": "no box" if d.get("provisional_measure") is None else f"box {d.get('provisional_measure')!r} not on the page"})
+        elif not any(k["kind"] == kind and k["provisional"] == box and k["text"].lower() == text.lower() for k in kept):
+            kept.append(item)
+    return kept, dropped
+
+
 def _int(v: Any, default: int) -> int:
     try:
         return int(v)
@@ -192,6 +230,7 @@ async def label_page(ctx: JobContext, page_png: bytes, geo: dict[str, Any], *, e
         model=c.charge.model,
         raw=data,
     )
+    out.landmarks, out.landmarks_dropped = page_landmarks(data.get("landmarks"), len(geo["measures"]))
     return out
 
 

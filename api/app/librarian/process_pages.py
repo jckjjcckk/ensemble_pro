@@ -14,7 +14,9 @@ shadows masked, the working scale, staves as row-profile peaks, systems by the s
 count driving the staff recovery, system barlines voted with a spacing-scaled tolerance; boxes as fractions,
 confidence from the geometry), then `labels.label_page` (Spark labels what geometry found; it never moves a box).
 Then one pass writes interpretation v(n+1) with engine `opencv-staff-geometry+spark-labels`, stable `measures`
-(upsert, never delete), `measure_placements`, `parts` with difficulty, and the score's facts and `ready` status.
+(upsert, never delete), `measure_placements`, `parts` with difficulty, the book's printed landmarks (013 v4e: the
+page read points each at a box, the count here gives it its bar; `scores.landmarks`, source "page"), and the score's
+facts and `ready` status.
 
 The deliberate realistic failure: when a page's staff-to-part assignment is ambiguous (Spark names no parts for a
 system, its parts do not add up to the staves the geometry found, or a page brings a part that neither earlier
@@ -26,6 +28,7 @@ earlier ones again.
 """
 from __future__ import annotations
 
+import re
 import time
 from decimal import Decimal
 from typing import Any
@@ -34,7 +37,7 @@ from anthropic import AsyncAnthropic
 
 from ..llm import _client as default_client, model_name as default_model
 from . import Job, JobContext, ScoreFailure, handler
-from . import label_memory
+from . import label_memory, landmarks
 from .cut import page_measures
 from .labels import PageLabels, canon_part, label_page, match_part, read_header
 from .signature import read_signature
@@ -305,12 +308,14 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
         first = 0
     n = first
     placements: list[dict[str, Any]] = []
+    page_marks: list[dict[str, Any]] = []      # 013 v4e: printed landmarks, at the bar geometry gives their box
     systems_total = 0
     for key in pages_read:
         page = state["pages"][key]
         pno = int(key)
         labels = PageLabels.from_dict(page["labels"])
         geo_d = page["geometry"]
+        number_of: dict[int, int] = {}
         systems_total += len(geo_d["systems"])
         if pno != int(pages_read[0]) and labels.confidence == "high" and labels.first_measure_number != n:
             state["log"].append(f"Page {pno} prints bar {labels.first_measure_number} where the count says {n}; kept the count")
@@ -321,7 +326,9 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
                 flag = (flag + "; " if flag else "") + f"Spark: {labels.doubtful[m['provisional']]}"
             placements.append({"number": n, "page": pno, "system": m["system"], "box": m["box"], "confidence": conf, "flag": flag,
                                "rehearsal_mark": labels.rehearsal_marks.get(m["provisional"])})
+            number_of[m["provisional"]] = n
             n += 1
+        page_marks += landmarks_at_bars(labels, number_of, pno, state["log"])
 
     numbers = [p["number"] for p in placements]
     rows = [{"score_id": score_id, "number": num, "part": None} for num in numbers]
@@ -338,6 +345,12 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
                         "confidence": "low", "flag": f"not found in v{version}", "rehearsal_mark": None})
     for i in range(0, len(pl_rows), 500):
         ctx.db.table("measure_placements").upsert(pl_rows[i:i + 500], on_conflict="interpretation_id,measure_id").execute()
+    last_bar = n - 1
+    for d in page_marks:
+        if d["bar_after"] is not None and d["bar_after"] > last_bar:
+            d["bar_after"] = None                     # a double bar closing the book's last bar is its end
+    if landmarks.save(ctx.db, score_id, page_marks, "page") and page_marks:
+        state["log"].append(f"{len(page_marks)} landmarks read (tempo words, double bars, repeats, signs, section titles)")
 
     # parts: order of first appearance top to bottom; difficulty = the hardest page's rating
     part_names: list[str] = []
@@ -378,6 +391,7 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
         "header": {k: header.get(k) for k in ("page", "expected_staves", "instruments", "validation", "overlay_key", "cost_usd", "error") if header.get(k) is not None} if header else None,
         "flagged": {"pages_unreadable": unreadable, "bars_doubtful": doubtful},
         "unreadable_pages": unreadable_pages(state),
+        "landmarks": len(page_marks),
         "models": {"geometry": "opencv", "labels": next((PageLabels.from_dict(state["pages"][k]["labels"]).model for k in pages_read), None)},
         "log": state["log"],
     }
@@ -402,6 +416,26 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
     await ctx.progress(1.0, "Ready")
     return {**ctx.result, "interpretation_id": interp_id, "version": version, "pages": n_pages, "measures": len(placements), "parts": part_names,
             "doubtful": doubtful, "cost_usd": state["cost_usd"], "seconds": round(time.time() - t0, 1)}
+
+
+def landmarks_at_bars(labels: PageLabels, number_of: dict[int, int], page_no: int, log: list[str]) -> list[dict[str, Any]]:
+    """The page's printed landmarks at the bar numbers the geometry count gave their boxes (Spark only pointed at a
+    box). A double bar or an end repeat is the boundary after its box (bar, bar + 1). Dropped, and logged, rather than
+    guessed: a landmark whose box Spark did not give or that is not on the page, and one over a box Spark itself
+    doubts is a bar."""
+    out: list[dict[str, Any]] = []
+    for d in labels.landmarks_dropped:
+        log.append(f"Page {page_no}: landmark {d.get('text') or d.get('kind')!r} left out ({d.get('why')})")
+    for d in labels.landmarks:
+        prov, text = d["provisional"], d["text"]
+        bar = number_of.get(prov)
+        if bar is None or prov in labels.doubtful:
+            why = "its box is not a bar Spark trusts" if prov in labels.doubtful else f"box {prov} has no bar"
+            log.append(f"Page {page_no}: landmark {text or d['kind']!r} left out ({why})")
+            continue
+        boundary = d["kind"] == "double_bar" or (d["kind"] == "repeat" and re.search(r"\bend\b", text, re.I))
+        out.append({"kind": d["kind"], "label": text, "bar": bar, "bar_after": bar + 1 if boundary else None, "source": "page"})
+    return out
 
 
 def partial_summary(state: dict[str, Any], n_pages: int, question: str) -> dict[str, Any]:

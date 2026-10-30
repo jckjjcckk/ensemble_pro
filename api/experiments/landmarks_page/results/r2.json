@@ -1,0 +1,391 @@
+[
+ {
+  "uid": "goldberg-bga-p1-5-p2",
+  "boxes": 20,
+  "systems": 6,
+  "first_measure_number": 1,
+  "confidence": "low",
+  "raw_landmarks": [
+   {
+    "kind": "section",
+    "text": "Var.1. (a 1 Clav.)",
+    "provisional_measure": 5
+   },
+   {
+    "kind": "tempo",
+    "text": "Allegro moderato.",
+    "provisional_measure": 5
+   },
+   {
+    "kind": "tempo",
+    "text": "(d = 108.)",
+    "provisional_measure": 5
+   },
+   {
+    "kind": "repeat",
+    "text": "end repeat",
+    "provisional_measure": 4
+   },
+   {
+    "kind": "repeat",
+    "text": "end repeat",
+    "provisional_measure": 20
+   }
+  ],
+  "kept": [
+   {
+    "kind": "section",
+    "text": "Var.1. (a 1 Clav.)",
+    "provisional": 5
+   },
+   {
+    "kind": "tempo",
+    "text": "Allegro moderato.",
+    "provisional": 5
+   },
+   {
+    "kind": "tempo",
+    "text": "(d = 108.)",
+    "provisional": 5
+   },
+   {
+    "kind": "repeat",
+    "text": "end repeat",
+    "provisional": 4
+   },
+   {
+    "kind": "repeat",
+    "text": "end repeat",
+    "provisional": 20
+   }
+  ],
+  "dropped": [],
+  "at_bars": [
+   {
+    "kind": "section",
+    "label": "Var.1. (a 1 Clav.)",
+    "bar": 5,
+    "bar_after": null,
+    "source": "page"
+   },
+   {
+    "kind": "tempo",
+    "label": "Allegro moderato.",
+    "bar": 5,
+    "bar_after": null,
+    "source": "page"
+   },
+   {
+    "kind": "tempo",
+    "label": "(d = 108.)",
+    "bar": 5,
+    "bar_after": null,
+    "source": "page"
+   },
+   {
+    "kind": "repeat",
+    "label": "end repeat",
+    "bar": 4,
+    "bar_after": 5,
+    "source": "page"
+   },
+   {
+    "kind": "repeat",
+    "label": "end repeat",
+    "bar": 20,
+    "bar_after": 21,
+    "source": "page"
+   }
+  ],
+  "log": [],
+  "usd": 0.0177525
+ },
+ {
+  "uid": "goldberg-bga-p1-5-p3",
+  "boxes": 21,
+  "systems": 6,
+  "first_measure_number": 34,
+  "confidence": "medium",
+  "raw_landmarks": [
+   {
+    "kind": "section",
+    "text": "Var. 2. (a 1 Clav.)",
+    "provisional_measure": 17
+   },
+   {
+    "kind": "tempo",
+    "text": "Allegretto.(d= 92.)",
+    "provisional_measure": 17
+   },
+   {
+    "kind": "repeat",
+    "text": "end repeat",
+    "provisional_measure": 16
+   }
+  ],
+  "kept": [
+   {
+    "kind": "section",
+    "text": "Var. 2. (a 1 Clav.)",
+    "provisional": 17
+   },
+   {
+    "kind": "tempo",
+    "text": "Allegretto.(d= 92.)",
+    "provisional": 17
+   },
+   {
+    "kind": "repeat",
+    "text": "end repeat",
+    "provisional": 16
+   }
+  ],
+  "dropped": [],
+  "at_bars": [
+   {
+    "kind": "section",
+    "label": "Var. 2. (a 1 Clav.)",
+    "bar": 50,
+    "bar_after": null,
+    "source": "page"
+   },
+   {
+    "kind": "tempo",
+    "label": "Allegretto.(d= 92.)",
+    "bar": 50,
+    "bar_after": null,
+    "source": "page"
+   },
+   {
+    "kind": "repeat",
+    "label": "end repeat",
+    "bar": 49,
+    "bar_after": 50,
+    "source": "page"
+   }
+  ],
+  "log": [],
+  "usd": 0.0210675
+ },
+ {
+  "uid": "chopin-polonaises-ekier-test-p4-7-p2",
+  "boxes": 19,
+  "systems": 5,
+  "first_measure_number": 20,
+  "confidence": "high",
+  "raw_landmarks": [
+   {
+    "kind": "tempo",
+    "text": "r i t e n u t o",
+    "provisional_measure": 10
+   },
+   {
+    "kind": "tempo",
+    "text": "r i t e n u t o",
+    "provisional_measure": 16
+   },
+   {
+    "kind": "double_bar",
+    "text": "double bar",
+    "provisional_measure": 18
+   },
+   {
+    "kind": "fine",
+    "text": "[Fine]",
+    "provisional_measure": 18
+   },
+   {
+    "kind": "key_change",
+    "text": "4 flats",
+    "provisional_measure": 19
+   }
+  ],
+  "kept": [
+   {
+    "kind": "tempo",
+    "text": "r i t e n u t o",
+    "provisional": 10
+   },
+   {
+    "kind": "tempo",
+    "text": "r i t e n u t o",
+    "provisional": 16
+   },
+   {
+    "kind": "double_bar",
+    "text": "double bar",
+    "provisional": 18
+   },
+   {
+    "kind": "fine",
+    "text": "[Fine]",
+    "provisional": 18
+   },
+   {
+    "kind": "key_change",
+    "text": "4 flats",
+    "provisional": 19
+   }
+  ],
+  "dropped": [],
+  "at_bars": [
+   {
+    "kind": "tempo",
+    "label": "r i t e n u t o",
+    "bar": 29,
+    "bar_after": null,
+    "source": "page"
+   },
+   {
+    "kind": "tempo",
+    "label": "r i t e n u t o",
+    "bar": 35,
+    "bar_after": null,
+    "source": "page"
+   },
+   {
+    "kind": "double_bar",
+    "label": "double bar",
+    "bar": 37,
+    "bar_after": 38,
+    "source": "page"
+   },
+   {
+    "kind": "fine",
+    "label": "[Fine]",
+    "bar": 37,
+    "bar_after": null,
+    "source": "page"
+   }
+  ],
+  "log": [
+   "Page 2: landmark '4 flats' left out (its box is not a bar Spark trusts)"
+  ],
+  "usd": 0.01825625
+ },
+ {
+  "uid": "chopin-polonaises-ekier-test-p4-7-p3",
+  "boxes": 14,
+  "systems": 5,
+  "first_measure_number": 38,
+  "confidence": "high",
+  "raw_landmarks": [
+   {
+    "kind": "tempo",
+    "text": "meno mosso",
+    "provisional_measure": 1
+   },
+   {
+    "kind": "tempo",
+    "text": "ritenuto",
+    "provisional_measure": 8
+   },
+   {
+    "kind": "double_bar",
+    "text": "double bar",
+    "provisional_measure": null
+   },
+   {
+    "kind": "repeat",
+    "text": "end repeat",
+    "provisional_measure": 14
+   }
+  ],
+  "kept": [
+   {
+    "kind": "tempo",
+    "text": "meno mosso",
+    "provisional": 1
+   },
+   {
+    "kind": "tempo",
+    "text": "ritenuto",
+    "provisional": 8
+   },
+   {
+    "kind": "repeat",
+    "text": "end repeat",
+    "provisional": 14
+   }
+  ],
+  "dropped": [
+   {
+    "kind": "double_bar",
+    "text": "double bar",
+    "provisional": -1,
+    "why": "no box"
+   }
+  ],
+  "at_bars": [
+   {
+    "kind": "tempo",
+    "label": "meno mosso",
+    "bar": 38,
+    "bar_after": null,
+    "source": "page"
+   },
+   {
+    "kind": "tempo",
+    "label": "ritenuto",
+    "bar": 45,
+    "bar_after": null,
+    "source": "page"
+   }
+  ],
+  "log": [
+   "Page 3: landmark 'double bar' left out (no box)",
+   "Page 3: landmark 'end repeat' left out (its box is not a bar Spark trusts)"
+  ],
+  "usd": 0.01439725
+ },
+ {
+  "uid": "chopin-polonaises-ekier-test-p4-7-p4",
+  "boxes": 16,
+  "systems": 5,
+  "first_measure_number": 54,
+  "confidence": "high",
+  "raw_landmarks": [
+   {
+    "kind": "repeat",
+    "text": "start repeat",
+    "provisional_measure": 1
+   },
+   {
+    "kind": "tempo",
+    "text": "ritenuto",
+    "provisional_measure": 15
+   }
+  ],
+  "kept": [
+   {
+    "kind": "repeat",
+    "text": "start repeat",
+    "provisional": 1
+   },
+   {
+    "kind": "tempo",
+    "text": "ritenuto",
+    "provisional": 15
+   }
+  ],
+  "dropped": [],
+  "at_bars": [
+   {
+    "kind": "repeat",
+    "label": "start repeat",
+    "bar": 54,
+    "bar_after": null,
+    "source": "page"
+   },
+   {
+    "kind": "tempo",
+    "label": "ritenuto",
+    "bar": 68,
+    "bar_after": null,
+    "source": "page"
+   }
+  ],
+  "log": [],
+  "usd": 0.01285875
+ }
+]
