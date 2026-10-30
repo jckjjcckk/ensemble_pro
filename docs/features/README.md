@@ -20,7 +20,9 @@ only the roadmap, status per feature, the decisions log, CK's to-do and the setu
 | 010 | [Distribution and reading view](010-distribution-and-reading-view.md) | prototype | none |
 | 011 | [Edit mode](011-edit-mode.md) | designed | Spark (asks) |
 | 012 | [Symbols layer](012-symbols-layer.md) | prototype | Spark (proposes) |
-| 013 | [Collaboration intelligence](013-collaboration-intelligence.md) | designed | Voice Transcribe + Spark |
+| 013 | [Collaboration intelligence](013-collaboration-intelligence.md) | built (push-to-talk) | Voice Transcribe + Spark |
+| 013 | [Always-on listening (research)](013-always-on.md) | research | Voice Transcribe realtime + Spark |
+| 013 | [Text eval and prompt v4d](013-text-eval.md) | experiment | Spark |
 | 014 | [Rehearsal tools](014-rehearsal-tools.md) | idea | none |
 | 015 | [iOS wrapper](015-ios-wrapper.md) | idea | none |
 | 016 | [Benchmark tool](016-benchmark-tool.md) | to design | Spark, SAM optional |

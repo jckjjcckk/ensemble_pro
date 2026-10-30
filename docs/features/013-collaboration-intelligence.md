@@ -87,12 +87,31 @@ Done means: "Second violins, start at 34, skip 42 to 48" becomes a confirmed cut
   "Left out: Alto is not a part in this book"; Dismiss deletes. Not yet checked: a real microphone on the iPad
   (WKWebView's prompt, AudioWorklet from a blob URL), a player's stand receiving the accepted mark live.
 
+## Prompt v4d (2026-10-30)
+
+The app's prompt (`voice_prompt.py`) is now **v4d**: v4 plus three rule edits found by a text-only eval of the Spark
+half (`013-text-eval.md`). (1) A start point for a later run ("next time", "tomorrow") or anything the speaker asks
+to have written is a mark (v4 dropped "Start at bar 12 next time" and even "write that in" as a start point).
+(2) An exclusion ("everyone else", "except") lists the other parts of the excluded part's group only (v4 spread
+"everyone else" from the altos across the strings). (3) A section or name not in the score facts goes to the
+ensemble with the word kept in the text (v4 turned "brass" into Bass, and "Marco" into a member the check refuses).
+
+- Text set (130 lines written for the test, 100 instructions + 30 non-instructions, chat completions, effort
+  minimal, one run each): v4c 95/100 fully right → v4d **99/100**; missed instructions 3 → 0; flow marks 2/5 →
+  4/5; balance 5/7 → 7/7; roster cases 2/4 → 4/4; false positives 0 → 1 (n16, which v4c also gets wrong 2 times in 5
+  on repeat; v4d 5/5); 1.19 s median, $0.0021 a call.
+- CK's 40 recorded lines + 23 negatives (realtime transcripts, minimal): v4c 22/26, 7/9, 23/23 → v4d 21/26, 7/9,
+  23/23. The one change is v15 "Stop the cello" (except), which repeats put at v4c 4/5 and v4d 5/5: spread, not a
+  regression. Confidence ≥ 0.95 auto-applied 10 marks, none wrong.
+- Latency, the always-on pipeline and the confidence gate: `013-always-on.md`. The few-shot examples are unchanged,
+  and `experiments/voice/prompts.py` keeps v4 as scored and checks the app against `RULES_V4D`.
+
 ## Rules and decisions
 
 - Voice instructions are proposals: the admin confirms before anything goes live. No speech error alters
   anyone's music (external review 2026-10-26).
 - Admin only: only the admin can enable voice notes and only during a rehearsal session they started.
-- One Spark call per note, effort low, output budget as in 006; quotes are verbatim.
+- One Spark call per note, effort low, output budget as in 006; quotes are verbatim. Prompt v4d since 2026-10-30.
 - Voice Transcribe facts (000): 16-bit mono WAV at 16 or 24 kHz, at most 10 min and 32 MB, turn-level
   timestamps only, `keywords` biasing (feed the part names and rehearsal letters), diarisation, $0.18 per
   hour. Spark 1.3 audio is "not fully supported": audio goes to Voice Transcribe, not to Spark.

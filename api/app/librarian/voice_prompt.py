@@ -104,7 +104,8 @@ def checked_marks(answer: object, transcript: str, facts: ScoreFacts) -> tuple[l
     return ok, refused
 
 
-# ---------- the prompt (eval version v4, chosen 2026-10-29; scores in docs/features/013) ----------
+# ---------- the prompt (eval version v4, chosen 2026-10-29; v4d rule edits 2026-10-30: flow marks and roster
+# scope, docs/features/013-text-eval.md) ----------
 
 SYSTEM = ("You turn a conductor's spoken rehearsal instruction into proposed marks on the players' parts. "
           "Answer with JSON only.")
@@ -115,7 +116,9 @@ RULES = """Rules:
 - Not every sentence is a mark. Telling the players where to start playing ("again from the beginning", "OK, letter
   A, off we go", "once more from 57" with nothing to write), logistics (breaks, chairs, the time) and praise are not
   marks: answer {"none": true}. A start point that comes with something to remember ("from 57 and keep it light")
-  is a mark at that bar. Telling a part where it comes in (its entry) is a mark.
+  is a mark at that bar. Telling a part where it comes in (its entry) is a mark. A start point for a later run ("next time",
+  "tomorrow", "after the break") is a mark at that place (text "Start here next time"), and so is anything the
+  speaker asks to have written or marked.
 - The speaker may correct themself mid-sentence ("18, no, 19"; "violas, sorry, cellos"): the last version wins.
   A correction replaces only what it corrects: keep the bar and the instruction already said. Ignore filler,
   repeated words and false starts.
@@ -124,8 +127,9 @@ RULES = """Rules:
   is a landmark the score must resolve: a rehearsal letter, a double bar, a key change, a coda, a section (bars
   null, name the landmark in text); "global" for the whole piece or its very beginning or end (bars null).
 - audience: "ensemble" when everyone is meant (the whole group, the whole choir, tutti) or nobody is named. Seat nicknames: firsts = Violin I, seconds =
-  Violin II, fiddles = both violin parts. When the speaker excludes a part, list every other part of its group
-  (strings: Violin I, Violin II, Viola, Cello; voices: Soprano, Alto, Tenor, Bass). A player addressed by name is
+  Violin II, fiddles = both violin parts. When the speaker excludes a part ("everyone except X", "everyone else",
+  "all but X"), list every other part of X's group only, never parts of the other group (strings: Violin I,
+  Violin II, Viola, Cello; voices: Soprano, Alto, Tenor, Bass). A player addressed by name is
   "member:<name>", only when the name is clearly said.
 - kind: "dynamic" for loudness and its changes; "marking" for a symbol or playing technique written on the music
   (pizz., arco, mute, accent, fermata, vibrato); "bowing" for up/down bow; "breath" for a breath mark; "cut" for a
@@ -137,7 +141,9 @@ RULES = """Rules:
   audience in one breath are one mark whose bars cover them.
 - The transcript is machine speech recognition and mishears words. A word that sounds like a part, a seat nickname
   or a member's name (e.g. "Chelos", "Violets", "Lynn") is that part or person; "accept" or "stop" just before a
-  part may be "except". Numbers are usually right."""
+  part may be "except". Numbers are usually right. A section or a name that is not in the score facts (e.g.
+  "the winds", "percussion", a player not in Members) is not a part or member: use "ensemble" and keep that word in
+  the text ("Winds softer at 12"), never the nearest-sounding part."""
 
 # Eight worked examples from api/fixtures/voice/script.csv. The eval held each scored line out of this list.
 EXAMPLES = """Transcript: "Second violins, from forty-two to forty-eight we're cutting that, go straight to forty-nine."

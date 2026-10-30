@@ -128,10 +128,40 @@ def v5(transcript: str, facts: ScoreFacts, holdout: set[str], examples: list[dic
 v4r2 = v4
 
 
-# The app's prompt is v4 with the full example list (no hold-out in production): keep the two in step.
+# The app's prompt is v4d with the full example list (no hold-out in production): keep the two in step.
 from app.librarian import voice_prompt as _app  # noqa: E402
 
-assert _app.RULES.split("\n", 1)[1] == RULES_V4.split("\n", 1)[1] and _app.SCHEMA == SCHEMA_LIST
+# v4d (2026-10-30, docs/features/013-text-eval.md): v4 plus three rule edits found by the text eval. Flow marks: a
+# start point for a later run, or anything the speaker asks to be written, is a mark. Roster scope: an exclusion
+# stays inside the excluded part's group, and a section or name not in the score facts is the ensemble with the
+# word kept in the text. The app's prompt is v4d (v4 stays here as scored on 2026-10-29).
+FLOW_OLD = "Telling a part where it comes in (its entry) is a mark.\n"
+FLOW_NEW = ("Telling a part where it comes in (its entry) is a mark. A start point for a later run (\"next time\",\n"
+            "  \"tomorrow\", \"after the break\") is a mark at that place (text \"Start here next time\"), and so is anything the\n"
+            "  speaker asks to have written or marked.\n")
+GROUP_OLD = """When the speaker excludes a part, list every other part of its group
+  (strings: Violin I, Violin II, Viola, Cello; voices: Soprano, Alto, Tenor, Bass)."""
+GROUP_NEW = """When the speaker excludes a part ("everyone except X", "everyone else",
+  "all but X"), list every other part of X's group only, never parts of the other group (strings: Violin I,
+  Violin II, Viola, Cello; voices: Soprano, Alto, Tenor, Bass)."""
+ROSTER_OLD = """part may be "except". Numbers are usually right."""
+ROSTER_NEW = """part may be "except". Numbers are usually right. A section or a name that is not in the score facts (e.g.
+  "the winds", "percussion", a player not in Members) is not a part or member: use "ensemble" and keep that word in
+  the text ("Winds softer at 12"), never the nearest-sounding part."""
+
+
+RULES_V4D = RULES_V4
+for _old, _new in ((FLOW_OLD, FLOW_NEW), (GROUP_OLD, GROUP_NEW), (ROSTER_OLD, ROSTER_NEW)):
+    assert RULES_V4D.count(_old) == 1, _old
+    RULES_V4D = RULES_V4D.replace(_old, _new)
+
+
+def v4d(transcript: str, facts: ScoreFacts, holdout: set[str], examples: list[dict]) -> tuple[str, str]:
+    system, user = v3(transcript, facts, holdout, examples)
+    return system, user.replace(RULES, RULES_V4D)
+
+
+assert _app.RULES.split("\n", 1)[1] == RULES_V4D.split("\n", 1)[1] and _app.SCHEMA == SCHEMA_LIST
 
 
 # Prompts that read both recognisers' transcripts (diarisation and push-to-talk) of the same file.

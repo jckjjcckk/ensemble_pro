@@ -1,0 +1,212 @@
+[
+ {
+  "id": "v15",
+  "prompt": "v4c",
+  "k": 0,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 50\", \"quote\": \"Stop the cello, bar 50, pizzicato,\", \"confidence\": 0.85}]"
+ },
+ {
+  "id": "v15",
+  "prompt": "v4c",
+  "k": 1,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 50\", \"quote\": \"Stop the cello, bar 50, pizzicato,\", \"confidence\": 0.85}]"
+ },
+ {
+  "id": "v15",
+  "prompt": "v4c",
+  "k": 2,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 50\", \"quote\": \"Stop the cello, bar 50, pizzicato,\", \"confidence\": 0.85}]"
+ },
+ {
+  "id": "v15",
+  "prompt": "v4c",
+  "k": 3,
+  "ok": false,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Cello\"], \"kind\": \"marking\", \"text\": \"pizz. at 50\", \"quote\": \"Stop the cello, bar 50, pizzicato,\", \"confidence\": 0.85}]"
+ },
+ {
+  "id": "v15",
+  "prompt": "v4c",
+  "k": 4,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 50\", \"quote\": \"Stop the cello, bar 50, pizzicato,\", \"confidence\": 0.85}]"
+ },
+ {
+  "id": "v15",
+  "prompt": "v4d",
+  "k": 0,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 50\", \"quote\": \"Stop the cello, bar 50, pizzicato,\", \"confidence\": 0.85}]"
+ },
+ {
+  "id": "v15",
+  "prompt": "v4d",
+  "k": 1,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 50\", \"quote\": \"Stop the cello, bar 50, pizzicato,\", \"confidence\": 0.85}]"
+ },
+ {
+  "id": "v15",
+  "prompt": "v4d",
+  "k": 2,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 50\", \"quote\": \"Stop the cello, bar 50, pizzicato,\", \"confidence\": 0.75}]"
+ },
+ {
+  "id": "v15",
+  "prompt": "v4d",
+  "k": 3,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 50\", \"quote\": \"Stop the cello, bar 50, pizzicato,\", \"confidence\": 0.85}]"
+ },
+ {
+  "id": "v15",
+  "prompt": "v4d",
+  "k": 4,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 50\", \"quote\": \"Stop the cello, bar 50, pizzicato,\", \"confidence\": 0.75}]"
+ },
+ {
+  "id": "f04",
+  "prompt": "v4c",
+  "k": 0,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 57, \"bar_to\": 57, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"From 57: keep it light\", \"quote\": \"From 57 next time, and keep it light.\", \"confidence\": 0.9}]"
+ },
+ {
+  "id": "f04",
+  "prompt": "v4c",
+  "k": 1,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 57, \"bar_to\": 57, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"From 57: keep it light\", \"quote\": \"From 57 next time, and keep it light.\", \"confidence\": 0.85}]"
+ },
+ {
+  "id": "f04",
+  "prompt": "v4c",
+  "k": 2,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 57, \"bar_to\": 57, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"From 57: light\", \"quote\": \"From 57 next time, and keep it light.\", \"confidence\": 0.85}]"
+ },
+ {
+  "id": "f04",
+  "prompt": "v4c",
+  "k": 3,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 57, \"bar_to\": 57, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"From 57: light\", \"quote\": \"From 57 next time, and keep it light.\", \"confidence\": 0.85}]"
+ },
+ {
+  "id": "f04",
+  "prompt": "v4c",
+  "k": 4,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 57, \"bar_to\": 57, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"From 57: keep it light\", \"quote\": \"From 57 next time, and keep it light.\", \"confidence\": 0.9}]"
+ },
+ {
+  "id": "f04",
+  "prompt": "v4d",
+  "k": 0,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 57, \"bar_to\": 57, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"Start here next time, keep it light from 57\", \"quote\": \"From 57 next time, and keep it light.\", \"confidence\": 0.9}]"
+ },
+ {
+  "id": "f04",
+  "prompt": "v4d",
+  "k": 1,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 57, \"bar_to\": 57, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"Start here next time, keep it light at 57\", \"quote\": \"From 57 next time, and keep it light.\", \"confidence\": 0.9}]"
+ },
+ {
+  "id": "f04",
+  "prompt": "v4d",
+  "k": 2,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 57, \"bar_to\": 57, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"Start here next time, keep it light at bar 57\", \"quote\": \"From 57 next time, and keep it light.\", \"confidence\": 0.92}]"
+ },
+ {
+  "id": "f04",
+  "prompt": "v4d",
+  "k": 3,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 57, \"bar_to\": 57, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"Start here next time, keep it light at bar 57\", \"quote\": \"From 57 next time, and keep it light.\", \"confidence\": 0.9}]"
+ },
+ {
+  "id": "f04",
+  "prompt": "v4d",
+  "k": 4,
+  "ok": true,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 57, \"bar_to\": 57, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"Start here next time, keep it light at 57\", \"quote\": \"From 57 next time, and keep it light.\", \"confidence\": 0.92}]"
+ },
+ {
+  "id": "n16",
+  "prompt": "v4c",
+  "k": 0,
+  "ok": false,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 30, \"bar_to\": 30, \"audience\": [\"part:Cello\"], \"kind\": \"marking\", \"text\": \"pizz. at 30\", \"quote\": \"Last week we had the cellos pizz at 30, that's still fine.\", \"confidence\": 0.85}]"
+ },
+ {
+  "id": "n16",
+  "prompt": "v4c",
+  "k": 1,
+  "ok": true,
+  "reply": "{\"none\": true, \"confidence\": 0.9}"
+ },
+ {
+  "id": "n16",
+  "prompt": "v4c",
+  "k": 2,
+  "ok": false,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 30, \"bar_to\": 30, \"audience\": [\"part:Cello\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 30\", \"quote\": \"Last week we had the cellos pizz at 30, that's still fine.\", \"confidence\": 0.9}]"
+ },
+ {
+  "id": "n16",
+  "prompt": "v4c",
+  "k": 3,
+  "ok": true,
+  "reply": "{\"none\": true, \"confidence\": 0.9}"
+ },
+ {
+  "id": "n16",
+  "prompt": "v4c",
+  "k": 4,
+  "ok": true,
+  "reply": "{\"none\": true, \"confidence\": 0.9}"
+ },
+ {
+  "id": "n16",
+  "prompt": "v4d",
+  "k": 0,
+  "ok": true,
+  "reply": "{\"none\": true, \"confidence\": 0.9}"
+ },
+ {
+  "id": "n16",
+  "prompt": "v4d",
+  "k": 1,
+  "ok": true,
+  "reply": "{\"none\": true, \"confidence\": 0.85}"
+ },
+ {
+  "id": "n16",
+  "prompt": "v4d",
+  "k": 2,
+  "ok": true,
+  "reply": "{\"none\": true, \"confidence\": 0.9}"
+ },
+ {
+  "id": "n16",
+  "prompt": "v4d",
+  "k": 3,
+  "ok": true,
+  "reply": "{\"none\": true, \"confidence\": 0.85}"
+ },
+ {
+  "id": "n16",
+  "prompt": "v4d",
+  "k": 4,
+  "ok": true,
+  "reply": "{\"none\": true, \"confidence\": 0.9}"
+ }
+]
