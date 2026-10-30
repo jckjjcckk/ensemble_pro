@@ -1124,3 +1124,5 @@
 {"ts": "2026-10-28T22:14:59", "kind": "judge:v6", "id": "v18", "usd": 0.001682, "secs": 2.07, "input_tokens": 105, "output_tokens": 365}
 {"ts": "2026-10-28T22:14:59", "kind": "judge:v6", "id": "v29", "usd": 0.002233, "secs": 2.7, "input_tokens": 110, "output_tokens": 493}
 {"ts": "2026-10-28T22:15:04", "kind": "judge:v6", "id": "v28", "usd": 0.006627, "secs": 7.01, "input_tokens": 110, "output_tokens": 1527}
+{"ts": "2026-10-29T01:51:14", "kind": "asr:adhoc", "id": "1001", "usd": 0.000568, "secs": 2.23}
+{"ts": "2026-10-29T01:51:18", "kind": "propose:adhoc", "id": "1001", "usd": 0.005786, "secs": 3.88}
