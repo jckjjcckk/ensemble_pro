@@ -1,0 +1,328 @@
+{
+ "silero_ms_per_32ms_frame": 0.124,
+ "long_seconds": 146.3,
+ "rows": [
+  {
+   "chunker": "silero",
+   "min_silence_ms": 300,
+   "segments": 27,
+   "utterances": 17,
+   "found": 17,
+   "false_splits": 10,
+   "split_ids": [
+    "v02",
+    "v03c",
+    "v07c",
+    "v12",
+    "v21"
+   ],
+   "merged_segments": 0,
+   "segments_on_music_only": 0,
+   "music_seconds_sent": 0,
+   "stray_segments": 0,
+   "end_decided_after_speech_end_median": 0.33,
+   "end_decided_after_speech_end_p90": 0.43,
+   "seconds_sent": 70.7
+  },
+  {
+   "chunker": "energy",
+   "min_silence_ms": 300,
+   "segments": 29,
+   "utterances": 17,
+   "found": 17,
+   "false_splits": 9,
+   "split_ids": [
+    "v02",
+    "v03c",
+    "v07c",
+    "v12",
+    "v21"
+   ],
+   "merged_segments": 0,
+   "segments_on_music_only": 3,
+   "music_seconds_sent": 34.4,
+   "stray_segments": 0,
+   "end_decided_after_speech_end_median": 0.31,
+   "end_decided_after_speech_end_p90": 0.37,
+   "seconds_sent": 108.8
+  },
+  {
+   "chunker": "silero",
+   "min_silence_ms": 500,
+   "segments": 23,
+   "utterances": 17,
+   "found": 17,
+   "false_splits": 6,
+   "split_ids": [
+    "v02",
+    "v07c",
+    "v12",
+    "v21"
+   ],
+   "merged_segments": 0,
+   "segments_on_music_only": 0,
+   "music_seconds_sent": 0,
+   "stray_segments": 0,
+   "end_decided_after_speech_end_median": 0.52,
+   "end_decided_after_speech_end_p90": 0.62,
+   "seconds_sent": 71.4
+  },
+  {
+   "chunker": "energy",
+   "min_silence_ms": 500,
+   "segments": 26,
+   "utterances": 17,
+   "found": 17,
+   "false_splits": 6,
+   "split_ids": [
+    "v02",
+    "v07c",
+    "v12",
+    "v21"
+   ],
+   "merged_segments": 0,
+   "segments_on_music_only": 3,
+   "music_seconds_sent": 34.4,
+   "stray_segments": 0,
+   "end_decided_after_speech_end_median": 0.5,
+   "end_decided_after_speech_end_p90": 0.56,
+   "seconds_sent": 109.3
+  },
+  {
+   "chunker": "silero",
+   "min_silence_ms": 700,
+   "segments": 23,
+   "utterances": 17,
+   "found": 17,
+   "false_splits": 6,
+   "split_ids": [
+    "v02",
+    "v07c",
+    "v12",
+    "v21"
+   ],
+   "merged_segments": 0,
+   "segments_on_music_only": 0,
+   "music_seconds_sent": 0.1,
+   "stray_segments": 0,
+   "end_decided_after_speech_end_median": 0.71,
+   "end_decided_after_speech_end_p90": 0.84,
+   "seconds_sent": 72.7
+  },
+  {
+   "chunker": "energy",
+   "min_silence_ms": 700,
+   "segments": 25,
+   "utterances": 17,
+   "found": 17,
+   "false_splits": 5,
+   "split_ids": [
+    "v07c",
+    "v12",
+    "v21"
+   ],
+   "merged_segments": 0,
+   "segments_on_music_only": 3,
+   "music_seconds_sent": 35.0,
+   "stray_segments": 0,
+   "end_decided_after_speech_end_median": 0.7,
+   "end_decided_after_speech_end_p90": 0.76,
+   "seconds_sent": 111.2
+  },
+  {
+   "chunker": "silero",
+   "min_silence_ms": 1000,
+   "segments": 18,
+   "utterances": 17,
+   "found": 17,
+   "false_splits": 3,
+   "split_ids": [
+    "v02",
+    "v07c",
+    "v21"
+   ],
+   "merged_segments": 2,
+   "segments_on_music_only": 0,
+   "music_seconds_sent": 0.1,
+   "stray_segments": 0,
+   "end_decided_after_speech_end_median": 1.05,
+   "end_decided_after_speech_end_p90": 2.57,
+   "seconds_sent": 76.3
+  },
+  {
+   "chunker": "energy",
+   "min_silence_ms": 1000,
+   "segments": 15,
+   "utterances": 17,
+   "found": 17,
+   "false_splits": 2,
+   "split_ids": [
+    "v12",
+    "v21"
+   ],
+   "merged_segments": 5,
+   "segments_on_music_only": 1,
+   "music_seconds_sent": 35.0,
+   "stray_segments": 0,
+   "end_decided_after_speech_end_median": 1.03,
+   "end_decided_after_speech_end_p90": 8.92,
+   "seconds_sent": 118.5
+  },
+  {
+   "chunker": "meta ENDPOINTING",
+   "min_silence_ms": null,
+   "segments": 22,
+   "utterances": 17,
+   "found": 17,
+   "false_splits": 5,
+   "split_ids": [
+    "v01",
+    "v02",
+    "v07c",
+    "v12",
+    "v21"
+   ],
+   "merged_segments": 0,
+   "segments_on_music_only": 0,
+   "music_seconds_sent": 0,
+   "stray_segments": 0,
+   "end_decided_after_speech_end_median": 0.44,
+   "end_decided_after_speech_end_p90": 0.61,
+   "seconds_sent": 73.0
+  }
+ ],
+ "meta_turns": [
+  {
+   "start": 13.58,
+   "end": 15.82,
+   "lag": 0.6,
+   "text": "Everyone, bar 34, piano please."
+  },
+  {
+   "start": 16.22,
+   "end": 16.94,
+   "lag": 0.58,
+   "text": "really piano."
+  },
+  {
+   "start": 18.38,
+   "end": 24.78,
+   "lag": 0.55,
+   "text": "Second violins from 42 to 48, we are cutting that. Go straight to 49."
+  },
+  {
+   "start": 25.42,
+   "end": 25.9,
+   "lag": 0.57,
+   "text": "49."
+  },
+  {
+   "start": 27.82,
+   "end": 30.78,
+   "lag": 0.57,
+   "text": "One, two, three, four."
+  },
+  {
+   "start": 44.86,
+   "end": 53.5,
+   "lag": 0.65,
+   "text": "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the cello on the first note."
+  },
+  {
+   "start": 54.46,
+   "end": 58.62,
+   "lag": 0.63,
+   "text": "From letter C, everybody, we take it a little slower, more weight."
+  },
+  {
+   "start": 62.54,
+   "end": 63.9,
+   "lag": 0.59,
+   "text": "can somebody pass me the rosin?"
+  },
+  {
+   "start": 64.78,
+   "end": 68.46,
+   "lag": 0.59,
+   "text": "The first violin, you are late at 71. What was that?"
+  },
+  {
+   "start": 69.26,
+   "end": 74.7,
+   "lag": 0.57,
+   "text": "Okay, violas, the entry is on the end end of two."
+  },
+  {
+   "start": 75.74,
+   "end": 79.74,
+   "lag": 0.66,
+   "text": "Bar 112, everyone, crescendo through 116."
+  },
+  {
+   "start": 81.42,
+   "end": 85.5,
+   "lag": 0.62,
+   "text": "Pick up to 34, first that's where you come in."
+  },
+  {
+   "start": 85.66,
+   "end": 86.54,
+   "lag": 0.66,
+   "text": "nobody else."
+  },
+  {
+   "start": 90.06,
+   "end": 92.38,
+   "lag": 0.61,
+   "text": "Okay, letter B, off we go."
+  },
+  {
+   "start": 106.7,
+   "end": 109.34,
+   "lag": 0.62,
+   "text": "Stop the cello, bar 50, pizzicato."
+  },
+  {
+   "start": 110.38,
+   "end": 113.58,
+   "lag": 0.62,
+   "text": "From the double bar after letter B, we are cutting to letter D."
+  },
+  {
+   "start": 119.1,
+   "end": 120.86,
+   "lag": 0.59,
+   "text": "bar 64"
+  },
+  {
+   "start": 121.5,
+   "end": 127.26,
+   "lag": 0.56,
+   "text": "altos and tenors, breath mark, then 65, sforzato, everyone."
+  },
+  {
+   "start": 127.74,
+   "end": 129.66,
+   "lag": 0.59,
+   "text": "Where were we? Bar 40"
+  },
+  {
+   "start": 131.74,
+   "end": 134.38,
+   "lag": 0.59,
+   "text": "Once more from 22 and this time don't rush."
+  },
+  {
+   "start": 135.26,
+   "end": 140.7,
+   "lag": 0.57,
+   "text": "Seconds mark it, bar 55 is forte, 56 is piano, subito."
+  },
+  {
+   "start": 142.86,
+   "end": 145.18,
+   "lag": 0.58,
+   "text": "Okay, let's take it from the top."
+  }
+ ]
+}

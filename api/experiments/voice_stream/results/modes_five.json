@@ -1,0 +1,500 @@
+{
+ "v02": {
+  "batch_DIARIZATION": [
+   {
+    "seconds": 2.73,
+    "transcript": "Second violins from 42 to 48, we are cutting that. Go straight to 49. 49.",
+    "wer": [
+     3,
+     13
+    ]
+   },
+   {
+    "seconds": 2.3,
+    "transcript": "second violins from 42 to 48 we are cutting that go straight to 49, 49"
+   }
+  ],
+  "batch_PUSH_TO_TALK": [
+   {
+    "seconds": 2.1,
+    "transcript": "second violins from 42 to 48 we are cutting that go straight to 49 49",
+    "wer": [
+     3,
+     13
+    ]
+   }
+  ],
+  "rt_PUSH_TO_TALK": {
+   "speech_on": 1.7,
+   "speech_end": 8.9,
+   "first_partial_after_onset": 1.17,
+   "n_partials": 13,
+   "turns": 1,
+   "final_after_speech_end": 1.07,
+   "final_after_endStream": 0.13,
+   "transcript": "second violins from forty-two to forty-eight we are cutting that. Go straight to forty-nine. Forty-nine.",
+   "wer": [
+    3,
+    13
+   ]
+  },
+  "rt_ENDPOINTING": {
+   "speech_on": 1.7,
+   "speech_end": 8.9,
+   "first_partial_after_onset": 1.04,
+   "n_partials": 13,
+   "turns": 2,
+   "speechEnd_after_speech_end": 0.69,
+   "complete_after_speech_end": 0.69,
+   "complete_lag_per_turn": [
+    0.57,
+    0.65
+   ],
+   "first_partial_after_speechStart": 1.48,
+   "transcript": "second violins from 42 to 48 we are cutting that go straight to 49 49.",
+   "partial_at_speechEnd": "49.",
+   "turn_spans": [
+    [
+     0.96,
+     6.72
+    ],
+    [
+     8.0,
+     8.64
+    ]
+   ],
+   "turn_texts": [
+    "second violins from 42 to 48 we are cutting that go straight to 49",
+    "49."
+   ],
+   "wer": [
+    3,
+    13
+   ]
+  },
+  "rt_DIARIZATION": {
+   "speech_on": 1.7,
+   "speech_end": 8.9,
+   "first_partial_after_onset": 1.04,
+   "n_partials": 16,
+   "turns": 2,
+   "speechEnd_after_speech_end": 0.85,
+   "complete_after_speech_end": 0.85,
+   "complete_lag_per_turn": [
+    0.66,
+    0.65
+   ],
+   "first_partial_after_speechStart": 1.0,
+   "transcript": "second violins from 42 to 48 we are cutting that, go straight to 49. 49.",
+   "partial_at_speechEnd": "49.",
+   "turn_spans": [
+    [
+     1.44,
+     7.6
+    ],
+    [
+     8.0,
+     8.8
+    ]
+   ],
+   "turn_texts": [
+    "second violins from 42 to 48 we are cutting that, go straight to 49.",
+    "49."
+   ],
+   "wer": [
+    3,
+    13
+   ]
+  }
+ },
+ "v08": {
+  "batch_DIARIZATION": [
+   {
+    "seconds": 1.61,
+    "transcript": "bar 112 everyone, crescendo through 116.",
+    "wer": [
+     1,
+     7
+    ]
+   },
+   {
+    "seconds": 1.44,
+    "transcript": "Bar 112, everyone. everyone. Crescendo through 116."
+   }
+  ],
+  "batch_PUSH_TO_TALK": [
+   {
+    "seconds": 1.86,
+    "transcript": "bar 112 everyone crescendo through 116",
+    "wer": [
+     1,
+     7
+    ]
+   }
+  ],
+  "rt_PUSH_TO_TALK": {
+   "speech_on": 1.3,
+   "speech_end": 6.08,
+   "first_partial_after_onset": 1.09,
+   "n_partials": 8,
+   "turns": 1,
+   "final_after_speech_end": 1.04,
+   "final_after_endStream": 0.16,
+   "transcript": "bar one twelve everyone crescendo through one sixteen",
+   "wer": [
+    4,
+    7
+   ]
+  },
+  "rt_ENDPOINTING": {
+   "speech_on": 1.3,
+   "speech_end": 6.08,
+   "first_partial_after_onset": 1.12,
+   "n_partials": 8,
+   "turns": 1,
+   "speechEnd_after_speech_end": -0.84,
+   "complete_after_speech_end": -0.84,
+   "complete_lag_per_turn": [
+    0.54
+   ],
+   "first_partial_after_speechStart": 1.56,
+   "transcript": "bar one twelve everyone crescendo through one sixteen",
+   "partial_at_speechEnd": "bar one twelve everyone crescendo through one sixteen",
+   "turn_spans": [
+    [
+     0.56,
+     4.4
+    ]
+   ],
+   "turn_texts": [
+    "bar one twelve everyone crescendo through one sixteen"
+   ],
+   "wer": [
+    4,
+    7
+   ]
+  },
+  "rt_DIARIZATION": {
+   "speech_on": 1.3,
+   "speech_end": 6.08,
+   "first_partial_after_onset": 0.57,
+   "n_partials": 7,
+   "turns": 1,
+   "speechEnd_after_speech_end": -0.6,
+   "complete_after_speech_end": -0.6,
+   "complete_lag_per_turn": [
+    0.62
+   ],
+   "first_partial_after_speechStart": 0.85,
+   "transcript": "bar 112 everyone crescendo through 116",
+   "partial_at_speechEnd": "bar 112 everyone crescendo through 116",
+   "turn_spans": [
+    [
+     0.72,
+     4.56
+    ]
+   ],
+   "turn_texts": [
+    "bar 112 everyone crescendo through 116"
+   ],
+   "wer": [
+    1,
+    7
+   ]
+  }
+ },
+ "v11": {
+  "batch_DIARIZATION": [
+   {
+    "seconds": 1.79,
+    "transcript": "C sharp in bar 15 is flat. Listen to the viola there.",
+    "wer": [
+     2,
+     14
+    ]
+   },
+   {
+    "seconds": 1.78,
+    "transcript": "C sharp in bar 15 is flat. Listen to the to the viola there."
+   }
+  ],
+  "batch_PUSH_TO_TALK": [
+   {
+    "seconds": 1.59,
+    "transcript": "C sharp in bar 15 is flat listen to to the viola there",
+    "wer": [
+     3,
+     14
+    ]
+   }
+  ],
+  "rt_PUSH_TO_TALK": {
+   "speech_on": 2.36,
+   "speech_end": 5.66,
+   "first_partial_after_onset": 0.79,
+   "n_partials": 11,
+   "turns": 1,
+   "final_after_speech_end": 1.4,
+   "final_after_endStream": 0.26,
+   "transcript": "C sharp in bar 15 is flat, listen to the viola there.",
+   "wer": [
+    2,
+    14
+   ]
+  },
+  "rt_ENDPOINTING": {
+   "speech_on": 2.36,
+   "speech_end": 5.66,
+   "first_partial_after_onset": 0.7,
+   "n_partials": 11,
+   "turns": 1,
+   "speechEnd_after_speech_end": 0.41,
+   "complete_after_speech_end": 0.41,
+   "complete_lag_per_turn": [
+    0.57
+   ],
+   "first_partial_after_speechStart": 1.08,
+   "transcript": "C sharp in bar 15 is flat. Listen to the viola there.",
+   "partial_at_speechEnd": "C sharp in bar 15 is flat. Listen to the viola there.",
+   "turn_spans": [
+    [
+     1.68,
+     5.2
+    ]
+   ],
+   "turn_texts": [
+    "C sharp in bar 15 is flat. Listen to the viola there."
+   ],
+   "wer": [
+    2,
+    14
+   ]
+  },
+  "rt_DIARIZATION": {
+   "speech_on": 2.36,
+   "speech_end": 5.66,
+   "first_partial_after_onset": 0.76,
+   "n_partials": 12,
+   "turns": 1,
+   "speechEnd_after_speech_end": 0.77,
+   "complete_after_speech_end": 0.77,
+   "complete_lag_per_turn": [
+    0.61
+   ],
+   "first_partial_after_speechStart": 0.82,
+   "transcript": "C sharp in bar 15 is flat. Listen to the viola there.",
+   "partial_at_speechEnd": "C sharp in bar 15 is flat. Listen to the viola there.",
+   "turn_spans": [
+    [
+     2.0,
+     5.52
+    ]
+   ],
+   "turn_texts": [
+    "C sharp in bar 15 is flat. Listen to the viola there."
+   ],
+   "wer": [
+    2,
+    14
+   ]
+  }
+ },
+ "v15": {
+  "batch_DIARIZATION": [
+   {
+    "seconds": 1.5,
+    "transcript": "stop the cello, bar 50, pizzicato.",
+    "wer": [
+     2,
+     7
+    ]
+   },
+   {
+    "seconds": 1.54,
+    "transcript": "stop the cello, bar bar 50 pizzicato"
+   }
+  ],
+  "batch_PUSH_TO_TALK": [
+   {
+    "seconds": 1.37,
+    "transcript": "stop the cello. Bar fifty, pizzicato.",
+    "wer": [
+     2,
+     7
+    ]
+   }
+  ],
+  "rt_PUSH_TO_TALK": {
+   "speech_on": 2.0,
+   "speech_end": 4.64,
+   "first_partial_after_onset": 1.08,
+   "n_partials": 5,
+   "turns": 1,
+   "final_after_speech_end": 1.56,
+   "final_after_endStream": 0.12,
+   "transcript": "stop the cello, bar fifty, pizzicato.",
+   "wer": [
+    2,
+    7
+   ]
+  },
+  "rt_ENDPOINTING": {
+   "speech_on": 2.0,
+   "speech_end": 4.64,
+   "first_partial_after_onset": 1.11,
+   "n_partials": 5,
+   "turns": 1,
+   "speechEnd_after_speech_end": 0.53,
+   "complete_after_speech_end": 0.53,
+   "complete_lag_per_turn": [
+    0.55
+   ],
+   "first_partial_after_speechStart": 1.53,
+   "transcript": "set the cello, bar 50, pizzicato,",
+   "partial_at_speechEnd": "set the cello, bar 50, pizzicato,",
+   "turn_spans": [
+    [
+     1.28,
+     4.32
+    ]
+   ],
+   "turn_texts": [
+    "set the cello, bar 50, pizzicato,"
+   ],
+   "wer": [
+    2,
+    7
+   ]
+  },
+  "rt_DIARIZATION": {
+   "speech_on": 2.0,
+   "speech_end": 4.64,
+   "first_partial_after_onset": 1.01,
+   "n_partials": 6,
+   "turns": 1,
+   "speechEnd_after_speech_end": 1.43,
+   "complete_after_speech_end": 1.43,
+   "complete_lag_per_turn": [
+    0.65
+   ],
+   "first_partial_after_speechStart": 1.19,
+   "transcript": "Stop the cello, bar 50, pizzicato.",
+   "partial_at_speechEnd": "Stop the cello, bar 50, pizzicato.",
+   "turn_spans": [
+    [
+     1.52,
+     5.12
+    ]
+   ],
+   "turn_texts": [
+    "Stop the cello, bar 50, pizzicato."
+   ],
+   "wer": [
+    2,
+    7
+   ]
+  }
+ },
+ "v21": {
+  "batch_DIARIZATION": [
+   {
+    "seconds": 2.19,
+    "transcript": "bar 64. Autos and tenors, breath mark, mark, then 65, sforzato, everyone,",
+    "wer": [
+     3,
+     11
+    ]
+   },
+   {
+    "seconds": 2.15,
+    "transcript": "Bar 64. Altos and tenors, breath mark, then 65, sforzato everyone,"
+   }
+  ],
+  "batch_PUSH_TO_TALK": [
+   {
+    "seconds": 1.95,
+    "transcript": "bar 64 altos and tenors breath mark then 65 sforzato everyone",
+    "wer": [
+     1,
+     11
+    ]
+   }
+  ],
+  "rt_PUSH_TO_TALK": {
+   "speech_on": 1.2,
+   "speech_end": 8.72,
+   "first_partial_after_onset": 1.01,
+   "n_partials": 10,
+   "turns": 1,
+   "final_after_speech_end": 1.19,
+   "final_after_endStream": 0.15,
+   "transcript": "bar sixty-four altos and tenors breath mark, then sixty-five sforzato everyone",
+   "wer": [
+    1,
+    11
+   ]
+  },
+  "rt_ENDPOINTING": {
+   "speech_on": 1.2,
+   "speech_end": 8.72,
+   "first_partial_after_onset": 1.02,
+   "n_partials": 9,
+   "turns": 2,
+   "speechEnd_after_speech_end": 0.91,
+   "complete_after_speech_end": 0.91,
+   "complete_lag_per_turn": [
+    0.56,
+    0.53
+   ],
+   "first_partial_after_speechStart": 1.36,
+   "transcript": "Bar 64 altos and tenors breath mark then 65 sforzato everyone",
+   "partial_at_speechEnd": "altos and tenors breath mark then 65 sforzato everyone",
+   "turn_spans": [
+    [
+     0.56,
+     2.16
+    ],
+    [
+     2.88,
+     8.8
+    ]
+   ],
+   "turn_texts": [
+    "Bar 64",
+    "altos and tenors breath mark then 65 sforzato everyone"
+   ],
+   "wer": [
+    1,
+    11
+   ]
+  },
+  "rt_DIARIZATION": {
+   "speech_on": 1.2,
+   "speech_end": 8.72,
+   "first_partial_after_onset": 1.28,
+   "n_partials": 10,
+   "turns": 1,
+   "speechEnd_after_speech_end": 1.0,
+   "complete_after_speech_end": 1.0,
+   "complete_lag_per_turn": [
+    0.62
+   ],
+   "first_partial_after_speechStart": 1.46,
+   "transcript": "bar 64. Autos and tenors, breath mark, then 65, sforzato, everyone,",
+   "partial_at_speechEnd": "bar 64. Autos and tenors, breath mark, then 65, sforzato, everyone,",
+   "turn_spans": [
+    [
+     0.72,
+     8.8
+    ]
+   ],
+   "turn_texts": [
+    "bar 64. Autos and tenors, breath mark, then 65, sforzato, everyone,"
+   ],
+   "wer": [
+    2,
+    11
+   ]
+  }
+ }
+}

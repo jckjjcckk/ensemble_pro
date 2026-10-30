@@ -1,0 +1,1371 @@
+{
+ "turns": [
+  {
+   "start": 13.58,
+   "end": 15.82,
+   "speech_end": 15.82,
+   "decided": 16.423971750002238,
+   "text": "Everyone, bar 34, piano please.",
+   "A": [
+    {
+     "position": "bar",
+     "bar_from": 34,
+     "bar_to": 34,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "dynamic",
+     "text": "p at bar 34",
+     "quote": "Everyone, bar 34, piano please.",
+     "confidence": 0.95
+    }
+   ],
+   "B": [
+    {
+     "position": "bar",
+     "bar_from": 34,
+     "bar_to": 34,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "dynamic",
+     "text": "p at bar 34",
+     "quote": "Everyone, bar 34, piano please. really piano.",
+     "confidence": 0.95
+    }
+   ],
+   "joined": false,
+   "C": [
+    {
+     "position": "bar",
+     "bar_from": 34,
+     "bar_to": 34,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "dynamic",
+     "text": "p at bar 34",
+     "quote": "Everyone, bar 34, piano please. really piano.",
+     "confidence": 0.95
+    }
+   ]
+  },
+  {
+   "start": 16.22,
+   "end": 16.94,
+   "speech_end": 16.94,
+   "decided": 17.515830042000744,
+   "text": "really piano.",
+   "A": [],
+   "B": [],
+   "joined": true,
+   "C": []
+  },
+  {
+   "start": 18.38,
+   "end": 24.78,
+   "speech_end": 24.78,
+   "decided": 25.333504624999478,
+   "text": "Second violins from 42 to 48, we are cutting that. Go straight to 49.",
+   "A": [
+    {
+     "position": "range",
+     "bar_from": 42,
+     "bar_to": 48,
+     "audience": [
+      "part:Violin II"
+     ],
+     "kind": "cut",
+     "text": "Cut 42–48, to 49",
+     "quote": "Second violins from 42 to 48, we are cutting that. Go straight to 49.",
+     "confidence": 0.95
+    }
+   ],
+   "B": [
+    {
+     "position": "range",
+     "bar_from": 42,
+     "bar_to": 48,
+     "audience": [
+      "part:Violin II"
+     ],
+     "kind": "cut",
+     "text": "Cut 42–48, go to 49",
+     "quote": "Second violins from 42 to 48, we are cutting that. Go straight to 49. 49.",
+     "confidence": 0.95
+    }
+   ],
+   "joined": true,
+   "C": [
+    {
+     "position": "range",
+     "bar_from": 42,
+     "bar_to": 48,
+     "audience": [
+      "part:Violin II"
+     ],
+     "kind": "cut",
+     "text": "Cut 42–48, go to 49",
+     "quote": "Second violins from 42 to 48, we are cutting that. Go straight to 49. 49.",
+     "confidence": 0.95
+    }
+   ]
+  },
+  {
+   "start": 25.42,
+   "end": 25.9,
+   "speech_end": 25.9,
+   "decided": 26.47167787500075,
+   "text": "49.",
+   "A": [],
+   "B": [],
+   "joined": true,
+   "C": []
+  },
+  {
+   "start": 27.82,
+   "end": 30.78,
+   "speech_end": 30.78,
+   "decided": 31.353456874989206,
+   "text": "One, two, three, four.",
+   "A": [],
+   "B": [],
+   "joined": true,
+   "C": []
+  },
+  {
+   "start": 44.86,
+   "end": 53.5,
+   "speech_end": 53.5,
+   "decided": 54.14574599999469,
+   "text": "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the cello on the first note.",
+   "A": [
+    {
+     "position": "bar",
+     "bar_from": 12,
+     "bar_to": 12,
+     "audience": [
+      "part:Cello"
+     ],
+     "kind": "bowing",
+     "text": "Up bow at bar 12",
+     "quote": "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the cello on the first note.",
+     "confidence": 0.9
+    }
+   ],
+   "B": [
+    {
+     "position": "bar",
+     "bar_from": 12,
+     "bar_to": 12,
+     "audience": [
+      "part:Cello"
+     ],
+     "kind": "bowing",
+     "text": "Up bow at bar 12",
+     "quote": "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the cello on the first note.",
+     "confidence": 0.9
+    }
+   ],
+   "joined": false,
+   "C": [
+    {
+     "position": "bar",
+     "bar_from": 12,
+     "bar_to": 12,
+     "audience": [
+      "part:Cello"
+     ],
+     "kind": "bowing",
+     "text": "Up bow at bar 12",
+     "quote": "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the cello on the first note.",
+     "confidence": 0.9
+    }
+   ]
+  },
+  {
+   "start": 54.46,
+   "end": 58.62,
+   "speech_end": 58.62,
+   "decided": 59.247624582989374,
+   "text": "From letter C, everybody, we take it a little slower, more weight.",
+   "A": [
+    {
+     "position": "mark",
+     "bar_from": null,
+     "bar_to": null,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "text",
+     "text": "From C: slower, more weight",
+     "quote": "From letter C, everybody, we take it a little slower, more weight.",
+     "confidence": 0.9
+    }
+   ],
+   "B": [
+    {
+     "position": "mark",
+     "bar_from": null,
+     "bar_to": null,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "text",
+     "text": "From C: slower, more weight",
+     "quote": "From letter C, everybody, we take it a little slower, more weight.",
+     "confidence": 0.88
+    }
+   ],
+   "joined": true,
+   "C": [
+    {
+     "position": "mark",
+     "bar_from": null,
+     "bar_to": null,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "text",
+     "text": "From C: slower, more weight",
+     "quote": "From letter C, everybody, we take it a little slower, more weight.",
+     "confidence": 0.88
+    }
+   ]
+  },
+  {
+   "start": 62.54,
+   "end": 63.9,
+   "speech_end": 63.9,
+   "decided": 64.48989462500322,
+   "text": "can somebody pass me the rosin?",
+   "A": [],
+   "B": [],
+   "joined": false,
+   "C": []
+  },
+  {
+   "start": 64.78,
+   "end": 68.46,
+   "speech_end": 68.46,
+   "decided": 69.05311458300275,
+   "text": "The first violin, you are late at 71. What was that?",
+   "A": [],
+   "B": [],
+   "joined": true,
+   "C": []
+  },
+  {
+   "start": 69.26,
+   "end": 74.7,
+   "speech_end": 74.7,
+   "decided": 75.27149612500216,
+   "text": "Okay, violas, the entry is on the end end of two.",
+   "A": [
+    {
+     "position": "bar",
+     "bar_from": 2,
+     "bar_to": 2,
+     "audience": [
+      "part:Viola"
+     ],
+     "kind": "text",
+     "text": "Entry end of 2",
+     "quote": "Okay, violas, the entry is on the end end of two.",
+     "confidence": 0.9
+    }
+   ],
+   "B": [
+    {
+     "position": "bar",
+     "bar_from": 2,
+     "bar_to": 2,
+     "audience": [
+      "part:Viola"
+     ],
+     "kind": "text",
+     "text": "Entry at end of 2",
+     "quote": "Okay, violas, the entry is on the end end of two.",
+     "confidence": 0.65
+    }
+   ],
+   "joined": true,
+   "C": [
+    {
+     "position": "bar",
+     "bar_from": 71,
+     "bar_to": 71,
+     "audience": [
+      "part:Viola"
+     ],
+     "kind": "text",
+     "text": "Entry on & of 2 at bar 71",
+     "quote": "Okay, violas, the entry is on the end end of two.",
+     "confidence": 0.65
+    }
+   ]
+  },
+  {
+   "start": 75.74,
+   "end": 79.74,
+   "speech_end": 79.74,
+   "decided": 80.39559274999192,
+   "text": "Bar 112, everyone, crescendo through 116.",
+   "A": [
+    {
+     "position": "range",
+     "bar_from": 112,
+     "bar_to": 116,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "dynamic",
+     "text": "cresc. 112-116",
+     "quote": "Bar 112, everyone, crescendo through 116.",
+     "confidence": 0.95
+    }
+   ],
+   "B": [
+    {
+     "position": "range",
+     "bar_from": 112,
+     "bar_to": 116,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "dynamic",
+     "text": "cresc. 112-116",
+     "quote": "Bar 112, everyone, crescendo through 116.",
+     "confidence": 0.98
+    }
+   ],
+   "joined": true,
+   "C": [
+    {
+     "position": "range",
+     "bar_from": 112,
+     "bar_to": 116,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "dynamic",
+     "text": "cresc. 112-116",
+     "quote": "Bar 112, everyone, crescendo through 116.",
+     "confidence": 0.95
+    }
+   ]
+  },
+  {
+   "start": 81.42,
+   "end": 85.5,
+   "speech_end": 85.5,
+   "decided": 86.12156962500012,
+   "text": "Pick up to 34, first that's where you come in.",
+   "A": [
+    {
+     "position": "bar",
+     "bar_from": 33,
+     "bar_to": 34,
+     "audience": [
+      "part:Violin I"
+     ],
+     "kind": "text",
+     "text": "Entry at pickup to 34",
+     "quote": "Pick up to 34, first that's where you come in.",
+     "confidence": 0.85
+    }
+   ],
+   "B": [
+    {
+     "position": "bar",
+     "bar_from": 33,
+     "bar_to": 34,
+     "audience": [
+      "part:Violin I"
+     ],
+     "kind": "text",
+     "text": "Entry at pickup to 34",
+     "quote": "Pick up to 34, first that's where you come in. nobody else.",
+     "confidence": 0.9
+    }
+   ],
+   "joined": true,
+   "C": [
+    {
+     "position": "bar",
+     "bar_from": 33,
+     "bar_to": 34,
+     "audience": [
+      "part:Violin I"
+     ],
+     "kind": "text",
+     "text": "Entry at pickup to 34",
+     "quote": "Pick up to 34, first that's where you come in. nobody else.",
+     "confidence": 0.9
+    }
+   ]
+  },
+  {
+   "start": 85.66,
+   "end": 86.54,
+   "speech_end": 86.54,
+   "decided": 87.2035857919982,
+   "text": "nobody else.",
+   "A": [],
+   "B": [],
+   "joined": true,
+   "C": []
+  },
+  {
+   "start": 90.06,
+   "end": 92.38,
+   "speech_end": 92.38,
+   "decided": 92.98563299998932,
+   "text": "Okay, letter B, off we go.",
+   "A": [],
+   "B": [],
+   "joined": false,
+   "C": []
+  },
+  {
+   "start": 106.7,
+   "end": 109.34,
+   "speech_end": 109.34,
+   "decided": 109.95735595800215,
+   "text": "Stop the cello, bar 50, pizzicato.",
+   "A": [
+    {
+     "position": "bar",
+     "bar_from": 50,
+     "bar_to": 50,
+     "audience": [
+      "part:Violin I",
+      "part:Violin II",
+      "part:Viola"
+     ],
+     "kind": "marking",
+     "text": "pizz. at bar 50",
+     "quote": "Stop the cello, bar 50, pizzicato.",
+     "confidence": 0.78
+    }
+   ],
+   "B": [
+    {
+     "position": "bar",
+     "bar_from": 50,
+     "bar_to": 50,
+     "audience": [
+      "part:Violin I",
+      "part:Violin II",
+      "part:Viola"
+     ],
+     "kind": "marking",
+     "text": "pizz. at bar 50",
+     "quote": "Stop the cello, bar 50, pizzicato.",
+     "confidence": 0.75
+    }
+   ],
+   "joined": false,
+   "C": [
+    {
+     "position": "bar",
+     "bar_from": 50,
+     "bar_to": 50,
+     "audience": [
+      "part:Violin I",
+      "part:Violin II",
+      "part:Viola"
+     ],
+     "kind": "marking",
+     "text": "pizz. at bar 50",
+     "quote": "Stop the cello, bar 50, pizzicato.",
+     "confidence": 0.78
+    }
+   ]
+  },
+  {
+   "start": 110.38,
+   "end": 113.58,
+   "speech_end": 113.58,
+   "decided": 114.2037583749916,
+   "text": "From the double bar after letter B, we are cutting to letter D.",
+   "A": [
+    {
+     "position": "mark",
+     "bar_from": null,
+     "bar_to": null,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "cut",
+     "text": "Cut double bar after B to D",
+     "quote": "From the double bar after letter B, we are cutting to letter D.",
+     "confidence": 0.9
+    }
+   ],
+   "B": [
+    {
+     "position": "mark",
+     "bar_from": null,
+     "bar_to": null,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "cut",
+     "text": "Cut from double bar after B to D",
+     "quote": "From the double bar after letter B, we are cutting to letter D.",
+     "confidence": 0.9
+    }
+   ],
+   "joined": true,
+   "C": [
+    {
+     "position": "mark",
+     "bar_from": null,
+     "bar_to": null,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "cut",
+     "text": "Cut double bar after B to D",
+     "quote": "From the double bar after letter B, we are cutting to letter D.",
+     "confidence": 0.9
+    }
+   ]
+  },
+  {
+   "start": 119.1,
+   "end": 120.86,
+   "speech_end": 120.86,
+   "decided": 121.45082429199829,
+   "text": "bar 64",
+   "A": [],
+   "B": [],
+   "joined": false,
+   "C": []
+  },
+  {
+   "start": 121.5,
+   "end": 127.26,
+   "speech_end": 127.26,
+   "decided": 127.81756745799794,
+   "text": "altos and tenors, breath mark, then 65, sforzato, everyone.",
+   "A": [
+    {
+     "position": "bar",
+     "bar_from": 65,
+     "bar_to": 65,
+     "audience": [
+      "part:Alto",
+      "part:Tenor"
+     ],
+     "kind": "breath",
+     "text": "Breath mark at bar 65",
+     "quote": "altos and tenors, breath mark, then 65",
+     "confidence": 0.8
+    },
+    {
+     "position": "bar",
+     "bar_from": 65,
+     "bar_to": 65,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "dynamic",
+     "text": "sfz at bar 65",
+     "quote": "65, sforzato, everyone.",
+     "confidence": 0.9
+    }
+   ],
+   "B": [
+    {
+     "position": "bar",
+     "bar_from": 65,
+     "bar_to": 65,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "dynamic",
+     "text": "sfz at 65",
+     "quote": "altos and tenors, breath mark, then 65, sforzato, everyone.",
+     "confidence": 0.95
+    }
+   ],
+   "joined": true,
+   "C": [
+    {
+     "position": "bar",
+     "bar_from": 64,
+     "bar_to": 64,
+     "audience": [
+      "part:Alto",
+      "part:Tenor"
+     ],
+     "kind": "breath",
+     "text": "Breath at 64",
+     "quote": "bar 64 altos and tenors, breath mark, then 65, sforzato, everyone.",
+     "confidence": 0.95
+    },
+    {
+     "position": "bar",
+     "bar_from": 65,
+     "bar_to": 65,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "dynamic",
+     "text": "sfz at 65",
+     "quote": "bar 64 altos and tenors, breath mark, then 65, sforzato, everyone.",
+     "confidence": 0.95
+    }
+   ]
+  },
+  {
+   "start": 127.74,
+   "end": 129.66,
+   "speech_end": 129.66,
+   "decided": 130.2480588749895,
+   "text": "Where were we? Bar 40",
+   "A": [],
+   "B": [],
+   "joined": true,
+   "C": []
+  },
+  {
+   "start": 131.74,
+   "end": 134.38,
+   "speech_end": 134.38,
+   "decided": 134.96782474999782,
+   "text": "Once more from 22 and this time don't rush.",
+   "A": [
+    {
+     "position": "bar",
+     "bar_from": 22,
+     "bar_to": 22,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "text",
+     "text": "Don't rush from bar 22",
+     "quote": "Once more from 22 and this time don't rush.",
+     "confidence": 0.9
+    }
+   ],
+   "B": [
+    {
+     "position": "bar",
+     "bar_from": 22,
+     "bar_to": 22,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "text",
+     "text": "From 22: don't rush",
+     "quote": "Once more from 22 and this time don't rush.",
+     "confidence": 0.85
+    }
+   ],
+   "joined": false,
+   "C": [
+    {
+     "position": "bar",
+     "bar_from": 22,
+     "bar_to": 22,
+     "audience": [
+      "ensemble"
+     ],
+     "kind": "text",
+     "text": "From 22: don't rush",
+     "quote": "Once more from 22 and this time don't rush.",
+     "confidence": 0.85
+    }
+   ]
+  },
+  {
+   "start": 135.26,
+   "end": 140.7,
+   "speech_end": 140.7,
+   "decided": 141.26959041699592,
+   "text": "Seconds mark it, bar 55 is forte, 56 is piano, subito.",
+   "A": [
+    {
+     "position": "range",
+     "bar_from": 55,
+     "bar_to": 56,
+     "audience": [
+      "part:Violin II"
+     ],
+     "kind": "dynamic",
+     "text": "f at 55, subito p at 56",
+     "quote": "Seconds mark it, bar 55 is forte, 56 is piano, subito.",
+     "confidence": 0.95
+    }
+   ],
+   "B": [
+    {
+     "position": "range",
+     "bar_from": 55,
+     "bar_to": 56,
+     "audience": [
+      "part:Violin II"
+     ],
+     "kind": "dynamic",
+     "text": "f at 55, subito p at 56",
+     "quote": "Seconds mark it, bar 55 is forte, 56 is piano, subito.",
+     "confidence": 0.95
+    }
+   ],
+   "joined": true,
+   "C": [
+    {
+     "position": "range",
+     "bar_from": 55,
+     "bar_to": 56,
+     "audience": [
+      "part:Violin II"
+     ],
+     "kind": "dynamic",
+     "text": "f at 55, subito p at 56",
+     "quote": "Seconds mark it, bar 55 is forte, 56 is piano, subito.",
+     "confidence": 0.95
+    }
+   ]
+  },
+  {
+   "start": 142.86,
+   "end": 145.18,
+   "speech_end": 145.18,
+   "decided": 145.7603824169928,
+   "text": "Okay, let's take it from the top.",
+   "A": [],
+   "B": [],
+   "joined": false,
+   "C": []
+  }
+ ],
+ "lines": [
+  {
+   "id": "v01",
+   "turns": [
+    0,
+    1
+   ],
+   "A": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   },
+   "B": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   },
+   "C": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   }
+  },
+  {
+   "id": "v02",
+   "turns": [
+    2,
+    3
+   ],
+   "A": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true
+   },
+   "B": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true
+   },
+   "C": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true
+   }
+  },
+  {
+   "id": "n01",
+   "turns": [
+    4
+   ],
+   "A": {
+    "negative": true,
+    "ok": true
+   },
+   "B": {
+    "negative": true,
+    "ok": true
+   },
+   "C": {
+    "negative": true,
+    "ok": true
+   }
+  },
+  {
+   "id": "v03c",
+   "turns": [
+    5
+   ],
+   "A": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   },
+   "B": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   },
+   "C": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   }
+  },
+  {
+   "id": "v05",
+   "turns": [
+    6
+   ],
+   "A": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   },
+   "B": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   },
+   "C": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   }
+  },
+  {
+   "id": "n05",
+   "turns": [
+    7
+   ],
+   "A": {
+    "negative": true,
+    "ok": true
+   },
+   "B": {
+    "negative": true,
+    "ok": true
+   },
+   "C": {
+    "negative": true,
+    "ok": true
+   }
+  },
+  {
+   "id": "v07c",
+   "turns": [
+    8,
+    9
+   ],
+   "A": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": false,
+    "bar_to": false,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": false
+   },
+   "B": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": false,
+    "bar_to": false,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": false
+   },
+   "C": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true
+   }
+  },
+  {
+   "id": "v08",
+   "turns": [
+    10
+   ],
+   "A": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   },
+   "B": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   },
+   "C": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   }
+  },
+  {
+   "id": "v12",
+   "turns": [
+    11,
+    12
+   ],
+   "A": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true
+   },
+   "B": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true
+   },
+   "C": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true
+   }
+  },
+  {
+   "id": "n12",
+   "turns": [
+    13
+   ],
+   "A": {
+    "negative": true,
+    "ok": true
+   },
+   "B": {
+    "negative": true,
+    "ok": true
+   },
+   "C": {
+    "negative": true,
+    "ok": true
+   }
+  },
+  {
+   "id": "v15",
+   "turns": [
+    14
+   ],
+   "A": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   },
+   "B": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   },
+   "C": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   }
+  },
+  {
+   "id": "v19",
+   "turns": [
+    15
+   ],
+   "A": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true
+   },
+   "B": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true
+   },
+   "C": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true
+   }
+  },
+  {
+   "id": "v21",
+   "turns": [
+    16,
+    17
+   ],
+   "A": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": false,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": false
+   },
+   "B": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": false,
+    "bar_to": true,
+    "audience": false,
+    "kind": false,
+    "expect_exact": false,
+    "all_fields": false
+   },
+   "C": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true
+   }
+  },
+  {
+   "id": "n10",
+   "turns": [
+    18
+   ],
+   "A": {
+    "negative": true,
+    "ok": true
+   },
+   "B": {
+    "negative": true,
+    "ok": true
+   },
+   "C": {
+    "negative": true,
+    "ok": true
+   }
+  },
+  {
+   "id": "v24",
+   "turns": [
+    19
+   ],
+   "A": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   },
+   "B": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true
+   },
+   "C": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": false,
+    "all_fields": true
+   }
+  },
+  {
+   "id": "v26",
+   "turns": [
+    20
+   ],
+   "A": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   },
+   "B": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   },
+   "C": {
+    "negative": false,
+    "produced": true,
+    "position": true,
+    "bar_from": true,
+    "bar_to": true,
+    "audience": true,
+    "kind": true,
+    "expect_exact": true,
+    "all_fields": true
+   }
+  },
+  {
+   "id": "n03",
+   "turns": [
+    21
+   ],
+   "A": {
+    "negative": true,
+    "ok": true
+   },
+   "B": {
+    "negative": true,
+    "ok": true
+   },
+   "C": {
+    "negative": true,
+    "ok": true
+   }
+  }
+ ],
+ "stray_marks": {
+  "A": 0,
+  "B": 0,
+  "C": 0
+ },
+ "groups": [
+  [
+   0,
+   1
+  ],
+  [
+   2,
+   3
+  ],
+  [
+   4
+  ],
+  [
+   5,
+   6
+  ],
+  [
+   7,
+   8,
+   9
+  ],
+  [
+   10
+  ],
+  [
+   11,
+   12
+  ],
+  [
+   13
+  ],
+  [
+   14
+  ],
+  [
+   15
+  ],
+  [
+   16,
+   17,
+   18
+  ],
+  [
+   19,
+   20
+  ],
+  [
+   21
+  ]
+ ],
+ "extra_calls": {
+  "A": 0,
+  "B": 14,
+  "C": 9
+ }
+}

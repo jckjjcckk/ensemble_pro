@@ -1,0 +1,154 @@
+{
+ "One, two, three, four.": {
+  "reply": "{\"none\": true, \"confidence\": 0.99}",
+  "seconds": 0.5978600410016952
+ },
+ "Everyone, bar 34, piano please.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 34, \"bar_to\": 34, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"p at bar 34\", \"quote\": \"Everyone, bar 34, piano please.\", \"confidence\": 0.95}]",
+  "seconds": 0.8689483750058571
+ },
+ "49.": {
+  "reply": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.7628426669980399
+ },
+ "Second violins from 42 to 48, we are cutting that. Go straight to 49.": {
+  "reply": "[{\"position\": \"range\", \"bar_from\": 42, \"bar_to\": 48, \"audience\": [\"part:Violin II\"], \"kind\": \"cut\", \"text\": \"Cut 42\\u201348, to 49\", \"quote\": \"Second violins from 42 to 48, we are cutting that. Go straight to 49.\", \"confidence\": 0.95}]",
+  "seconds": 0.8478543330129469
+ },
+ "From letter C, everybody, we take it a little slower, more weight.": {
+  "reply": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"From C: slower, more weight\", \"quote\": \"From letter C, everybody, we take it a little slower, more weight.\", \"confidence\": 0.9}]",
+  "seconds": 0.908868792001158
+ },
+ "can somebody pass me the rosin?": {
+  "reply": "{\"none\": true, \"confidence\": 0.99}",
+  "seconds": 1.0428441249969183
+ },
+ "Okay, violas, the entry is on the end end of two.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 2, \"bar_to\": 2, \"audience\": [\"part:Viola\"], \"kind\": \"text\", \"text\": \"Entry end of 2\", \"quote\": \"Okay, violas, the entry is on the end end of two.\", \"confidence\": 0.9}]",
+  "seconds": 1.1017587909882423
+ },
+ "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the cello on the first note.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 12, \"bar_to\": 12, \"audience\": [\"part:Cello\"], \"kind\": \"bowing\", \"text\": \"Up bow at bar 12\", \"quote\": \"Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the cello on the first note.\", \"confidence\": 0.9}]",
+  "seconds": 1.9380911659973208
+ },
+ "The first violin, you are late at 71. What was that?": {
+  "reply": "{\"none\": true, \"confidence\": 0.85}",
+  "seconds": 1.3487239169917302
+ },
+ "really piano.": {
+  "reply": "{\"none\": true, \"confidence\": 0.6}",
+  "seconds": 2.2545465830044122
+ },
+ "nobody else.": {
+  "reply": "{\"none\": true, \"confidence\": 0.9}",
+  "seconds": 0.5773553750041174
+ },
+ "Bar 112, everyone, crescendo through 116.": {
+  "reply": "[{\"position\": \"range\", \"bar_from\": 112, \"bar_to\": 116, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"cresc. 112-116\", \"quote\": \"Bar 112, everyone, crescendo through 116.\", \"confidence\": 0.95}]",
+  "seconds": 1.0416985409974586
+ },
+ "Okay, letter B, off we go.": {
+  "reply": "{\"none\": true, \"confidence\": 0.98}",
+  "seconds": 0.7453037079976639
+ },
+ "From the double bar after letter B, we are cutting to letter D.": {
+  "reply": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"cut\", \"text\": \"Cut double bar after B to D\", \"quote\": \"From the double bar after letter B, we are cutting to letter D.\", \"confidence\": 0.9}]",
+  "seconds": 1.011837582991575
+ },
+ "Pick up to 34, first that's where you come in.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 33, \"bar_to\": 34, \"audience\": [\"part:Violin I\"], \"kind\": \"text\", \"text\": \"Entry at pickup to 34\", \"quote\": \"Pick up to 34, first that's where you come in.\", \"confidence\": 0.85}]",
+  "seconds": 1.5679561249999097
+ },
+ "Where were we? Bar 40": {
+  "reply": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.6819487499888055
+ },
+ "bar 64": {
+  "reply": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 1.0488837499869987
+ },
+ "Okay, let's take it from the top.": {
+  "reply": "{\"none\": true, \"confidence\": 0.98}",
+  "seconds": 0.8259335000038845
+ },
+ "Once more from 22 and this time don't rush.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 22, \"bar_to\": 22, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"Don't rush from bar 22\", \"quote\": \"Once more from 22 and this time don't rush.\", \"confidence\": 0.9}]",
+  "seconds": 1.3332590830104891
+ },
+ "Seconds mark it, bar 55 is forte, 56 is piano, subito.": {
+  "reply": "[{\"position\": \"range\", \"bar_from\": 55, \"bar_to\": 56, \"audience\": [\"part:Violin II\"], \"kind\": \"dynamic\", \"text\": \"f at 55, subito p at 56\", \"quote\": \"Seconds mark it, bar 55 is forte, 56 is piano, subito.\", \"confidence\": 0.95}]",
+  "seconds": 1.469091707986081
+ },
+ "altos and tenors, breath mark, then 65, sforzato, everyone.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 65, \"bar_to\": 65, \"audience\": [\"part:Alto\", \"part:Tenor\"], \"kind\": \"breath\", \"text\": \"Breath mark at bar 65\", \"quote\": \"altos and tenors, breath mark, then 65\", \"confidence\": 0.8}, {\"position\": \"bar\", \"bar_from\": 65, \"bar_to\": 65, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"sfz at bar 65\", \"quote\": \"65, sforzato, everyone.\", \"confidence\": 0.9}]",
+  "seconds": 2.9227561250008876
+ },
+ "Stop the cello, bar 50, pizzicato.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 50\", \"quote\": \"Stop the cello, bar 50, pizzicato.\", \"confidence\": 0.78}]",
+  "seconds": 4.13807812500454
+ },
+ "49. One, two, three, four.": {
+  "reply": "{\"none\": true, \"confidence\": 0.98}",
+  "seconds": 0.9185189579875441
+ },
+ "Everyone, bar 34, piano please. really piano.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 34, \"bar_to\": 34, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"p at bar 34\", \"quote\": \"Everyone, bar 34, piano please. really piano.\", \"confidence\": 0.95}]",
+  "seconds": 1.1182964999898104
+ },
+ "Second violins from 42 to 48, we are cutting that. Go straight to 49. 49.": {
+  "reply": "[{\"position\": \"range\", \"bar_from\": 42, \"bar_to\": 48, \"audience\": [\"part:Violin II\"], \"kind\": \"cut\", \"text\": \"Cut 42\\u201348, go to 49\", \"quote\": \"Second violins from 42 to 48, we are cutting that. Go straight to 49. 49.\", \"confidence\": 0.95}]",
+  "seconds": 1.3016502090031281
+ },
+ "really piano. Second violins from 42 to 48, we are cutting that. Go straight to 49.": {
+  "reply": "[{\"position\": \"range\", \"bar_from\": 42, \"bar_to\": 48, \"audience\": [\"part:Violin II\"], \"kind\": \"cut\", \"text\": \"Cut 42\\u201348, to 49\", \"quote\": \"Second violins from 42 to 48, we are cutting that. Go straight to 49.\", \"confidence\": 0.92}]",
+  "seconds": 1.8257124580122763
+ },
+ "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the cello on the first note. From letter C, everybody, we take it a little slower, more weight.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 12, \"bar_to\": 12, \"audience\": [\"part:Cello\"], \"kind\": \"bowing\", \"text\": \"Up bow at bar 12\", \"quote\": \"Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the cello on the first note.\", \"confidence\": 0.9}, {\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"From C: slower, more weight\", \"quote\": \"From letter C, everybody, we take it a little slower, more weight.\", \"confidence\": 0.88}]",
+  "seconds": 2.3428026670007966
+ },
+ "Bar 112, everyone, crescendo through 116. Pick up to 34, first that's where you come in.": {
+  "reply": "[{\"position\": \"range\", \"bar_from\": 112, \"bar_to\": 116, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"cresc. 112-116\", \"quote\": \"Bar 112, everyone, crescendo through 116.\", \"confidence\": 0.98}, {\"position\": \"bar\", \"bar_from\": 33, \"bar_to\": 34, \"audience\": [\"part:Violin I\"], \"kind\": \"text\", \"text\": \"Entry at bar 34 (pickup from 33)\", \"quote\": \"Pick up to 34, first that's where you come in.\", \"confidence\": 0.9}]",
+  "seconds": 1.4573537500109524
+ },
+ "Pick up to 34, first that's where you come in. nobody else.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 33, \"bar_to\": 34, \"audience\": [\"part:Violin I\"], \"kind\": \"text\", \"text\": \"Entry at pickup to 34\", \"quote\": \"Pick up to 34, first that's where you come in. nobody else.\", \"confidence\": 0.9}]",
+  "seconds": 1.2189851250004722
+ },
+ "can somebody pass me the rosin? The first violin, you are late at 71. What was that?": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 71, \"bar_to\": 71, \"audience\": [\"part:Violin I\"], \"kind\": \"text\", \"text\": \"Enter at bar 71\", \"quote\": \"The first violin, you are late at 71.\", \"confidence\": 0.55}]",
+  "seconds": 3.385504541991395
+ },
+ "Okay, violas, the entry is on the end end of two. Bar 112, everyone, crescendo through 116.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 2, \"bar_to\": 2, \"audience\": [\"part:Viola\"], \"kind\": \"text\", \"text\": \"Entry at end of 2\", \"quote\": \"Okay, violas, the entry is on the end end of two.\", \"confidence\": 0.65}, {\"position\": \"range\", \"bar_from\": 112, \"bar_to\": 116, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"cresc. 112\\u2013116\", \"quote\": \"Bar 112, everyone, crescendo through 116.\", \"confidence\": 0.95}]",
+  "seconds": 3.339681625002413
+ },
+ "bar 64 altos and tenors, breath mark, then 65, sforzato, everyone.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 64, \"bar_to\": 64, \"audience\": [\"part:Alto\", \"part:Tenor\"], \"kind\": \"breath\", \"text\": \"Breath mark at bar 64\", \"quote\": \"bar 64 altos and tenors, breath mark,\", \"confidence\": 0.95}, {\"position\": \"bar\", \"bar_from\": 65, \"bar_to\": 65, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"sfz at bar 65\", \"quote\": \"then 65, sforzato, everyone.\", \"confidence\": 0.95}]",
+  "seconds": 1.8825412500009406
+ },
+ "altos and tenors, breath mark, then 65, sforzato, everyone. Where were we? Bar 40": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 65, \"bar_to\": 65, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"sfz at 65\", \"quote\": \"altos and tenors, breath mark, then 65, sforzato, everyone.\", \"confidence\": 0.95}]",
+  "seconds": 1.717564125006902
+ },
+ "The first violin, you are late at 71. What was that? Okay, violas, the entry is on the end end of two.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 71, \"bar_to\": 71, \"audience\": [\"part:Viola\"], \"kind\": \"text\", \"text\": \"Entry on end of 2, bar 71\", \"quote\": \"Okay, violas, the entry is on the end end of two.\", \"confidence\": 0.6}]",
+  "seconds": 4.133938415994635
+ },
+ "Stop the cello, bar 50, pizzicato. From the double bar after letter B, we are cutting to letter D.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 50\", \"quote\": \"Stop the cello, bar 50, pizzicato.\", \"confidence\": 0.75}, {\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"cut\", \"text\": \"Cut from double bar after B to D\", \"quote\": \"From the double bar after letter B, we are cutting to letter D.\", \"confidence\": 0.9}]",
+  "seconds": 3.2290344159991946
+ },
+ "Once more from 22 and this time don't rush. Seconds mark it, bar 55 is forte, 56 is piano, subito.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 22, \"bar_to\": 22, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"From 22: don't rush\", \"quote\": \"Once more from 22 and this time don't rush.\", \"confidence\": 0.85}, {\"position\": \"range\", \"bar_from\": 55, \"bar_to\": 56, \"audience\": [\"part:Violin II\"], \"kind\": \"dynamic\", \"text\": \"f at 55, subito p at 56\", \"quote\": \"Seconds mark it, bar 55 is forte, 56 is piano, subito.\", \"confidence\": 0.95}]",
+  "seconds": 2.208547540998552
+ },
+ "bar 64 altos and tenors, breath mark, then 65, sforzato, everyone. Where were we? Bar 40": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 64, \"bar_to\": 64, \"audience\": [\"part:Alto\", \"part:Tenor\"], \"kind\": \"breath\", \"text\": \"Breath at 64\", \"quote\": \"bar 64 altos and tenors, breath mark, then 65, sforzato, everyone.\", \"confidence\": 0.95}, {\"position\": \"bar\", \"bar_from\": 65, \"bar_to\": 65, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"sfz at 65\", \"quote\": \"bar 64 altos and tenors, breath mark, then 65, sforzato, everyone.\", \"confidence\": 0.95}]",
+  "seconds": 2.0786281670007156
+ },
+ "can somebody pass me the rosin? The first violin, you are late at 71. What was that? Okay, violas, the entry is on the end end of two.": {
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 71, \"bar_to\": 71, \"audience\": [\"part:Viola\"], \"kind\": \"text\", \"text\": \"Entry on & of 2 at bar 71\", \"quote\": \"Okay, violas, the entry is on the end end of two.\", \"confidence\": 0.65}]",
+  "seconds": 3.8988808340072865
+ }
+}

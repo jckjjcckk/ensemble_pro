@@ -1,0 +1,1540 @@
+{
+ "events": [
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 13580,
+   "turnId": 0,
+   "t": 14.158250583001063
+  },
+  {
+   "type": "transcript",
+   "transcript": "Everyone,",
+   "final": false,
+   "audioProcessedMs": 14800,
+   "t": 14.85642424999969
+  },
+  {
+   "type": "transcript",
+   "transcript": "Everyone, bar",
+   "final": false,
+   "audioProcessedMs": 15280,
+   "t": 15.349609249999048
+  },
+  {
+   "type": "transcript",
+   "transcript": "Everyone, bar 34,",
+   "final": false,
+   "audioProcessedMs": 15840,
+   "t": 15.929627124991384
+  },
+  {
+   "type": "transcript",
+   "transcript": "Everyone, bar 34, piano",
+   "final": false,
+   "audioProcessedMs": 16000,
+   "t": 16.04939554199518
+  },
+  {
+   "type": "transcript",
+   "transcript": "Everyone, bar 34, piano please.",
+   "final": false,
+   "audioProcessedMs": 16320,
+   "t": 16.423948166993796
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 15820,
+   "turnId": 0,
+   "t": 16.42396329199255
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 15820,
+   "turnId": 0,
+   "transcript": "Everyone, bar 34, piano please.",
+   "t": 16.423971750002238
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 16220,
+   "turnId": 1,
+   "t": 16.778303999992204
+  },
+  {
+   "type": "transcript",
+   "transcript": "really",
+   "final": false,
+   "audioProcessedMs": 17120,
+   "t": 17.173722374995123
+  },
+  {
+   "type": "transcript",
+   "transcript": "really piano.",
+   "final": false,
+   "audioProcessedMs": 17440,
+   "t": 17.515817041989067
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 16940,
+   "turnId": 1,
+   "t": 17.515825541995582
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 16940,
+   "turnId": 1,
+   "transcript": "really piano.",
+   "t": 17.515830042000744
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 18380,
+   "turnId": 2,
+   "t": 18.991496499991626
+  },
+  {
+   "type": "transcript",
+   "transcript": "Second",
+   "final": false,
+   "audioProcessedMs": 19840,
+   "t": 19.926200499990955
+  },
+  {
+   "type": "transcript",
+   "transcript": "Second violins",
+   "final": false,
+   "audioProcessedMs": 19920,
+   "t": 20.0578654169949
+  },
+  {
+   "type": "transcript",
+   "transcript": "Second violins from",
+   "final": false,
+   "audioProcessedMs": 20400,
+   "t": 20.455334874990513
+  },
+  {
+   "type": "transcript",
+   "transcript": "Second violins from 42 to",
+   "final": false,
+   "audioProcessedMs": 21120,
+   "t": 21.189665457990486
+  },
+  {
+   "type": "transcript",
+   "transcript": "Second violins from 42 to 48,",
+   "final": false,
+   "audioProcessedMs": 21920,
+   "t": 22.023046624992276
+  },
+  {
+   "type": "transcript",
+   "transcript": "Second violins from 42 to 48, we",
+   "final": false,
+   "audioProcessedMs": 22000,
+   "t": 22.05345654199482
+  },
+  {
+   "type": "transcript",
+   "transcript": "Second violins from 42 to 48, we are",
+   "final": false,
+   "audioProcessedMs": 22240,
+   "t": 22.285520332996384
+  },
+  {
+   "type": "transcript",
+   "transcript": "Second violins from 42 to 48, we are cutting that.",
+   "final": false,
+   "audioProcessedMs": 22560,
+   "t": 22.695510167002794
+  },
+  {
+   "type": "transcript",
+   "transcript": "Second violins from 42 to 48, we are cutting that. Go",
+   "final": false,
+   "audioProcessedMs": 22800,
+   "t": 22.855152124990127
+  },
+  {
+   "type": "transcript",
+   "transcript": "Second violins from 42 to 48, we are cutting that. Go straight",
+   "final": false,
+   "audioProcessedMs": 23200,
+   "t": 23.24946937499044
+  },
+  {
+   "type": "transcript",
+   "transcript": "Second violins from 42 to 48, we are cutting that. Go straight to",
+   "final": false,
+   "audioProcessedMs": 23440,
+   "t": 23.49168366700178
+  },
+  {
+   "type": "transcript",
+   "transcript": "Second violins from 42 to 48, we are cutting that. Go straight to 49.",
+   "final": false,
+   "audioProcessedMs": 25040,
+   "t": 25.166773042001296
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 24780,
+   "turnId": 2,
+   "t": 25.33349437499419
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 24780,
+   "turnId": 2,
+   "transcript": "Second violins from 42 to 48, we are cutting that. Go straight to 49.",
+   "t": 25.333504624999478
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 25420,
+   "turnId": 3,
+   "t": 25.967616082998575
+  },
+  {
+   "type": "transcript",
+   "transcript": "49.",
+   "final": false,
+   "audioProcessedMs": 26400,
+   "t": 26.471653624990722
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 25900,
+   "turnId": 3,
+   "t": 26.47167095799523
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 25900,
+   "turnId": 3,
+   "transcript": "49.",
+   "t": 26.47167787500075
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 27820,
+   "turnId": 4,
+   "t": 28.435684457988827
+  },
+  {
+   "type": "transcript",
+   "transcript": "One,",
+   "final": false,
+   "audioProcessedMs": 29040,
+   "t": 29.098289332992863
+  },
+  {
+   "type": "transcript",
+   "transcript": "One, two,",
+   "final": false,
+   "audioProcessedMs": 29440,
+   "t": 29.5136222079891
+  },
+  {
+   "type": "transcript",
+   "transcript": "One, two, three,",
+   "final": false,
+   "audioProcessedMs": 30400,
+   "t": 30.54547891698894
+  },
+  {
+   "type": "transcript",
+   "transcript": "One, two, three, four.",
+   "final": false,
+   "audioProcessedMs": 31280,
+   "t": 31.353437625002698
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 30780,
+   "turnId": 4,
+   "t": 31.35344645800069
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 30780,
+   "turnId": 4,
+   "transcript": "One, two, three, four.",
+   "t": 31.353456874989206
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 44860,
+   "turnId": 5,
+   "t": 45.41682079200109
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums",
+   "final": false,
+   "audioProcessedMs": 46320,
+   "t": 46.37959458299156
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and",
+   "final": false,
+   "audioProcessedMs": 46400,
+   "t": 46.469907791994046
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos,",
+   "final": false,
+   "audioProcessedMs": 47200,
+   "t": 47.33771004198934
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar",
+   "final": false,
+   "audioProcessedMs": 48080,
+   "t": 48.14157754200278
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12,",
+   "final": false,
+   "audioProcessedMs": 48160,
+   "t": 48.24600041699887
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's",
+   "final": false,
+   "audioProcessedMs": 48800,
+   "t": 48.8852291249932
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a",
+   "final": false,
+   "audioProcessedMs": 48960,
+   "t": 49.01151850000315
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up",
+   "final": false,
+   "audioProcessedMs": 49600,
+   "t": 49.65486533299554
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up bar.",
+   "final": false,
+   "audioProcessedMs": 49920,
+   "t": 49.98940995799785
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up bar. No,",
+   "final": false,
+   "audioProcessedMs": 50000,
+   "t": 50.0716077919933
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up bar. No, not",
+   "final": false,
+   "audioProcessedMs": 50080,
+   "t": 50.141935416992055
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up bar. No, not just,",
+   "final": false,
+   "audioProcessedMs": 50560,
+   "t": 50.62770337499387
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up bar. No, not just, not",
+   "final": false,
+   "audioProcessedMs": 51120,
+   "t": 51.16791583299346
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up bar. No, not just, not no",
+   "final": false,
+   "audioProcessedMs": 51280,
+   "t": 51.382359832990915
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums.",
+   "final": false,
+   "audioProcessedMs": 51520,
+   "t": 51.61113416698936
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow",
+   "final": false,
+   "audioProcessedMs": 52480,
+   "t": 52.56335374999617
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for",
+   "final": false,
+   "audioProcessedMs": 52560,
+   "t": 52.60761387499224
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the",
+   "final": false,
+   "audioProcessedMs": 52800,
+   "t": 52.8515274169913
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the cello",
+   "final": false,
+   "audioProcessedMs": 53280,
+   "t": 53.344128374999855
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the cello on",
+   "final": false,
+   "audioProcessedMs": 53360,
+   "t": 53.48128279199591
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the cello on the",
+   "final": false,
+   "audioProcessedMs": 53600,
+   "t": 53.64795570800197
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the cello on the first",
+   "final": false,
+   "audioProcessedMs": 53920,
+   "t": 54.00404191699636
+  },
+  {
+   "type": "transcript",
+   "transcript": "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the cello on the first note.",
+   "final": false,
+   "audioProcessedMs": 54000,
+   "t": 54.145724207992316
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 53500,
+   "turnId": 5,
+   "t": 54.1457376670005
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 53500,
+   "turnId": 5,
+   "transcript": "Drums and cellos, bar 12, that's a up bar. No, not just, not no drums. Up bow for the cello on the first note.",
+   "t": 54.14574599999469
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 54460,
+   "turnId": 6,
+   "t": 55.0509352079971
+  },
+  {
+   "type": "transcript",
+   "transcript": "From",
+   "final": false,
+   "audioProcessedMs": 55600,
+   "t": 55.70365091699932
+  },
+  {
+   "type": "transcript",
+   "transcript": "From letter",
+   "final": false,
+   "audioProcessedMs": 56080,
+   "t": 56.1295364999969
+  },
+  {
+   "type": "transcript",
+   "transcript": "From letter C,",
+   "final": false,
+   "audioProcessedMs": 56240,
+   "t": 56.307735916998354
+  },
+  {
+   "type": "transcript",
+   "transcript": "From letter C, everybody,",
+   "final": false,
+   "audioProcessedMs": 56880,
+   "t": 56.94301912499941
+  },
+  {
+   "type": "transcript",
+   "transcript": "From letter C, everybody, we",
+   "final": false,
+   "audioProcessedMs": 57360,
+   "t": 57.41202158298984
+  },
+  {
+   "type": "transcript",
+   "transcript": "From letter C, everybody, we take",
+   "final": false,
+   "audioProcessedMs": 57680,
+   "t": 57.791609916996094
+  },
+  {
+   "type": "transcript",
+   "transcript": "From letter C, everybody, we take it",
+   "final": false,
+   "audioProcessedMs": 58000,
+   "t": 58.0550232079986
+  },
+  {
+   "type": "transcript",
+   "transcript": "From letter C, everybody, we take it a",
+   "final": false,
+   "audioProcessedMs": 58160,
+   "t": 58.207919791995664
+  },
+  {
+   "type": "transcript",
+   "transcript": "From letter C, everybody, we take it a little",
+   "final": false,
+   "audioProcessedMs": 58320,
+   "t": 58.371916541989776
+  },
+  {
+   "type": "transcript",
+   "transcript": "From letter C, everybody, we take it a little slower,",
+   "final": false,
+   "audioProcessedMs": 58400,
+   "t": 58.4636432499974
+  },
+  {
+   "type": "transcript",
+   "transcript": "From letter C, everybody, we take it a little slower, more",
+   "final": false,
+   "audioProcessedMs": 58640,
+   "t": 58.723710624995874
+  },
+  {
+   "type": "transcript",
+   "transcript": "From letter C, everybody, we take it a little slower, more weight.",
+   "final": false,
+   "audioProcessedMs": 58960,
+   "t": 59.02947883299203
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 58620,
+   "turnId": 6,
+   "t": 59.24761279199447
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 58620,
+   "turnId": 6,
+   "transcript": "From letter C, everybody, we take it a little slower, more weight.",
+   "t": 59.247624582989374
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 62540,
+   "turnId": 7,
+   "t": 63.107601791998604
+  },
+  {
+   "type": "transcript",
+   "transcript": "can",
+   "final": false,
+   "audioProcessedMs": 63040,
+   "t": 63.10761616699165
+  },
+  {
+   "type": "transcript",
+   "transcript": "can somebody",
+   "final": false,
+   "audioProcessedMs": 63360,
+   "t": 63.44329737499356
+  },
+  {
+   "type": "transcript",
+   "transcript": "can somebody pass me",
+   "final": false,
+   "audioProcessedMs": 63840,
+   "t": 63.97053891699761
+  },
+  {
+   "type": "transcript",
+   "transcript": "can somebody pass me the",
+   "final": false,
+   "audioProcessedMs": 64160,
+   "t": 64.21967266699357
+  },
+  {
+   "type": "transcript",
+   "transcript": "can somebody pass me the rosin?",
+   "final": false,
+   "audioProcessedMs": 64400,
+   "t": 64.48985737499606
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 63900,
+   "turnId": 7,
+   "t": 64.48988216699217
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 63900,
+   "turnId": 7,
+   "transcript": "can somebody pass me the rosin?",
+   "t": 64.48989462500322
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 64780,
+   "turnId": 8,
+   "t": 65.3328375419951
+  },
+  {
+   "type": "transcript",
+   "transcript": "The",
+   "final": false,
+   "audioProcessedMs": 65520,
+   "t": 65.57018374999461
+  },
+  {
+   "type": "transcript",
+   "transcript": "The first",
+   "final": false,
+   "audioProcessedMs": 65840,
+   "t": 65.88705695800309
+  },
+  {
+   "type": "transcript",
+   "transcript": "The first violin,",
+   "final": false,
+   "audioProcessedMs": 66640,
+   "t": 66.7227801669942
+  },
+  {
+   "type": "transcript",
+   "transcript": "The first violin, you are",
+   "final": false,
+   "audioProcessedMs": 66960,
+   "t": 67.11009395799192
+  },
+  {
+   "type": "transcript",
+   "transcript": "The first violin, you are late",
+   "final": false,
+   "audioProcessedMs": 67360,
+   "t": 67.40909045799344
+  },
+  {
+   "type": "transcript",
+   "transcript": "The first violin, you are late at",
+   "final": false,
+   "audioProcessedMs": 67840,
+   "t": 67.8896821669914
+  },
+  {
+   "type": "transcript",
+   "transcript": "The first violin, you are late at 71.",
+   "final": false,
+   "audioProcessedMs": 68320,
+   "t": 68.401507417002
+  },
+  {
+   "type": "transcript",
+   "transcript": "The first violin, you are late at 71. What",
+   "final": false,
+   "audioProcessedMs": 68640,
+   "t": 68.6954964579927
+  },
+  {
+   "type": "transcript",
+   "transcript": "The first violin, you are late at 71. What was",
+   "final": false,
+   "audioProcessedMs": 68880,
+   "t": 68.92781254199508
+  },
+  {
+   "type": "transcript",
+   "transcript": "The first violin, you are late at 71. What was that?",
+   "final": false,
+   "audioProcessedMs": 68960,
+   "t": 69.05308587499894
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 68460,
+   "turnId": 8,
+   "t": 69.05310350000218
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 68460,
+   "turnId": 8,
+   "transcript": "The first violin, you are late at 71. What was that?",
+   "t": 69.05311458300275
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 69260,
+   "turnId": 9,
+   "t": 69.85542841699498
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay,",
+   "final": false,
+   "audioProcessedMs": 70160,
+   "t": 70.25835670800006
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, violas,",
+   "final": false,
+   "audioProcessedMs": 71360,
+   "t": 71.44784833300218
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, violas, the",
+   "final": false,
+   "audioProcessedMs": 71760,
+   "t": 71.82851875000051
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, violas, the entry",
+   "final": false,
+   "audioProcessedMs": 72320,
+   "t": 72.3748946669948
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, violas, the entry is",
+   "final": false,
+   "audioProcessedMs": 72480,
+   "t": 72.52559662499698
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, violas, the entry is on",
+   "final": false,
+   "audioProcessedMs": 72640,
+   "t": 72.69899037499272
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, violas, the entry is on the",
+   "final": false,
+   "audioProcessedMs": 73040,
+   "t": 73.08557650000148
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, violas, the entry is on the end",
+   "final": false,
+   "audioProcessedMs": 73120,
+   "t": 73.17384249999304
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, violas, the entry is on the end end",
+   "final": false,
+   "audioProcessedMs": 74560,
+   "t": 74.60718341699976
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, violas, the entry is on the end end of",
+   "final": false,
+   "audioProcessedMs": 74800,
+   "t": 74.85286045799148
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, violas, the entry is on the end end of two.",
+   "final": false,
+   "audioProcessedMs": 75200,
+   "t": 75.27148108299298
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 74700,
+   "turnId": 9,
+   "t": 75.27149070799351
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 74700,
+   "turnId": 9,
+   "transcript": "Okay, violas, the entry is on the end end of two.",
+   "t": 75.27149612500216
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 75740,
+   "turnId": 10,
+   "t": 76.2900323329959
+  },
+  {
+   "type": "transcript",
+   "transcript": "Bar",
+   "final": false,
+   "audioProcessedMs": 77040,
+   "t": 77.09151420799026
+  },
+  {
+   "type": "transcript",
+   "transcript": "Bar 112,",
+   "final": false,
+   "audioProcessedMs": 77680,
+   "t": 77.79091579199303
+  },
+  {
+   "type": "transcript",
+   "transcript": "Bar 112, everyone,",
+   "final": false,
+   "audioProcessedMs": 78080,
+   "t": 78.1455047079944
+  },
+  {
+   "type": "transcript",
+   "transcript": "Bar 112, everyone, crescendo",
+   "final": false,
+   "audioProcessedMs": 78720,
+   "t": 78.8334898329922
+  },
+  {
+   "type": "transcript",
+   "transcript": "Bar 112, everyone, crescendo through",
+   "final": false,
+   "audioProcessedMs": 79280,
+   "t": 79.33687158300017
+  },
+  {
+   "type": "transcript",
+   "transcript": "Bar 112, everyone, crescendo through 116.",
+   "final": false,
+   "audioProcessedMs": 80240,
+   "t": 80.39557516700006
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 79740,
+   "turnId": 10,
+   "t": 80.39558599999873
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 79740,
+   "turnId": 10,
+   "transcript": "Bar 112, everyone, crescendo through 116.",
+   "t": 80.39559274999192
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 81420,
+   "turnId": 11,
+   "t": 81.97360691700305
+  },
+  {
+   "type": "transcript",
+   "transcript": "Pick up",
+   "final": false,
+   "audioProcessedMs": 82400,
+   "t": 82.48758441700193
+  },
+  {
+   "type": "transcript",
+   "transcript": "Pick up to",
+   "final": false,
+   "audioProcessedMs": 82720,
+   "t": 82.84356991699315
+  },
+  {
+   "type": "transcript",
+   "transcript": "Pick up to 34,",
+   "final": false,
+   "audioProcessedMs": 83200,
+   "t": 83.36602295799821
+  },
+  {
+   "type": "transcript",
+   "transcript": "Pick up to 34, first",
+   "final": false,
+   "audioProcessedMs": 83680,
+   "t": 83.74311845799093
+  },
+  {
+   "type": "transcript",
+   "transcript": "Pick up to 34, first that's",
+   "final": false,
+   "audioProcessedMs": 84160,
+   "t": 84.21905720799987
+  },
+  {
+   "type": "transcript",
+   "transcript": "Pick up to 34, first that's where",
+   "final": false,
+   "audioProcessedMs": 84640,
+   "t": 84.70155450000311
+  },
+  {
+   "type": "transcript",
+   "transcript": "Pick up to 34, first that's where you",
+   "final": false,
+   "audioProcessedMs": 84800,
+   "t": 84.94140549999429
+  },
+  {
+   "type": "transcript",
+   "transcript": "Pick up to 34, first that's where you come",
+   "final": false,
+   "audioProcessedMs": 85280,
+   "t": 85.33754845800286
+  },
+  {
+   "type": "transcript",
+   "transcript": "Pick up to 34, first that's where you come in.",
+   "final": false,
+   "audioProcessedMs": 85520,
+   "t": 85.60561299999245
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 85500,
+   "turnId": 11,
+   "t": 86.12154166700202
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 85500,
+   "turnId": 11,
+   "transcript": "Pick up to 34, first that's where you come in.",
+   "t": 86.12156962500012
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 85660,
+   "turnId": 12,
+   "t": 86.22563645799528
+  },
+  {
+   "type": "transcript",
+   "transcript": "nobody",
+   "final": false,
+   "audioProcessedMs": 86800,
+   "t": 86.86680529199657
+  },
+  {
+   "type": "transcript",
+   "transcript": "nobody else.",
+   "final": false,
+   "audioProcessedMs": 87040,
+   "t": 87.20355854199443
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 86540,
+   "turnId": 12,
+   "t": 87.2035749170027
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 86540,
+   "turnId": 12,
+   "transcript": "nobody else.",
+   "t": 87.2035857919982
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 90060,
+   "turnId": 13,
+   "t": 90.70725212499383
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay,",
+   "final": false,
+   "audioProcessedMs": 91120,
+   "t": 91.23243516699586
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, letter",
+   "final": false,
+   "audioProcessedMs": 91600,
+   "t": 91.65941329199995
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, letter B,",
+   "final": false,
+   "audioProcessedMs": 91680,
+   "t": 91.76325029200234
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, letter B, off we",
+   "final": false,
+   "audioProcessedMs": 92720,
+   "t": 92.80291891699017
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, letter B, off we go.",
+   "final": false,
+   "audioProcessedMs": 92880,
+   "t": 92.9856115829898
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 92380,
+   "turnId": 13,
+   "t": 92.98562491699704
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 92380,
+   "turnId": 13,
+   "transcript": "Okay, letter B, off we go.",
+   "t": 92.98563299998932
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 106700,
+   "turnId": 14,
+   "t": 107.25167829199927
+  },
+  {
+   "type": "transcript",
+   "transcript": "Stop the",
+   "final": false,
+   "audioProcessedMs": 107680,
+   "t": 107.76554249999754
+  },
+  {
+   "type": "transcript",
+   "transcript": "Stop the cello,",
+   "final": false,
+   "audioProcessedMs": 108000,
+   "t": 108.17595387499023
+  },
+  {
+   "type": "transcript",
+   "transcript": "Stop the cello, bar",
+   "final": false,
+   "audioProcessedMs": 108560,
+   "t": 108.66150116699282
+  },
+  {
+   "type": "transcript",
+   "transcript": "Stop the cello, bar 50,",
+   "final": false,
+   "audioProcessedMs": 109120,
+   "t": 109.23149987499346
+  },
+  {
+   "type": "transcript",
+   "transcript": "Stop the cello, bar 50, pizzicato.",
+   "final": false,
+   "audioProcessedMs": 109840,
+   "t": 109.95724441698985
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 109340,
+   "turnId": 14,
+   "t": 109.95726699999068
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 109340,
+   "turnId": 14,
+   "transcript": "Stop the cello, bar 50, pizzicato.",
+   "t": 109.95735595800215
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 110380,
+   "turnId": 15,
+   "t": 110.9375263749971
+  },
+  {
+   "type": "transcript",
+   "transcript": "From",
+   "final": false,
+   "audioProcessedMs": 111520,
+   "t": 111.5778004169988
+  },
+  {
+   "type": "transcript",
+   "transcript": "From the",
+   "final": false,
+   "audioProcessedMs": 111680,
+   "t": 111.81157304199587
+  },
+  {
+   "type": "transcript",
+   "transcript": "From the double",
+   "final": false,
+   "audioProcessedMs": 112000,
+   "t": 112.05305575000239
+  },
+  {
+   "type": "transcript",
+   "transcript": "From the double bar",
+   "final": false,
+   "audioProcessedMs": 112080,
+   "t": 112.20340504198975
+  },
+  {
+   "type": "transcript",
+   "transcript": "From the double bar after",
+   "final": false,
+   "audioProcessedMs": 112240,
+   "t": 112.34151495799597
+  },
+  {
+   "type": "transcript",
+   "transcript": "From the double bar after letter B,",
+   "final": false,
+   "audioProcessedMs": 112640,
+   "t": 112.7455262500007
+  },
+  {
+   "type": "transcript",
+   "transcript": "From the double bar after letter B, we",
+   "final": false,
+   "audioProcessedMs": 113040,
+   "t": 113.09491329199227
+  },
+  {
+   "type": "transcript",
+   "transcript": "From the double bar after letter B, we are",
+   "final": false,
+   "audioProcessedMs": 113280,
+   "t": 113.37952883300022
+  },
+  {
+   "type": "transcript",
+   "transcript": "From the double bar after letter B, we are cutting to",
+   "final": false,
+   "audioProcessedMs": 113760,
+   "t": 113.92292866700154
+  },
+  {
+   "type": "transcript",
+   "transcript": "From the double bar after letter B, we are cutting to letter D.",
+   "final": false,
+   "audioProcessedMs": 114080,
+   "t": 114.20373029199254
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 113580,
+   "turnId": 15,
+   "t": 114.20374729199102
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 113580,
+   "turnId": 15,
+   "transcript": "From the double bar after letter B, we are cutting to letter D.",
+   "t": 114.2037583749916
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 119100,
+   "turnId": 16,
+   "t": 119.66762045799987
+  },
+  {
+   "type": "transcript",
+   "transcript": "bar",
+   "final": false,
+   "audioProcessedMs": 120560,
+   "t": 120.61421545800113
+  },
+  {
+   "type": "transcript",
+   "transcript": "bar 64",
+   "final": false,
+   "audioProcessedMs": 121360,
+   "t": 121.45080762499128
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 120860,
+   "turnId": 16,
+   "t": 121.4508185829909
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 120860,
+   "turnId": 16,
+   "transcript": "bar 64",
+   "t": 121.45082429199829
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 121500,
+   "turnId": 17,
+   "t": 122.06307866699353
+  },
+  {
+   "type": "transcript",
+   "transcript": "altos and",
+   "final": false,
+   "audioProcessedMs": 122480,
+   "t": 122.5596590829955
+  },
+  {
+   "type": "transcript",
+   "transcript": "altos and tenors,",
+   "final": false,
+   "audioProcessedMs": 122960,
+   "t": 123.05458179199195
+  },
+  {
+   "type": "transcript",
+   "transcript": "altos and tenors, breath mark,",
+   "final": false,
+   "audioProcessedMs": 123520,
+   "t": 123.60356420799508
+  },
+  {
+   "type": "transcript",
+   "transcript": "altos and tenors, breath mark, then",
+   "final": false,
+   "audioProcessedMs": 124080,
+   "t": 124.14155329199275
+  },
+  {
+   "type": "transcript",
+   "transcript": "altos and tenors, breath mark, then 65,",
+   "final": false,
+   "audioProcessedMs": 125680,
+   "t": 125.83771358299418
+  },
+  {
+   "type": "transcript",
+   "transcript": "altos and tenors, breath mark, then 65, sforzato,",
+   "final": false,
+   "audioProcessedMs": 126800,
+   "t": 126.9154769579909
+  },
+  {
+   "type": "transcript",
+   "transcript": "altos and tenors, breath mark, then 65, sforzato, everyone.",
+   "final": false,
+   "audioProcessedMs": 127680,
+   "t": 127.75290791699081
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 127260,
+   "turnId": 17,
+   "t": 127.81755633300054
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 127260,
+   "turnId": 17,
+   "transcript": "altos and tenors, breath mark, then 65, sforzato, everyone.",
+   "t": 127.81756745799794
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 127740,
+   "turnId": 18,
+   "t": 128.29906366700015
+  },
+  {
+   "type": "transcript",
+   "transcript": "Where",
+   "final": false,
+   "audioProcessedMs": 128720,
+   "t": 128.7769604579953
+  },
+  {
+   "type": "transcript",
+   "transcript": "Where were we?",
+   "final": false,
+   "audioProcessedMs": 129040,
+   "t": 129.15752366700326
+  },
+  {
+   "type": "transcript",
+   "transcript": "Where were we? Bar",
+   "final": false,
+   "audioProcessedMs": 129840,
+   "t": 129.90341029199772
+  },
+  {
+   "type": "transcript",
+   "transcript": "Where were we? Bar 40",
+   "final": false,
+   "audioProcessedMs": 130160,
+   "t": 130.2480459579965
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 129660,
+   "turnId": 18,
+   "t": 130.2480543749989
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 129660,
+   "turnId": 18,
+   "transcript": "Where were we? Bar 40",
+   "t": 130.2480588749895
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 131740,
+   "turnId": 19,
+   "t": 132.30369704199256
+  },
+  {
+   "type": "transcript",
+   "transcript": "Once",
+   "final": false,
+   "audioProcessedMs": 132560,
+   "t": 132.65022195799975
+  },
+  {
+   "type": "transcript",
+   "transcript": "Once more",
+   "final": false,
+   "audioProcessedMs": 132640,
+   "t": 132.79558704199735
+  },
+  {
+   "type": "transcript",
+   "transcript": "Once more from",
+   "final": false,
+   "audioProcessedMs": 132720,
+   "t": 132.84372637499473
+  },
+  {
+   "type": "transcript",
+   "transcript": "Once more from 22",
+   "final": false,
+   "audioProcessedMs": 134000,
+   "t": 134.0788401250029
+  },
+  {
+   "type": "transcript",
+   "transcript": "Once more from 22 and this",
+   "final": false,
+   "audioProcessedMs": 134080,
+   "t": 134.22543279199454
+  },
+  {
+   "type": "transcript",
+   "transcript": "Once more from 22 and this time",
+   "final": false,
+   "audioProcessedMs": 134480,
+   "t": 134.5408734169905
+  },
+  {
+   "type": "transcript",
+   "transcript": "Once more from 22 and this time don't",
+   "final": false,
+   "audioProcessedMs": 134720,
+   "t": 134.78003387499484
+  },
+  {
+   "type": "transcript",
+   "transcript": "Once more from 22 and this time don't rush.",
+   "final": false,
+   "audioProcessedMs": 134800,
+   "t": 134.90970120800193
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 134380,
+   "turnId": 19,
+   "t": 134.96781712499796
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 134380,
+   "turnId": 19,
+   "transcript": "Once more from 22 and this time don't rush.",
+   "t": 134.96782474999782
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 135260,
+   "turnId": 20,
+   "t": 135.82555462500022
+  },
+  {
+   "type": "transcript",
+   "transcript": "Seconds",
+   "final": false,
+   "audioProcessedMs": 136800,
+   "t": 136.8557382919971
+  },
+  {
+   "type": "transcript",
+   "transcript": "Seconds mark it,",
+   "final": false,
+   "audioProcessedMs": 137200,
+   "t": 137.37224066699855
+  },
+  {
+   "type": "transcript",
+   "transcript": "Seconds mark it, bar",
+   "final": false,
+   "audioProcessedMs": 137440,
+   "t": 137.5534726249898
+  },
+  {
+   "type": "transcript",
+   "transcript": "Seconds mark it, bar 55",
+   "final": false,
+   "audioProcessedMs": 138480,
+   "t": 138.60170970798936
+  },
+  {
+   "type": "transcript",
+   "transcript": "Seconds mark it, bar 55 is",
+   "final": false,
+   "audioProcessedMs": 138720,
+   "t": 138.77092737499333
+  },
+  {
+   "type": "transcript",
+   "transcript": "Seconds mark it, bar 55 is forte,",
+   "final": false,
+   "audioProcessedMs": 138960,
+   "t": 139.07951858299202
+  },
+  {
+   "type": "transcript",
+   "transcript": "Seconds mark it, bar 55 is forte, 56 is",
+   "final": false,
+   "audioProcessedMs": 139840,
+   "t": 139.99169974999677
+  },
+  {
+   "type": "transcript",
+   "transcript": "Seconds mark it, bar 55 is forte, 56 is piano,",
+   "final": false,
+   "audioProcessedMs": 140080,
+   "t": 140.173526707993
+  },
+  {
+   "type": "transcript",
+   "transcript": "Seconds mark it, bar 55 is forte, 56 is piano, subito.",
+   "final": false,
+   "audioProcessedMs": 141120,
+   "t": 141.21750479200273
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 140700,
+   "turnId": 20,
+   "t": 141.26957270799903
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 140700,
+   "turnId": 20,
+   "transcript": "Seconds mark it, bar 55 is forte, 56 is piano, subito.",
+   "t": 141.26959041699592
+  },
+  {
+   "type": "speechStart",
+   "audioProcessedMs": 142860,
+   "turnId": 21,
+   "t": 143.41968679199636
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay,",
+   "final": false,
+   "audioProcessedMs": 144080,
+   "t": 144.18631387499045
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, let's take",
+   "final": false,
+   "audioProcessedMs": 144880,
+   "t": 144.94787137499952
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, let's take it",
+   "final": false,
+   "audioProcessedMs": 144960,
+   "t": 145.02694695799437
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, let's take it from",
+   "final": false,
+   "audioProcessedMs": 145040,
+   "t": 145.09951412500232
+  },
+  {
+   "type": "transcript",
+   "transcript": "Okay, let's take it from the top.",
+   "final": false,
+   "audioProcessedMs": 145520,
+   "t": 145.59899199999927
+  },
+  {
+   "type": "speechEnd",
+   "audioProcessedMs": 145180,
+   "turnId": 21,
+   "t": 145.76036566699622
+  },
+  {
+   "type": "speechComplete",
+   "audioProcessedMs": 145180,
+   "turnId": 21,
+   "transcript": "Okay, let's take it from the top.",
+   "t": 145.7603824169928
+  },
+  {
+   "type": "_endStream_sent",
+   "t": 148.802480792001
+  },
+  {
+   "type": "transcript",
+   "transcript": "",
+   "final": true,
+   "audioProcessedMs": 148880,
+   "t": 148.9963875419926
+  }
+ ],
+ "ack": {
+  "sessionId": "voyager/duplex/4FBD8678130C400A951FF19B97E533AA"
+ },
+ "handshake_s": 0.848,
+ "close": 1000,
+ "pre": 0.0,
+ "audio_s": 148.8046875,
+ "usd": 0.0074
+}

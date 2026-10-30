@@ -1,0 +1,6988 @@
+{
+ "v01": {
+  "speech_on": 1.5,
+  "speech_end": 4.76,
+  "first_partial_after_onset": 1.17,
+  "n_partials": 7,
+  "turns": 2,
+  "speechEnd_after_speech_end": 0.9,
+  "complete_after_speech_end": 0.9,
+  "complete_lag_per_turn": [
+   0.56,
+   0.56
+  ],
+  "first_partial_after_speechStart": 1.57,
+  "transcript": "Everyone, bar 34, piano please. Really piano.",
+  "partial_at_speechEnd": "Really piano.",
+  "turn_spans": [
+   [
+    0.8,
+    3.12
+   ],
+   [
+    3.28,
+    4.8
+   ]
+  ],
+  "turn_texts": [
+   "Everyone, bar 34, piano please.",
+   "Really piano."
+  ],
+  "wer": [
+   0,
+   7
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1100,
+    "turnId": 0,
+    "t": 1.6420950000028824
+   },
+   {
+    "type": "transcript",
+    "transcript": "Everyone,",
+    "final": false,
+    "audioProcessedMs": 2560,
+    "t": 2.668201082997257
+   },
+   {
+    "type": "transcript",
+    "transcript": "Everyone, bar",
+    "final": false,
+    "audioProcessedMs": 3040,
+    "t": 3.15803383300954
+   },
+   {
+    "type": "transcript",
+    "transcript": "Everyone, bar 34,",
+    "final": false,
+    "audioProcessedMs": 3280,
+    "t": 3.3655018330027815
+   },
+   {
+    "type": "transcript",
+    "transcript": "Everyone, bar 34, piano",
+    "final": false,
+    "audioProcessedMs": 3520,
+    "t": 3.568273458004114
+   },
+   {
+    "type": "transcript",
+    "transcript": "Everyone, bar 34, piano please.",
+    "final": false,
+    "audioProcessedMs": 3920,
+    "t": 3.9841485829965677
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 3420,
+    "turnId": 0,
+    "t": 3.984161000000313
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 3420,
+    "turnId": 0,
+    "transcript": "Everyone, bar 34, piano please.",
+    "t": 3.9841687500011176
+   },
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 3580,
+    "turnId": 1,
+    "t": 4.198034542001551
+   },
+   {
+    "type": "transcript",
+    "transcript": "Really",
+    "final": false,
+    "audioProcessedMs": 4960,
+    "t": 5.0072978750104085
+   },
+   {
+    "type": "transcript",
+    "transcript": "Really piano.",
+    "final": false,
+    "audioProcessedMs": 5280,
+    "t": 5.3343241670081625
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 5100,
+    "turnId": 1,
+    "t": 5.66142091700749
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 5100,
+    "turnId": 1,
+    "transcript": "Really piano.",
+    "t": 5.661438875002204
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 8.002712000001338
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 8080,
+    "t": 8.176293167009135
+   }
+  ],
+  "handshake_s": 0.428,
+  "close": 1000
+ },
+ "v01c": {
+  "speech_on": 1.86,
+  "speech_end": 9.66,
+  "first_partial_after_onset": 1.34,
+  "n_partials": 13,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.51,
+  "complete_after_speech_end": 0.51,
+  "complete_lag_per_turn": [
+   0.59
+  ],
+  "first_partial_after_speechStart": 1.7,
+  "transcript": "Okay now everyone bar 32 no no uh 34 please piano just piano",
+  "partial_at_speechEnd": "Okay now everyone bar 32 no no uh 34 please piano just piano",
+  "turn_spans": [
+   [
+    1.2,
+    9.28
+   ]
+  ],
+  "turn_texts": [
+   "Okay now everyone bar 32 no no uh 34 please piano just piano"
+  ],
+  "wer": [
+   9,
+   7
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1500,
+    "turnId": 0,
+    "t": 2.1421185829967726
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay",
+    "final": false,
+    "audioProcessedMs": 3120,
+    "t": 3.2004639160004444
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay now",
+    "final": false,
+    "audioProcessedMs": 3520,
+    "t": 3.5836194579896983
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay now everyone",
+    "final": false,
+    "audioProcessedMs": 3840,
+    "t": 3.901358707997133
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay now everyone bar",
+    "final": false,
+    "audioProcessedMs": 4480,
+    "t": 4.532010458002333
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay now everyone bar 32",
+    "final": false,
+    "audioProcessedMs": 5200,
+    "t": 5.307692707996466
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay now everyone bar 32 no",
+    "final": false,
+    "audioProcessedMs": 5600,
+    "t": 5.677439249993768
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay now everyone bar 32 no no",
+    "final": false,
+    "audioProcessedMs": 5840,
+    "t": 5.893965957991895
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay now everyone bar 32 no no uh",
+    "final": false,
+    "audioProcessedMs": 7280,
+    "t": 7.381905749993166
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay now everyone bar 32 no no uh 34",
+    "final": false,
+    "audioProcessedMs": 8720,
+    "t": 8.826562290996662
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay now everyone bar 32 no no uh 34 please",
+    "final": false,
+    "audioProcessedMs": 8960,
+    "t": 9.015964874997735
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay now everyone bar 32 no no uh 34 please piano",
+    "final": false,
+    "audioProcessedMs": 9600,
+    "t": 9.660003874989343
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay now everyone bar 32 no no uh 34 please piano just",
+    "final": false,
+    "audioProcessedMs": 10000,
+    "t": 10.058051165993675
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay now everyone bar 32 no no uh 34 please piano just piano",
+    "final": false,
+    "audioProcessedMs": 10080,
+    "t": 10.169429999994463
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 9580,
+    "turnId": 0,
+    "t": 10.169440957994084
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 9580,
+    "turnId": 0,
+    "transcript": "Okay now everyone bar 32 no no uh 34 please piano just piano",
+    "t": 10.169447624997701
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 13.522264957995503
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 13600,
+    "t": 13.718719790995237
+   }
+  ],
+  "handshake_s": 0.403,
+  "close": 1000
+ },
+ "v02": {
+  "speech_on": 1.7,
+  "speech_end": 8.9,
+  "first_partial_after_onset": 1.14,
+  "n_partials": 13,
+  "turns": 2,
+  "speechEnd_after_speech_end": 0.51,
+  "complete_after_speech_end": 0.51,
+  "complete_lag_per_turn": [
+   0.65,
+   0.63
+  ],
+  "first_partial_after_speechStart": 1.58,
+  "transcript": "second violins from 42 to 48 we are cutting that go straight to 49 49",
+  "partial_at_speechEnd": "49",
+  "turn_spans": [
+   [
+    0.96,
+    6.88
+   ],
+   [
+    7.76,
+    8.48
+   ]
+  ],
+  "turn_texts": [
+   "second violins from 42 to 48 we are cutting that go straight to 49",
+   "49"
+  ],
+  "wer": [
+   3,
+   13
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1260,
+    "turnId": 0,
+    "t": 1.8047577089892002
+   },
+   {
+    "type": "transcript",
+    "transcript": "second",
+    "final": false,
+    "audioProcessedMs": 2800,
+    "t": 2.844488749993616
+   },
+   {
+    "type": "transcript",
+    "transcript": "second violins",
+    "final": false,
+    "audioProcessedMs": 3280,
+    "t": 3.340527166990796
+   },
+   {
+    "type": "transcript",
+    "transcript": "second violins from",
+    "final": false,
+    "audioProcessedMs": 3600,
+    "t": 3.6442198750009993
+   },
+   {
+    "type": "transcript",
+    "transcript": "second violins from 42 to",
+    "final": false,
+    "audioProcessedMs": 4080,
+    "t": 4.163118917000247
+   },
+   {
+    "type": "transcript",
+    "transcript": "second violins from 42 to 48",
+    "final": false,
+    "audioProcessedMs": 5040,
+    "t": 5.077849791996414
+   },
+   {
+    "type": "transcript",
+    "transcript": "second violins from 42 to 48 we",
+    "final": false,
+    "audioProcessedMs": 5120,
+    "t": 5.2118732090020785
+   },
+   {
+    "type": "transcript",
+    "transcript": "second violins from 42 to 48 we are cutting",
+    "final": false,
+    "audioProcessedMs": 5360,
+    "t": 5.412458749997313
+   },
+   {
+    "type": "transcript",
+    "transcript": "second violins from 42 to 48 we are cutting that",
+    "final": false,
+    "audioProcessedMs": 5760,
+    "t": 5.83626437500061
+   },
+   {
+    "type": "transcript",
+    "transcript": "second violins from 42 to 48 we are cutting that go",
+    "final": false,
+    "audioProcessedMs": 6160,
+    "t": 6.260505958998692
+   },
+   {
+    "type": "transcript",
+    "transcript": "second violins from 42 to 48 we are cutting that go straight",
+    "final": false,
+    "audioProcessedMs": 6480,
+    "t": 6.530481416994007
+   },
+   {
+    "type": "transcript",
+    "transcript": "second violins from 42 to 48 we are cutting that go straight to",
+    "final": false,
+    "audioProcessedMs": 6640,
+    "t": 6.666457667000941
+   },
+   {
+    "type": "transcript",
+    "transcript": "second violins from 42 to 48 we are cutting that go straight to 49",
+    "final": false,
+    "audioProcessedMs": 7680,
+    "t": 7.8331376669957535
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 7180,
+    "turnId": 0,
+    "t": 7.833151083992561
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 7180,
+    "turnId": 0,
+    "transcript": "second violins from 42 to 48 we are cutting that go straight to 49",
+    "t": 7.833156749999034
+   },
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 8060,
+    "turnId": 1,
+    "t": 8.586652416997822
+   },
+   {
+    "type": "transcript",
+    "transcript": "49",
+    "final": false,
+    "audioProcessedMs": 9280,
+    "t": 9.407164666990866
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 8780,
+    "turnId": 1,
+    "t": 9.407174958992982
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 8780,
+    "turnId": 1,
+    "transcript": "49",
+    "t": 9.407193124992773
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 12.002024749992415
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 12080,
+    "t": 12.18789575000119
+   }
+  ],
+  "handshake_s": 0.347,
+  "close": 1000
+ },
+ "v02c": {
+  "speech_on": 1.14,
+  "speech_end": 8.38,
+  "first_partial_after_onset": 0.92,
+  "n_partials": 18,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.5,
+  "complete_after_speech_end": 0.5,
+  "complete_lag_per_turn": [
+   0.66
+  ],
+  "first_partial_after_speechStart": 1.28,
+  "transcript": "Okay, first and second, actually no, just the second. Just second violins from 42 to 48, we're cutting that. Go straight to 49",
+  "partial_at_speechEnd": "Okay, first and second, actually no, just the second. Just second violins from 42 to 48, we're cutting that. Go straight to 49",
+  "turn_spans": [
+   [
+    0.48,
+    7.92
+   ]
+  ],
+  "turn_texts": [
+   "Okay, first and second, actually no, just the second. Just second violins from 42 to 48, we're cutting that. Go straight to 49"
+  ],
+  "wer": [
+   10,
+   13
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 780,
+    "turnId": 0,
+    "t": 1.316184458002681
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay,",
+    "final": false,
+    "audioProcessedMs": 1920,
+    "t": 2.06250629099668
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and",
+    "final": false,
+    "audioProcessedMs": 2480,
+    "t": 2.590353708001203
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second,",
+    "final": false,
+    "audioProcessedMs": 3120,
+    "t": 3.238275875002728
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second, actually",
+    "final": false,
+    "audioProcessedMs": 3200,
+    "t": 3.2816650410095463
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second, actually no,",
+    "final": false,
+    "audioProcessedMs": 3360,
+    "t": 3.418282500002533
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second, actually no, just the",
+    "final": false,
+    "audioProcessedMs": 3920,
+    "t": 3.985307291004574
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second, actually no, just the second.",
+    "final": false,
+    "audioProcessedMs": 4560,
+    "t": 4.686211332998937
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second, actually no, just the second. Just",
+    "final": false,
+    "audioProcessedMs": 5280,
+    "t": 5.360484125005314
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second, actually no, just the second. Just second",
+    "final": false,
+    "audioProcessedMs": 5360,
+    "t": 5.420138790999772
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second, actually no, just the second. Just second violins",
+    "final": false,
+    "audioProcessedMs": 5840,
+    "t": 5.900036332997843
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second, actually no, just the second. Just second violins from",
+    "final": false,
+    "audioProcessedMs": 6160,
+    "t": 6.26020345800498
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second, actually no, just the second. Just second violins from 42 to",
+    "final": false,
+    "audioProcessedMs": 6320,
+    "t": 6.408173125004396
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second, actually no, just the second. Just second violins from 42 to 48, we're",
+    "final": false,
+    "audioProcessedMs": 7280,
+    "t": 7.369604833002086
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second, actually no, just the second. Just second violins from 42 to 48, we're cutting that.",
+    "final": false,
+    "audioProcessedMs": 7600,
+    "t": 7.665436875002342
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second, actually no, just the second. Just second violins from 42 to 48, we're cutting that. Go",
+    "final": false,
+    "audioProcessedMs": 7760,
+    "t": 7.83275716600474
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second, actually no, just the second. Just second violins from 42 to 48, we're cutting that. Go straight",
+    "final": false,
+    "audioProcessedMs": 8000,
+    "t": 8.046180625009583
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second, actually no, just the second. Just second violins from 42 to 48, we're cutting that. Go straight to",
+    "final": false,
+    "audioProcessedMs": 8080,
+    "t": 8.120240875010495
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, first and second, actually no, just the second. Just second violins from 42 to 48, we're cutting that. Go straight to 49",
+    "final": false,
+    "audioProcessedMs": 8720,
+    "t": 8.880437041007099
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 8220,
+    "turnId": 0,
+    "t": 8.880446541006677
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 8220,
+    "turnId": 0,
+    "transcript": "Okay, first and second, actually no, just the second. Just second violins from 42 to 48, we're cutting that. Go straight to 49",
+    "t": 8.880452500001411
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 11.761169833000167
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 11840,
+    "t": 12.026522708008997
+   }
+  ],
+  "handshake_s": 0.347,
+  "close": 1000
+ },
+ "v03": {
+  "speech_on": 0.72,
+  "speech_end": 6.12,
+  "first_partial_after_onset": 1.73,
+  "n_partials": 11,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.31,
+  "complete_after_speech_end": 0.31,
+  "complete_lag_per_turn": [
+   0.53
+  ],
+  "first_partial_after_speechStart": 1.43,
+  "transcript": "cellos, bar 12, that's an up bar, up bar on the first note.",
+  "partial_at_speechEnd": "cellos, bar 12, that's an up bar, up bar on the first note.",
+  "turn_spans": [
+   [
+    0.72,
+    5.6
+   ]
+  ],
+  "turn_texts": [
+   "cellos, bar 12, that's an up bar, up bar on the first note."
+  ],
+  "wer": [
+   2,
+   13
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1020,
+    "turnId": 0,
+    "t": 1.6181304999918211
+   },
+   {
+    "type": "transcript",
+    "transcript": "cellos,",
+    "final": false,
+    "audioProcessedMs": 2400,
+    "t": 2.4500366669963114
+   },
+   {
+    "type": "transcript",
+    "transcript": "cellos, bar",
+    "final": false,
+    "audioProcessedMs": 2800,
+    "t": 2.8261591250047786
+   },
+   {
+    "type": "transcript",
+    "transcript": "cellos, bar 12,",
+    "final": false,
+    "audioProcessedMs": 3840,
+    "t": 3.8938661249994766
+   },
+   {
+    "type": "transcript",
+    "transcript": "cellos, bar 12, that's",
+    "final": false,
+    "audioProcessedMs": 4320,
+    "t": 4.348063291996368
+   },
+   {
+    "type": "transcript",
+    "transcript": "cellos, bar 12, that's an",
+    "final": false,
+    "audioProcessedMs": 4400,
+    "t": 4.429867541999556
+   },
+   {
+    "type": "transcript",
+    "transcript": "cellos, bar 12, that's an up",
+    "final": false,
+    "audioProcessedMs": 4560,
+    "t": 4.658116249993327
+   },
+   {
+    "type": "transcript",
+    "transcript": "cellos, bar 12, that's an up bar,",
+    "final": false,
+    "audioProcessedMs": 4960,
+    "t": 4.997360791996471
+   },
+   {
+    "type": "transcript",
+    "transcript": "cellos, bar 12, that's an up bar, up bar",
+    "final": false,
+    "audioProcessedMs": 5360,
+    "t": 5.4020331670035375
+   },
+   {
+    "type": "transcript",
+    "transcript": "cellos, bar 12, that's an up bar, up bar on",
+    "final": false,
+    "audioProcessedMs": 5680,
+    "t": 5.710070458997507
+   },
+   {
+    "type": "transcript",
+    "transcript": "cellos, bar 12, that's an up bar, up bar on the first",
+    "final": false,
+    "audioProcessedMs": 6080,
+    "t": 6.128467667003861
+   },
+   {
+    "type": "transcript",
+    "transcript": "cellos, bar 12, that's an up bar, up bar on the first note.",
+    "final": false,
+    "audioProcessedMs": 6320,
+    "t": 6.3861514589953
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 5900,
+    "turnId": 0,
+    "t": 6.432082416999037
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 5900,
+    "turnId": 0,
+    "transcript": "cellos, bar 12, that's an up bar, up bar on the first note.",
+    "t": 6.432093875002465
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 9.601381417000084
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 9680,
+    "t": 9.754110166992177
+   }
+  ],
+  "handshake_s": 0.374,
+  "close": 1000
+ },
+ "v03c": {
+  "speech_on": 2.24,
+  "speech_end": 10.78,
+  "first_partial_after_onset": 1.01,
+  "n_partials": 20,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.38,
+  "complete_after_speech_end": 0.38,
+  "complete_lag_per_turn": [
+   0.54
+  ],
+  "first_partial_after_speechStart": 1.43,
+  "transcript": "drums and cellos bar 12 that's a app bar no not just not no drums a bow for the cello on the first note",
+  "partial_at_speechEnd": "drums and cellos bar 12 that's a app bar no not just not no drums a bow for the cello on the first note",
+  "turn_spans": [
+   [
+    1.52,
+    10.32
+   ]
+  ],
+  "turn_texts": [
+   "drums and cellos bar 12 that's a app bar no not just not no drums a bow for the cello on the first note"
+  ],
+  "wer": [
+   15,
+   13
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1820,
+    "turnId": 0,
+    "t": 2.3627585000067484
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums",
+    "final": false,
+    "audioProcessedMs": 3120,
+    "t": 3.2461805409984663
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and",
+    "final": false,
+    "audioProcessedMs": 3600,
+    "t": 3.6458276659977855
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos",
+    "final": false,
+    "audioProcessedMs": 4080,
+    "t": 4.170601000005263
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar",
+    "final": false,
+    "audioProcessedMs": 4880,
+    "t": 4.928080833007698
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's",
+    "final": false,
+    "audioProcessedMs": 5760,
+    "t": 5.881958708007005
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's a",
+    "final": false,
+    "audioProcessedMs": 5920,
+    "t": 5.966233625003952
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's a app bar",
+    "final": false,
+    "audioProcessedMs": 6720,
+    "t": 6.789386875010678
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's a app bar no",
+    "final": false,
+    "audioProcessedMs": 6960,
+    "t": 7.0101961250038585
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's a app bar no not",
+    "final": false,
+    "audioProcessedMs": 7280,
+    "t": 7.315266833000351
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's a app bar no not just",
+    "final": false,
+    "audioProcessedMs": 7840,
+    "t": 7.9561698750039795
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's a app bar no not just not",
+    "final": false,
+    "audioProcessedMs": 7920,
+    "t": 8.003625416007708
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's a app bar no not just not no",
+    "final": false,
+    "audioProcessedMs": 8160,
+    "t": 8.197403625003062
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's a app bar no not just not no drums",
+    "final": false,
+    "audioProcessedMs": 8880,
+    "t": 8.999825749997399
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's a app bar no not just not no drums a",
+    "final": false,
+    "audioProcessedMs": 9680,
+    "t": 9.714113750000251
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's a app bar no not just not no drums a bow",
+    "final": false,
+    "audioProcessedMs": 9840,
+    "t": 9.936817333000363
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's a app bar no not just not no drums a bow for",
+    "final": false,
+    "audioProcessedMs": 9920,
+    "t": 9.952182583001559
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's a app bar no not just not no drums a bow for the cello",
+    "final": false,
+    "audioProcessedMs": 10160,
+    "t": 10.23603958300373
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's a app bar no not just not no drums a bow for the cello on",
+    "final": false,
+    "audioProcessedMs": 10480,
+    "t": 10.564245790999848
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's a app bar no not just not no drums a bow for the cello on the first",
+    "final": false,
+    "audioProcessedMs": 10960,
+    "t": 11.020175541008939
+   },
+   {
+    "type": "transcript",
+    "transcript": "drums and cellos bar 12 that's a app bar no not just not no drums a bow for the cello on the first note",
+    "final": false,
+    "audioProcessedMs": 11040,
+    "t": 11.090324625009089
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 10620,
+    "turnId": 0,
+    "t": 11.15615858300589
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 10620,
+    "turnId": 0,
+    "transcript": "drums and cellos bar 12 that's a app bar no not just not no drums a bow for the cello on the first note",
+    "t": 11.156177708005998
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 14.402199250005651
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 14480,
+    "t": 14.656920207999065
+   }
+  ],
+  "handshake_s": 0.336,
+  "close": 1000
+ },
+ "v04": {
+  "speech_on": 1.38,
+  "speech_end": 5.88,
+  "first_partial_after_onset": 1.54,
+  "n_partials": 10,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.5,
+  "complete_after_speech_end": 0.5,
+  "complete_lag_per_turn": [
+   0.56
+  ],
+  "first_partial_after_speechStart": 1.9,
+  "transcript": "Autos breathe after the word rest in bar 60, not before.",
+  "partial_at_speechEnd": "Autos breathe after the word rest in bar 60, not before.",
+  "turn_spans": [
+   [
+    0.72,
+    5.52
+   ]
+  ],
+  "turn_texts": [
+   "Autos breathe after the word rest in bar 60, not before."
+  ],
+  "wer": [
+   1,
+   11
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1020,
+    "turnId": 0,
+    "t": 1.5461333749990445
+   },
+   {
+    "type": "transcript",
+    "transcript": "Autos",
+    "final": false,
+    "audioProcessedMs": 2800,
+    "t": 2.9167047500086483
+   },
+   {
+    "type": "transcript",
+    "transcript": "Autos breathe after",
+    "final": false,
+    "audioProcessedMs": 3280,
+    "t": 3.327187500006403
+   },
+   {
+    "type": "transcript",
+    "transcript": "Autos breathe after the",
+    "final": false,
+    "audioProcessedMs": 3440,
+    "t": 3.4670420839975122
+   },
+   {
+    "type": "transcript",
+    "transcript": "Autos breathe after the word",
+    "final": false,
+    "audioProcessedMs": 3840,
+    "t": 3.956990874998155
+   },
+   {
+    "type": "transcript",
+    "transcript": "Autos breathe after the word rest",
+    "final": false,
+    "audioProcessedMs": 4240,
+    "t": 4.264793042006204
+   },
+   {
+    "type": "transcript",
+    "transcript": "Autos breathe after the word rest in",
+    "final": false,
+    "audioProcessedMs": 4800,
+    "t": 4.901678167007049
+   },
+   {
+    "type": "transcript",
+    "transcript": "Autos breathe after the word rest in bar",
+    "final": false,
+    "audioProcessedMs": 4960,
+    "t": 5.018871375010349
+   },
+   {
+    "type": "transcript",
+    "transcript": "Autos breathe after the word rest in bar 60,",
+    "final": false,
+    "audioProcessedMs": 5440,
+    "t": 5.552676917010103
+   },
+   {
+    "type": "transcript",
+    "transcript": "Autos breathe after the word rest in bar 60, not",
+    "final": false,
+    "audioProcessedMs": 5600,
+    "t": 5.618514834000962
+   },
+   {
+    "type": "transcript",
+    "transcript": "Autos breathe after the word rest in bar 60, not before.",
+    "final": false,
+    "audioProcessedMs": 6320,
+    "t": 6.378478584010736
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 5820,
+    "turnId": 0,
+    "t": 6.37848662500619
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 5820,
+    "turnId": 0,
+    "transcript": "Autos breathe after the word rest in bar 60, not before.",
+    "t": 6.378491249997751
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 9.122517875002814
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 9200,
+    "t": 9.274985791998915
+   }
+  ],
+  "handshake_s": 0.436,
+  "close": 1000
+ },
+ "v04c": {
+  "speech_on": 2.0,
+  "speech_end": 10.5,
+  "first_partial_after_onset": 3.04,
+  "n_partials": 14,
+  "turns": 3,
+  "speechEnd_after_speech_end": 1.61,
+  "complete_after_speech_end": 1.61,
+  "complete_lag_per_turn": [
+   0.63,
+   0.56,
+   0.53
+  ],
+  "first_partial_after_speechStart": 1.54,
+  "transcript": "Breathe after the word rest in bar 60 Not before. No, sorry I mean sopranos",
+  "partial_at_speechEnd": "No, sorry I mean sopranos",
+  "turn_spans": [
+   [
+    3.2,
+    6.08
+   ],
+   [
+    6.48,
+    7.2
+   ],
+   [
+    7.92,
+    11.28
+   ]
+  ],
+  "turn_texts": [
+   "Breathe after the word rest in bar 60",
+   "Not before.",
+   "No, sorry I mean sopranos"
+  ],
+  "wer": [
+   6,
+   11
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 3500,
+    "turnId": 0,
+    "t": 4.0226363749970915
+   },
+   {
+    "type": "transcript",
+    "transcript": "Breathe",
+    "final": false,
+    "audioProcessedMs": 4960,
+    "t": 5.042569999990519
+   },
+   {
+    "type": "transcript",
+    "transcript": "Breathe after the",
+    "final": false,
+    "audioProcessedMs": 5200,
+    "t": 5.243972457989003
+   },
+   {
+    "type": "transcript",
+    "transcript": "Breathe after the word",
+    "final": false,
+    "audioProcessedMs": 5360,
+    "t": 5.440346874995157
+   },
+   {
+    "type": "transcript",
+    "transcript": "Breathe after the word rest",
+    "final": false,
+    "audioProcessedMs": 5760,
+    "t": 5.788022458000341
+   },
+   {
+    "type": "transcript",
+    "transcript": "Breathe after the word rest in",
+    "final": false,
+    "audioProcessedMs": 6080,
+    "t": 6.104575874996954
+   },
+   {
+    "type": "transcript",
+    "transcript": "Breathe after the word rest in bar",
+    "final": false,
+    "audioProcessedMs": 6320,
+    "t": 6.344902541997726
+   },
+   {
+    "type": "transcript",
+    "transcript": "Breathe after the word rest in bar 60",
+    "final": false,
+    "audioProcessedMs": 6880,
+    "t": 7.009444457988138
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 6380,
+    "turnId": 0,
+    "t": 7.009455332998186
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 6380,
+    "turnId": 0,
+    "transcript": "Breathe after the word rest in bar 60",
+    "t": 7.009462249989156
+   },
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 6780,
+    "turnId": 1,
+    "t": 7.320584417000646
+   },
+   {
+    "type": "transcript",
+    "transcript": "Not",
+    "final": false,
+    "audioProcessedMs": 7760,
+    "t": 7.802596249995986
+   },
+   {
+    "type": "transcript",
+    "transcript": "Not before.",
+    "final": false,
+    "audioProcessedMs": 7920,
+    "t": 7.956608374995994
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 7500,
+    "turnId": 1,
+    "t": 8.059418249991722
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 7500,
+    "turnId": 1,
+    "transcript": "Not before.",
+    "t": 8.059427416999824
+   },
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 8220,
+    "turnId": 2,
+    "t": 8.760564291995252
+   },
+   {
+    "type": "transcript",
+    "transcript": "No,",
+    "final": false,
+    "audioProcessedMs": 9040,
+    "t": 9.1059447919979
+   },
+   {
+    "type": "transcript",
+    "transcript": "No, sorry",
+    "final": false,
+    "audioProcessedMs": 9200,
+    "t": 9.238759707994177
+   },
+   {
+    "type": "transcript",
+    "transcript": "No, sorry I",
+    "final": false,
+    "audioProcessedMs": 9600,
+    "t": 9.63696458299819
+   },
+   {
+    "type": "transcript",
+    "transcript": "No, sorry I mean",
+    "final": false,
+    "audioProcessedMs": 10000,
+    "t": 10.026675332992454
+   },
+   {
+    "type": "transcript",
+    "transcript": "No, sorry I mean sopranos",
+    "final": false,
+    "audioProcessedMs": 10720,
+    "t": 10.822553833000711
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 11580,
+    "turnId": 2,
+    "t": 12.114841999995406
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 11580,
+    "turnId": 2,
+    "transcript": "No, sorry I mean sopranos",
+    "t": 12.114853582999785
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 14.480626499993377
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 14560,
+    "t": 14.642652582988376
+   }
+  ],
+  "handshake_s": 0.458,
+  "close": 1000
+ },
+ "v05": {
+  "speech_on": 1.12,
+  "speech_end": 5.12,
+  "first_partial_after_onset": 0.61,
+  "n_partials": 10,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.47,
+  "complete_after_speech_end": 0.47,
+  "complete_lag_per_turn": [
+   0.57
+  ],
+  "first_partial_after_speechStart": 1.03,
+  "transcript": "From letter C everybody we take it a little slower, more weight.",
+  "partial_at_speechEnd": "From letter C everybody we take it a little slower, more weight.",
+  "turn_spans": [
+   [
+    0.4,
+    4.72
+   ]
+  ],
+  "turn_texts": [
+   "From letter C everybody we take it a little slower, more weight."
+  ],
+  "wer": [
+   0,
+   12
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 700,
+    "turnId": 0,
+    "t": 1.2514722079940839
+   },
+   {
+    "type": "transcript",
+    "transcript": "From",
+    "final": false,
+    "audioProcessedMs": 1680,
+    "t": 1.7334482919977745
+   },
+   {
+    "type": "transcript",
+    "transcript": "From letter",
+    "final": false,
+    "audioProcessedMs": 2080,
+    "t": 2.2214799579960527
+   },
+   {
+    "type": "transcript",
+    "transcript": "From letter C",
+    "final": false,
+    "audioProcessedMs": 2320,
+    "t": 2.3833782080037054
+   },
+   {
+    "type": "transcript",
+    "transcript": "From letter C everybody",
+    "final": false,
+    "audioProcessedMs": 2960,
+    "t": 3.027454208000563
+   },
+   {
+    "type": "transcript",
+    "transcript": "From letter C everybody we",
+    "final": false,
+    "audioProcessedMs": 3600,
+    "t": 3.666565374995116
+   },
+   {
+    "type": "transcript",
+    "transcript": "From letter C everybody we take it",
+    "final": false,
+    "audioProcessedMs": 4080,
+    "t": 4.1912452499964274
+   },
+   {
+    "type": "transcript",
+    "transcript": "From letter C everybody we take it a",
+    "final": false,
+    "audioProcessedMs": 4160,
+    "t": 4.221451874997001
+   },
+   {
+    "type": "transcript",
+    "transcript": "From letter C everybody we take it a little",
+    "final": false,
+    "audioProcessedMs": 4480,
+    "t": 4.538421417004429
+   },
+   {
+    "type": "transcript",
+    "transcript": "From letter C everybody we take it a little slower,",
+    "final": false,
+    "audioProcessedMs": 4720,
+    "t": 4.87561391700001
+   },
+   {
+    "type": "transcript",
+    "transcript": "From letter C everybody we take it a little slower, more weight.",
+    "final": false,
+    "audioProcessedMs": 5440,
+    "t": 5.539464500005124
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 5020,
+    "turnId": 0,
+    "t": 5.586959082997055
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 5020,
+    "turnId": 0,
+    "transcript": "From letter C everybody we take it a little slower, more weight.",
+    "t": 5.586976000005961
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 8.72217420800007
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 8800,
+    "t": 8.91158387500036
+   }
+  ],
+  "handshake_s": 0.523,
+  "close": 1000
+ },
+ "v05c": {
+  "speech_on": 1.84,
+  "speech_end": 10.68,
+  "first_partial_after_onset": 1.31,
+  "n_partials": 14,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.44,
+  "complete_after_speech_end": 0.44,
+  "complete_lag_per_turn": [
+   0.58
+  ],
+  "first_partial_after_speechStart": 1.41,
+  "transcript": "from letter D everybody no from letter C everybody just a little slower more weight okay",
+  "partial_at_speechEnd": "from letter D everybody no from letter C everybody just a little slower more weight okay",
+  "turn_spans": [
+   [
+    1.44,
+    10.24
+   ]
+  ],
+  "turn_texts": [
+   "from letter D everybody no from letter C everybody just a little slower more weight okay"
+  ],
+  "wer": [
+   8,
+   12
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1740,
+    "turnId": 0,
+    "t": 2.317905874995631
+   },
+   {
+    "type": "transcript",
+    "transcript": "from",
+    "final": false,
+    "audioProcessedMs": 3120,
+    "t": 3.1497874579945346
+   },
+   {
+    "type": "transcript",
+    "transcript": "from letter",
+    "final": false,
+    "audioProcessedMs": 3280,
+    "t": 3.363919249997707
+   },
+   {
+    "type": "transcript",
+    "transcript": "from letter D",
+    "final": false,
+    "audioProcessedMs": 5040,
+    "t": 5.0902799159957794
+   },
+   {
+    "type": "transcript",
+    "transcript": "from letter D everybody",
+    "final": false,
+    "audioProcessedMs": 6000,
+    "t": 6.036194374988554
+   },
+   {
+    "type": "transcript",
+    "transcript": "from letter D everybody no",
+    "final": false,
+    "audioProcessedMs": 6560,
+    "t": 6.593901125001139
+   },
+   {
+    "type": "transcript",
+    "transcript": "from letter D everybody no from letter C",
+    "final": false,
+    "audioProcessedMs": 7200,
+    "t": 7.263346790990909
+   },
+   {
+    "type": "transcript",
+    "transcript": "from letter D everybody no from letter C everybody",
+    "final": false,
+    "audioProcessedMs": 7760,
+    "t": 7.797397540998645
+   },
+   {
+    "type": "transcript",
+    "transcript": "from letter D everybody no from letter C everybody just",
+    "final": false,
+    "audioProcessedMs": 8400,
+    "t": 8.495320374990115
+   },
+   {
+    "type": "transcript",
+    "transcript": "from letter D everybody no from letter C everybody just a",
+    "final": false,
+    "audioProcessedMs": 8640,
+    "t": 8.676416665999568
+   },
+   {
+    "type": "transcript",
+    "transcript": "from letter D everybody no from letter C everybody just a little",
+    "final": false,
+    "audioProcessedMs": 8880,
+    "t": 9.018035582994344
+   },
+   {
+    "type": "transcript",
+    "transcript": "from letter D everybody no from letter C everybody just a little slower",
+    "final": false,
+    "audioProcessedMs": 9680,
+    "t": 9.708013582989224
+   },
+   {
+    "type": "transcript",
+    "transcript": "from letter D everybody no from letter C everybody just a little slower more",
+    "final": false,
+    "audioProcessedMs": 9760,
+    "t": 9.796201749995816
+   },
+   {
+    "type": "transcript",
+    "transcript": "from letter D everybody no from letter C everybody just a little slower more weight",
+    "final": false,
+    "audioProcessedMs": 10080,
+    "t": 10.18023883299611
+   },
+   {
+    "type": "transcript",
+    "transcript": "from letter D everybody no from letter C everybody just a little slower more weight okay",
+    "final": false,
+    "audioProcessedMs": 10640,
+    "t": 10.701834540988784
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 10540,
+    "turnId": 0,
+    "t": 11.115963207994355
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 10540,
+    "turnId": 0,
+    "transcript": "from letter D everybody no from letter C everybody just a little slower more weight okay",
+    "t": 11.115979832989979
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 13.520859665994067
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 13600,
+    "t": 13.736072665997199
+   }
+  ],
+  "handshake_s": 0.255,
+  "close": 1000
+ },
+ "v06": {
+  "speech_on": 1.4,
+  "speech_end": 2.58,
+  "first_partial_after_onset": 0.74,
+  "n_partials": 4,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.31,
+  "complete_after_speech_end": 0.31,
+  "complete_lag_per_turn": [
+   0.59
+  ],
+  "first_partial_after_speechStart": 1.04,
+  "transcript": "Let's take it from the top.",
+  "partial_at_speechEnd": "Let's take it from the top.",
+  "turn_spans": [
+   [
+    0.8,
+    2.0
+   ]
+  ],
+  "turn_texts": [
+   "Let's take it from the top."
+  ],
+  "wer": [
+   0,
+   6
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1100,
+    "turnId": 0,
+    "t": 1.6625083330000052
+   },
+   {
+    "type": "transcript",
+    "transcript": "Let's",
+    "final": false,
+    "audioProcessedMs": 2080,
+    "t": 2.140035207994515
+   },
+   {
+    "type": "transcript",
+    "transcript": "Let's take",
+    "final": false,
+    "audioProcessedMs": 2480,
+    "t": 2.6104069169959985
+   },
+   {
+    "type": "transcript",
+    "transcript": "Let's take it from the",
+    "final": false,
+    "audioProcessedMs": 2640,
+    "t": 2.731360167003004
+   },
+   {
+    "type": "transcript",
+    "transcript": "Let's take it from the top.",
+    "final": false,
+    "audioProcessedMs": 2800,
+    "t": 2.8878195419965778
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 2300,
+    "turnId": 0,
+    "t": 2.8878305419930257
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 2300,
+    "turnId": 0,
+    "transcript": "Let's take it from the top.",
+    "t": 2.8878370829916093
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 6.321352500002831
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 6400,
+    "t": 6.501742124994053
+   }
+  ],
+  "handshake_s": 0.486,
+  "close": 1000
+ },
+ "v06c": {
+  "speech_on": 1.32,
+  "speech_end": 2.74,
+  "first_partial_after_onset": 1.12,
+  "n_partials": 5,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.29,
+  "complete_after_speech_end": 0.29,
+  "complete_lag_per_turn": [
+   0.57
+  ],
+  "first_partial_after_speechStart": 1.42,
+  "transcript": "Let's take it from the top",
+  "partial_at_speechEnd": "Let's take it from the top",
+  "turn_spans": [
+   [
+    0.72,
+    2.16
+   ]
+  ],
+  "turn_texts": [
+   "Let's take it from the top"
+  ],
+  "wer": [
+   0,
+   6
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1020,
+    "turnId": 0,
+    "t": 1.5616299579996848
+   },
+   {
+    "type": "transcript",
+    "transcript": "Let's",
+    "final": false,
+    "audioProcessedMs": 2400,
+    "t": 2.4444605829921784
+   },
+   {
+    "type": "transcript",
+    "transcript": "Let's take",
+    "final": false,
+    "audioProcessedMs": 2560,
+    "t": 2.5933912909968058
+   },
+   {
+    "type": "transcript",
+    "transcript": "Let's take it from",
+    "final": false,
+    "audioProcessedMs": 2640,
+    "t": 2.7931542080041254
+   },
+   {
+    "type": "transcript",
+    "transcript": "Let's take it from the",
+    "final": false,
+    "audioProcessedMs": 2720,
+    "t": 2.793172541001695
+   },
+   {
+    "type": "transcript",
+    "transcript": "Let's take it from the top",
+    "final": false,
+    "audioProcessedMs": 2960,
+    "t": 3.032506582996575
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 2460,
+    "turnId": 0,
+    "t": 3.0325272909976775
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 2460,
+    "turnId": 0,
+    "transcript": "Let's take it from the top",
+    "t": 3.0325342080031987
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 6.401689833001001
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 6480,
+    "t": 6.639042208000319
+   }
+  ],
+  "handshake_s": 0.35,
+  "close": 1000
+ },
+ "v07": {
+  "speech_on": 2.32,
+  "speech_end": 7.62,
+  "first_partial_after_onset": 1.36,
+  "n_partials": 11,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.41,
+  "complete_after_speech_end": 0.41,
+  "complete_lag_per_turn": [
+   0.61
+  ],
+  "first_partial_after_speechStart": 1.3,
+  "transcript": "Violas, you are late at 71. The entry is on the end of two.",
+  "partial_at_speechEnd": "Violas, you are late at 71. The entry is on the end of two.",
+  "turn_spans": [
+   [
+    2.08,
+    7.12
+   ]
+  ],
+  "turn_texts": [
+   "Violas, you are late at 71. The entry is on the end of two."
+  ],
+  "wer": [
+   3,
+   13
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 2380,
+    "turnId": 0,
+    "t": 2.942782708007144
+   },
+   {
+    "type": "transcript",
+    "transcript": "Violas,",
+    "final": false,
+    "audioProcessedMs": 3600,
+    "t": 3.6790052080032183
+   },
+   {
+    "type": "transcript",
+    "transcript": "Violas, you are",
+    "final": false,
+    "audioProcessedMs": 4160,
+    "t": 4.234671333004371
+   },
+   {
+    "type": "transcript",
+    "transcript": "Violas, you are late at",
+    "final": false,
+    "audioProcessedMs": 4720,
+    "t": 4.86324995799805
+   },
+   {
+    "type": "transcript",
+    "transcript": "Violas, you are late at 71.",
+    "final": false,
+    "audioProcessedMs": 5440,
+    "t": 5.523222250005347
+   },
+   {
+    "type": "transcript",
+    "transcript": "Violas, you are late at 71. The",
+    "final": false,
+    "audioProcessedMs": 5760,
+    "t": 5.895059707996552
+   },
+   {
+    "type": "transcript",
+    "transcript": "Violas, you are late at 71. The entry",
+    "final": false,
+    "audioProcessedMs": 5920,
+    "t": 5.981050040994887
+   },
+   {
+    "type": "transcript",
+    "transcript": "Violas, you are late at 71. The entry is",
+    "final": false,
+    "audioProcessedMs": 6000,
+    "t": 6.055386332998751
+   },
+   {
+    "type": "transcript",
+    "transcript": "Violas, you are late at 71. The entry is on",
+    "final": false,
+    "audioProcessedMs": 6240,
+    "t": 6.296976166006061
+   },
+   {
+    "type": "transcript",
+    "transcript": "Violas, you are late at 71. The entry is on the",
+    "final": false,
+    "audioProcessedMs": 6320,
+    "t": 6.429149415998836
+   },
+   {
+    "type": "transcript",
+    "transcript": "Violas, you are late at 71. The entry is on the end of",
+    "final": false,
+    "audioProcessedMs": 7680,
+    "t": 7.751041708004777
+   },
+   {
+    "type": "transcript",
+    "transcript": "Violas, you are late at 71. The entry is on the end of two.",
+    "final": false,
+    "audioProcessedMs": 7920,
+    "t": 8.027196875002119
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 7420,
+    "turnId": 0,
+    "t": 8.027217708004173
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 7420,
+    "turnId": 0,
+    "transcript": "Violas, you are late at 71. The entry is on the end of two.",
+    "t": 8.027225790996454
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 11.601512708002701
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 11680,
+    "t": 11.792768540995894
+   }
+  ],
+  "handshake_s": 0.339,
+  "close": 1000
+ },
+ "v07c": {
+  "speech_on": 2.36,
+  "speech_end": 11.94,
+  "first_partial_after_onset": 0.48,
+  "n_partials": 20,
+  "turns": 2,
+  "speechEnd_after_speech_end": 0.45,
+  "complete_after_speech_end": 0.45,
+  "complete_lag_per_turn": [
+   0.63,
+   0.65
+  ],
+  "first_partial_after_speechStart": 0.86,
+  "transcript": "The first violin you are late at 71. What was that? Okay, violas, the entry is on the end end of two.",
+  "partial_at_speechEnd": "Okay, violas, the entry is on the end end of two.",
+  "turn_spans": [
+   [
+    1.68,
+    5.36
+   ],
+   [
+    6.24,
+    11.44
+   ]
+  ],
+  "turn_texts": [
+   "The first violin you are late at 71. What was that?",
+   "Okay, violas, the entry is on the end end of two."
+  ],
+  "wer": [
+   12,
+   13
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1980,
+    "turnId": 0,
+    "t": 2.540734499998507
+   },
+   {
+    "type": "transcript",
+    "transcript": "The",
+    "final": false,
+    "audioProcessedMs": 2800,
+    "t": 2.8389080409979215
+   },
+   {
+    "type": "transcript",
+    "transcript": "The first",
+    "final": false,
+    "audioProcessedMs": 3360,
+    "t": 3.4734925410011783
+   },
+   {
+    "type": "transcript",
+    "transcript": "The first violin",
+    "final": false,
+    "audioProcessedMs": 3840,
+    "t": 3.8889087910065427
+   },
+   {
+    "type": "transcript",
+    "transcript": "The first violin you are",
+    "final": false,
+    "audioProcessedMs": 4240,
+    "t": 4.296384000001126
+   },
+   {
+    "type": "transcript",
+    "transcript": "The first violin you are late",
+    "final": false,
+    "audioProcessedMs": 4320,
+    "t": 4.369763624999905
+   },
+   {
+    "type": "transcript",
+    "transcript": "The first violin you are late at",
+    "final": false,
+    "audioProcessedMs": 4720,
+    "t": 4.748643166007241
+   },
+   {
+    "type": "transcript",
+    "transcript": "The first violin you are late at 71.",
+    "final": false,
+    "audioProcessedMs": 5760,
+    "t": 5.838416083002812
+   },
+   {
+    "type": "transcript",
+    "transcript": "The first violin you are late at 71. What was",
+    "final": false,
+    "audioProcessedMs": 6000,
+    "t": 6.096527540998068
+   },
+   {
+    "type": "transcript",
+    "transcript": "The first violin you are late at 71. What was that?",
+    "final": false,
+    "audioProcessedMs": 6160,
+    "t": 6.294420291000279
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 5660,
+    "turnId": 0,
+    "t": 6.294429375004256
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 5660,
+    "turnId": 0,
+    "transcript": "The first violin you are late at 71. What was that?",
+    "t": 6.29443487500248
+   },
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 6540,
+    "turnId": 1,
+    "t": 7.141587457997957
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay,",
+    "final": false,
+    "audioProcessedMs": 7440,
+    "t": 7.488179541003774
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, violas,",
+    "final": false,
+    "audioProcessedMs": 8480,
+    "t": 8.545716416003415
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, violas, the",
+    "final": false,
+    "audioProcessedMs": 8880,
+    "t": 8.916616583010182
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, violas, the entry",
+    "final": false,
+    "audioProcessedMs": 9360,
+    "t": 9.396486708006705
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, violas, the entry is",
+    "final": false,
+    "audioProcessedMs": 9520,
+    "t": 9.5468231249979
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, violas, the entry is on",
+    "final": false,
+    "audioProcessedMs": 9840,
+    "t": 9.914356207998935
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, violas, the entry is on the",
+    "final": false,
+    "audioProcessedMs": 10080,
+    "t": 10.129856833009399
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, violas, the entry is on the end",
+    "final": false,
+    "audioProcessedMs": 10720,
+    "t": 10.812627083010739
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, violas, the entry is on the end end",
+    "final": false,
+    "audioProcessedMs": 12000,
+    "t": 12.028743000002578
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, violas, the entry is on the end end of",
+    "final": false,
+    "audioProcessedMs": 12080,
+    "t": 12.105194125004346
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, violas, the entry is on the end end of two.",
+    "final": false,
+    "audioProcessedMs": 12240,
+    "t": 12.387114541008486
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 11740,
+    "turnId": 1,
+    "t": 12.387128000002122
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 11740,
+    "turnId": 1,
+    "transcript": "Okay, violas, the entry is on the end end of two.",
+    "t": 12.387136457997258
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 15.60109700000612
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 15680,
+    "t": 15.757400750007946
+   }
+  ],
+  "handshake_s": 0.367,
+  "close": 1000
+ },
+ "v08": {
+  "speech_on": 1.3,
+  "speech_end": 6.08,
+  "first_partial_after_onset": 0.81,
+  "n_partials": 8,
+  "turns": 1,
+  "speechEnd_after_speech_end": -0.83,
+  "complete_after_speech_end": -0.83,
+  "complete_lag_per_turn": [
+   0.55
+  ],
+  "first_partial_after_speechStart": 0.93,
+  "transcript": "bar one twelve everyone crescendo through one sixteen",
+  "partial_at_speechEnd": "bar one twelve everyone crescendo through one sixteen",
+  "turn_spans": [
+   [
+    0.88,
+    4.4
+   ]
+  ],
+  "turn_texts": [
+   "bar one twelve everyone crescendo through one sixteen"
+  ],
+  "wer": [
+   4,
+   7
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1180,
+    "turnId": 0,
+    "t": 1.7387898749875603
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar",
+    "final": false,
+    "audioProcessedMs": 2080,
+    "t": 2.1143174169992562
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar one",
+    "final": false,
+    "audioProcessedMs": 2720,
+    "t": 2.7857016249909066
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar one twelve",
+    "final": false,
+    "audioProcessedMs": 2960,
+    "t": 2.988766416994622
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar one twelve everyone",
+    "final": false,
+    "audioProcessedMs": 3200,
+    "t": 3.312495416990714
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar one twelve everyone crescendo",
+    "final": false,
+    "audioProcessedMs": 4000,
+    "t": 4.066398041992215
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar one twelve everyone crescendo through",
+    "final": false,
+    "audioProcessedMs": 4320,
+    "t": 4.364841124988743
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar one twelve everyone crescendo through one",
+    "final": false,
+    "audioProcessedMs": 4880,
+    "t": 4.995884459000081
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar one twelve everyone crescendo through one sixteen",
+    "final": false,
+    "audioProcessedMs": 5200,
+    "t": 5.2539191669930005
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 4700,
+    "turnId": 0,
+    "t": 5.253927333993488
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 4700,
+    "turnId": 0,
+    "transcript": "bar one twelve everyone crescendo through one sixteen",
+    "t": 5.253932374995202
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 9.121249708987307
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 9200,
+    "t": 9.298579499998596
+   }
+  ],
+  "handshake_s": 0.356,
+  "close": 1000
+ },
+ "v08c": {
+  "speech_on": 2.12,
+  "speech_end": 7.44,
+  "first_partial_after_onset": 1.28,
+  "n_partials": 9,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.42,
+  "complete_after_speech_end": 0.42,
+  "complete_lag_per_turn": [
+   0.6
+  ],
+  "first_partial_after_speechStart": 1.58,
+  "transcript": "bar 112 everyone. Bar 112. Crescendo through the 116.",
+  "partial_at_speechEnd": "bar 112 everyone. Bar 112. Crescendo through the 116.",
+  "turn_spans": [
+   [
+    1.52,
+    6.96
+   ]
+  ],
+  "turn_texts": [
+   "bar 112 everyone. Bar 112. Crescendo through the 116."
+  ],
+  "wer": [
+   3,
+   7
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1820,
+    "turnId": 0,
+    "t": 2.364263082999969
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar",
+    "final": false,
+    "audioProcessedMs": 3360,
+    "t": 3.4041521249891957
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar 112",
+    "final": false,
+    "audioProcessedMs": 3600,
+    "t": 3.668982374991174
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar 112 everyone.",
+    "final": false,
+    "audioProcessedMs": 4000,
+    "t": 4.064911124994978
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar 112 everyone. Bar",
+    "final": false,
+    "audioProcessedMs": 5120,
+    "t": 5.242279582991614
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar 112 everyone. Bar 112.",
+    "final": false,
+    "audioProcessedMs": 6000,
+    "t": 6.064520332991378
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar 112 everyone. Bar 112. Crescendo",
+    "final": false,
+    "audioProcessedMs": 6720,
+    "t": 6.814956541988067
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar 112 everyone. Bar 112. Crescendo through",
+    "final": false,
+    "audioProcessedMs": 6800,
+    "t": 6.936982374987565
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar 112 everyone. Bar 112. Crescendo through the",
+    "final": false,
+    "audioProcessedMs": 7200,
+    "t": 7.335896124990541
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar 112 everyone. Bar 112. Crescendo through the 116.",
+    "final": false,
+    "audioProcessedMs": 7760,
+    "t": 7.864329749994795
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 7260,
+    "turnId": 0,
+    "t": 7.864347208000254
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 7260,
+    "turnId": 0,
+    "transcript": "bar 112 everyone. Bar 112. Crescendo through the 116.",
+    "t": 7.8644158329989295
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 11.44092795799952
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 11520,
+    "t": 11.708340582990786
+   }
+  ],
+  "handshake_s": 0.344,
+  "close": 1000
+ },
+ "v09": {
+  "speech_on": 0.96,
+  "speech_end": 6.96,
+  "first_partial_after_onset": 1.35,
+  "n_partials": 12,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.81,
+  "complete_after_speech_end": 0.81,
+  "complete_lag_per_turn": [
+   0.59
+  ],
+  "first_partial_after_speechStart": 2.31,
+  "transcript": "tenors and basses, bar 20, sing the consonant early. The T before the beat.",
+  "partial_at_speechEnd": "tenors and basses, bar 20, sing the consonant early. The T before the beat.",
+  "turn_spans": [
+   [
+    -0.3,
+    6.88
+   ]
+  ],
+  "turn_texts": [
+   "tenors and basses, bar 20, sing the consonant early. The T before the beat."
+  ],
+  "wer": [
+   0,
+   14
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 0,
+    "turnId": 0,
+    "t": 0.528271749994019
+   },
+   {
+    "type": "transcript",
+    "transcript": "tenors",
+    "final": false,
+    "audioProcessedMs": 2240,
+    "t": 2.308785250002984
+   },
+   {
+    "type": "transcript",
+    "transcript": "tenors and",
+    "final": false,
+    "audioProcessedMs": 2320,
+    "t": 2.4022460830019554
+   },
+   {
+    "type": "transcript",
+    "transcript": "tenors and basses,",
+    "final": false,
+    "audioProcessedMs": 3120,
+    "t": 3.2010460419987794
+   },
+   {
+    "type": "transcript",
+    "transcript": "tenors and basses, bar",
+    "final": false,
+    "audioProcessedMs": 3280,
+    "t": 3.330234624998411
+   },
+   {
+    "type": "transcript",
+    "transcript": "tenors and basses, bar 20,",
+    "final": false,
+    "audioProcessedMs": 3680,
+    "t": 3.754926791996695
+   },
+   {
+    "type": "transcript",
+    "transcript": "tenors and basses, bar 20, sing",
+    "final": false,
+    "audioProcessedMs": 4320,
+    "t": 4.360136832998251
+   },
+   {
+    "type": "transcript",
+    "transcript": "tenors and basses, bar 20, sing the",
+    "final": false,
+    "audioProcessedMs": 4640,
+    "t": 4.6924068329972215
+   },
+   {
+    "type": "transcript",
+    "transcript": "tenors and basses, bar 20, sing the consonant",
+    "final": false,
+    "audioProcessedMs": 5440,
+    "t": 5.550675542006502
+   },
+   {
+    "type": "transcript",
+    "transcript": "tenors and basses, bar 20, sing the consonant early.",
+    "final": false,
+    "audioProcessedMs": 5520,
+    "t": 5.588333374995273
+   },
+   {
+    "type": "transcript",
+    "transcript": "tenors and basses, bar 20, sing the consonant early. The T",
+    "final": false,
+    "audioProcessedMs": 6240,
+    "t": 6.3024005420011235
+   },
+   {
+    "type": "transcript",
+    "transcript": "tenors and basses, bar 20, sing the consonant early. The T before the",
+    "final": false,
+    "audioProcessedMs": 6960,
+    "t": 7.01814058299351
+   },
+   {
+    "type": "transcript",
+    "transcript": "tenors and basses, bar 20, sing the consonant early. The T before the beat.",
+    "final": false,
+    "audioProcessedMs": 7440,
+    "t": 7.501902667005197
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 7180,
+    "turnId": 0,
+    "t": 7.772270792003837
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 7180,
+    "turnId": 0,
+    "transcript": "tenors and basses, bar 20, sing the consonant early. The T before the beat.",
+    "t": 7.772334583001793
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 10.081576374999713
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 10160,
+    "t": 10.267152000000351
+   }
+  ],
+  "handshake_s": 0.445,
+  "close": 1000
+ },
+ "v09c": {
+  "speech_on": 1.68,
+  "speech_end": 8.42,
+  "first_partial_after_onset": 0.96,
+  "n_partials": 17,
+  "turns": 2,
+  "speechEnd_after_speech_end": 1.54,
+  "complete_after_speech_end": 1.54,
+  "complete_lag_per_turn": [
+   0.58,
+   0.62
+  ],
+  "first_partial_after_speechStart": 1.22,
+  "transcript": "Soprano and alto, you're good. Tenors and basses, bar 20, sing the consonant early, the T before the beat.",
+  "partial_at_speechEnd": "Tenors and basses, bar 20, sing the consonant early, the T before the beat.",
+  "turn_spans": [
+   [
+    1.12,
+    3.04
+   ],
+   [
+    3.36,
+    9.04
+   ]
+  ],
+  "turn_texts": [
+   "Soprano and alto, you're good.",
+   "Tenors and basses, bar 20, sing the consonant early, the T before the beat."
+  ],
+  "wer": [
+   5,
+   14
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1420,
+    "turnId": 0,
+    "t": 1.966891874995781
+   },
+   {
+    "type": "transcript",
+    "transcript": "Soprano",
+    "final": false,
+    "audioProcessedMs": 2560,
+    "t": 2.6434076669975184
+   },
+   {
+    "type": "transcript",
+    "transcript": "Soprano and",
+    "final": false,
+    "audioProcessedMs": 2880,
+    "t": 2.922716083994601
+   },
+   {
+    "type": "transcript",
+    "transcript": "Soprano and alto,",
+    "final": false,
+    "audioProcessedMs": 3280,
+    "t": 3.3554186669935007
+   },
+   {
+    "type": "transcript",
+    "transcript": "Soprano and alto, you're",
+    "final": false,
+    "audioProcessedMs": 3680,
+    "t": 3.813491791996057
+   },
+   {
+    "type": "transcript",
+    "transcript": "Soprano and alto, you're good.",
+    "final": false,
+    "audioProcessedMs": 3760,
+    "t": 3.8734787499997765
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 3340,
+    "turnId": 0,
+    "t": 3.921491041997797
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 3340,
+    "turnId": 0,
+    "transcript": "Soprano and alto, you're good.",
+    "t": 3.921504208992701
+   },
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 3660,
+    "turnId": 1,
+    "t": 4.225293916999362
+   },
+   {
+    "type": "transcript",
+    "transcript": "Tenors",
+    "final": false,
+    "audioProcessedMs": 4560,
+    "t": 4.722166583989747
+   },
+   {
+    "type": "transcript",
+    "transcript": "Tenors and",
+    "final": false,
+    "audioProcessedMs": 4640,
+    "t": 4.722200124990195
+   },
+   {
+    "type": "transcript",
+    "transcript": "Tenors and basses, bar",
+    "final": false,
+    "audioProcessedMs": 5360,
+    "t": 5.465875708992826
+   },
+   {
+    "type": "transcript",
+    "transcript": "Tenors and basses, bar 20,",
+    "final": false,
+    "audioProcessedMs": 6080,
+    "t": 6.177296166992164
+   },
+   {
+    "type": "transcript",
+    "transcript": "Tenors and basses, bar 20, sing",
+    "final": false,
+    "audioProcessedMs": 6160,
+    "t": 6.29080316699401
+   },
+   {
+    "type": "transcript",
+    "transcript": "Tenors and basses, bar 20, sing the",
+    "final": false,
+    "audioProcessedMs": 6480,
+    "t": 6.543498333994648
+   },
+   {
+    "type": "transcript",
+    "transcript": "Tenors and basses, bar 20, sing the consonant early,",
+    "final": false,
+    "audioProcessedMs": 7440,
+    "t": 7.535811166992062
+   },
+   {
+    "type": "transcript",
+    "transcript": "Tenors and basses, bar 20, sing the consonant early, the",
+    "final": false,
+    "audioProcessedMs": 8080,
+    "t": 8.138057833988569
+   },
+   {
+    "type": "transcript",
+    "transcript": "Tenors and basses, bar 20, sing the consonant early, the T",
+    "final": false,
+    "audioProcessedMs": 8240,
+    "t": 8.289342249991023
+   },
+   {
+    "type": "transcript",
+    "transcript": "Tenors and basses, bar 20, sing the consonant early, the T before",
+    "final": false,
+    "audioProcessedMs": 8320,
+    "t": 8.388229499993031
+   },
+   {
+    "type": "transcript",
+    "transcript": "Tenors and basses, bar 20, sing the consonant early, the T before the",
+    "final": false,
+    "audioProcessedMs": 8640,
+    "t": 8.701444083999377
+   },
+   {
+    "type": "transcript",
+    "transcript": "Tenors and basses, bar 20, sing the consonant early, the T before the beat.",
+    "final": false,
+    "audioProcessedMs": 8880,
+    "t": 8.956470499993884
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 9340,
+    "turnId": 1,
+    "t": 9.962998124989099
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 9340,
+    "turnId": 1,
+    "transcript": "Tenors and basses, bar 20, sing the consonant early, the T before the beat.",
+    "t": 9.963006458987365
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 12.242412999999942
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 12320,
+    "t": 12.427176917000907
+   }
+  ],
+  "handshake_s": 0.517,
+  "close": 1000
+ },
+ "v10": {
+  "speech_on": 1.28,
+  "speech_end": 4.34,
+  "first_partial_after_onset": 0.71,
+  "n_partials": 8,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.45,
+  "complete_after_speech_end": 0.45,
+  "complete_lag_per_turn": [
+   0.57
+  ],
+  "first_partial_after_speechStart": 0.97,
+  "transcript": "no louder in 88 the opposite hold it back",
+  "partial_at_speechEnd": "no louder in 88 the opposite hold it back",
+  "turn_spans": [
+   [
+    0.72,
+    3.92
+   ]
+  ],
+  "turn_texts": [
+   "no louder in 88 the opposite hold it back"
+  ],
+  "wer": [
+   1,
+   9
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1020,
+    "turnId": 0,
+    "t": 1.587983000004897
+   },
+   {
+    "type": "transcript",
+    "transcript": "no",
+    "final": false,
+    "audioProcessedMs": 1920,
+    "t": 1.9913069589965744
+   },
+   {
+    "type": "transcript",
+    "transcript": "no louder",
+    "final": false,
+    "audioProcessedMs": 2560,
+    "t": 2.639854374996503
+   },
+   {
+    "type": "transcript",
+    "transcript": "no louder in",
+    "final": false,
+    "audioProcessedMs": 2960,
+    "t": 3.0432772089989157
+   },
+   {
+    "type": "transcript",
+    "transcript": "no louder in 88",
+    "final": false,
+    "audioProcessedMs": 3440,
+    "t": 3.5665850840014173
+   },
+   {
+    "type": "transcript",
+    "transcript": "no louder in 88 the",
+    "final": false,
+    "audioProcessedMs": 3680,
+    "t": 3.735668709006859
+   },
+   {
+    "type": "transcript",
+    "transcript": "no louder in 88 the opposite",
+    "final": false,
+    "audioProcessedMs": 4160,
+    "t": 4.242352417000802
+   },
+   {
+    "type": "transcript",
+    "transcript": "no louder in 88 the opposite hold it",
+    "final": false,
+    "audioProcessedMs": 4400,
+    "t": 4.463348917008261
+   },
+   {
+    "type": "transcript",
+    "transcript": "no louder in 88 the opposite hold it back",
+    "final": false,
+    "audioProcessedMs": 4720,
+    "t": 4.786160458999802
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 4220,
+    "turnId": 0,
+    "t": 4.786176167006488
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 4220,
+    "turnId": 0,
+    "transcript": "no louder in 88 the opposite hold it back",
+    "t": 4.786185208999086
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 7.922340167002403
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 8000,
+    "t": 8.087851999996928
+   }
+  ],
+  "handshake_s": 0.368,
+  "close": 1000
+ },
+ "v10c": {
+  "speech_on": 2.06,
+  "speech_end": 5.04,
+  "first_partial_after_onset": 1.19,
+  "n_partials": 6,
+  "turns": 1,
+  "speechEnd_after_speech_end": 1.97,
+  "complete_after_speech_end": 1.97,
+  "complete_lag_per_turn": [
+   0.55
+  ],
+  "first_partial_after_speechStart": 1.59,
+  "transcript": "In 88, the opposite, hold it back,",
+  "partial_at_speechEnd": "In 88, the opposite, hold it back,",
+  "turn_spans": [
+   [
+    1.36,
+    6.16
+   ]
+  ],
+  "turn_texts": [
+   "In 88, the opposite, hold it back,"
+  ],
+  "wer": [
+   2,
+   9
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1660,
+    "turnId": 0,
+    "t": 2.200618457995006
+   },
+   {
+    "type": "transcript",
+    "transcript": "In",
+    "final": false,
+    "audioProcessedMs": 3200,
+    "t": 3.24994720799441
+   },
+   {
+    "type": "transcript",
+    "transcript": "In 88,",
+    "final": false,
+    "audioProcessedMs": 3680,
+    "t": 3.8037742079905
+   },
+   {
+    "type": "transcript",
+    "transcript": "In 88, the",
+    "final": false,
+    "audioProcessedMs": 3840,
+    "t": 3.8898167079896666
+   },
+   {
+    "type": "transcript",
+    "transcript": "In 88, the opposite,",
+    "final": false,
+    "audioProcessedMs": 4560,
+    "t": 4.665450082989992
+   },
+   {
+    "type": "transcript",
+    "transcript": "In 88, the opposite, hold it",
+    "final": false,
+    "audioProcessedMs": 5440,
+    "t": 5.5053563749970635
+   },
+   {
+    "type": "transcript",
+    "transcript": "In 88, the opposite, hold it back,",
+    "final": false,
+    "audioProcessedMs": 5680,
+    "t": 5.756031208002241
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 6460,
+    "turnId": 0,
+    "t": 7.010323541995604
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 6460,
+    "turnId": 0,
+    "transcript": "In 88, the opposite, hold it back,",
+    "t": 7.010389666989795
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 9.440450333000626
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 9520,
+    "t": 9.616069583003991
+   }
+  ],
+  "handshake_s": 0.354,
+  "close": 1000
+ },
+ "v11": {
+  "speech_on": 2.36,
+  "speech_end": 5.66,
+  "first_partial_after_onset": 0.79,
+  "n_partials": 9,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.33,
+  "complete_after_speech_end": 0.33,
+  "complete_lag_per_turn": [
+   0.57
+  ],
+  "first_partial_after_speechStart": 1.09,
+  "transcript": "C sharp in bar 15 is flat. Listen to the viola there.",
+  "partial_at_speechEnd": "C sharp in bar 15 is flat. Listen to the viola there.",
+  "turn_spans": [
+   [
+    1.76,
+    5.12
+   ]
+  ],
+  "turn_texts": [
+   "C sharp in bar 15 is flat. Listen to the viola there."
+  ],
+  "wer": [
+   2,
+   14
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 2060,
+    "turnId": 0,
+    "t": 2.6210489999939455
+   },
+   {
+    "type": "transcript",
+    "transcript": "C",
+    "final": false,
+    "audioProcessedMs": 3040,
+    "t": 3.1478577079979004
+   },
+   {
+    "type": "transcript",
+    "transcript": "C sharp in bar",
+    "final": false,
+    "audioProcessedMs": 3600,
+    "t": 3.667645875000744
+   },
+   {
+    "type": "transcript",
+    "transcript": "C sharp in bar 15",
+    "final": false,
+    "audioProcessedMs": 4080,
+    "t": 4.196479833000922
+   },
+   {
+    "type": "transcript",
+    "transcript": "C sharp in bar 15 is",
+    "final": false,
+    "audioProcessedMs": 4320,
+    "t": 4.355991082993569
+   },
+   {
+    "type": "transcript",
+    "transcript": "C sharp in bar 15 is flat.",
+    "final": false,
+    "audioProcessedMs": 4720,
+    "t": 4.843605290996493
+   },
+   {
+    "type": "transcript",
+    "transcript": "C sharp in bar 15 is flat. Listen",
+    "final": false,
+    "audioProcessedMs": 5360,
+    "t": 5.393553499990958
+   },
+   {
+    "type": "transcript",
+    "transcript": "C sharp in bar 15 is flat. Listen to",
+    "final": false,
+    "audioProcessedMs": 5520,
+    "t": 5.547506707996945
+   },
+   {
+    "type": "transcript",
+    "transcript": "C sharp in bar 15 is flat. Listen to the viola",
+    "final": false,
+    "audioProcessedMs": 5680,
+    "t": 5.765019915997982
+   },
+   {
+    "type": "transcript",
+    "transcript": "C sharp in bar 15 is flat. Listen to the viola there.",
+    "final": false,
+    "audioProcessedMs": 5920,
+    "t": 5.985582749999594
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 5420,
+    "turnId": 0,
+    "t": 5.985595541002112
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 5420,
+    "turnId": 0,
+    "transcript": "C sharp in bar 15 is flat. Listen to the viola there.",
+    "t": 5.985645749999094
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 8.96123762500065
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 9040,
+    "t": 9.099450124995201
+   }
+  ],
+  "handshake_s": 0.344,
+  "close": 1000
+ },
+ "v12": {
+  "speech_on": 1.32,
+  "speech_end": 7.16,
+  "first_partial_after_onset": 0.91,
+  "n_partials": 12,
+  "turns": 1,
+  "speechEnd_after_speech_end": -0.2,
+  "complete_after_speech_end": -0.2,
+  "complete_lag_per_turn": [
+   0.66
+  ],
+  "first_partial_after_speechStart": 1.37,
+  "transcript": "pick up to 34 first that's where you come in nobody else",
+  "partial_at_speechEnd": "pick up to 34 first that's where you come in nobody else",
+  "turn_spans": [
+   [
+    0.56,
+    6.0
+   ]
+  ],
+  "turn_texts": [
+   "pick up to 34 first that's where you come in nobody else"
+  ],
+  "wer": [
+   3,
+   11
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 860,
+    "turnId": 0,
+    "t": 1.4261783749971073
+   },
+   {
+    "type": "transcript",
+    "transcript": "pick",
+    "final": false,
+    "audioProcessedMs": 2080,
+    "t": 2.2346109579957556
+   },
+   {
+    "type": "transcript",
+    "transcript": "pick up",
+    "final": false,
+    "audioProcessedMs": 2160,
+    "t": 2.279222540993942
+   },
+   {
+    "type": "transcript",
+    "transcript": "pick up to",
+    "final": false,
+    "audioProcessedMs": 2240,
+    "t": 2.324599790998036
+   },
+   {
+    "type": "transcript",
+    "transcript": "pick up to 34",
+    "final": false,
+    "audioProcessedMs": 2800,
+    "t": 2.890870665985858
+   },
+   {
+    "type": "transcript",
+    "transcript": "pick up to 34 first",
+    "final": false,
+    "audioProcessedMs": 3280,
+    "t": 3.3565924579888815
+   },
+   {
+    "type": "transcript",
+    "transcript": "pick up to 34 first that's",
+    "final": false,
+    "audioProcessedMs": 4160,
+    "t": 4.232610624996596
+   },
+   {
+    "type": "transcript",
+    "transcript": "pick up to 34 first that's where",
+    "final": false,
+    "audioProcessedMs": 4720,
+    "t": 4.86459399999876
+   },
+   {
+    "type": "transcript",
+    "transcript": "pick up to 34 first that's where you",
+    "final": false,
+    "audioProcessedMs": 4800,
+    "t": 4.9046475409995764
+   },
+   {
+    "type": "transcript",
+    "transcript": "pick up to 34 first that's where you come",
+    "final": false,
+    "audioProcessedMs": 4880,
+    "t": 4.947324999986449
+   },
+   {
+    "type": "transcript",
+    "transcript": "pick up to 34 first that's where you come in",
+    "final": false,
+    "audioProcessedMs": 5200,
+    "t": 5.268635790998815
+   },
+   {
+    "type": "transcript",
+    "transcript": "pick up to 34 first that's where you come in nobody",
+    "final": false,
+    "audioProcessedMs": 6400,
+    "t": 6.480822290992364
+   },
+   {
+    "type": "transcript",
+    "transcript": "pick up to 34 first that's where you come in nobody else",
+    "final": false,
+    "audioProcessedMs": 6800,
+    "t": 6.964318999991519
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 6300,
+    "turnId": 0,
+    "t": 6.964340999998967
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 6300,
+    "turnId": 0,
+    "transcript": "pick up to 34 first that's where you come in nobody else",
+    "t": 6.964350749985897
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 9.76274145799107
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 9840,
+    "t": 9.962193499988643
+   }
+  ],
+  "handshake_s": 0.514,
+  "close": 1000
+ },
+ "v13": {
+  "speech_on": 1.7,
+  "speech_end": 7.58,
+  "first_partial_after_onset": 1.06,
+  "n_partials": 18,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.81,
+  "complete_after_speech_end": 0.81,
+  "complete_lag_per_turn": [
+   0.57
+  ],
+  "first_partial_after_speechStart": 1.34,
+  "transcript": "Sopranos, we will skip the repeat on the second time through, so after bar 40 go straight on.",
+  "partial_at_speechEnd": "Sopranos, we will skip the repeat on the second time through, so after bar 40 go straight on.",
+  "turn_spans": [
+   [
+    1.12,
+    7.52
+   ]
+  ],
+  "turn_texts": [
+   "Sopranos, we will skip the repeat on the second time through, so after bar 40 go straight on."
+  ],
+  "wer": [
+   3,
+   16
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1420,
+    "turnId": 0,
+    "t": 1.9741758330055745
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos,",
+    "final": false,
+    "audioProcessedMs": 2640,
+    "t": 2.755226875000517
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we",
+    "final": false,
+    "audioProcessedMs": 3200,
+    "t": 3.251825875006034
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will",
+    "final": false,
+    "audioProcessedMs": 3520,
+    "t": 3.645877458009636
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will skip",
+    "final": false,
+    "audioProcessedMs": 3760,
+    "t": 3.8279387500078883
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will skip the",
+    "final": false,
+    "audioProcessedMs": 3840,
+    "t": 3.8985813750041416
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will skip the repeat",
+    "final": false,
+    "audioProcessedMs": 4080,
+    "t": 4.167966166001861
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will skip the repeat on",
+    "final": false,
+    "audioProcessedMs": 4320,
+    "t": 4.37917116600147
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will skip the repeat on the",
+    "final": false,
+    "audioProcessedMs": 4480,
+    "t": 4.562362791009946
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will skip the repeat on the second",
+    "final": false,
+    "audioProcessedMs": 4960,
+    "t": 5.088373083010083
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will skip the repeat on the second time",
+    "final": false,
+    "audioProcessedMs": 5120,
+    "t": 5.228426458008471
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will skip the repeat on the second time through,",
+    "final": false,
+    "audioProcessedMs": 5680,
+    "t": 5.803520500005106
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will skip the repeat on the second time through, so",
+    "final": false,
+    "audioProcessedMs": 6160,
+    "t": 6.277640957996482
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will skip the repeat on the second time through, so after",
+    "final": false,
+    "audioProcessedMs": 6320,
+    "t": 6.389932165999198
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will skip the repeat on the second time through, so after bar",
+    "final": false,
+    "audioProcessedMs": 6720,
+    "t": 6.804035166001995
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will skip the repeat on the second time through, so after bar 40",
+    "final": false,
+    "audioProcessedMs": 6960,
+    "t": 7.029646625000169
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will skip the repeat on the second time through, so after bar 40 go",
+    "final": false,
+    "audioProcessedMs": 7120,
+    "t": 7.187029416003497
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will skip the repeat on the second time through, so after bar 40 go straight",
+    "final": false,
+    "audioProcessedMs": 7760,
+    "t": 7.841589875009959
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos, we will skip the repeat on the second time through, so after bar 40 go straight on.",
+    "final": false,
+    "audioProcessedMs": 7840,
+    "t": 7.929631291000987
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 7820,
+    "turnId": 0,
+    "t": 8.38595341600012
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 7820,
+    "turnId": 0,
+    "transcript": "Sopranos, we will skip the repeat on the second time through, so after bar 40 go straight on.",
+    "t": 8.385963416003506
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 10.800938041007612
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 10880,
+    "t": 11.017918166005984
+   }
+  ],
+  "handshake_s": 0.45,
+  "close": 1000
+ },
+ "v14": {
+  "speech_on": 1.36,
+  "speech_end": 4.18,
+  "first_partial_after_onset": 0.85,
+  "n_partials": 6,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.03,
+  "complete_after_speech_end": 0.03,
+  "complete_lag_per_turn": [
+   0.63
+  ],
+  "first_partial_after_speechStart": 1.27,
+  "transcript": "Okay, that's Lin, back at 1:30.",
+  "partial_at_speechEnd": "Okay, that's Lin, back at 1:30.",
+  "turn_spans": [
+   [
+    0.64,
+    3.28
+   ]
+  ],
+  "turn_texts": [
+   "Okay, that's Lin, back at 1:30."
+  ],
+  "wer": [
+   1,
+   7
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 940,
+    "turnId": 0,
+    "t": 1.4897251250076806
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay,",
+    "final": false,
+    "audioProcessedMs": 2160,
+    "t": 2.2104587080102647
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, that's",
+    "final": false,
+    "audioProcessedMs": 2640,
+    "t": 2.6784382080077194
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, that's Lin,",
+    "final": false,
+    "audioProcessedMs": 3200,
+    "t": 3.248676917006378
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, that's Lin, back",
+    "final": false,
+    "audioProcessedMs": 3360,
+    "t": 3.384789042000193
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, that's Lin, back at",
+    "final": false,
+    "audioProcessedMs": 3440,
+    "t": 3.4790021250082646
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, that's Lin, back at 1:30.",
+    "final": false,
+    "audioProcessedMs": 4080,
+    "t": 4.212440500006778
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 3580,
+    "turnId": 0,
+    "t": 4.212447541998699
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 3580,
+    "turnId": 0,
+    "transcript": "Okay, that's Lin, back at 1:30.",
+    "t": 4.21246800001245
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 7.364616542006843
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 7440,
+    "t": 7.503493125012028
+   }
+  ],
+  "handshake_s": 0.385,
+  "close": 1000
+ },
+ "v15": {
+  "speech_on": 2.0,
+  "speech_end": 4.64,
+  "first_partial_after_onset": 1.04,
+  "n_partials": 5,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.48,
+  "complete_after_speech_end": 0.48,
+  "complete_lag_per_turn": [
+   0.58
+  ],
+  "first_partial_after_speechStart": 1.38,
+  "transcript": "Stop the cello, bar 50, pizzicato,",
+  "partial_at_speechEnd": "Stop the cello, bar 50, pizzicato,",
+  "turn_spans": [
+   [
+    1.36,
+    4.24
+   ]
+  ],
+  "turn_texts": [
+   "Stop the cello, bar 50, pizzicato,"
+  ],
+  "wer": [
+   2,
+   7
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1660,
+    "turnId": 0,
+    "t": 2.217166290996829
+   },
+   {
+    "type": "transcript",
+    "transcript": "Stop the",
+    "final": false,
+    "audioProcessedMs": 2880,
+    "t": 3.041787124995608
+   },
+   {
+    "type": "transcript",
+    "transcript": "Stop the cello,",
+    "final": false,
+    "audioProcessedMs": 3280,
+    "t": 3.4161498750036117
+   },
+   {
+    "type": "transcript",
+    "transcript": "Stop the cello, bar",
+    "final": false,
+    "audioProcessedMs": 3600,
+    "t": 3.66411737499584
+   },
+   {
+    "type": "transcript",
+    "transcript": "Stop the cello, bar 50,",
+    "final": false,
+    "audioProcessedMs": 4160,
+    "t": 4.277252957996097
+   },
+   {
+    "type": "transcript",
+    "transcript": "Stop the cello, bar 50, pizzicato,",
+    "final": false,
+    "audioProcessedMs": 4960,
+    "t": 5.0378965830022935
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 4540,
+    "turnId": 0,
+    "t": 5.119913290996919
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 4540,
+    "turnId": 0,
+    "transcript": "Stop the cello, bar 50, pizzicato,",
+    "t": 5.119926500003203
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 8.32224966600188
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 8400,
+    "t": 8.503248541004723
+   }
+  ],
+  "handshake_s": 0.407,
+  "close": 1000
+ },
+ "v16": {
+  "speech_on": 1.38,
+  "speech_end": 5.46,
+  "first_partial_after_onset": 1.18,
+  "n_partials": 8,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.65,
+  "complete_after_speech_end": 0.65,
+  "complete_lag_per_turn": [
+   0.53
+  ],
+  "first_partial_after_speechStart": 1.06,
+  "transcript": "and second from 96 to the end, no vibrato.",
+  "partial_at_speechEnd": "and second from 96 to the end, no vibrato.",
+  "turn_spans": [
+   [
+    1.2,
+    5.28
+   ]
+  ],
+  "turn_texts": [
+   "and second from 96 to the end, no vibrato."
+  ],
+  "wer": [
+   2,
+   10
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1500,
+    "turnId": 0,
+    "t": 2.033119457992143
+   },
+   {
+    "type": "transcript",
+    "transcript": "and",
+    "final": false,
+    "audioProcessedMs": 2480,
+    "t": 2.5561384999891743
+   },
+   {
+    "type": "transcript",
+    "transcript": "and second",
+    "final": false,
+    "audioProcessedMs": 2880,
+    "t": 2.89951283299888
+   },
+   {
+    "type": "transcript",
+    "transcript": "and second from",
+    "final": false,
+    "audioProcessedMs": 3120,
+    "t": 3.191587332999916
+   },
+   {
+    "type": "transcript",
+    "transcript": "and second from 96 to",
+    "final": false,
+    "audioProcessedMs": 4000,
+    "t": 4.130464916990604
+   },
+   {
+    "type": "transcript",
+    "transcript": "and second from 96 to the",
+    "final": false,
+    "audioProcessedMs": 4320,
+    "t": 4.358154125002329
+   },
+   {
+    "type": "transcript",
+    "transcript": "and second from 96 to the end,",
+    "final": false,
+    "audioProcessedMs": 4400,
+    "t": 4.4455689169990364
+   },
+   {
+    "type": "transcript",
+    "transcript": "and second from 96 to the end, no",
+    "final": false,
+    "audioProcessedMs": 4480,
+    "t": 4.5181812919909135
+   },
+   {
+    "type": "transcript",
+    "transcript": "and second from 96 to the end, no vibrato.",
+    "final": false,
+    "audioProcessedMs": 5920,
+    "t": 5.97639858299226
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 5580,
+    "turnId": 0,
+    "t": 6.1053599169972586
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 5580,
+    "turnId": 0,
+    "transcript": "and second from 96 to the end, no vibrato.",
+    "t": 6.105371375000686
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 8.480659791996004
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 8560,
+    "t": 8.640388166997582
+   }
+  ],
+  "handshake_s": 0.353,
+  "close": 1000
+ },
+ "v17": {
+  "speech_on": 1.22,
+  "speech_end": 6.18,
+  "first_partial_after_onset": 1.02,
+  "n_partials": 11,
+  "turns": 1,
+  "speechEnd_after_speech_end": 1.13,
+  "complete_after_speech_end": 1.13,
+  "complete_lag_per_turn": [
+   0.61
+  ],
+  "first_partial_after_speechStart": 1.3,
+  "transcript": "Bar 203, basses, that's a low E, you're singing the octave",
+  "partial_at_speechEnd": "Bar 203, basses, that's a low E, you're singing the octave",
+  "turn_spans": [
+   [
+    0.64,
+    6.4
+   ]
+  ],
+  "turn_texts": [
+   "Bar 203, basses, that's a low E, you're singing the octave"
+  ],
+  "wer": [
+   0,
+   11
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 940,
+    "turnId": 0,
+    "t": 1.5405949580017477
+   },
+   {
+    "type": "transcript",
+    "transcript": "Bar",
+    "final": false,
+    "audioProcessedMs": 2160,
+    "t": 2.2357584169949405
+   },
+   {
+    "type": "transcript",
+    "transcript": "Bar 203,",
+    "final": false,
+    "audioProcessedMs": 3040,
+    "t": 3.141112833007355
+   },
+   {
+    "type": "transcript",
+    "transcript": "Bar 203, basses,",
+    "final": false,
+    "audioProcessedMs": 4000,
+    "t": 4.164712375000818
+   },
+   {
+    "type": "transcript",
+    "transcript": "Bar 203, basses, that's",
+    "final": false,
+    "audioProcessedMs": 4080,
+    "t": 4.164721332999761
+   },
+   {
+    "type": "transcript",
+    "transcript": "Bar 203, basses, that's a",
+    "final": false,
+    "audioProcessedMs": 4160,
+    "t": 4.299852208001539
+   },
+   {
+    "type": "transcript",
+    "transcript": "Bar 203, basses, that's a low",
+    "final": false,
+    "audioProcessedMs": 4720,
+    "t": 4.831775957994978
+   },
+   {
+    "type": "transcript",
+    "transcript": "Bar 203, basses, that's a low E,",
+    "final": false,
+    "audioProcessedMs": 4800,
+    "t": 4.879769791994477
+   },
+   {
+    "type": "transcript",
+    "transcript": "Bar 203, basses, that's a low E, you're",
+    "final": false,
+    "audioProcessedMs": 5600,
+    "t": 5.736164500005543
+   },
+   {
+    "type": "transcript",
+    "transcript": "Bar 203, basses, that's a low E, you're singing",
+    "final": false,
+    "audioProcessedMs": 6080,
+    "t": 6.142242750007426
+   },
+   {
+    "type": "transcript",
+    "transcript": "Bar 203, basses, that's a low E, you're singing the",
+    "final": false,
+    "audioProcessedMs": 6240,
+    "t": 6.3020504169980995
+   },
+   {
+    "type": "transcript",
+    "transcript": "Bar 203, basses, that's a low E, you're singing the octave",
+    "final": false,
+    "audioProcessedMs": 6640,
+    "t": 6.690069707998191
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 6700,
+    "turnId": 0,
+    "t": 7.311354250006843
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 6700,
+    "turnId": 0,
+    "transcript": "Bar 203, basses, that's a low E, you're singing the octave",
+    "t": 7.311361832995317
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 9.92241387499962
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 10000,
+    "t": 10.140590124996379
+   }
+  ],
+  "handshake_s": 0.365,
+  "close": 1000
+ },
+ "v18": {
+  "speech_on": 0.52,
+  "speech_end": 4.62,
+  "first_partial_after_onset": 2.6,
+  "n_partials": 7,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.48,
+  "complete_after_speech_end": 0.48,
+  "complete_lag_per_turn": [
+   0.64
+  ],
+  "first_partial_after_speechStart": 3.06,
+  "transcript": "violins, bar seven, down bow, both of you.",
+  "partial_at_speechEnd": "violins, bar seven, down bow, both of you.",
+  "turn_spans": [
+   [
+    -0.24,
+    4.16
+   ]
+  ],
+  "turn_texts": [
+   "violins, bar seven, down bow, both of you."
+  ],
+  "wer": [
+   1,
+   8
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 60,
+    "turnId": 0,
+    "t": 0.6948172920092475
+   },
+   {
+    "type": "transcript",
+    "transcript": "violins,",
+    "final": false,
+    "audioProcessedMs": 3040,
+    "t": 3.1157170000078622
+   },
+   {
+    "type": "transcript",
+    "transcript": "violins, bar",
+    "final": false,
+    "audioProcessedMs": 3440,
+    "t": 3.4827980420086533
+   },
+   {
+    "type": "transcript",
+    "transcript": "violins, bar seven,",
+    "final": false,
+    "audioProcessedMs": 3760,
+    "t": 3.840445833004196
+   },
+   {
+    "type": "transcript",
+    "transcript": "violins, bar seven, down",
+    "final": false,
+    "audioProcessedMs": 4000,
+    "t": 4.02920787500625
+   },
+   {
+    "type": "transcript",
+    "transcript": "violins, bar seven, down bow,",
+    "final": false,
+    "audioProcessedMs": 4480,
+    "t": 4.5290532920043916
+   },
+   {
+    "type": "transcript",
+    "transcript": "violins, bar seven, down bow, both",
+    "final": false,
+    "audioProcessedMs": 4560,
+    "t": 4.604604583000764
+   },
+   {
+    "type": "transcript",
+    "transcript": "violins, bar seven, down bow, both of you.",
+    "final": false,
+    "audioProcessedMs": 4880,
+    "t": 5.045378042006632
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 4460,
+    "turnId": 0,
+    "t": 5.1048412500094855
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 4460,
+    "turnId": 0,
+    "transcript": "violins, bar seven, down bow, both of you.",
+    "t": 5.104850000003353
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 8.002367667009821
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 8080,
+    "t": 8.197084833009285
+   }
+  ],
+  "handshake_s": 0.348,
+  "close": 1000
+ },
+ "v19": {
+  "speech_on": 1.48,
+  "speech_end": 4.9,
+  "first_partial_after_onset": 0.56,
+  "n_partials": 11,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.24,
+  "complete_after_speech_end": 0.24,
+  "complete_lag_per_turn": [
+   0.6
+  ],
+  "first_partial_after_speechStart": 0.78,
+  "transcript": "from the double bar after letter B, we are cutting to letter D.",
+  "partial_at_speechEnd": "from the double bar after letter B, we are cutting to letter D.",
+  "turn_spans": [
+   [
+    0.96,
+    4.24
+   ]
+  ],
+  "turn_texts": [
+   "from the double bar after letter B, we are cutting to letter D."
+  ],
+  "wer": [
+   2,
+   12
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1260,
+    "turnId": 0,
+    "t": 1.7864474579982925
+   },
+   {
+    "type": "transcript",
+    "transcript": "from the",
+    "final": false,
+    "audioProcessedMs": 2000,
+    "t": 2.0425191249960335
+   },
+   {
+    "type": "transcript",
+    "transcript": "from the double",
+    "final": false,
+    "audioProcessedMs": 2320,
+    "t": 2.416836832999252
+   },
+   {
+    "type": "transcript",
+    "transcript": "from the double bar",
+    "final": false,
+    "audioProcessedMs": 2480,
+    "t": 2.5524444579932606
+   },
+   {
+    "type": "transcript",
+    "transcript": "from the double bar after",
+    "final": false,
+    "audioProcessedMs": 2960,
+    "t": 3.04434508299164
+   },
+   {
+    "type": "transcript",
+    "transcript": "from the double bar after letter",
+    "final": false,
+    "audioProcessedMs": 3440,
+    "t": 3.4708652080007596
+   },
+   {
+    "type": "transcript",
+    "transcript": "from the double bar after letter B,",
+    "final": false,
+    "audioProcessedMs": 3600,
+    "t": 3.6548497500043595
+   },
+   {
+    "type": "transcript",
+    "transcript": "from the double bar after letter B, we",
+    "final": false,
+    "audioProcessedMs": 3920,
+    "t": 3.99186783299956
+   },
+   {
+    "type": "transcript",
+    "transcript": "from the double bar after letter B, we are",
+    "final": false,
+    "audioProcessedMs": 4320,
+    "t": 4.339725541998632
+   },
+   {
+    "type": "transcript",
+    "transcript": "from the double bar after letter B, we are cutting",
+    "final": false,
+    "audioProcessedMs": 4400,
+    "t": 4.513228249998065
+   },
+   {
+    "type": "transcript",
+    "transcript": "from the double bar after letter B, we are cutting to",
+    "final": false,
+    "audioProcessedMs": 4720,
+    "t": 4.740590500005055
+   },
+   {
+    "type": "transcript",
+    "transcript": "from the double bar after letter B, we are cutting to letter D.",
+    "final": false,
+    "audioProcessedMs": 4960,
+    "t": 5.038125499995658
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 4540,
+    "turnId": 0,
+    "t": 5.138635166993481
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 4540,
+    "turnId": 0,
+    "transcript": "from the double bar after letter B, we are cutting to letter D.",
+    "t": 5.13869216699095
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 8.002071957991575
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 8080,
+    "t": 8.185534499993082
+   }
+  ],
+  "handshake_s": 0.372,
+  "close": 1000
+ },
+ "v20": {
+  "speech_on": 1.12,
+  "speech_end": 2.52,
+  "first_partial_after_onset": 0.52,
+  "n_partials": 4,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.43,
+  "complete_after_speech_end": 0.43,
+  "complete_lag_per_turn": [
+   0.57
+  ],
+  "first_partial_after_speechStart": 1.64,
+  "transcript": "Can someone open a window?",
+  "partial_at_speechEnd": "Can someone open a window?",
+  "turn_spans": [
+   [
+    -0.3,
+    2.08
+   ]
+  ],
+  "turn_texts": [
+   "Can someone open a window?"
+  ],
+  "wer": [
+   0,
+   5
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 0,
+    "turnId": 0,
+    "t": 0.5262344170041615
+   },
+   {
+    "type": "transcript",
+    "transcript": "Can",
+    "final": false,
+    "audioProcessedMs": 1600,
+    "t": 1.6419644170091487
+   },
+   {
+    "type": "transcript",
+    "transcript": "Can someone open",
+    "final": false,
+    "audioProcessedMs": 2320,
+    "t": 2.423581834009383
+   },
+   {
+    "type": "transcript",
+    "transcript": "Can someone open a",
+    "final": false,
+    "audioProcessedMs": 2400,
+    "t": 2.4424434170068707
+   },
+   {
+    "type": "transcript",
+    "transcript": "Can someone open a window?",
+    "final": false,
+    "audioProcessedMs": 2800,
+    "t": 2.9451995420095045
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 2380,
+    "turnId": 0,
+    "t": 2.9452111669961596
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 2380,
+    "turnId": 0,
+    "transcript": "Can someone open a window?",
+    "t": 2.9452199170045787
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 6.002657292003278
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 6080,
+    "t": 6.263598709003418
+   }
+  ],
+  "handshake_s": 0.353,
+  "close": 1000
+ },
+ "v21": {
+  "speech_on": 1.2,
+  "speech_end": 8.72,
+  "first_partial_after_onset": 1.14,
+  "n_partials": 9,
+  "turns": 2,
+  "speechEnd_after_speech_end": 0.91,
+  "complete_after_speech_end": 0.91,
+  "complete_lag_per_turn": [
+   0.56,
+   0.53
+  ],
+  "first_partial_after_speechStart": 1.48,
+  "transcript": "bar 64 autos and tenors. breath mark. Then 65, sforzato, everyone.",
+  "partial_at_speechEnd": "autos and tenors. breath mark. Then 65, sforzato, everyone.",
+  "turn_spans": [
+   [
+    0.56,
+    2.16
+   ],
+   [
+    2.64,
+    8.8
+   ]
+  ],
+  "turn_texts": [
+   "bar 64",
+   "autos and tenors. breath mark. Then 65, sforzato, everyone."
+  ],
+  "wer": [
+   2,
+   11
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 860,
+    "turnId": 0,
+    "t": 1.3836150410061236
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar",
+    "final": false,
+    "audioProcessedMs": 2320,
+    "t": 2.3396477909991518
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar 64",
+    "final": false,
+    "audioProcessedMs": 2960,
+    "t": 3.0195060830010334
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 2460,
+    "turnId": 0,
+    "t": 3.0195160000002943
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 2460,
+    "turnId": 0,
+    "transcript": "bar 64",
+    "t": 3.019521958005498
+   },
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 2940,
+    "turnId": 1,
+    "t": 3.4708555410034023
+   },
+   {
+    "type": "transcript",
+    "transcript": "autos and",
+    "final": false,
+    "audioProcessedMs": 4480,
+    "t": 4.522814249998191
+   },
+   {
+    "type": "transcript",
+    "transcript": "autos and tenors.",
+    "final": false,
+    "audioProcessedMs": 4960,
+    "t": 5.013498291009455
+   },
+   {
+    "type": "transcript",
+    "transcript": "autos and tenors. breath mark.",
+    "final": false,
+    "audioProcessedMs": 5200,
+    "t": 5.2535169160109945
+   },
+   {
+    "type": "transcript",
+    "transcript": "autos and tenors. breath mark. Then",
+    "final": false,
+    "audioProcessedMs": 5680,
+    "t": 5.762913250000565
+   },
+   {
+    "type": "transcript",
+    "transcript": "autos and tenors. breath mark. Then 65,",
+    "final": false,
+    "audioProcessedMs": 6800,
+    "t": 6.939406125005917
+   },
+   {
+    "type": "transcript",
+    "transcript": "autos and tenors. breath mark. Then 65, sforzato,",
+    "final": false,
+    "audioProcessedMs": 8560,
+    "t": 8.623667332998593
+   },
+   {
+    "type": "transcript",
+    "transcript": "autos and tenors. breath mark. Then 65, sforzato, everyone.",
+    "final": false,
+    "audioProcessedMs": 9040,
+    "t": 9.09934383300424
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 9100,
+    "turnId": 1,
+    "t": 9.6336335829983
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 9100,
+    "turnId": 1,
+    "transcript": "autos and tenors. breath mark. Then 65, sforzato, everyone.",
+    "t": 9.633645708003314
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 12.000872500007972
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 12080,
+    "t": 12.202292750007473
+   }
+  ],
+  "handshake_s": 0.362,
+  "close": 1000
+ },
+ "v22": {
+  "speech_on": 0.88,
+  "speech_end": 4.48,
+  "first_partial_after_onset": 0.95,
+  "n_partials": 10,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.4,
+  "complete_after_speech_end": 0.4,
+  "complete_lag_per_turn": [
+   0.58
+  ],
+  "first_partial_after_speechStart": 1.29,
+  "transcript": "Inès, bar 30, then that harmonic, tried on the A string.",
+  "partial_at_speechEnd": "Inès, bar 30, then that harmonic, tried on the A string.",
+  "turn_spans": [
+   [
+    0.24,
+    4.0
+   ]
+  ],
+  "turn_texts": [
+   "Inès, bar 30, then that harmonic, tried on the A string."
+  ],
+  "wer": [
+   3,
+   11
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 540,
+    "turnId": 0,
+    "t": 1.0850954999914393
+   },
+   {
+    "type": "transcript",
+    "transcript": "Inès,",
+    "final": false,
+    "audioProcessedMs": 1680,
+    "t": 1.8346838750003371
+   },
+   {
+    "type": "transcript",
+    "transcript": "Inès, bar",
+    "final": false,
+    "audioProcessedMs": 2080,
+    "t": 2.1251236659882125
+   },
+   {
+    "type": "transcript",
+    "transcript": "Inès, bar 30,",
+    "final": false,
+    "audioProcessedMs": 2480,
+    "t": 2.549089207997895
+   },
+   {
+    "type": "transcript",
+    "transcript": "Inès, bar 30, then",
+    "final": false,
+    "audioProcessedMs": 2640,
+    "t": 2.6821275409893133
+   },
+   {
+    "type": "transcript",
+    "transcript": "Inès, bar 30, then that",
+    "final": false,
+    "audioProcessedMs": 3280,
+    "t": 3.408859040995594
+   },
+   {
+    "type": "transcript",
+    "transcript": "Inès, bar 30, then that harmonic,",
+    "final": false,
+    "audioProcessedMs": 3840,
+    "t": 3.9324443329969654
+   },
+   {
+    "type": "transcript",
+    "transcript": "Inès, bar 30, then that harmonic, tried",
+    "final": false,
+    "audioProcessedMs": 4080,
+    "t": 4.130079332986497
+   },
+   {
+    "type": "transcript",
+    "transcript": "Inès, bar 30, then that harmonic, tried on the",
+    "final": false,
+    "audioProcessedMs": 4400,
+    "t": 4.458446249991539
+   },
+   {
+    "type": "transcript",
+    "transcript": "Inès, bar 30, then that harmonic, tried on the A",
+    "final": false,
+    "audioProcessedMs": 4720,
+    "t": 4.770607250000467
+   },
+   {
+    "type": "transcript",
+    "transcript": "Inès, bar 30, then that harmonic, tried on the A string.",
+    "final": false,
+    "audioProcessedMs": 4800,
+    "t": 4.881138582990388
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 4300,
+    "turnId": 0,
+    "t": 4.8811592499987455
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 4300,
+    "turnId": 0,
+    "transcript": "Inès, bar 30, then that harmonic, tried on the A string.",
+    "t": 4.88117674998648
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 7.762596790998941
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 7840,
+    "t": 7.918548582994845
+   }
+  ],
+  "handshake_s": 0.466,
+  "close": 1000
+ },
+ "v23": {
+  "speech_on": 1.04,
+  "speech_end": 4.2,
+  "first_partial_after_onset": 1.26,
+  "n_partials": 7,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.35,
+  "complete_after_speech_end": 0.35,
+  "complete_lag_per_turn": [
+   0.57
+  ],
+  "first_partial_after_speechStart": 1.52,
+  "transcript": "whole choir the last page diminuendo to nothing",
+  "partial_at_speechEnd": "whole choir the last page diminuendo to nothing",
+  "turn_spans": [
+   [
+    0.48,
+    3.68
+   ]
+  ],
+  "turn_texts": [
+   "whole choir the last page diminuendo to nothing"
+  ],
+  "wer": [
+   0,
+   8
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 780,
+    "turnId": 0,
+    "t": 1.3352029579982627
+   },
+   {
+    "type": "transcript",
+    "transcript": "whole choir",
+    "final": false,
+    "audioProcessedMs": 2240,
+    "t": 2.297992958003306
+   },
+   {
+    "type": "transcript",
+    "transcript": "whole choir the",
+    "final": false,
+    "audioProcessedMs": 2400,
+    "t": 2.461572416999843
+   },
+   {
+    "type": "transcript",
+    "transcript": "whole choir the last",
+    "final": false,
+    "audioProcessedMs": 2480,
+    "t": 2.56480508299137
+   },
+   {
+    "type": "transcript",
+    "transcript": "whole choir the last page",
+    "final": false,
+    "audioProcessedMs": 3040,
+    "t": 3.0926033750001807
+   },
+   {
+    "type": "transcript",
+    "transcript": "whole choir the last page diminuendo",
+    "final": false,
+    "audioProcessedMs": 4080,
+    "t": 4.144426457991358
+   },
+   {
+    "type": "transcript",
+    "transcript": "whole choir the last page diminuendo to",
+    "final": false,
+    "audioProcessedMs": 4160,
+    "t": 4.267864207999082
+   },
+   {
+    "type": "transcript",
+    "transcript": "whole choir the last page diminuendo to nothing",
+    "final": false,
+    "audioProcessedMs": 4480,
+    "t": 4.552298166992841
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 3980,
+    "turnId": 0,
+    "t": 4.552311457999167
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 3980,
+    "turnId": 0,
+    "transcript": "whole choir the last page diminuendo to nothing",
+    "t": 4.552319833004731
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 7.44184045799193
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 7520,
+    "t": 7.616217624992714
+   }
+  ],
+  "handshake_s": 0.364,
+  "close": 1000
+ },
+ "v24": {
+  "speech_on": 1.62,
+  "speech_end": 4.68,
+  "first_partial_after_onset": 1.14,
+  "n_partials": 8,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.25,
+  "complete_after_speech_end": 0.25,
+  "complete_lag_per_turn": [
+   0.55
+  ],
+  "first_partial_after_speechStart": 1.26,
+  "transcript": "Once more from 22 and this time don't rush.",
+  "partial_at_speechEnd": "Once more from 22 and this time don't rush.",
+  "turn_spans": [
+   [
+    1.2,
+    4.08
+   ]
+  ],
+  "turn_texts": [
+   "Once more from 22 and this time don't rush."
+  ],
+  "wer": [
+   3,
+   12
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1500,
+    "turnId": 0,
+    "t": 2.092836042007548
+   },
+   {
+    "type": "transcript",
+    "transcript": "Once more",
+    "final": false,
+    "audioProcessedMs": 2640,
+    "t": 2.760103375010658
+   },
+   {
+    "type": "transcript",
+    "transcript": "Once more from",
+    "final": false,
+    "audioProcessedMs": 3040,
+    "t": 3.1426477920031175
+   },
+   {
+    "type": "transcript",
+    "transcript": "Once more from 22",
+    "final": false,
+    "audioProcessedMs": 3840,
+    "t": 3.9023531670100056
+   },
+   {
+    "type": "transcript",
+    "transcript": "Once more from 22 and",
+    "final": false,
+    "audioProcessedMs": 3920,
+    "t": 3.974126334011089
+   },
+   {
+    "type": "transcript",
+    "transcript": "Once more from 22 and this",
+    "final": false,
+    "audioProcessedMs": 4000,
+    "t": 4.05421720900631
+   },
+   {
+    "type": "transcript",
+    "transcript": "Once more from 22 and this time",
+    "final": false,
+    "audioProcessedMs": 4160,
+    "t": 4.207577000008314
+   },
+   {
+    "type": "transcript",
+    "transcript": "Once more from 22 and this time don't",
+    "final": false,
+    "audioProcessedMs": 4720,
+    "t": 4.845915625002817
+   },
+   {
+    "type": "transcript",
+    "transcript": "Once more from 22 and this time don't rush.",
+    "final": false,
+    "audioProcessedMs": 4800,
+    "t": 4.894214584011934
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 4380,
+    "turnId": 0,
+    "t": 4.934148167012609
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 4380,
+    "turnId": 0,
+    "transcript": "Once more from 22 and this time don't rush.",
+    "t": 4.934156584000448
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 8.321255834001931
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 8400,
+    "t": 8.544436249998398
+   }
+  ],
+  "handshake_s": 0.364,
+  "close": 1000
+ },
+ "v25": {
+  "speech_on": 1.22,
+  "speech_end": 5.28,
+  "first_partial_after_onset": 0.88,
+  "n_partials": 10,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.39,
+  "complete_after_speech_end": 0.39,
+  "complete_lag_per_turn": [
+   0.57
+  ],
+  "first_partial_after_speechStart": 1.24,
+  "transcript": "Viola, retard in the bar before letter F then a tempo at F",
+  "partial_at_speechEnd": "Viola, retard in the bar before letter F then a tempo at F",
+  "turn_spans": [
+   [
+    0.56,
+    4.8
+   ]
+  ],
+  "turn_texts": [
+   "Viola, retard in the bar before letter F then a tempo at F"
+  ],
+  "wer": [
+   1,
+   13
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 860,
+    "turnId": 0,
+    "t": 1.3862274170096498
+   },
+   {
+    "type": "transcript",
+    "transcript": "Viola,",
+    "final": false,
+    "audioProcessedMs": 2000,
+    "t": 2.0975353750109207
+   },
+   {
+    "type": "transcript",
+    "transcript": "Viola, retard",
+    "final": false,
+    "audioProcessedMs": 2880,
+    "t": 2.9107430420117453
+   },
+   {
+    "type": "transcript",
+    "transcript": "Viola, retard in",
+    "final": false,
+    "audioProcessedMs": 3040,
+    "t": 3.147351667008479
+   },
+   {
+    "type": "transcript",
+    "transcript": "Viola, retard in the bar",
+    "final": false,
+    "audioProcessedMs": 3200,
+    "t": 3.270935542008374
+   },
+   {
+    "type": "transcript",
+    "transcript": "Viola, retard in the bar before",
+    "final": false,
+    "audioProcessedMs": 3600,
+    "t": 3.669175417002407
+   },
+   {
+    "type": "transcript",
+    "transcript": "Viola, retard in the bar before letter",
+    "final": false,
+    "audioProcessedMs": 4000,
+    "t": 4.036452958011068
+   },
+   {
+    "type": "transcript",
+    "transcript": "Viola, retard in the bar before letter F",
+    "final": false,
+    "audioProcessedMs": 4320,
+    "t": 4.358913583011599
+   },
+   {
+    "type": "transcript",
+    "transcript": "Viola, retard in the bar before letter F then a",
+    "final": false,
+    "audioProcessedMs": 4720,
+    "t": 4.848586457999772
+   },
+   {
+    "type": "transcript",
+    "transcript": "Viola, retard in the bar before letter F then a tempo",
+    "final": false,
+    "audioProcessedMs": 5120,
+    "t": 5.239788667007815
+   },
+   {
+    "type": "transcript",
+    "transcript": "Viola, retard in the bar before letter F then a tempo at F",
+    "final": false,
+    "audioProcessedMs": 5600,
+    "t": 5.671144583000569
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 5100,
+    "turnId": 0,
+    "t": 5.671157832999597
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 5100,
+    "turnId": 0,
+    "transcript": "Viola, retard in the bar before letter F then a tempo at F",
+    "t": 5.671166333006113
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 8.56027912501304
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 8640,
+    "t": 8.721095625005546
+   }
+  ],
+  "handshake_s": 0.352,
+  "close": 1000
+ },
+ "v26": {
+  "speech_on": 0.94,
+  "speech_end": 6.18,
+  "first_partial_after_onset": 1.47,
+  "n_partials": 9,
+  "turns": 1,
+  "speechEnd_after_speech_end": 1.06,
+  "complete_after_speech_end": 1.06,
+  "complete_lag_per_turn": [
+   0.54
+  ],
+  "first_partial_after_speechStart": 1.71,
+  "transcript": "seconds mark it bar 55 is forte 56 is piano subito",
+  "partial_at_speechEnd": "seconds mark it bar 55 is forte 56 is piano subito",
+  "turn_spans": [
+   [
+    0.4,
+    6.4
+   ]
+  ],
+  "turn_texts": [
+   "seconds mark it bar 55 is forte 56 is piano subito"
+  ],
+  "wer": [
+   0,
+   11
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 700,
+    "turnId": 0,
+    "t": 1.2815006669989089
+   },
+   {
+    "type": "transcript",
+    "transcript": " seconds mark",
+    "final": false,
+    "audioProcessedMs": 2320,
+    "t": 2.4119612089998554
+   },
+   {
+    "type": "transcript",
+    "transcript": " seconds mark it",
+    "final": false,
+    "audioProcessedMs": 2560,
+    "t": 2.605906374999904
+   },
+   {
+    "type": "transcript",
+    "transcript": " seconds mark it bar",
+    "final": false,
+    "audioProcessedMs": 2960,
+    "t": 3.0019274590013083
+   },
+   {
+    "type": "transcript",
+    "transcript": " seconds mark it bar 55",
+    "final": false,
+    "audioProcessedMs": 3840,
+    "t": 3.9065427500027
+   },
+   {
+    "type": "transcript",
+    "transcript": " seconds mark it bar 55 is",
+    "final": false,
+    "audioProcessedMs": 3920,
+    "t": 3.9581822920008563
+   },
+   {
+    "type": "transcript",
+    "transcript": " seconds mark it bar 55 is forte",
+    "final": false,
+    "audioProcessedMs": 4240,
+    "t": 4.308525167012704
+   },
+   {
+    "type": "transcript",
+    "transcript": " seconds mark it bar 55 is forte 56 is",
+    "final": false,
+    "audioProcessedMs": 5200,
+    "t": 5.35499137500301
+   },
+   {
+    "type": "transcript",
+    "transcript": " seconds mark it bar 55 is forte 56 is piano",
+    "final": false,
+    "audioProcessedMs": 5920,
+    "t": 5.981984917001682
+   },
+   {
+    "type": "transcript",
+    "transcript": " seconds mark it bar 55 is forte 56 is piano subito",
+    "final": false,
+    "audioProcessedMs": 6720,
+    "t": 6.749146917005419
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 6700,
+    "turnId": 0,
+    "t": 7.239520792005351
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 6700,
+    "turnId": 0,
+    "transcript": " seconds mark it bar 55 is forte 56 is piano subito",
+    "t": 7.239538375011762
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 9.682334791999892
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 9760,
+    "t": 9.867412250008783
+   }
+  ],
+  "handshake_s": 0.405,
+  "close": 1000
+ },
+ "v27": {
+  "speech_on": 1.74,
+  "speech_end": 4.12,
+  "first_partial_after_onset": 1.29,
+  "n_partials": 7,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.36,
+  "complete_after_speech_end": 0.36,
+  "complete_lag_per_turn": [
+   0.58
+  ],
+  "first_partial_after_speechStart": 1.61,
+  "transcript": "right in a fermenta on the last chord.",
+  "partial_at_speechEnd": "right in a fermenta on the last chord.",
+  "turn_spans": [
+   [
+    1.12,
+    3.6
+   ]
+  ],
+  "turn_texts": [
+   "right in a fermenta on the last chord."
+  ],
+  "wer": [
+   3,
+   9
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1420,
+    "turnId": 0,
+    "t": 2.0190764579892857
+   },
+   {
+    "type": "transcript",
+    "transcript": "right",
+    "final": false,
+    "audioProcessedMs": 2880,
+    "t": 3.03194087499287
+   },
+   {
+    "type": "transcript",
+    "transcript": "right in",
+    "final": false,
+    "audioProcessedMs": 3040,
+    "t": 3.1063593749859137
+   },
+   {
+    "type": "transcript",
+    "transcript": "right in a",
+    "final": false,
+    "audioProcessedMs": 3120,
+    "t": 3.1778448749973904
+   },
+   {
+    "type": "transcript",
+    "transcript": "right in a fermenta",
+    "final": false,
+    "audioProcessedMs": 3520,
+    "t": 3.595528332996764
+   },
+   {
+    "type": "transcript",
+    "transcript": "right in a fermenta on the",
+    "final": false,
+    "audioProcessedMs": 3760,
+    "t": 3.8359670419886243
+   },
+   {
+    "type": "transcript",
+    "transcript": "right in a fermenta on the last",
+    "final": false,
+    "audioProcessedMs": 4000,
+    "t": 4.075574457994662
+   },
+   {
+    "type": "transcript",
+    "transcript": "right in a fermenta on the last chord.",
+    "final": false,
+    "audioProcessedMs": 4400,
+    "t": 4.477666582999518
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 3900,
+    "turnId": 0,
+    "t": 4.477683374992921
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 3900,
+    "turnId": 0,
+    "transcript": "right in a fermenta on the last chord.",
+    "t": 4.477694999994128
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 7.521484124998096
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 7600,
+    "t": 7.778091124986531
+   }
+  ],
+  "handshake_s": 0.453,
+  "close": 1000
+ },
+ "v28": {
+  "speech_on": 1.6,
+  "speech_end": 4.06,
+  "first_partial_after_onset": 1.06,
+  "n_partials": 5,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.12,
+  "complete_after_speech_end": 0.12,
+  "complete_lag_per_turn": [
+   0.6
+  ],
+  "first_partial_after_speechStart": 1.4,
+  "transcript": "bar three, that's four beats, not three. Count it",
+  "partial_at_speechEnd": "bar three, that's four beats, not three. Count it",
+  "turn_spans": [
+   [
+    0.96,
+    3.28
+   ]
+  ],
+  "turn_texts": [
+   "bar three, that's four beats, not three. Count it"
+  ],
+  "wer": [
+   1,
+   10
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 1260,
+    "turnId": 0,
+    "t": 1.8101758749980945
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar three,",
+    "final": false,
+    "audioProcessedMs": 2560,
+    "t": 2.661794125000597
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar three, that's",
+    "final": false,
+    "audioProcessedMs": 2720,
+    "t": 2.7799146249890327
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar three, that's four",
+    "final": false,
+    "audioProcessedMs": 2880,
+    "t": 2.9370927499985555
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar three, that's four beats, not three.",
+    "final": false,
+    "audioProcessedMs": 3680,
+    "t": 3.8460352499969304
+   },
+   {
+    "type": "transcript",
+    "transcript": "bar three, that's four beats, not three. Count it",
+    "final": false,
+    "audioProcessedMs": 4080,
+    "t": 4.176599290993181
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 3580,
+    "turnId": 0,
+    "t": 4.176613124989672
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 3580,
+    "turnId": 0,
+    "transcript": "bar three, that's four beats, not three. Count it",
+    "t": 4.176621958002215
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 6.962242832989432
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 7040,
+    "t": 7.131419957993785
+   }
+  ],
+  "handshake_s": 0.396,
+  "close": 1000
+ },
+ "v29": {
+  "speech_on": 1.36,
+  "speech_end": 6.72,
+  "first_partial_after_onset": 1.39,
+  "n_partials": 11,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.26,
+  "complete_after_speech_end": 0.26,
+  "complete_lag_per_turn": [
+   0.6
+  ],
+  "first_partial_after_speechStart": 1.81,
+  "transcript": "Sopranos from the key change we are all we're all down an octave till the coda.",
+  "partial_at_speechEnd": "Sopranos from the key change we are all we're all down an octave till the coda.",
+  "turn_spans": [
+   [
+    0.64,
+    6.08
+   ]
+  ],
+  "turn_texts": [
+   "Sopranos from the key change we are all we're all down an octave till the coda."
+  ],
+  "wer": [
+   3,
+   13
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 940,
+    "turnId": 0,
+    "t": 1.5027202499913983
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos",
+    "final": false,
+    "audioProcessedMs": 2640,
+    "t": 2.7475906669860706
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos from the key",
+    "final": false,
+    "audioProcessedMs": 3040,
+    "t": 3.1282825829985086
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos from the key change",
+    "final": false,
+    "audioProcessedMs": 3280,
+    "t": 3.4139092919940595
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos from the key change we are",
+    "final": false,
+    "audioProcessedMs": 3600,
+    "t": 3.6815585419972194
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos from the key change we are all",
+    "final": false,
+    "audioProcessedMs": 4240,
+    "t": 4.300887041987153
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos from the key change we are all we're",
+    "final": false,
+    "audioProcessedMs": 4800,
+    "t": 4.8638592079951195
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos from the key change we are all we're all",
+    "final": false,
+    "audioProcessedMs": 5200,
+    "t": 5.255322166995029
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos from the key change we are all we're all down an",
+    "final": false,
+    "audioProcessedMs": 5840,
+    "t": 5.9072098749893485
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos from the key change we are all we're all down an octave",
+    "final": false,
+    "audioProcessedMs": 6560,
+    "t": 6.68734720798966
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos from the key change we are all we're all down an octave till the",
+    "final": false,
+    "audioProcessedMs": 6720,
+    "t": 6.797449624995352
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sopranos from the key change we are all we're all down an octave till the coda.",
+    "final": false,
+    "audioProcessedMs": 6880,
+    "t": 6.9836242079909425
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 6380,
+    "turnId": 0,
+    "t": 6.983637541998178
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 6380,
+    "turnId": 0,
+    "transcript": "Sopranos from the key change we are all we're all down an octave till the coda.",
+    "t": 6.983645791988238
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 9.922364749989356
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 10000,
+    "t": 10.100215457990998
+   }
+  ],
+  "handshake_s": 0.447,
+  "close": 1000
+ },
+ "v30": {
+  "speech_on": 1.06,
+  "speech_end": 2.68,
+  "first_partial_after_onset": 1.01,
+  "n_partials": 5,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.44,
+  "complete_after_speech_end": 0.44,
+  "complete_lag_per_turn": [
+   0.66
+  ],
+  "first_partial_after_speechStart": 1.37,
+  "transcript": "right, bar one, here we go.",
+  "partial_at_speechEnd": "right, bar one, here we go.",
+  "turn_spans": [
+   [
+    0.4,
+    2.16
+   ]
+  ],
+  "turn_texts": [
+   "right, bar one, here we go."
+  ],
+  "wer": [
+   0,
+   6
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 700,
+    "turnId": 0,
+    "t": 1.2780056670017075
+   },
+   {
+    "type": "transcript",
+    "transcript": "right,",
+    "final": false,
+    "audioProcessedMs": 1920,
+    "t": 2.069263792000129
+   },
+   {
+    "type": "transcript",
+    "transcript": "right, bar",
+    "final": false,
+    "audioProcessedMs": 2400,
+    "t": 2.485455333997379
+   },
+   {
+    "type": "transcript",
+    "transcript": "right, bar one,",
+    "final": false,
+    "audioProcessedMs": 2560,
+    "t": 2.648572999998578
+   },
+   {
+    "type": "transcript",
+    "transcript": "right, bar one, here we",
+    "final": false,
+    "audioProcessedMs": 2880,
+    "t": 2.973285208994639
+   },
+   {
+    "type": "transcript",
+    "transcript": "right, bar one, here we go.",
+    "final": false,
+    "audioProcessedMs": 2960,
+    "t": 3.120370125005138
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 2460,
+    "turnId": 0,
+    "t": 3.1203777920018183
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 2460,
+    "turnId": 0,
+    "transcript": "right, bar one, here we go.",
+    "t": 3.120382291992428
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 6.161613916992792
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 6240,
+    "t": 6.366332709003473
+   }
+  ],
+  "handshake_s": 0.385,
+  "close": 1000
+ },
+ "n01": {
+  "speech_on": 0.7,
+  "speech_end": 3.22,
+  "first_partial_after_onset": 1.04,
+  "n_partials": 4,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.59,
+  "complete_after_speech_end": 0.59,
+  "complete_lag_per_turn": [
+   0.55
+  ],
+  "first_partial_after_speechStart": 1.44,
+  "transcript": "One, two, three, four.",
+  "partial_at_speechEnd": "One, two, three, four.",
+  "turn_spans": [
+   [
+    0.0,
+    2.96
+   ]
+  ],
+  "turn_texts": [
+   "One, two, three, four."
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 300,
+    "turnId": 0,
+    "t": 0.921615584011306
+   },
+   {
+    "type": "transcript",
+    "transcript": "One,",
+    "final": false,
+    "audioProcessedMs": 1680,
+    "t": 1.7392274590092711
+   },
+   {
+    "type": "transcript",
+    "transcript": "One, two,",
+    "final": false,
+    "audioProcessedMs": 2320,
+    "t": 2.377584375004517
+   },
+   {
+    "type": "transcript",
+    "transcript": "One, two, three,",
+    "final": false,
+    "audioProcessedMs": 2880,
+    "t": 2.9375280420063064
+   },
+   {
+    "type": "transcript",
+    "transcript": "One, two, three, four.",
+    "final": false,
+    "audioProcessedMs": 3440,
+    "t": 3.5738777090009535
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 3260,
+    "turnId": 0,
+    "t": 3.81245774999843
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 3260,
+    "turnId": 0,
+    "transcript": "One, two, three, four.",
+    "t": 3.8124708340037614
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 6.240517292011646
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 6320,
+    "t": 6.415678584002308
+   }
+  ],
+  "handshake_s": 0.43,
+  "close": 1000
+ },
+ "n02": {
+  "speech_on": 0.7,
+  "speech_end": 2.1,
+  "first_partial_after_onset": 0.96,
+  "n_partials": 5,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.45,
+  "complete_after_speech_end": 0.45,
+  "complete_lag_per_turn": [
+   0.57
+  ],
+  "first_partial_after_speechStart": 1.28,
+  "transcript": "and a one and a two",
+  "partial_at_speechEnd": "and a one and a two",
+  "turn_spans": [
+   [
+    0.08,
+    1.68
+   ]
+  ],
+  "turn_texts": [
+   "and a one and a two"
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 380,
+    "turnId": 0,
+    "t": 0.9377089579938911
+   },
+   {
+    "type": "transcript",
+    "transcript": "and a",
+    "final": false,
+    "audioProcessedMs": 1600,
+    "t": 1.6553273749887012
+   },
+   {
+    "type": "transcript",
+    "transcript": "and a one",
+    "final": false,
+    "audioProcessedMs": 1920,
+    "t": 1.991527040998335
+   },
+   {
+    "type": "transcript",
+    "transcript": "and a one and",
+    "final": false,
+    "audioProcessedMs": 2000,
+    "t": 2.043947415993898
+   },
+   {
+    "type": "transcript",
+    "transcript": "and a one and a",
+    "final": false,
+    "audioProcessedMs": 2240,
+    "t": 2.281772957998328
+   },
+   {
+    "type": "transcript",
+    "transcript": "and a one and a two",
+    "final": false,
+    "audioProcessedMs": 2320,
+    "t": 2.4086033749917988
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 1980,
+    "turnId": 0,
+    "t": 2.545832749994588
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 1980,
+    "turnId": 0,
+    "transcript": "and a one and a two",
+    "t": 2.5458441249938915
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 5.201124582992634
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 5280,
+    "t": 5.379421249992447
+   }
+  ],
+  "handshake_s": 0.419,
+  "close": 1000
+ },
+ "n03": {
+  "speech_on": 0.72,
+  "speech_end": 2.78,
+  "first_partial_after_onset": 1.0,
+  "n_partials": 6,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.89,
+  "complete_after_speech_end": 0.89,
+  "complete_lag_per_turn": [
+   0.57
+  ],
+  "first_partial_after_speechStart": 1.42,
+  "transcript": "Okay, let's take it from the top.",
+  "partial_at_speechEnd": "Okay, let's take it from the top.",
+  "turn_spans": [
+   [
+    0.0,
+    2.8
+   ]
+  ],
+  "turn_texts": [
+   "Okay, let's take it from the top."
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 300,
+    "turnId": 0,
+    "t": 0.853163207997568
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay,",
+    "final": false,
+    "audioProcessedMs": 1600,
+    "t": 1.7214120410062606
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, let's",
+    "final": false,
+    "audioProcessedMs": 2400,
+    "t": 2.4589524580078432
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, let's take",
+    "final": false,
+    "audioProcessedMs": 2560,
+    "t": 2.6244255830097245
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, let's take it from",
+    "final": false,
+    "audioProcessedMs": 2640,
+    "t": 2.7641913749976084
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, let's take it from the",
+    "final": false,
+    "audioProcessedMs": 2880,
+    "t": 2.929666708005243
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, let's take it from the top.",
+    "final": false,
+    "audioProcessedMs": 3280,
+    "t": 3.362067374997423
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 3100,
+    "turnId": 0,
+    "t": 3.665276540996274
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 3100,
+    "turnId": 0,
+    "transcript": "Okay, let's take it from the top.",
+    "t": 3.6652843750052853
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 5.921068916009972
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 6000,
+    "t": 6.101699708000524
+   }
+  ],
+  "handshake_s": 0.363,
+  "close": 1000
+ },
+ "n04": {
+  "speech_on": 0.7,
+  "speech_end": 2.32,
+  "first_partial_after_onset": 1.16,
+  "n_partials": 5,
+  "turns": 1,
+  "speechEnd_after_speech_end": 3.26,
+  "complete_after_speech_end": 3.26,
+  "complete_lag_per_turn": [
+   0.64
+  ],
+  "first_partial_after_speechStart": 1.4,
+  "transcript": "right from the top then.",
+  "partial_at_speechEnd": "right from the top then.",
+  "turn_spans": [
+   [
+    0.16,
+    4.64
+   ]
+  ],
+  "turn_texts": [
+   "right from the top then."
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 460,
+    "turnId": 0,
+    "t": 1.0002299999905517
+   },
+   {
+    "type": "transcript",
+    "transcript": "right",
+    "final": false,
+    "audioProcessedMs": 1760,
+    "t": 1.8630992079997668
+   },
+   {
+    "type": "transcript",
+    "transcript": "right from",
+    "final": false,
+    "audioProcessedMs": 2240,
+    "t": 2.2814490419987123
+   },
+   {
+    "type": "transcript",
+    "transcript": "right from the",
+    "final": false,
+    "audioProcessedMs": 2400,
+    "t": 2.4468540829984704
+   },
+   {
+    "type": "transcript",
+    "transcript": "right from the top",
+    "final": false,
+    "audioProcessedMs": 2480,
+    "t": 2.5166522079962306
+   },
+   {
+    "type": "transcript",
+    "transcript": "right from the top then.",
+    "final": false,
+    "audioProcessedMs": 2560,
+    "t": 2.6118217920011375
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 5.3610409579996485
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 4940,
+    "turnId": 0,
+    "t": 5.582932124991203
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 4940,
+    "turnId": 0,
+    "transcript": "right from the top then.",
+    "t": 5.582943207991775
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 5440,
+    "t": 5.602678916999139
+   }
+  ],
+  "handshake_s": 0.524,
+  "close": 1000
+ },
+ "n05": {
+  "speech_on": 0.76,
+  "speech_end": 2.76,
+  "first_partial_after_onset": 1.45,
+  "n_partials": 4,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.4,
+  "complete_after_speech_end": 0.4,
+  "complete_lag_per_turn": [
+   0.54
+  ],
+  "first_partial_after_speechStart": 1.67,
+  "transcript": "Somebody pass me the rosin.",
+  "partial_at_speechEnd": "Somebody pass me the rosin.",
+  "turn_spans": [
+   [
+    0.24,
+    2.32
+   ]
+  ],
+  "turn_texts": [
+   "Somebody pass me the rosin."
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 540,
+    "turnId": 0,
+    "t": 1.1551137500064215
+   },
+   {
+    "type": "transcript",
+    "transcript": "Somebody",
+    "final": false,
+    "audioProcessedMs": 2080,
+    "t": 2.205275625005015
+   },
+   {
+    "type": "transcript",
+    "transcript": "Somebody pass",
+    "final": false,
+    "audioProcessedMs": 2400,
+    "t": 2.440582124996581
+   },
+   {
+    "type": "transcript",
+    "transcript": "Somebody pass me the",
+    "final": false,
+    "audioProcessedMs": 2720,
+    "t": 2.779348709009355
+   },
+   {
+    "type": "transcript",
+    "transcript": "Somebody pass me the rosin.",
+    "final": false,
+    "audioProcessedMs": 2960,
+    "t": 3.017249292010092
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 2620,
+    "turnId": 0,
+    "t": 3.157503334005014
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 2620,
+    "turnId": 0,
+    "transcript": "Somebody pass me the rosin.",
+    "t": 3.1575239170051645
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 5.601958459010348
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 5680,
+    "t": 5.768370584002696
+   }
+  ],
+  "handshake_s": 0.419,
+  "close": 1000
+ },
+ "n06": {
+  "speech_on": 0.72,
+  "speech_end": 3.98,
+  "first_partial_after_onset": 0.92,
+  "n_partials": 10,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.31,
+  "complete_after_speech_end": 0.31,
+  "complete_lag_per_turn": [
+   0.55
+  ],
+  "first_partial_after_speechStart": 1.26,
+  "transcript": "Has anyone seen my pencil? I had it a minute ago.",
+  "partial_at_speechEnd": "Has anyone seen my pencil? I had it a minute ago.",
+  "turn_spans": [
+   [
+    0.08,
+    3.44
+   ]
+  ],
+  "turn_texts": [
+   "Has anyone seen my pencil? I had it a minute ago."
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 380,
+    "turnId": 0,
+    "t": 0.9743786659964826
+   },
+   {
+    "type": "transcript",
+    "transcript": "Has",
+    "final": false,
+    "audioProcessedMs": 1600,
+    "t": 1.6362599999993108
+   },
+   {
+    "type": "transcript",
+    "transcript": "Has anyone",
+    "final": false,
+    "audioProcessedMs": 1920,
+    "t": 2.020061582996277
+   },
+   {
+    "type": "transcript",
+    "transcript": "Has anyone seen",
+    "final": false,
+    "audioProcessedMs": 2320,
+    "t": 2.427030666003702
+   },
+   {
+    "type": "transcript",
+    "transcript": "Has anyone seen my",
+    "final": false,
+    "audioProcessedMs": 2560,
+    "t": 2.5963640410045628
+   },
+   {
+    "type": "transcript",
+    "transcript": "Has anyone seen my pencil?",
+    "final": false,
+    "audioProcessedMs": 3040,
+    "t": 3.124176208002609
+   },
+   {
+    "type": "transcript",
+    "transcript": "Has anyone seen my pencil? I",
+    "final": false,
+    "audioProcessedMs": 3440,
+    "t": 3.480793041002471
+   },
+   {
+    "type": "transcript",
+    "transcript": "Has anyone seen my pencil? I had",
+    "final": false,
+    "audioProcessedMs": 3840,
+    "t": 3.8762267909914954
+   },
+   {
+    "type": "transcript",
+    "transcript": "Has anyone seen my pencil? I had it a",
+    "final": false,
+    "audioProcessedMs": 3920,
+    "t": 3.999535790993832
+   },
+   {
+    "type": "transcript",
+    "transcript": "Has anyone seen my pencil? I had it a minute",
+    "final": false,
+    "audioProcessedMs": 4000,
+    "t": 4.124383207992651
+   },
+   {
+    "type": "transcript",
+    "transcript": "Has anyone seen my pencil? I had it a minute ago.",
+    "final": false,
+    "audioProcessedMs": 4160,
+    "t": 4.233946541004116
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 3740,
+    "turnId": 0,
+    "t": 4.290324165995116
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 3740,
+    "turnId": 0,
+    "transcript": "Has anyone seen my pencil? I had it a minute ago.",
+    "t": 4.290333915996598
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 7.0404401249979855
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 7120,
+    "t": 7.2203176250041
+   }
+  ],
+  "handshake_s": 0.345,
+  "close": 1000
+ },
+ "n07": {
+  "speech_on": 0.7,
+  "speech_end": 3.22,
+  "first_partial_after_onset": 0.88,
+  "n_partials": 6,
+  "turns": 1,
+  "speechEnd_after_speech_end": 3.35,
+  "complete_after_speech_end": 3.35,
+  "complete_lag_per_turn": [
+   0.67
+  ],
+  "first_partial_after_speechStart": 1.28,
+  "transcript": "That was lovely, well done everybody.",
+  "partial_at_speechEnd": "That was lovely, well done everybody.",
+  "turn_spans": [
+   [
+    0.0,
+    5.6
+   ]
+  ],
+  "turn_texts": [
+   "That was lovely, well done everybody."
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 300,
+    "turnId": 0,
+    "t": 0.926028916001087
+   },
+   {
+    "type": "transcript",
+    "transcript": "That",
+    "final": false,
+    "audioProcessedMs": 1520,
+    "t": 1.5779794580012094
+   },
+   {
+    "type": "transcript",
+    "transcript": "That was",
+    "final": false,
+    "audioProcessedMs": 1680,
+    "t": 1.7359520409954712
+   },
+   {
+    "type": "transcript",
+    "transcript": "That was lovely,",
+    "final": false,
+    "audioProcessedMs": 1920,
+    "t": 2.0257061660086038
+   },
+   {
+    "type": "transcript",
+    "transcript": "That was lovely, well",
+    "final": false,
+    "audioProcessedMs": 2560,
+    "t": 2.6137749580084346
+   },
+   {
+    "type": "transcript",
+    "transcript": "That was lovely, well done",
+    "final": false,
+    "audioProcessedMs": 3040,
+    "t": 3.0942227080086013
+   },
+   {
+    "type": "transcript",
+    "transcript": "That was lovely, well done everybody.",
+    "final": false,
+    "audioProcessedMs": 3600,
+    "t": 3.6700868750049267
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 6.322444000004907
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 5900,
+    "turnId": 0,
+    "t": 6.572689958004048
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 5900,
+    "turnId": 0,
+    "transcript": "That was lovely, well done everybody.",
+    "t": 6.572708708001301
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 6400,
+    "t": 6.572772208004608
+   }
+  ],
+  "handshake_s": 0.413,
+  "close": 1000
+ },
+ "n08": {
+  "speech_on": 0.72,
+  "speech_end": 3.32,
+  "first_partial_after_onset": 0.93,
+  "n_partials": 5,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.32,
+  "complete_after_speech_end": 0.32,
+  "complete_lag_per_turn": [
+   0.54
+  ],
+  "first_partial_after_speechStart": 1.35,
+  "transcript": "Sorry, that's my phone, one second.",
+  "partial_at_speechEnd": "Sorry, that's my phone, one second.",
+  "turn_spans": [
+   [
+    0.0,
+    2.8
+   ]
+  ],
+  "turn_texts": [
+   "Sorry, that's my phone, one second."
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 300,
+    "turnId": 0,
+    "t": 0.8814958330040099
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sorry,",
+    "final": false,
+    "audioProcessedMs": 1600,
+    "t": 1.649045792000834
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sorry, that's my",
+    "final": false,
+    "audioProcessedMs": 2160,
+    "t": 2.21200758300256
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sorry, that's my phone,",
+    "final": false,
+    "audioProcessedMs": 2720,
+    "t": 2.774660583003424
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sorry, that's my phone, one",
+    "final": false,
+    "audioProcessedMs": 3120,
+    "t": 3.165993958013132
+   },
+   {
+    "type": "transcript",
+    "transcript": "Sorry, that's my phone, one second.",
+    "final": false,
+    "audioProcessedMs": 3520,
+    "t": 3.594177208011388
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 3100,
+    "turnId": 0,
+    "t": 3.6439622920006514
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 3100,
+    "turnId": 0,
+    "transcript": "Sorry, that's my phone, one second.",
+    "t": 3.6439744580129627
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 6.401054875008413
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 6480,
+    "t": 6.572051042006933
+   }
+  ],
+  "handshake_s": 0.401,
+  "close": 1000
+ },
+ "n09": {
+  "speech_on": 0.7,
+  "speech_end": 3.18,
+  "first_partial_after_onset": 0.88,
+  "n_partials": 6,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.34,
+  "complete_after_speech_end": 0.34,
+  "complete_lag_per_turn": [
+   0.58
+  ],
+  "first_partial_after_speechStart": 1.12,
+  "transcript": "let's tune can I have an A please",
+  "partial_at_speechEnd": "let's tune can I have an A please",
+  "turn_spans": [
+   [
+    0.16,
+    2.64
+   ]
+  ],
+  "turn_texts": [
+   "let's tune can I have an A please"
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 460,
+    "turnId": 0,
+    "t": 1.051050750000286
+   },
+   {
+    "type": "transcript",
+    "transcript": "let's",
+    "final": false,
+    "audioProcessedMs": 1440,
+    "t": 1.576646333996905
+   },
+   {
+    "type": "transcript",
+    "transcript": "let's tune",
+    "final": false,
+    "audioProcessedMs": 1680,
+    "t": 1.741911083998275
+   },
+   {
+    "type": "transcript",
+    "transcript": "let's tune can",
+    "final": false,
+    "audioProcessedMs": 2080,
+    "t": 2.131512958992971
+   },
+   {
+    "type": "transcript",
+    "transcript": "let's tune can I have",
+    "final": false,
+    "audioProcessedMs": 2400,
+    "t": 2.4688838750007562
+   },
+   {
+    "type": "transcript",
+    "transcript": "let's tune can I have an A",
+    "final": false,
+    "audioProcessedMs": 2800,
+    "t": 2.8855074169987347
+   },
+   {
+    "type": "transcript",
+    "transcript": "let's tune can I have an A please",
+    "final": false,
+    "audioProcessedMs": 3440,
+    "t": 3.5171409169997787
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 2940,
+    "turnId": 0,
+    "t": 3.5171500839933287
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 2940,
+    "turnId": 0,
+    "transcript": "let's tune can I have an A please",
+    "t": 3.51715516699187
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 6.322309041992412
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 6400,
+    "t": 6.526864916988416
+   }
+  ],
+  "handshake_s": 0.704,
+  "close": 1000
+ },
+ "n10": {
+  "speech_on": 0.7,
+  "speech_end": 2.44,
+  "first_partial_after_onset": 0.71,
+  "n_partials": 5,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.71,
+  "complete_after_speech_end": 0.71,
+  "complete_lag_per_turn": [
+   0.61
+  ],
+  "first_partial_after_speechStart": 1.11,
+  "transcript": "Where were we? Bar 40?",
+  "partial_at_speechEnd": "Where were we? Bar 40?",
+  "turn_spans": [
+   [
+    0.0,
+    2.24
+   ]
+  ],
+  "turn_texts": [
+   "Where were we? Bar 40?"
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 300,
+    "turnId": 0,
+    "t": 0.8592337919981219
+   },
+   {
+    "type": "transcript",
+    "transcript": "Where",
+    "final": false,
+    "audioProcessedMs": 1360,
+    "t": 1.4116301250032848
+   },
+   {
+    "type": "transcript",
+    "transcript": "Where were",
+    "final": false,
+    "audioProcessedMs": 1520,
+    "t": 1.6782888330053538
+   },
+   {
+    "type": "transcript",
+    "transcript": "Where were we?",
+    "final": false,
+    "audioProcessedMs": 1600,
+    "t": 1.734026874997653
+   },
+   {
+    "type": "transcript",
+    "transcript": "Where were we? Bar",
+    "final": false,
+    "audioProcessedMs": 2560,
+    "t": 2.620561167001142
+   },
+   {
+    "type": "transcript",
+    "transcript": "Where were we? Bar 40?",
+    "final": false,
+    "audioProcessedMs": 3040,
+    "t": 3.149405874995864
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 2540,
+    "turnId": 0,
+    "t": 3.1494127080077305
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 2540,
+    "turnId": 0,
+    "transcript": "Where were we? Bar 40?",
+    "t": 3.1494174580002436
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 5.5207591250073165
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 5600,
+    "t": 5.732348000005004
+   }
+  ],
+  "handshake_s": 0.381,
+  "close": 1000
+ },
+ "n11": {
+  "speech_on": 0.7,
+  "speech_end": 3.3,
+  "first_partial_after_onset": 0.88,
+  "n_partials": 6,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.52,
+  "complete_after_speech_end": 0.52,
+  "complete_lag_per_turn": [
+   0.56
+  ],
+  "first_partial_after_speechStart": 1.28,
+  "transcript": "ten minute break back at quarter past",
+  "partial_at_speechEnd": "ten minute break back at quarter past",
+  "turn_spans": [
+   [
+    0.0,
+    2.96
+   ]
+  ],
+  "turn_texts": [
+   "ten minute break back at quarter past"
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 300,
+    "turnId": 0,
+    "t": 0.8698899169976357
+   },
+   {
+    "type": "transcript",
+    "transcript": "ten",
+    "final": false,
+    "audioProcessedMs": 1520,
+    "t": 1.5835913749906467
+   },
+   {
+    "type": "transcript",
+    "transcript": "ten minute",
+    "final": false,
+    "audioProcessedMs": 1920,
+    "t": 1.9897637499962002
+   },
+   {
+    "type": "transcript",
+    "transcript": "ten minute break",
+    "final": false,
+    "audioProcessedMs": 2160,
+    "t": 2.2399197920021834
+   },
+   {
+    "type": "transcript",
+    "transcript": "ten minute break back at",
+    "final": false,
+    "audioProcessedMs": 2800,
+    "t": 2.911615124990931
+   },
+   {
+    "type": "transcript",
+    "transcript": "ten minute break back at quarter",
+    "final": false,
+    "audioProcessedMs": 3520,
+    "t": 3.589997749993927
+   },
+   {
+    "type": "transcript",
+    "transcript": "ten minute break back at quarter past",
+    "final": false,
+    "audioProcessedMs": 3680,
+    "t": 3.810069667000789
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 3260,
+    "turnId": 0,
+    "t": 3.8158585839992156
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 3260,
+    "turnId": 0,
+    "transcript": "ten minute break back at quarter past",
+    "t": 3.8158667090028757
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 6.401764916998218
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 6480,
+    "t": 6.62068795900268
+   }
+  ],
+  "handshake_s": 0.381,
+  "close": 1000
+ },
+ "n12": {
+  "speech_on": 0.74,
+  "speech_end": 3.08,
+  "first_partial_after_onset": 0.91,
+  "n_partials": 4,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.46,
+  "complete_after_speech_end": 0.46,
+  "complete_lag_per_turn": [
+   0.6
+  ],
+  "first_partial_after_speechStart": 1.27,
+  "transcript": "Okay, letter B off we go.",
+  "partial_at_speechEnd": "Okay, letter B off we go.",
+  "turn_spans": [
+   [
+    0.08,
+    2.64
+   ]
+  ],
+  "turn_texts": [
+   "Okay, letter B off we go."
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 380,
+    "turnId": 0,
+    "t": 0.916662957999506
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay,",
+    "final": false,
+    "audioProcessedMs": 1600,
+    "t": 1.6544869579956867
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, letter B",
+    "final": false,
+    "audioProcessedMs": 2480,
+    "t": 2.546465542007354
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, letter B off we",
+    "final": false,
+    "audioProcessedMs": 3200,
+    "t": 3.252574625003035
+   },
+   {
+    "type": "transcript",
+    "transcript": "Okay, letter B off we go.",
+    "final": false,
+    "audioProcessedMs": 3360,
+    "t": 3.4948998330073664
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 2940,
+    "turnId": 0,
+    "t": 3.538362874998711
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 2940,
+    "turnId": 0,
+    "transcript": "Okay, letter B off we go.",
+    "t": 3.538372499999241
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 6.1624447500071255
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 6240,
+    "t": 6.339791499995044
+   }
+  ],
+  "handshake_s": 0.313,
+  "close": 1000
+ },
+ "n13": {
+  "speech_on": 0.7,
+  "speech_end": 3.32,
+  "first_partial_after_onset": 0.7,
+  "n_partials": 7,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.72,
+  "complete_after_speech_end": 0.72,
+  "complete_lag_per_turn": [
+   0.54
+  ],
+  "first_partial_after_speechStart": 1.1,
+  "transcript": "I think the coffee machine is broken again.",
+  "partial_at_speechEnd": "I think the coffee machine is broken again.",
+  "turn_spans": [
+   [
+    0.0,
+    3.2
+   ]
+  ],
+  "turn_texts": [
+   "I think the coffee machine is broken again."
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 300,
+    "turnId": 0,
+    "t": 0.8233860839973204
+   },
+   {
+    "type": "transcript",
+    "transcript": "I think",
+    "final": false,
+    "audioProcessedMs": 1360,
+    "t": 1.400085917004617
+   },
+   {
+    "type": "transcript",
+    "transcript": "I think the",
+    "final": false,
+    "audioProcessedMs": 1680,
+    "t": 1.7660237919917563
+   },
+   {
+    "type": "transcript",
+    "transcript": "I think the coffee",
+    "final": false,
+    "audioProcessedMs": 2480,
+    "t": 2.5020937499939464
+   },
+   {
+    "type": "transcript",
+    "transcript": "I think the coffee machine",
+    "final": false,
+    "audioProcessedMs": 2640,
+    "t": 2.7230151249968912
+   },
+   {
+    "type": "transcript",
+    "transcript": "I think the coffee machine is",
+    "final": false,
+    "audioProcessedMs": 2880,
+    "t": 2.9141264589998173
+   },
+   {
+    "type": "transcript",
+    "transcript": "I think the coffee machine is broken",
+    "final": false,
+    "audioProcessedMs": 3120,
+    "t": 3.1501037499983795
+   },
+   {
+    "type": "transcript",
+    "transcript": "I think the coffee machine is broken again.",
+    "final": false,
+    "audioProcessedMs": 3680,
+    "t": 3.7699545840005158
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 3500,
+    "turnId": 0,
+    "t": 4.04210974999296
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 3500,
+    "turnId": 0,
+    "transcript": "I think the coffee machine is broken again.",
+    "t": 4.042121874997974
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 6.161323374995845
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 6240,
+    "t": 6.393924042000435
+   }
+  ],
+  "handshake_s": 0.345,
+  "close": 1000
+ },
+ "n14": {
+  "speech_on": 0.7,
+  "speech_end": 2.78,
+  "first_partial_after_onset": 0.98,
+  "n_partials": 5,
+  "turns": 1,
+  "speechEnd_after_speech_end": 0.48,
+  "complete_after_speech_end": 0.48,
+  "complete_lag_per_turn": [
+   0.56
+  ],
+  "first_partial_after_speechStart": 1.22,
+  "transcript": "again from bar 12 please",
+  "partial_at_speechEnd": "again from bar 12 please",
+  "turn_spans": [
+   [
+    0.16,
+    2.4
+   ]
+  ],
+  "turn_texts": [
+   "again from bar 12 please"
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 460,
+    "turnId": 0,
+    "t": 1.0386041250021663
+   },
+   {
+    "type": "transcript",
+    "transcript": "again",
+    "final": false,
+    "audioProcessedMs": 1600,
+    "t": 1.6811002909962554
+   },
+   {
+    "type": "transcript",
+    "transcript": "again from",
+    "final": false,
+    "audioProcessedMs": 2000,
+    "t": 2.05058562499471
+   },
+   {
+    "type": "transcript",
+    "transcript": "again from bar",
+    "final": false,
+    "audioProcessedMs": 2080,
+    "t": 2.206257249999908
+   },
+   {
+    "type": "transcript",
+    "transcript": "again from bar 12",
+    "final": false,
+    "audioProcessedMs": 2560,
+    "t": 2.6319212499947753
+   },
+   {
+    "type": "transcript",
+    "transcript": "again from bar 12 please",
+    "final": false,
+    "audioProcessedMs": 3200,
+    "t": 3.261991958002909
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 2700,
+    "turnId": 0,
+    "t": 3.2620012080005836
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 2700,
+    "turnId": 0,
+    "transcript": "again from bar 12 please",
+    "t": 3.2620067079988075
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 5.842532958005904
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 5920,
+    "t": 6.036212291000993
+   }
+  ],
+  "handshake_s": 0.379,
+  "close": 1000
+ },
+ "n15": {
+  "speech_on": 0.74,
+  "speech_end": 1.56,
+  "first_partial_after_onset": 0.94,
+  "n_partials": 2,
+  "turns": 1,
+  "speechEnd_after_speech_end": 3.26,
+  "complete_after_speech_end": 3.26,
+  "complete_lag_per_turn": [
+   0.6
+  ],
+  "first_partial_after_speechStart": 1.3,
+  "transcript": "three, four.",
+  "partial_at_speechEnd": "three, four.",
+  "turn_spans": [
+   [
+    0.08,
+    3.92
+   ]
+  ],
+  "turn_texts": [
+   "three, four."
+  ],
+  "events": [
+   {
+    "type": "speechStart",
+    "audioProcessedMs": 380,
+    "turnId": 0,
+    "t": 0.9740178329957416
+   },
+   {
+    "type": "transcript",
+    "transcript": "three,",
+    "final": false,
+    "audioProcessedMs": 1600,
+    "t": 1.6777448749926407
+   },
+   {
+    "type": "transcript",
+    "transcript": "three, four.",
+    "final": false,
+    "audioProcessedMs": 1840,
+    "t": 1.9219147919939132
+   },
+   {
+    "type": "_endStream_sent",
+    "t": 4.64061116699304
+   },
+   {
+    "type": "speechEnd",
+    "audioProcessedMs": 4220,
+    "turnId": 0,
+    "t": 4.824055249991943
+   },
+   {
+    "type": "speechComplete",
+    "audioProcessedMs": 4220,
+    "turnId": 0,
+    "transcript": "three, four.",
+    "t": 4.82406975000049
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 4720,
+    "t": 4.849867832992459
+   }
+  ],
+  "handshake_s": 0.364,
+  "close": 1000
+ },
+ "n16": {
+  "speech_on": 0.3,
+  "speech_end": 12.3,
+  "first_partial_after_onset": null,
+  "n_partials": 0,
+  "turns": 1,
+  "speechEnd_after_speech_end": null,
+  "complete_after_speech_end": null,
+  "complete_lag_per_turn": [],
+  "first_partial_after_speechStart": null,
+  "transcript": "",
+  "turn_spans": [],
+  "turn_texts": [],
+  "events": [
+   {
+    "type": "_endStream_sent",
+    "t": 14.722435749994474
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 14800,
+    "t": 14.876991124998312
+   }
+  ],
+  "handshake_s": 0.347,
+  "close": 1000
+ },
+ "n17": {
+  "speech_on": 0.3,
+  "speech_end": 12.3,
+  "first_partial_after_onset": null,
+  "n_partials": 0,
+  "turns": 1,
+  "speechEnd_after_speech_end": null,
+  "complete_after_speech_end": null,
+  "complete_lag_per_turn": [],
+  "first_partial_after_speechStart": null,
+  "transcript": "",
+  "turn_spans": [],
+  "turn_texts": [],
+  "events": [
+   {
+    "type": "_endStream_sent",
+    "t": 14.72230775000935
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 14800,
+    "t": 14.882668292004382
+   }
+  ],
+  "handshake_s": 0.347,
+  "close": 1000
+ },
+ "n18": {
+  "speech_on": 2.12,
+  "speech_end": 12.3,
+  "first_partial_after_onset": null,
+  "n_partials": 0,
+  "turns": 1,
+  "speechEnd_after_speech_end": null,
+  "complete_after_speech_end": null,
+  "complete_lag_per_turn": [],
+  "first_partial_after_speechStart": null,
+  "transcript": "",
+  "turn_spans": [],
+  "turn_texts": [],
+  "events": [
+   {
+    "type": "_endStream_sent",
+    "t": 14.722227167003439
+   },
+   {
+    "type": "transcript",
+    "transcript": "",
+    "final": true,
+    "audioProcessedMs": 14800,
+    "t": 14.948172332995455
+   }
+  ],
+  "handshake_s": 0.41,
+  "close": 1000
+ }
+}
