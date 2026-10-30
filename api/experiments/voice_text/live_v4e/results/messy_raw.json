@@ -1,0 +1,292 @@
+{
+ "lm01": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 99, \"bar_to\": 99, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"f at 99\", \"quote\": \"Everyone, two after the key change, forte.\", \"confidence\": 0.95}]",
+  "seconds": 1.74217833300645,
+  "first_object": 1.6994426250021206,
+  "usd": 0.0034545,
+  "input_tokens": 2087,
+  "cached_tokens": 0,
+  "output_tokens": 199,
+  "reasoning_tokens": 126
+ },
+ "lm05": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 121, \"bar_to\": 121, \"audience\": [\"part:Soprano\"], \"kind\": \"breath\", \"text\": \"Breath at 121\", \"quote\": \"Sopranos, first bar of the Adagio, breathe before you come in.\", \"confidence\": 0.95}]",
+  "seconds": 1.8973457499960205,
+  "first_object": 1.8958393749926472,
+  "usd": 0.00372675,
+  "input_tokens": 2094,
+  "cached_tokens": 0,
+  "output_tokens": 261,
+  "reasoning_tokens": 175
+ },
+ "lm02": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 64, \"bar_to\": 64, \"audience\": [\"part:Cello\"], \"kind\": \"text\", \"text\": \"rit. at 64\", \"quote\": \"Cellos, the bar before the double bar, ritard.\", \"confidence\": 0.95}]",
+  "seconds": 1.9973537909972947,
+  "first_object": 1.981556458005798,
+  "usd": 0.00321175,
+  "input_tokens": 2090,
+  "cached_tokens": 0,
+  "output_tokens": 141,
+  "reasoning_tokens": 62
+ },
+ "lm03": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 221, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"pp from coda (221)\", \"quote\": \"From the coda, everybody pianissimo.\", \"confidence\": 0.95}]",
+  "seconds": 2.0474113329983084,
+  "first_object": 2.0015529579977738,
+  "usd": 0.00361475,
+  "input_tokens": 2086,
+  "cached_tokens": 0,
+  "output_tokens": 237,
+  "reasoning_tokens": 164
+ },
+ "lm06": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 17, \"bar_to\": 17, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"mp at bar 17\", \"quote\": \"At the segno, everybody, mezzo piano.\", \"confidence\": 0.98}]",
+  "seconds": 2.2679877920018043,
+  "first_object": 2.2410947919997852,
+  "usd": 0.00111125,
+  "input_tokens": 2086,
+  "cached_tokens": 1905,
+  "output_tokens": 141,
+  "reasoning_tokens": 68
+ },
+ "lm04": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 121, \"bar_to\": 160, \"audience\": [\"part:Viola\"], \"kind\": \"marking\", \"text\": \"mute 121-160\", \"quote\": \"Violas, in the slow section, play it with a mute.\", \"confidence\": 0.95}]",
+  "seconds": 2.422095709000132,
+  "first_object": 2.421845292003127,
+  "usd": 0.00382925,
+  "input_tokens": 2091,
+  "cached_tokens": 0,
+  "output_tokens": 286,
+  "reasoning_tokens": 204
+ },
+ "lm08": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 95, \"bar_to\": 96, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"cresc. 95-96\", \"quote\": \"Everyone, the last two bars before the key change, crescendo.\", \"confidence\": 0.95}]",
+  "seconds": 1.1009557500074152,
+  "first_object": 1.0553897909994703,
+  "usd": 0.00345525,
+  "input_tokens": 2091,
+  "cached_tokens": 0,
+  "output_tokens": 198,
+  "reasoning_tokens": 118
+ },
+ "lm12": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 65, \"bar_to\": 65, \"audience\": [\"part:Violin I\"], \"kind\": \"bowing\", \"text\": \"Up bow at bar 65\", \"quote\": \"Firsts, the bar after the double bar, up bow.\", \"confidence\": 0.95}]",
+  "seconds": 0.9155214159982279,
+  "first_object": 0.8945694580033887,
+  "usd": 0.00322875,
+  "input_tokens": 2090,
+  "cached_tokens": 0,
+  "output_tokens": 145,
+  "reasoning_tokens": 62
+ },
+ "lm07": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 218, \"bar_to\": 218, \"audience\": [\"part:Violin II\"], \"kind\": \"text\", \"text\": \"Entry at 218\", \"quote\": \"Seconds, three bars before the coda, that's where you come in, mark it.\", \"confidence\": 0.9}]",
+  "seconds": 2.0766447500063805,
+  "first_object": 2.038588916999288,
+  "usd": 0.00380875,
+  "input_tokens": 2095,
+  "cached_tokens": 0,
+  "output_tokens": 280,
+  "reasoning_tokens": 195
+ },
+ "lm09": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 161, \"bar_to\": 161, \"audience\": [\"part:Bass\"], \"kind\": \"text\", \"text\": \"In tempo at 161, don't drag\", \"quote\": \"Basses, at Tempo primo, back in tempo, don't drag.\", \"confidence\": 0.9}]",
+  "seconds": 1.7989398749923566,
+  "first_object": 1.777348957999493,
+  "usd": 0.003675,
+  "input_tokens": 2090,
+  "cached_tokens": 0,
+  "output_tokens": 250,
+  "reasoning_tokens": 167
+ },
+ "lm10": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 65, \"bar_to\": 97, \"audience\": [\"part:Tenor\"], \"kind\": \"dynamic\", \"text\": \"mf 65\\u201397\", \"quote\": \"Tenors, from the double bar to the key change, it's all mezzo forte.\", \"confidence\": 0.9}]",
+  "seconds": 1.9498641660029534,
+  "first_object": 1.8495065409952076,
+  "usd": 0.00446625,
+  "input_tokens": 2094,
+  "cached_tokens": 0,
+  "output_tokens": 435,
+  "reasoning_tokens": 350
+ },
+ "lm13": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 160, \"bar_to\": 160, \"audience\": [\"ensemble\"], \"kind\": \"marking\", \"text\": \"Fermata at 160\", \"quote\": \"Everyone, last bar of the slow section, fermata.\", \"confidence\": 0.95}]",
+  "seconds": 1.0004422499914654,
+  "first_object": 0.9910588749917224,
+  "usd": 0.00341025,
+  "input_tokens": 2089,
+  "cached_tokens": 0,
+  "output_tokens": 188,
+  "reasoning_tokens": 110
+ },
+ "lm14": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 16, \"bar_to\": 16, \"audience\": [\"part:Alto\"], \"kind\": \"text\", \"text\": \"Entry at 16\", \"quote\": \"Altos, one before the segno, that's your pickup, mark it.\", \"confidence\": 0.95}]",
+  "seconds": 1.5941669580060989,
+  "first_object": 1.5401807080052095,
+  "usd": 0.003771,
+  "input_tokens": 2092,
+  "cached_tokens": 0,
+  "output_tokens": 272,
+  "reasoning_tokens": 191
+ },
+ "lm15": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 150, \"bar_to\": 150, \"audience\": [\"part:Piano\"], \"kind\": \"text\", \"text\": \"rit. at 150\", \"quote\": \"Piano, the bar before the double bar, ritardando, take your time.\", \"confidence\": 0.95}]",
+  "seconds": 1.4452867090003565,
+  "first_object": 1.4225492920086253,
+  "usd": 0.003666,
+  "input_tokens": 2178,
+  "cached_tokens": 0,
+  "output_tokens": 222,
+  "reasoning_tokens": 138
+ },
+ "lm18": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 268, \"bar_to\": 268, \"audience\": [\"member:Mei\"], \"kind\": \"text\", \"text\": \"Take time at cadenza, bar 268\", \"quote\": \"Mei, at the cadenza, take all the time you want.\", \"confidence\": 0.9}]",
+  "seconds": 1.5649310000007972,
+  "first_object": 1.5623452919971896,
+  "usd": 0.00381225,
+  "input_tokens": 2176,
+  "cached_tokens": 0,
+  "output_tokens": 257,
+  "reasoning_tokens": 171
+ },
+ "lm11": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 201, \"bar_to\": 220, \"audience\": [\"ensemble\"], \"kind\": \"cut\", \"text\": \"Cut 201\\u2013220 (To Coda \\u2192 coda)\", \"quote\": \"From the To Coda sign we jump straight to the coda, everybody.\", \"confidence\": 0.9}]",
+  "seconds": 3.517536665996886,
+  "first_object": 3.495054707993404,
+  "usd": 0.00598225,
+  "input_tokens": 2093,
+  "cached_tokens": 0,
+  "output_tokens": 792,
+  "reasoning_tokens": 700
+ },
+ "lm17": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 151, \"bar_to\": 210, \"audience\": [\"part:Oboe\"], \"kind\": \"dynamic\", \"text\": \"Lead, louder 151-210 (slow section)\", \"quote\": \"Oboe, in the slow section, you lead, a bit louder.\", \"confidence\": 0.9}]",
+  "seconds": 1.959094334000838,
+  "first_object": 1.9359485000022687,
+  "usd": 0.003709,
+  "input_tokens": 2175,
+  "cached_tokens": 0,
+  "output_tokens": 233,
+  "reasoning_tokens": 146
+ },
+ "lm16": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 77, \"bar_to\": 77, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\", \"part:Double Bass\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 77\", \"quote\": \"Strings, two after the key change, pizz.\", \"confidence\": 0.95}]",
+  "seconds": 2.354035500000464,
+  "first_object": 2.3001414589962224,
+  "usd": 0.00448175,
+  "input_tokens": 2171,
+  "cached_tokens": 0,
+  "output_tokens": 416,
+  "reasoning_tokens": 311
+ },
+ "lm19": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 281, \"bar_to\": 312, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"ff from 281 (coda)\", \"quote\": \"Everyone, from the coda, fortissimo.\", \"confidence\": 0.95}]",
+  "seconds": 1.948492042007274,
+  "first_object": 1.897852417008835,
+  "usd": 0.00411625,
+  "input_tokens": 2171,
+  "cached_tokens": 0,
+  "output_tokens": 330,
+  "reasoning_tokens": 254
+ },
+ "g09": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 92, \"bar_to\": 92, \"audience\": [\"part:Flute\", \"part:Oboe\", \"part:Clarinet\", \"part:Bassoon\"], \"kind\": \"breath\", \"text\": \"Breath at 92\", \"quote\": \"Woodwinds, bar ninety-two, breath before the phrase.\", \"confidence\": 0.97}]",
+  "seconds": 1.1829307919979328,
+  "first_object": 1.074926957997377,
+  "usd": 0.00353775,
+  "input_tokens": 2174,
+  "cached_tokens": 0,
+  "output_tokens": 193,
+  "reasoning_tokens": 94
+ },
+ "g10": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 140, \"bar_to\": 140, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\"], \"kind\": \"bowing\", \"text\": \"Down bow at bar 140\", \"quote\": \"Strings except the basses, bar one-forty, down bow.\", \"confidence\": 0.95}]",
+  "seconds": 1.3025216249952791,
+  "first_object": 1.2864565000054426,
+  "usd": 0.00370475,
+  "input_tokens": 2175,
+  "cached_tokens": 0,
+  "output_tokens": 232,
+  "reasoning_tokens": 130
+ },
+ "lm20": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 211, \"bar_to\": 211, \"audience\": [\"part:Horn\"], \"kind\": \"dynamic\", \"text\": \"f at bar 211 (Allegro)\", \"quote\": \"Horns, at the Allegro after the slow section, you're back to forte, and timpani with them.\", \"confidence\": 0.9}, {\"position\": \"bar\", \"bar_from\": 211, \"bar_to\": 211, \"audience\": [\"part:Timpani\"], \"kind\": \"dynamic\", \"text\": \"f at bar 211 (Allegro)\", \"quote\": \"Horns, at the Allegro after the slow section, you're back to forte, and timpani with them.\", \"confidence\": 0.85}]",
+  "seconds": 2.9940862500079675,
+  "first_object": 2.6383431249996647,
+  "usd": 0.00522775,
+  "input_tokens": 2183,
+  "cached_tokens": 0,
+  "output_tokens": 588,
+  "reasoning_tokens": 410
+ },
+ "g07": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 20, \"bar_to\": 20, \"audience\": [\"part:Flute\", \"part:Oboe\", \"part:Clarinet\", \"part:Bassoon\", \"part:Horn\", \"part:Trumpet\", \"part:Timpani\", \"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\", \"part:Double Bass\"], \"kind\": \"dynamic\", \"text\": \"softer at bar 20\", \"quote\": \"Everyone except the piano, bar twenty, softer.\", \"confidence\": 0.95}]",
+  "seconds": 2.8394765830016695,
+  "first_object": 2.7789904579985887,
+  "usd": 0.0052425,
+  "input_tokens": 2171,
+  "cached_tokens": 0,
+  "output_tokens": 595,
+  "reasoning_tokens": 451
+ },
+ "g08": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Flute\", \"part:Oboe\", \"part:Clarinet\", \"part:Bassoon\", \"part:Horn\", \"part:Trumpet\", \"part:Timpani\", \"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\", \"part:Double Bass\"], \"kind\": \"dynamic\", \"text\": \"mf at bar 50\", \"quote\": \"Orchestra, bar fifty, mezzo forte,\", \"confidence\": 0.95}, {\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Piano\"], \"kind\": \"dynamic\", \"text\": \"Stay f at bar 50\", \"quote\": \"piano stays forte.\", \"confidence\": 0.9}]",
+  "seconds": 3.0213697500003036,
+  "first_object": 2.780922082994948,
+  "usd": 0.00509325,
+  "input_tokens": 2174,
+  "cached_tokens": 0,
+  "output_tokens": 559,
+  "reasoning_tokens": 354
+ },
+ "g13": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 60, \"bar_to\": 60, \"audience\": [\"part:Flute\", \"part:Clarinet\", \"part:Bassoon\", \"part:Horn\", \"part:Trumpet\", \"part:Timpani\", \"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\", \"part:Double Bass\"], \"kind\": \"dynamic\", \"text\": \"p at bar 60\", \"quote\": \"Everyone except the oboe, bar sixty, piano.\", \"confidence\": 0.95}]",
+  "seconds": 2.1226981669897214,
+  "first_object": 2.097015332998126,
+  "usd": 0.0046275,
+  "input_tokens": 2172,
+  "cached_tokens": 0,
+  "output_tokens": 450,
+  "reasoning_tokens": 312
+ },
+ "g14": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 112, \"bar_to\": 112, \"audience\": [\"part:Cello\", \"part:Double Bass\"], \"kind\": \"dynamic\", \"text\": \"Louder at 112\", \"quote\": \"Cellos and basses, bar one-twelve, the low line, louder.\", \"confidence\": 0.95}]",
+  "seconds": 1.4591669579967856,
+  "first_object": 1.4372080409957562,
+  "usd": 0.00360225,
+  "input_tokens": 2178,
+  "cached_tokens": 0,
+  "output_tokens": 207,
+  "reasoning_tokens": 118
+ },
+ "g12": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 230, \"bar_to\": 230, \"audience\": [\"part:Horn\", \"part:Trumpet\", \"part:Timpani\"], \"kind\": \"marking\", \"text\": \"Accent at bar 230\", \"quote\": \"Brass and timpani, bar two-thirty, accent, the rest of the orchestra no accent.\", \"confidence\": 0.95}, {\"position\": \"bar\", \"bar_from\": 230, \"bar_to\": 230, \"audience\": [\"part:Flute\", \"part:Oboe\", \"part:Clarinet\", \"part:Bassoon\", \"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\", \"part:Double Bass\"], \"kind\": \"marking\", \"text\": \"No accent at bar 230\", \"quote\": \"Brass and timpani, bar two-thirty, accent, the rest of the orchestra no accent.\", \"confidence\": 0.93}]",
+  "seconds": 2.6231941250007367,
+  "first_object": 2.223136875007185,
+  "usd": 0.00532,
+  "input_tokens": 2182,
+  "cached_tokens": 0,
+  "output_tokens": 610,
+  "reasoning_tokens": 380
+ },
+ "g11": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 160, \"bar_to\": 170, \"audience\": [\"part:Flute\", \"part:Oboe\", \"part:Clarinet\", \"part:Bassoon\", \"part:Horn\", \"part:Trumpet\", \"part:Timpani\", \"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\", \"part:Double Bass\"], \"kind\": \"dynamic\", \"text\": \"dim. 160-170\", \"quote\": \"Everybody but the soloist, from one-sixty to one-seventy, diminuendo.\", \"confidence\": 0.95}]",
+  "seconds": 3.086733499992988,
+  "first_object": 3.064394708999316,
+  "usd": 0.00555125,
+  "input_tokens": 2180,
+  "cached_tokens": 0,
+  "output_tokens": 665,
+  "reasoning_tokens": 512
+ },
+ "g15": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 240, \"bar_to\": 240, \"audience\": [\"part:Violin I\", \"part:Violin II\"], \"kind\": \"marking\", \"text\": \"tremolo at bar 240\", \"quote\": \"Violins only, everyone else in the strings rest, bar two-forty, tremolo.\", \"confidence\": 0.92}, {\"position\": \"bar\", \"bar_from\": 240, \"bar_to\": 240, \"audience\": [\"part:Viola\", \"part:Cello\", \"part:Double Bass\"], \"kind\": \"marking\", \"text\": \"Rest at bar 240\", \"quote\": \"Violins only, everyone else in the strings rest, bar two-forty, tremolo.\", \"confidence\": 0.85}]",
+  "seconds": 3.9748147079953924,
+  "first_object": 3.7010845829936443,
+  "usd": 0.0060825,
+  "input_tokens": 2180,
+  "cached_tokens": 0,
+  "output_tokens": 790,
+  "reasoning_tokens": 604
+ }
+}

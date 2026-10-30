@@ -1,12 +1,13 @@
 """transcribe_voice (013): one push-to-talk take becomes proposed marks for the admin to confirm.
 
 The route (`POST /scores/{id}/voice`) stores the WAV at `{score_id}/voice/{utterance_id}.wav` and runs this job at once.
-Voice Transcribe (diarisation mode, the score's parts, players and letters as keywords) gives the transcript; one
-Spark call with the eval's chosen prompt (v4, `voice_prompt.py`) proposes marks; `checked_marks` drops any whose quote
+Voice Transcribe (diarisation mode, the score's parts, players, letters and a trimmed glossary of musical terms as
+keywords) gives the transcript; one Spark call with the eval's chosen prompt (v4e, `voice_prompt.py`: the facts list the
+book's groups and its landmarks with bars, `scores.landmarks`) proposes marks; `checked_marks` drops any whose quote
 is not verbatim, whose bars fall outside the score or whose audience is unknown. Each survivor is written as
 `annotations` rows with `status = 'proposed'`, one row per audience, sharing `payload.mark_id`; players never see a
-proposed row (`can_see_annotation`). A mark the score cannot place (a landmark it has no record of) is returned in
-`result.unplaced` for the admin to put on a bar by hand. Nothing here ever makes a mark live.
+proposed row (`can_see_annotation`). A place named from a listed landmark comes back as bars; a mark the score
+cannot place (a landmark it has no record of) is returned in `result.unplaced` for the admin to put on a bar by hand. Nothing here ever makes a mark live.
 
 What was said stays the sender's (CK, 2026-10-30): the raw take is deleted as soon as it is transcribed (a sweep
 removes any left by a failed job within the hour), and the transcript and each mark's quote live only on this job
@@ -33,7 +34,7 @@ import httpx
 
 from ..settings import settings
 from ..spend import Charge
-from . import Job, JobContext, ScoreFailure, handler
+from . import Job, JobContext, ScoreFailure, handler, landmarks
 from .voice_prompt import ScoreFacts, build_prompt, checked_marks, derive_groups, parse_answer
 
 ASR_MODEL = "muse-voice-transcribe-1.0"
@@ -96,9 +97,16 @@ class Score:
                 if mark and n is not None and (mark not in self.letters or n < self.letters[mark]):
                     self.letters[mark] = n
         bars = sorted(self.bar_ids)
+        # The book's landmarks (013 v4e): a converted book's MusicXML ones replace what page reading found. A
+        # digital book has no placements, so its rehearsal letters come from the MusicXML here.
+        self.landmarks = [d for d in landmarks.for_facts(landmarks.load(db, score_id))
+                          if bars[0] <= d["bar"] <= bars[-1]]
+        for d in self.landmarks:
+            if d["kind"] == "rehearsal" and d["label"] not in self.letters:
+                self.letters[d["label"]] = d["bar"]
         self.facts = ScoreFacts(parts=self.parts, members=sorted(self.members), bar_first=bars[0], bar_last=bars[-1],
                                 rehearsal_marks=sorted(self.letters, key=lambda k: self.letters[k]),
-                                groups=derive_groups(self.parts))
+                                groups=derive_groups(self.parts), landmarks=self.landmarks)
 
     def keywords(self) -> list[str]:
         """Words the recogniser should prefer: parts and their plurals, seat nicknames, names, letters, and the

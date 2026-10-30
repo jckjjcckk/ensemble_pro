@@ -148,6 +148,31 @@ async def test_a_letter_is_placed_by_the_scores_rehearsal_marks_and_a_landmark_w
     assert out["proposed"] == 1 and out["unplaced"][0]["text"] == "Breath at the double bar"
 
 
+async def test_the_books_landmarks_are_in_the_facts_and_a_converted_books_musicxml_wins():
+    """013 v4e: the facts list the landmarks with bars (a boundary between two bars); page ones give way to the
+    MusicXML's once the book is converted; a digital book's rehearsal letters come from its MusicXML."""
+    db = book()
+    db.rows["measure_placements"] = []
+    db.rows["scores"][0]["landmarks"] = [
+        {"kind": "double_bar", "label": "double bar", "bar": 64, "bar_after": 65, "source": "musicxml"},
+        {"kind": "key_change", "label": "3 flats", "bar": 97, "bar_after": None, "source": "musicxml"},
+        {"kind": "rehearsal", "label": "B", "bar": 33, "bar_after": None, "source": "musicxml"},
+        {"kind": "tempo", "label": "Adagio", "bar": 120, "bar_after": None, "source": "page"},
+        {"kind": "segno", "label": "segno", "bar": 400, "bar_after": None, "source": "musicxml"}]       # past the last bar
+    answer = [mark(position="bar", bar_from=63, bar_to=63, audience=["part:Cello"], kind="breath", text="Breath at 63",
+                   quote="Cellos, breathe in the bar before the double bar.")]
+    out, ctx, db, _ = await run("Cellos, breathe in the bar before the double bar.", answer, db)
+    prompt = ctx.prompts[0][0]
+    assert "Landmarks: double bar between bars 64 and 65; key change at bar 97 (3 flats)." in prompt
+    assert "Adagio" not in prompt and "segno" not in prompt and "Rehearsal letters: B." in prompt
+    assert [(r["measure_from"], r["audience_part"]) for r in db.rows["annotations"]] == [("m63", "Cello")]
+
+
+async def test_a_book_without_the_column_or_landmarks_says_none_listed():
+    _, ctx, _, _ = await run("Bar nine, mezzo forte.", {"none": True})
+    assert "Landmarks: none listed." in ctx.prompts[0][0]
+
+
 async def test_range_to_the_end_and_global_marks_get_bars():
     answer = [mark(position="range", bar_from=200, bar_to=None, text="cresc. 200 to the end", kind="dynamic", quote="from two hundred to the end"),
               mark(position="global", text="Lighter at the very end", quote="lighter at the very end")]
