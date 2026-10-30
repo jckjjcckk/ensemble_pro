@@ -6,7 +6,7 @@
  *  page images and engraved digital pages are the same stage (`EngravedStage`); a single part or a split without
  *  engraved pages is engraved on the device (`ScoreStage`). Three appearances: light, dark with the paper dimmed, dark
  *  with the page inverted (the account menu). */
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { AnimatePresence, motion } from 'motion/react'
 import type { Annotation, AnnotationKind, Engraving, Member, Score } from '../mock'
@@ -32,6 +32,7 @@ import { StaffQuestion } from './StaffQuestion'
 import { ScanPatches, UnreadablePages, useBarDecisions } from './CheckBars'
 import { useVoice, type Card } from './voice'
 import { PickHint, VoiceButton, VoiceGhosts, VoiceTray } from './VoiceNotes'
+import { PlayParts, usePlayState, type PlayHead } from './PlayParts'
 
 type Tool = null | 'marking' | 'cut' | 'voice'
 
@@ -107,7 +108,7 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
   const reduced = useReducedMotion()
   const navigate = useNavigate()
   const { pathname, search: rawSearch } = useLocation()
-  const { contextFor, context, annotations, addAnnotation, partsById, membersById, stripsFor, world, jobsFor, canEditBook, setPracticeUI, display, setDisplay } = useStore()
+  const { contextFor, context, annotations, addAnnotation, partsById, membersById, stripsFor, world, jobsFor, canEditBook, display, setDisplay } = useStore()
   const { session } = useAuth()
   const userId = session?.user.id ?? null
   const [search] = useSearchParams()
@@ -145,6 +146,7 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
   const split = splitId ? stripsFor(score.id).find(x => x.id === splitId && x.kind === 'musicxml') : undefined
   const splitSel = split ? `split:${split.id}` : null
   const seat = parts.find(p => p.name === persona.instrument)?.id
+  const seatName = groupId && seat ? partsById[seat]?.name ?? null : null
   const defaultPart = splitSel ?? (role === 'player' && seat && !pages ? seat : 'full')
   const [partSel, setPartSel] = useState<string>(defaultPart)
   useEffect(() => { setPartSel(defaultPart) }, [defaultPart])
@@ -215,6 +217,12 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
   const [inkColor, setInkColor] = useState<PenColor>('ink')
   const [switching, setSwitching] = useState(false)
 
+  // Play the parts (014): the player at the foot of the Stand, this device's pace, mix and passage.
+  const [playOpen, setPlayOpen] = useState(false)
+  const [play, setPlay] = usePlayState(score.id)
+  const [playHead, setPlayHead] = useState<PlayHead | null>(null)
+  const onPlayHead = useCallback((h: PlayHead | null) => setPlayHead(h), [])
+
   // Voice notes (013): whoever leads the layer on screen (a group's admin, a book's owner) speaks marks; Muse proposes,
   // they confirm. Proposals live in Supabase, so only a synced book has them.
   const canVoice = canCut && quick.synced
@@ -236,7 +244,8 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
   // Follow the admin (players): the spread follows the admin's bar; the reader's own turn lets go.
   const [following, setFollowing] = useState(false)
   const canFollow = hasPresence && role === 'player'
-  const followBar = canFollow && following && !menu.menu && !scribble && !tool ? leader?.atBar : undefined
+  const followBar = playHead && !zoom ? playHead.bar
+    : canFollow && following && !menu.menu && !scribble && !tool ? leader?.atBar : undefined
 
   useEffect(() => { rememberBook(pathname + rawSearch) }, [pathname, rawSearch])
   useEffect(() => {
@@ -326,10 +335,12 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
     startTool('marking')
     setDraftBar(bar)
   }
+  // Loop from here: the player opens on a passage from this bar (the passage's length kept, else 4 bars), looping.
   const loopFrom = (bar: number) => {
     menu.close()
-    setPracticeUI(p => ({ ...p, loop: { from: bar, to: Math.min(score.bars || bar + 3, bar + 3) }, bar }))
-    navigate(`/practice?score=${encodeURIComponent(score.id)}`)
+    const len = play.range ? play.range.to - play.range.from + 1 : 4
+    setPlay(p => ({ ...p, range: { from: bar, to: Math.min(score.bars || bar + len - 1, bar + len - 1) }, loop: true }))
+    setPlayOpen(true)
   }
 
   const menuBar = menu.menu?.bar ?? null
@@ -348,6 +359,13 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
         <div key={`d${r.first}`} className="u-cut is-draft" style={{ left: r.x, top: r.y - 10, width: r.w, height: r.h + 20 }} />
       ))}
       <HighlightLayer geo={g} bars={visible.filter(a => a.kind === 'highlight').map(a => a.barFrom)} arriving={arrivingBars} />
+      {playOpen && play.range && spanRects(g, play.range.from, play.range.to).map(r => (
+        <div key={`pl${r.first}`} className="u-passage" style={{ left: r.x - 4, top: r.y - 12, width: r.w + 8, height: r.h + 24 }} />
+      ))}
+      {playOpen && playHead && g.bars.get(playHead.bar) && (() => {
+        const b = g.bars.get(playHead.bar)!
+        return <div className={`u-playing ${playHead.counting ? 'is-counting' : ''}`} style={{ left: b.x - 2, top: b.y - 8, width: b.w + 4, height: b.h + 16 }} />
+      })()}
       {!tool && !scribble && <BarSelection geo={g} bar={menuBar} />}
       {(tool === 'marking' || tool === 'voice') && g.bars.get(draftBar) && (() => {
         const b = g.bars.get(draftBar)!
@@ -473,6 +491,9 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
                 <span className="sm-text"><span>{LAYOUT_WORDS.original}</span><small>{layout === 'original' ? 'On: the pages as the file prints them' : `Off: ${LAYOUT_WORDS.display.toLowerCase()}`}</small></span>
               </button>
             )}
+            <button type="button" role="menuitemcheckbox" aria-checked={playOpen} className="sm-item is-check" onClick={() => { setMoreOpen(false); setPlayOpen(v => !v) }}>
+              <span className="sm-text"><span>Play the parts</span>{!score.playback && <small>{st.hasPdf && !st.digitalReady ? 'Convert to Digital to play it' : 'Import the MusicXML again to play it'}</small>}</span>
+            </button>
             <button type="button" role="menuitem" className="sm-item" onClick={() => { setMoreOpen(false); setListOpen(true) }}>Markings <span className="sm-count">{visible.length}</span></button>
             {canFollow && leader && (
               <button type="button" role="menuitemcheckbox" aria-checked={following} className="sm-item is-check" onClick={() => { setFollowing(v => !v); setMoreOpen(false) }}>Follow {memberName(leader)}'s page turns</button>
@@ -606,6 +627,22 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
         <InkBar open={scribble} tool={inkTool} color={inkColor} status={ink.synced ? ink.state : 'local'} onTool={setInkTool} onColor={setInkColor} onDone={endScribble} />
         <Fade show={!!quick.error} className="mark-error" role="alert">Could not save that mark. {quick.error}</Fade>
       </main>
+
+      <AnimatePresence initial={false}>
+        {playOpen && (
+          <motion.div
+            key="play" className="stand-play"
+            initial={reduced ? { opacity: 0 } : { opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0, y: 16, transition: { duration: 0.14 } }}
+            transition={reduced ? { duration: 0.16 } : { type: 'spring', stiffness: 320, damping: 26, mass: 0.8 }}
+          >
+            <PlayParts
+              score={score} state={play} setState={setPlay} ownPart={seatName} fromBar={view?.first ?? 1}
+              onHead={onPlayHead} onClose={() => setPlayOpen(false)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Sheet open={listOpen} onClose={() => setListOpen(false)} label="Markings" portal>
         <div className="side-head">

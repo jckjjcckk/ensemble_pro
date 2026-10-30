@@ -27,6 +27,8 @@ interface Props {
   readOnly?: boolean
   label: string
   spanLabel?: string
+  /** What bar k (1-based along the ruler) is called, when the book's numbers are not 1..total (a pickup bar 0). */
+  labelOf?: (k: number) => string | number
 }
 
 type Drag =
@@ -42,6 +44,7 @@ const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v))
 export function Ruler({
   total, span = null, mode = 'none', onSpan, heat = [], onHeat, cuts = [], marks = [], onMark,
   presence = [], playhead = null, playTone = 'off', onSeek, compact = false, readOnly = false, label, spanLabel = 'Loop',
+  labelOf = k => k,
 }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const [w, setW] = useState(0)
@@ -206,7 +209,7 @@ export function Ruler({
             <line key={k} x1={bx(k)} x2={bx(k)} y1={yBase - (k % 50 === 0 ? 9 : 4)} y2={yBase} className="r-tick" />
           ))}
           {scaleMarks.map(b => (
-            <text key={b} x={bx(b - 1)} y={yScale} className="r-scale" textAnchor={b === 1 ? 'start' : b === total ? 'end' : 'middle'}>{b}</text>
+            <text key={b} x={bx(b - 1)} y={yScale} className="r-scale" textAnchor={b === 1 ? 'start' : b === total ? 'end' : 'middle'}>{labelOf(b)}</text>
           ))}
 
           {presenceBars.map(b => (
@@ -232,7 +235,7 @@ export function Ruler({
                   <rect x={xr - 3} y={yTop + 6} width={6} height={yBase - yTop - 12} rx={2} className="r-knob" />
                 </>}
                 <text x={mid} y={yTop - 6} textAnchor="middle" className="r-span-label">
-                  {shown.from === shown.to ? shown.from : `${shown.from}–${shown.to}`}
+                  {shown.from === shown.to ? labelOf(shown.from) : `${labelOf(shown.from)}–${labelOf(shown.to)}`}
                   {active && <tspan className="r-span-count"> · {shown.to - shown.from + 1} bars</tspan>}
                 </text>
               </g>

@@ -110,7 +110,12 @@ export interface Score {
   unreadable?: { page: number; reason: string }[]
   /** Questions on this book already answered (jobs carrying `resume_from`). */
   answered?: number
+  /** Play the parts (014): the book's MIDI (one track per part) and bar map in the bucket (`scores.playback`). Only
+   *  digital books have one; a scanned book gets it when it is converted. */
+  playback?: Playback
 }
+
+export interface Playback { midi: string; barMap: string; parts: string[]; madeAt?: string }
 
 export type CoverClef = 'treble' | 'bass' | 'alto' | 'grand'
 

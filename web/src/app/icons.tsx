@@ -18,6 +18,7 @@ export const ILibrary = (p: P) => <Svg {...p}><path d="M4 4h3.5v16H4zM9.5 4H13v1
 export const IScore = (p: P) => <Svg {...p}><rect x="5" y="3" width="14" height="18" rx="1.5" /><path d="M8 8h8M8 10.5h8M8 13h8M8 16.5h5" /></Svg>
 export const IPractice = (p: P) => <Svg {...p}><path d="M7 6H4v12h3M17 6h3v12h-3" /><path d="M10 9.2v5.6l4.6-2.8z" /></Svg>
 export const IPlay = (p: P) => <Svg {...p}><path d="M8 5.2v13.6L18.6 12z" fill="currentColor" /></Svg>
+export const IStop = (p: P) => <Svg {...p}><rect x="6.5" y="6.5" width="11" height="11" rx="1.2" fill="currentColor" /></Svg>
 export const IPause = (p: P) => <Svg {...p}><rect x="6.5" y="5" width="3.6" height="14" rx="0.8" fill="currentColor" /><rect x="13.9" y="5" width="3.6" height="14" rx="0.8" fill="currentColor" /></Svg>
 export const IMinus = (p: P) => <Svg {...p}><path d="M5 12h14" /></Svg>
 export const IPlus = (p: P) => <Svg {...p}><path d="M12 5v14M5 12h14" /></Svg>

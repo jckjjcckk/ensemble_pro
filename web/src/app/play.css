@@ -1,0 +1,113 @@
+/* Play the parts (014, PlayParts.tsx): the instrument's panel at the foot of the Stand. The dark control surface of the
+   dock in both themes (DESIGN.md), the bar ruler on top, then the transport, the pace (the largest number), Loop and
+   Count-in, and a lane per part (on/off, volume). Touch targets 44 px and more; the play button 60 px tall. */
+
+.fo .stand-play { position: relative; z-index: 8; min-width: 0; }
+
+.fo .pp {
+  --pp-bg: var(--dk); --pp-raised: var(--dk-2); --pp-on: var(--dk-3);
+  --r-ink: var(--dk-ink); --r-ink-2: var(--dk-ink-2); --r-ink-3: var(--dk-ink-3);
+  --r-rule: var(--dk-rule); --r-wash: var(--dk-wash); --r-heat: var(--dk-amber);
+  --r-green: var(--dk-green); --r-amber: var(--dk-amber);
+  background: var(--pp-bg); color: var(--dk-ink);
+  border-top: 1px solid var(--dk-rule);
+  box-shadow: 0 -10px 30px rgba(28, 26, 22, 0.16);
+  padding: 6px calc(16px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+}
+@media (prefers-color-scheme: dark) {
+  .fo:not([data-theme='light']) .pp { --pp-bg: var(--dk-2); --pp-raised: var(--dk-3); --pp-on: #4A463D; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.45); }
+}
+.fo[data-theme='dark'] .pp { --pp-bg: var(--dk-2); --pp-raised: var(--dk-3); --pp-on: #4A463D; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.45); }
+
+.fo .pp-head { display: flex; align-items: flex-start; gap: 8px; }
+.fo .pp-ruler { flex: 1 1 auto; min-width: 0; }
+.fo .pp-hint { min-height: 18px; margin-top: -2px; padding-left: 18px; font-size: 13px; line-height: 18px; color: var(--dk-ink-2); }
+.fo .pp-hint.is-error { color: var(--dk-amber); }
+.fo .pp-link { border: 0; background: none; padding: 12px 4px; margin: -12px -4px; font: inherit; font-weight: 600; color: var(--dk-ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--dk-ink-3); }
+.fo .pp-close { flex: none; display: grid; place-items: center; width: 44px; height: 44px; margin-top: 8px; border: 0; border-radius: 12px; background: transparent; color: var(--dk-ink-2); }
+
+.fo .pp-body { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 14px; margin-top: 6px; }
+
+/* the transport */
+.fo .pp-transport { flex: none; display: flex; align-items: center; gap: 12px; }
+.fo .pp-play {
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  width: 80px; height: 64px; border: 0; border-radius: 16px; background: var(--dk-ink); color: var(--dk);
+  font: 600 12px/1 var(--font-ui); letter-spacing: 0.02em;
+  transition: background-color 140ms var(--ease), transform 120ms var(--ease);
+}
+.fo .pp-play.is-on { background: var(--pp-on); color: var(--dk-ink); }
+.fo .pp-play:disabled { background: var(--pp-raised); color: var(--dk-ink-3); }
+.fo .pp-play:active:not(:disabled) { transform: scale(0.96); transition-duration: 40ms; }
+.fo .pp-pos { display: flex; flex-direction: column; gap: 4px; min-width: 92px; }
+.fo .pp-k { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dk-ink-3); }
+.fo .pp-bar { font-size: 30px; line-height: 1; color: var(--dk-ink); white-space: nowrap; }
+.fo .pp-beats { display: flex; gap: 6px; height: 30px; align-items: center; }
+.fo .pp-beat { width: 12px; height: 12px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--dk-ink-2); }
+.fo .pp-beat.is-on { background: var(--dk-ink); box-shadow: none; }
+
+/* the pace: the largest number on the panel */
+.fo .pp-pace { flex: none; display: flex; align-items: center; gap: 6px; }
+.fo .pp-step { display: grid; place-items: center; width: 52px; height: 60px; border: 0; border-radius: 12px; background: var(--pp-raised); color: var(--dk-ink); }
+.fo .pp-step:disabled { color: var(--dk-ink-3); opacity: 0.6; }
+.fo .pp-step:active:not(:disabled) { background: var(--pp-on); transition-duration: 40ms; }
+.fo .pp-pace-read { display: flex; flex-direction: column; align-items: center; min-width: 112px; }
+.fo .pp-pct { font-size: 40px; line-height: 1; color: var(--dk-ink); }
+.fo .pp-pct small { font-size: 22px; margin-left: 1px; color: var(--dk-ink-2); }
+.fo .pp-tempo { margin-top: 4px; font-size: 13px; color: var(--dk-ink-2); white-space: nowrap; }
+.fo .pp-glyph { font-family: var(--font-music); font-size: 16px; color: var(--dk-ink); }
+.fo .pp-of { color: var(--dk-ink-3); }
+
+/* Loop and Count-in */
+.fo .pp-opts { flex: none; display: flex; flex-direction: column; gap: 6px; }
+.fo .pp-tog {
+  display: grid; grid-template-columns: 24px auto; grid-template-rows: auto auto; column-gap: 8px; align-items: center;
+  width: 128px; min-height: 44px; padding: 4px 10px; border: 0; border-radius: 12px; background: transparent; color: var(--dk-ink-2); text-align: left;
+  box-shadow: inset 0 0 0 1px var(--dk-rule);
+}
+.fo .pp-tog > svg, .fo .pp-tog > .pp-tog-n { grid-row: 1 / 3; justify-self: center; }
+.fo .pp-tog > span:not(.pp-tog-n) { font-size: 13px; font-weight: 600; line-height: 1.15; }
+.fo .pp-tog > small { font-size: 11px; line-height: 1.15; color: var(--dk-ink-3); }
+.fo .pp-tog-n { font-size: 13px; }
+.fo .pp-tog.is-on { background: var(--pp-on); color: var(--dk-ink); box-shadow: none; }
+.fo .pp-tog.is-on > small { color: var(--dk-ink-2); }
+
+/* a lane per part */
+.fo .pp-lanes { flex: 1 1 480px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(124px, 1fr)); gap: 8px; }
+.fo .pp-lane { display: flex; flex-direction: column; border-radius: 12px; background: var(--pp-raised); padding: 2px 10px 4px; }
+.fo .pp-lane-name {
+  display: grid; grid-template-columns: 12px minmax(0, 1fr); column-gap: 8px; align-items: center; min-height: 44px; padding: 4px 0;
+  border: 0; background: transparent; color: var(--dk-ink-3); text-align: left;
+}
+.fo .pp-dot { grid-row: 1 / 3; width: 12px; height: 12px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--dk-ink-3); }
+.fo .pp-lane-t { font-size: 15px; font-weight: 600; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: line-through; text-decoration-color: var(--dk-ink-3); }
+.fo .pp-lane-name small { font-size: 11px; line-height: 1.2; color: var(--dk-ink-3); }
+.fo .pp-lane.is-on .pp-lane-name { color: var(--dk-ink); }
+.fo .pp-lane.is-on .pp-lane-t { text-decoration: none; }
+.fo .pp-lane.is-on .pp-dot { background: var(--dk-ink); box-shadow: none; }
+.fo .pp-lane.is-on .pp-lane-name small { color: var(--dk-ink-2); }
+
+/* the volume: a thin track and a 26 px thumb, 36 px tall to grab */
+.fo .pp-gain { -webkit-appearance: none; appearance: none; width: 100%; height: 36px; margin: 0; background: transparent; touch-action: pan-y; accent-color: var(--dk-ink); }
+.fo .pp-gain::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: var(--pp-on); }
+.fo .pp-gain::-moz-range-track { height: 4px; border-radius: 2px; background: var(--pp-on); }
+.fo .pp-gain::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; margin-top: -11px; border-radius: 50%; background: var(--dk-ink); border: 0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); }
+.fo .pp-gain::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: var(--dk-ink); border: 0; }
+.fo .pp-gain:disabled { opacity: 0.35; }
+.fo .pp-gain:focus-visible { outline: 2px solid var(--dk-ink); outline-offset: 2px; border-radius: 6px; }
+
+.fo .pp.is-empty { display: flex; align-items: center; gap: 12px; padding-top: 12px; }
+.fo .pp-note { flex: 1; font-size: 15px; color: var(--dk-ink-2); }
+
+.fo .pp button:focus-visible { outline: 2px solid var(--dk-ink); outline-offset: 2px; }
+@media (hover: hover) {
+  .fo .pp-close:hover, .fo .pp-tog:hover:not(.is-on) { background: var(--pp-raised); color: var(--dk-ink); }
+  .fo .pp-step:hover:not(:disabled) { background: var(--pp-on); }
+  .fo .pp-play:hover:not(:disabled):not(.is-on) { background: var(--dk-ink-2); }
+}
+
+/* On the pages: the chosen passage as a wash, the playing bar drawn in the page's own ink (never a colour, DESIGN.md), so
+   it reads on light paper, dimmed paper and the inverted page alike. */
+.fo .u-passage { position: absolute; background: color-mix(in srgb, var(--pg-ink, var(--text)) 9%, transparent); border-radius: 4px; pointer-events: none; }
+.fo .u-playing { position: absolute; border-radius: 4px; background: color-mix(in srgb, var(--pg-ink, var(--text)) 12%, transparent); box-shadow: inset 0 0 0 2px var(--pg-ink, var(--text)); pointer-events: none; }
+.fo .u-playing.is-counting { background: transparent; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--pg-ink, var(--text)) 45%, transparent); }

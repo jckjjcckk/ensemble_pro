@@ -24,12 +24,14 @@
     "@capacitor/status-bar": "^8.0.4",
     "@supabase/supabase-js": "^2.118.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@tonejs/midi": "^2.0.28",
     "motion": "^14.7.1",
     "opensheetmusicdisplay": "^2.2.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router": "^8.5.0",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "tone": "^15.1.22"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",

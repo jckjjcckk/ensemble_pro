@@ -254,6 +254,9 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
     firstBar: s.first_bar ?? undefined, firstBarPage: s.first_bar_page ?? undefined, createdAt: s.created_at,
     flaggedBars: flaggedOf(sourceRows, s.id), unreadable: unreadableOf(interpRows, s.id),
     answered: [...jobRows, ...bookJobRows].filter(r => r.score_id === s.id && r.payload?.resume_from).length,
+    playback: s.playback?.midi && s.playback?.bar_map
+      ? { midi: s.playback.midi, barMap: s.playback.bar_map, parts: s.playback.parts ?? [], madeAt: s.playback.made_at ?? undefined }
+      : undefined,
     ...bookOf(s),
   })).map(sc => ({ ...sc, ...formsOf(scoreRows.find(r => r.id === sc.id)!, sc.book) }))
 
