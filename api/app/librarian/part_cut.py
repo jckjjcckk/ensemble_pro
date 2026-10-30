@@ -4,10 +4,12 @@
 Meta model: **Muse Spark 1.3** through the agent loop (`app.agent.run_agent`): one model call per turn, plus one
 call inside `read_header` (the instrument list from page 1's numbered overlay, `header.py`), one inside `read_page`
 (Spark labels the numbered staff overlay: which staves are each wanted instrument's, per system) and one per block
-inside `commit_system` (Spark re-reads the block alone and names the instrument; it must name one of the block's).
+inside `commit_system` (the closed recheck: Spark sees the block alone and is told what the header's staff order and the page's labels say
+it is, the part, its staff count and clef; it answers yes or no with the clefs it sees; a no, or a seen clef that
+contradicts the header's, refuses the commit; CK 2026-10-28: the open "which instrument is this?" question asked
+about three questions in five choir pages because a lone C-clef staff is ambiguous).
 Geometry and the cut are OpenCV (`cut.py`), no model; the header's staff count drives the staff recovery on every
-page read after it, the header's families set the lyric rule's `voice` / `voice_above` flags per block, and the
-recheck prompt carries the header's clefs for the block (and, for voices, that these are chorus staves).
+page read after it, and the header's families set the lyric rule's `voice` / `voice_above` flags per block.
 
 A part export is a selection of instruments (CK, 2026-10-28): per system the chosen staves are kept together in score
 order as one block when they are adjacent; when the chosen set skips a staff in the middle (soprano and tenor without
@@ -58,7 +60,42 @@ LABEL_PROMPT = """Page {page} of a scanned full score. Every staff has a blue bo
 LABEL_PROMPT_MULTI = """Page {page} of a scanned full score. Every staff has a blue box and a yellow tag with its number ({first}..{last}, top to bottom); grey boxes mark the systems: {systems_desc}. Instruments wanted: {wanted_desc}.
 {header_context}For each system give, for each wanted instrument, the staff numbers that belong to it (empty if its staves are not printed in that system) and whether it is "playing", "resting" or "absent". Return only JSON: {{"systems": [{{"index": 1, "wanted": [{example}]}}], "confidence": "high|medium|low", "notes": ""}}"""
 
-RECHECK_PROMPT = """This image is a block of staves cut from a scanned full score. The left margin may carry the instrument label; otherwise judge from the clefs, brace or bracket and the writing.{context} Which instrument or section is this block? Return only JSON: {{"instrument": "short name", "confidence": "high|medium|low", "why": "one sentence"}}"""
+RECHECK_PROMPT = """This image is a block of staves cut from a scanned full score. {claim} Does this crop look like that: {n} staff{plural}{clef_phrase}, and no staff of another instrument? Judge from the margin label when one is printed, else from the clef{plural}, the brace or bracket and the writing.{voice_hint} Return only JSON: {{"matches": true|false, "staves_seen": {n}, "clefs_seen": ["treble"], "label_seen": "text of any margin label or empty", "why": "one line"}}"""
+
+# Clef names as the header and Spark spell them -> one name. "c" is a C clef of unknown line.
+CLEF_NAMES = {"treble": ("treble", "g", "g clef", "violin", "treble clef"), "bass": ("bass", "f", "f clef", "bass clef"),
+              "soprano": ("soprano", "c1", "soprano clef", "soprano c clef", "discant"), "mezzo-soprano": ("mezzo", "mezzo-soprano", "c2", "mezzo-soprano clef"),
+              "alto": ("alto", "c3", "alto clef", "alto c clef", "viola", "viola clef"), "tenor": ("tenor", "c4", "tenor clef", "tenor c clef"), "baritone": ("baritone", "c5", "baritone clef"),
+              "c": ("c", "c clef", "ut")}
+C_CLEFS = {"soprano", "mezzo-soprano", "alto", "tenor", "baritone", "c"}
+
+
+def clef_name(text: Any) -> str | None:
+    """"Treble clef" -> treble, "C3" -> alto, "C clef" -> c; None for a spelling the table does not know."""
+    t = re.sub(r"[^a-z0-9 -]", "", str(text or "").lower()).strip()
+    t = re.sub(r"\s+", " ", t.replace("8vb", "").replace("octave", "")).strip()
+    for name, syns in CLEF_NAMES.items():
+        if t in syns:
+            return name
+    return None
+
+
+def clefs_fit(seen: list[Any], expected: list[str], voice: bool) -> bool:
+    """Whether the clefs Spark saw can be the header's: nothing seen, an unknown spelling or a generic C clef passes;
+    for a voice any C clef or the treble passes against any C clef or treble (the C clefs are what Spark confuses,
+    and the labels and the header already say which voice it is), so only a bass clef on a soprano, alto or tenor
+    staff, or a C or treble clef on a bass voice, contradicts; for an instrument a known clef must be one of the
+    header's. Contradiction = no seen clef fits."""
+    names = [clef_name(x) for x in seen if str(x or "").strip()]
+    if not names or any(n is None or n == "c" and (not expected or set(expected) & C_CLEFS or voice) for n in names):
+        return True
+    if not expected:
+        return True
+    exp = set(expected)
+    if voice:
+        upper = (exp & C_CLEFS) or ("treble" in exp)
+        return any((n in C_CLEFS or n == "treble") if upper else n == "bass" for n in names)
+    return any(n in exp for n in names)
 
 
 def slug(name: str) -> str:
@@ -202,25 +239,48 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                 above = hdr.at_position(sc["header"], prev_sys, prev_sys["staff_indices"][-1])
         return voice, hdr.is_voice(above) if above else False
 
-    def recheck_context(page: int, system: int, block: list[int]) -> str:
-        """What the header says about the block, for the recheck: the clefs expected on its staves and, for voices,
-        that these are chorus staves with their lyrics underneath and how this edition's voice parts are clefed."""
+    def recheck_claim(page: int, system: int, block: list[int]) -> tuple[dict[str, Any], list[str], bool]:
+        """What the header and the page labels say the block is, for the closed recheck: the prompt fields, the
+        expected clefs (the header's, per staff, when it read them) and whether the block is vocal."""
         insts = block_instruments(page, system, block)
         entries = [header_entry(i) for i in insts]
-        if not any(entries):
-            return ""
-        clefs = [c for e in entries if e for c in (e.get("clefs") or [])]
+        clefs = [clef_name(c) for e in entries if e for c in (e.get("clefs") or []) if clef_name(c) not in (None, "c")]
         voice = any(hdr.is_voice(e, i) for e, i in zip(entries, insts))
+        if voice and not clefs:
+            clefs = [c for i in insts for c in [chorus_clef(i)] if c]
         n = sum(header_staves(i) for i in insts)
-        out = f" According to the score header this block holds {n} staff{'s' if n != 1 else ''}" + (f" in the {', '.join(clefs)} clef{'s' if len(clefs) != 1 else ''}" if clefs else "") + "."
+        names = " and ".join(f"the {(e.get('label') or e.get('name')) if e else i}" + (f" ({i})" if e and not same_instrument(e.get("label") or e.get("name") or "", i) else "")
+                             for e, i in zip(entries, insts))
+        clef_phrase = ""
+        if clefs:
+            clef_phrase = f" in the {' and '.join(dict.fromkeys(clefs))} clef{'s' if len(set(clefs)) != 1 else ''}"
+        claim = (f"According to the score header and the page's staff labels this block is {names}: {n} staff{'s' if n != 1 else ''}{clef_phrase}"
+                 + (" (the header did not read the clef)" if not clefs else "") + ".")
+        voice_hint = ""
         if voice:
-            parts = [f"{e.get('label') or e.get('name')} ({', '.join(e.get('clefs') or []) or 'clef unknown'})"
-                     for e in ((sc["header"] or {}).get("instruments") or []) if hdr.is_voice(e)]
-            out += (" These are voice staves of the chorus: the words under the notes are their lyrics, and the C clefs tell the voices apart"
-                    " (a soprano clef sits on the bottom line, an alto clef on the middle line, a tenor clef on the fourth line from the bottom)."
-                    + (f" The chorus parts in this edition: {'; '.join(parts)}." if parts else "")
-                    + ' Name the voice part, or "chorus" when the block holds several voices.')
-        return out
+            voice_hint = (" These are voice staves of the chorus: the words under the notes are their lyrics. Older editions print the"
+                          " choir in C clefs (a soprano staff in the soprano clef, C on the bottom line; alto in the alto clef, middle line;"
+                          " tenor in the tenor clef, fourth line from the bottom): the part's own C clef, or the treble clef, counts as matching.")
+        fields = {"claim": claim, "n": n, "plural": "s" if n != 1 else "", "clef_phrase": clef_phrase, "voice_hint": voice_hint}
+        return fields, clefs, voice
+
+    def chorus_clef(instrument: str) -> str | None:
+        """The voice's clef when the header lists the choir as one entry ("CORO.", 4 staves, clefs soprano, alto,
+        tenor, bass: Beethoven 9 live header): the clef named after the voice when the entry has it, else by the
+        S A T B order of a four-staff entry."""
+        fam = hdr.family(instrument)
+        if fam not in hdr.VOICES or header_entry(instrument) is not None:
+            return None
+        for e in (sc["header"] or {}).get("instruments") or []:
+            if not hdr.is_voice(e) or int(e.get("staves") or 1) < 2:
+                continue
+            names = [clef_name(c) for c in (e.get("clefs") or [])]
+            if fam in names:
+                return fam
+            order = {"soprano": 0, "alto": 1, "tenor": 2, "bass": 3}
+            if len(names) == 4 and fam in order and names[order[fam]] not in (None, "c"):
+                return names[order[fam]]
+        return None
 
     def want_total() -> int:
         return sum(header_staves(i) for i in instruments)
@@ -270,14 +330,6 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         per = (prop or {}).get("per_instrument") or {}
         found = [i for i in instruments if set(per.get(i) or []) & set(block)]
         return found or list(instruments)
-
-    def names_block(said: str, expected: list[str]) -> bool:
-        """The recheck's name fits the block: one of the block's instruments, or "chorus"/"choir" for a block of voices.
-        Accepting any instrument of the export was tried live (Beethoven 9 S+T run 2) and let a block shifted by one
-        staff through; the strict rule asks the admin instead."""
-        if any(same_instrument(said, i) for i in expected):
-            return True
-        return hdr.family(said) == "chorus" and all(hdr.family(i) in hdr.VOICES for i in expected)
 
     def check_against_labels(page: int, system: int, block: list[int]) -> None:
         """A block must hold exactly the staves the labels put in it: the block's instruments (those whose proposed
@@ -344,14 +396,24 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         rechecks: list[dict] = []
         if recheck:
             for block, crop in zip(blocks, crops):
-                expected = block_instruments(page, system, block)
-                prompt = RECHECK_PROMPT.format(context=recheck_context(page, system, block))
+                fields, expected_clefs, voice = recheck_claim(page, system, block)
+                prompt = RECHECK_PROMPT.format(**fields)
                 said = await ask_model(ctx, c, m, prompt, to_png(crop), max_tokens=RECHECK_MAX_TOKENS)
                 sc["cost_usd"] = sc.get("cost_usd", 0.0) + said.pop("_cost_usd", 0.0)
-                rechecks.append({"block": block, "instrument": said.get("instrument"), "confidence": said.get("confidence"), "why": said.get("why")})
-                if not names_block(str(said.get("instrument", "")), expected):
-                    raise Refusal(f"re-reading the block of staves {block} alone, the model calls it {said.get('instrument')!r}, "
-                                  f"not {' / '.join(expected)!r} ({said.get('why', '')})")
+                matches = said.get("matches")
+                if isinstance(matches, str):
+                    matches = matches.strip().lower() in ("true", "yes", "y")
+                seen = said.get("clefs_seen") if isinstance(said.get("clefs_seen"), list) else ([said["clefs_seen"]] if said.get("clefs_seen") else [])
+                fit = clefs_fit(seen, expected_clefs, voice)
+                verdict = "yes" if matches and fit else ("clef" if matches else "no")
+                rechecks.append({"block": block, "verdict": verdict, "matches": bool(matches), "staves_seen": said.get("staves_seen"),
+                                 "clefs_seen": seen, "label_seen": said.get("label_seen"), "why": said.get("why")})
+                if verdict == "no":
+                    raise Refusal(f"re-reading the block of staves {block} alone against the header ({fields['claim']}), the model says it does not "
+                                  f"match ({said.get('why', '')}; label seen {said.get('label_seen') or 'none'!r}, clefs seen {seen})")
+                if verdict == "clef":
+                    raise Refusal(f"re-reading the block of staves {block} alone, the model sees the {', '.join(str(x) for x in seen)} clef where the header "
+                                  f"expects {' and '.join(expected_clefs)} ({said.get('why', '')})")
         sp = float(sum(s["spacing"] for s in geom["staves"] if s["index"] in staves) / len(staves))
         png = to_png(stack_crops(crops, int(round(STACK_GAP_SPACES * sp))))
         storage_key = f"{score_id}/parts/{part_slug}/p{page:03}-s{system}.png"
@@ -475,6 +537,12 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         given = args.get("blocks") if args.get("blocks") is not None else args.get("staves")
         if given is None:
             raise Refusal('give staves (a list of staff numbers) or blocks (a list of lists), or the string "absent"')
+        if isinstance(given, str) and given.strip().startswith("["):
+            # Claude sometimes serialises an array argument as its JSON text ("[8, 9]") when the schema allows a string.
+            try:
+                given = json.loads(given)
+            except ValueError:
+                raise Refusal('staves must be a non-empty list of staff numbers or "absent"')
         if isinstance(given, str):
             if given.strip().lower() != "absent":
                 raise Refusal('staves must be a non-empty list of staff numbers or "absent"')

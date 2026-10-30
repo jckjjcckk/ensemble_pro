@@ -864,7 +864,6 @@
 .fo .signin-card { width: min(380px, 100%); display: flex; flex-direction: column; gap: 14px; padding: 28px 24px 24px; border-radius: 14px; background: var(--sheet); border: 1px solid var(--sheet-edge); box-shadow: var(--shadow); }
 .fo .signin-mark { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-title); font-weight: var(--title-weight); letter-spacing: var(--title-track); font-size: calc(17px * var(--title-scale)); color: var(--ink); }
 .fo .signin-card h1 { font-family: var(--font-title); font-size: calc(24px * var(--title-scale)); font-weight: var(--title-weight); letter-spacing: var(--title-track); margin-top: 6px; }
-.fo .signin-sub { color: var(--ink-3); font-size: 14px; margin-top: -8px; }
 .fo .field { display: flex; flex-direction: column; gap: 6px; }
 .fo .field > span { font-size: 13px; color: var(--ink-3); }
 .fo .field input { min-height: 46px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--rule-2); background: var(--sheet); font-size: 16px; color: var(--ink); }
@@ -872,7 +871,7 @@
 .fo .field-error { font-size: 14px; color: var(--amber); }
 .fo .signin-go { min-height: 48px; margin-top: 4px; }
 .fo .signin-go:disabled { opacity: 0.6; }
-.fo .signin-note { font-size: 13px; color: var(--ink-3); line-height: 1.4; }
+.fo .signin-create { min-height: 48px; }
 .fo .disp-account { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; padding-top: 10px; border-top: 1px solid var(--rule); }
 .fo .disp-account > span { font-size: 13px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fo .dbtn:disabled { opacity: 0.55; }

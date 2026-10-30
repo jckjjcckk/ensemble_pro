@@ -2,7 +2,7 @@
 # `./install.sh --serve` copies it to ~/.cloudflared/folio.yml with `tunnel:` set to the tunnel's UUID and
 # `credentials-file:` to its JSON, both from `cloudflared tunnel list` on this Mac. By hand:
 #   cloudflared tunnel --config ~/.cloudflared/folio.yml run
-# In dashboard-managed mode (a connector token) this file is not used: the same route (folio-api.jckjjcckk.com ->
+# In dashboard-managed mode (a connector token) this file is not used: the same route (folio-api-dev.jckjjcckk.com ->
 # http://localhost:8000) is the tunnel's public hostname in Zero Trust -> Networks -> Tunnels.
 tunnel: macbook_pro_m4
 credentials-file: ~/.cloudflared/macbook_pro_m4.json
@@ -10,7 +10,7 @@ no-autoupdate: true
 loglevel: info
 
 ingress:
-  - hostname: folio-api.jckjjcckk.com
+  - hostname: folio-api-dev.jckjjcckk.com
     service: http://localhost:8000
     originRequest:
       # OMR and PDF reads can take a while; the default 30 s cuts them off.

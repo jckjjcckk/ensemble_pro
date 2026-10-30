@@ -16,7 +16,7 @@ way musicians will. The web app at `https://folio-app.jckjjcckk.com` stays the p
 - One bridge file, `web/src/lib/native.ts`: camera into the scan screen, the share sheet for Export, the
   status bar's text following the theme, a light haptic on a new page. Every function is a no-op or the web
   path in Safari, and the plugins load with `import()` only inside the shell.
-- The shell talks to the hosted API (`https://folio-api.jckjjcckk.com`, `deploy/README.md`) and the hosted
+- The shell talks to the hosted API (`https://folio-api-stable.jckjjcckk.com`, `deploy/README.md`) and the hosted
   Supabase project; its origin `capacitor://localhost` is in the API's `CORS_ORIGINS`.
 - Still only possible in a wrapper, still not built: a true in-app IMSLP browser with download interception
   (002), share-to-Folio from Files, background audio for practice mode, MIDI over USB without the Mac.

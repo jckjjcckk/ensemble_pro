@@ -3,12 +3,53 @@ import { AnimatePresence } from 'motion/react'
 import { useStore, type DarkPage, type Theme } from './store'
 import { useAuth } from './auth'
 import { Pop, Scrim } from './Sheet'
+import { getMe, ownBudgetSpent, sharedBudgetSpent, type MeBudget } from '../lib/api'
 
 const themes: { id: Theme; label: string }[] = [
   { id: 'system', label: 'Auto' },
   { id: 'light', label: 'Light' },
   { id: 'dark', label: 'Dark' },
 ]
+const usd = (n: number) => `$${n.toFixed(2)}`
+
+/** What is left of the account's own budget for model calls, read from `GET /me` each time the menu opens so it is
+ *  fresh after a job. The shared project cap is never shown; when it stops calls, the API's own sentence says so. */
+function Credit({ open }: { open: boolean }) {
+  const { session } = useAuth()
+  const token = session?.access_token
+  const [budget, setBudget] = useState<MeBudget | null | 'failed'>(null)
+
+  useEffect(() => {
+    if (!open || !token) return
+    let live = true
+    setBudget(null)
+    getMe(token).then(m => { if (live) setBudget(m.budget) }, () => { if (live) setBudget('failed') })
+    return () => { live = false }
+  }, [open, token])
+
+  const b = budget && budget !== 'failed' ? budget : null
+  const left = b ? Math.max(0, b.budget_usd - b.spent_usd) : 0
+  const used = b && b.budget_usd > 0 ? Math.min(1, b.spent_usd / b.budget_usd) : b ? 1 : 0
+  const own = b ? b.spent_usd >= b.budget_usd : false
+  return (
+    <div className="acct-sec" aria-busy={budget === null}>
+      <span className="r3-label" id="acct-credit">Credit</span>
+      {budget === 'failed' ? (
+        <span className="acct-credit-note">The credit could not be checked just now.</span>
+      ) : (
+        <>
+          <span className="acct-credit-left">{b ? <><span className="num">{usd(left)}</span> of <span className="num">{usd(b.budget_usd)}</span> left</> : 'Checking…'}</span>
+          <span className="meter acct-meter" role="meter" aria-labelledby="acct-credit" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(used * 100)}
+            aria-valuetext={b ? `${usd(left)} of ${usd(b.budget_usd)} left` : 'Checking'}>
+            <span style={{ width: `${used * 100}%` }} />
+          </span>
+          {b && !b.can_call_models && <span className="acct-credit-note">{own ? ownBudgetSpent : sharedBudgetSpent}.</span>}
+        </>
+      )}
+    </div>
+  )
+}
+
 const pages: { id: DarkPage; label: string; sub: string }[] = [
   { id: 'dim', label: 'Dimmed paper', sub: 'The page stays paper, turned down for the room' },
   { id: 'invert', label: 'Inverted', sub: 'Light notes on a dark page' },
@@ -59,6 +100,7 @@ export function AccountButton({ className = '' }: { className?: string }) {
             ))}
           </div>
         </div>
+        <Credit open={open} />
         <button type="button" className="r3-btn is-quiet acct-out" onClick={() => signOut()}>Sign out</button>
       </Pop>
     </div>

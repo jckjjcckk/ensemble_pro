@@ -36,6 +36,7 @@ docs/design/explorations/shots/
 
 # voice-note recordings (ground truth CSV is committed)
 api/fixtures/voice/*.m4a
+api/fixtures/voice/audio/
 api/fixtures/voice/*.wav
 api/fixtures/voice/*.mp3
 

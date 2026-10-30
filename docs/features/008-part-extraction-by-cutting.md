@@ -263,17 +263,34 @@ family (defaults keep the old behaviour).
   the system is full, else the header entry printed above the block's first instrument, or the last entry of
   the header when the block opens a system under a full one); the commit records `voices` per block with the
   lyric lines kept or erased.
-- Recheck context (`recheck_context`): the prompt carries what the header says about the block, the staff
-  count and clefs expected there and, for voices, that these are chorus staves with their lyrics underneath,
-  how C clefs tell the voices apart, and this edition's voice parts with their clefs; the rule stays strict
-  (one of the block's instruments or "chorus"). A geometric C-clef reader as a tie-break was tried and
-  dropped (003, "Clef reading by geometry").
+- Recheck, closed since 2026-10-28 late (CK: the open "which instrument is this block?" asked about three
+  questions in five choir pages, a lone C-clef staff being ambiguous between alto and tenor). `recheck_claim`
+  builds the claim from what we already have: the page labels say which wanted part the block's staves are,
+  the header entry gives the part's printed name, staff count and clefs. Spark is asked "according to the
+  header and the labels this block is the CORO Soprano: 1 staff in the soprano clef; does this crop look like
+  that? yes/no, staves seen, clefs seen, label seen, one line why". A no refuses the commit (three in a row
+  park the question as before); a yes whose `clefs_seen` contradicts the header refuses too (`clefs_fit`:
+  nothing seen, an unknown spelling or a generic "C clef" against a C-clef header passes; an instrument's
+  seen clef must be one of the header's; for a voice any C clef or the treble passes against a C-clef or
+  treble header, since the C clefs are exactly what Spark confuses and the labels plus the header already
+  name the voice, so only a bass clef on a soprano, alto or tenor staff, or a C or treble clef on a bass
+  voice, contradicts). The guards before the model call are unchanged (count, labels, geometry verify). The
+  commit records `rechecks: [{block, verdict yes|no|clef, matches, staves_seen, clefs_seen, label_seen,
+  why}]`. A geometric C-clef reader as a tie-break was tried and dropped (003, "Clef reading by geometry").
+  Measured (2026-10-28 late, $0.17): the Soprano-alone run on the local Beethoven 9 chorus score (pages 172
+  to 176) had parked three times with the open question, every time on the soprano block alone ("Coro Alto"
+  from the C clef on p. 174 and 176, "Coro Tenore" on p. 175); with the closed check it ran to `done` with 0
+  questions, 3 systems cut, $0.132 (the three rechecks answered yes, clefs seen "soprano"; this run's label
+  step called pages 173 and 175 absent where the earlier run had found staff 12, a label-step variance, not
+  the recheck's). Replayed over the experiment harness's five soprano crops (`out/piano-cut/beethoven-sym9
+  .../soprano`, $0.037): the open recheck had flagged 2 of 5 ("Alto" on p. 174 and 176), the closed one
+  refuses 0 of 5, clefs seen "soprano" on every crop. When the header lists the choir as one entry ("CORO.",
+  4 staves, clefs S A T B, as the live header read it) the voice's clef comes from that entry (`chorus_clef`).
 - Tools: `read_header` (once, first), `list_pages`, `read_page(page)` (geometry + proposal, overlay uploaded
   to `{score_id}/parts/{slug}/overlay-p{page:03}.png`), `commit_system(page, system, staves | blocks |
   "absent")` (commit: staves exist in the system, total count matches the header's sum over the chosen
-  instruments, the union is split into contiguous blocks, crop verify and Spark recheck per block; the
-  recheck must name one of the block's instruments, `same_instrument` normalises aliases
-  Pno/Pfte/Klavier/Vn/Vcl..., "chorus" passes for a block of voices), `finish` (commit: refuses while any
+  instruments, the union is split into contiguous blocks, crop verify and the closed Spark recheck per block
+  against that block's own header entry), `finish` (commit: refuses while any
   page or system is uncommitted). `max_turns = 8 + 6 x pages` (choir pages have up to 4 systems),
   `max_refusals = 3`.
 - Vocal pairs: in choral writing the barlines stop at each staff and do not cross the lyric gap, so a

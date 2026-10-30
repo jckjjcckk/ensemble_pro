@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, type FormEvent, type Re
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { WORDMARK } from './store'
+import { FolioMark } from './layout'
 
 interface Auth { session: Session | null; ready: boolean; signOut: () => Promise<void> }
 const Ctx = createContext<Auth>({ session: null, ready: false, signOut: async () => {} })
@@ -40,11 +41,10 @@ export function SignIn() {
     <div className="signin">
       <form className="signin-card" onSubmit={submit}>
         <div className="signin-mark" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 18 18"><path d="M3 3.5v11M15 3.5v11M3 3.5h2.6M3 14.5h2.6M15 3.5h-2.6M15 14.5h-2.6" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" /></svg>
+          <FolioMark size={22} />
           <span>{WORDMARK}</span>
         </div>
         <h1>Sign in</h1>
-        <p className="signin-sub">One score for the whole ensemble.</p>
         <label className="field">
           <span>Email</span>
           <input type="email" name="email" autoComplete="username" inputMode="email" autoCapitalize="none" value={email} onChange={e => setEmail(e.target.value)} required />
@@ -55,7 +55,7 @@ export function SignIn() {
         </label>
         {error && <p className="field-error" role="alert">{error}</p>}
         <button type="submit" className="btn btn-solid signin-go" disabled={busy}>{busy ? 'Signing in' : 'Sign in'}</button>
-        <p className="signin-note">Accounts are made by the ensemble's admin. Ask them if you need one.</p>
+        <button type="button" className="btn btn-line signin-create" disabled>Create account</button>
       </form>
     </div>
   )
