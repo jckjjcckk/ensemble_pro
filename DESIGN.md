@@ -31,9 +31,9 @@ OSMD draws black ink; `.osmd svg` is repainted from `--ink` so dark themes inver
 
 ## Colour means one thing
 
-Green means only "following" and the metronome pulse. Amber (oxblood in Bound) means only lost, warnings and failure. Heat is trouble spots and scan warnings. A book's one status dot is yellow (`--ask`) while the librarian has a question and red (`--fail`) when its run failed; a book being read or converted wears a breathing ink ring, never a spinner. Selection, the current bar, the loop tint and cuts are drawn in ink and ink washes, never in a colour.
+Green means only "following" and the metronome pulse. Amber (oxblood in Bound) means only lost, warnings and failure. Heat is trouble spots and scan warnings. A book's one status dot is yellow (`--ask`) while the librarian has a question and red (`--fail`) when its run failed; a book being read, converted or split wears the blue rope, and a question or a failure the same rope in yellow or red (Motion). Selection, the current bar, the loop tint and cuts are drawn in ink and ink washes, never in a colour.
 
-Muse blue (`--muse`, `#0066E8`, from CK's swatch) means only "Muse is listening or proposing": the voice button while it hears you, the ghost of a proposed mark, the ruler tick for one. It never marks anything a person made, and a mark the admin accepts is drawn in ink like any other.
+Muse blue (`--muse`, `#0066E8`, from CK's swatch) means only "Muse is listening, proposing or working": the rope round a book an agent is working on, the voice button while it hears you, the ghost of a proposed mark, the ruler tick for one. It never marks anything a person made, and a mark the admin accepts is drawn in ink like any other.
 
 ## Glass: Muse's material
 
@@ -66,6 +66,8 @@ See the iPad-first rules in PRODUCT.md and the checklist in `docs/acceptance/tou
 ## Motion
 
 One authored moment per screen (the metronome pulse; the drag ghost on scan; the sheet sliding in). Transitions are 120 to 180 ms on an exponential ease-out. `prefers-reduced-motion` removes all of it.
+
+A book's state is drawn on its own edge, in one material: the rope (`Rope.tsx`), fine fibres in place of the card's border. Blue with a light and a fading tail running round it means an agent is working (reading, converting, splitting). Yellow or red, flowing and breathing slowly with no light, means the librarian is waiting for an answer, or the run failed. The rope stays on cards, rows and panels, never over notation; a line of text with no card takes `WorkLoop`, its small form. Waves belong to voice and audio only. Words on the card say the same thing, so colour never carries it alone. With reduced motion the rope is one still frame.
 
 ## Browser surfaces
 

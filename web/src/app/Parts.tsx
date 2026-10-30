@@ -12,6 +12,7 @@ import { fmtDateTime, useStore } from './store'
 import { Sheet } from './Sheet'
 import { StaffQuestion } from './StaffQuestion'
 import { ICheck, IChevronRight, IClose, IExport, IParts, IWarning } from './icons'
+import { Rope, type RopeState } from './Rope'
 import './parts.css'
 
 /** The head of a librarian sheet: title, a line under it, the close button. Children carry `.sheet-body` and `.sheet-foot`. */
@@ -121,6 +122,7 @@ function PickerForm({ score, onClose }: { score: Score; onClose: () => void }) {
   )
 }
 
+const jobRope: Partial<Record<PartJob['status'], RopeState>> = { queued: 'working', running: 'working', needs_review: 'asking', failed: 'failed' }
 const stateWord: Record<PartJob['status'], string> = { queued: 'Queued', running: 'Working', needs_review: 'Waiting for you', done: 'Done', failed: 'Stopped' }
 
 /** A finished split. PDF: its strip of systems. Digital: read it with only these instruments, or export it. */
@@ -198,14 +200,10 @@ export function PartsPanel({ score }: { score: Score }) {
         <ul className="pt-list">
           {strips.map(s => <SplitRow key={s.id} score={score} split={s} twins={strips.filter(x => x.label === s.label).length > 1} />)}
           {jobs.map(j => (
-            <li key={j.id} className="pt-row" aria-live={j.status === 'running' ? 'polite' : undefined}>
+            <li key={j.id} className={`pt-row ${jobRope[j.status] ? 'has-rope' : ''}`} aria-live={j.status === 'running' ? 'polite' : undefined}>
+              {jobRope[j.status] && <Rope state={jobRope[j.status]!} />}
               <span className="pt-name">{partLabel(j.instruments)}</span>
               <span className="pt-state">
-                {(j.status === 'queued' || j.status === 'running') && (
-                  <span className="meter" role="progressbar" aria-valuenow={Math.round(j.progress * 100)} aria-valuemin={0} aria-valuemax={100} aria-label="Splitting">
-                    <span style={{ width: `${Math.round(j.progress * 100)}%` }} />
-                  </span>
-                )}
                 {j.status === 'failed' && <IWarning size={15} />}
                 {j.status === 'queued' && j.resumed ? 'Resuming' : stateWord[j.status]}
               </span>

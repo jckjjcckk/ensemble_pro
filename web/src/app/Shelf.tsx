@@ -18,7 +18,8 @@ import { BookSheet } from './BookSheet'
 import { GroupsDialog, codeWords } from './GroupsDialog'
 import { BottomSheet, Confirm } from './Surfaces'
 import { SPRING_LAYOUT } from './Sheet'
-import { bookShare, bookState, dotOf, type BookShare, type BookState } from './book'
+import { bookShare, bookState, dotOf, ropeOf, type BookShare, type BookState } from './book'
+import { Rope } from './Rope'
 import { useStore, type Context } from './store'
 import { IClose, IWarning } from './icons'
 
@@ -253,20 +254,23 @@ function BookCard({ score: s, state, share, selected, onOpen, owner }: {
 }) {
   const reduced = useReducedMotion()
   const dot = dotOf(state)
+  const rope = ropeOf(state)
   const shared = !owner && share.sharedWith.length > 0
   // A split or conversion at work, in a line: what, then where it stands or that it waits.
   const job = state.split ?? state.convert
   const jobLine = job ? `${job.kind === 'part_cut' ? 'Splitting' : 'Converting'} · ${job.state === 'needs_review' ? 'needs you' : job.state === 'queued' ? (job.resuming ? 'resuming' : 'queued') : job.detail.charAt(0).toLowerCase() + job.detail.slice(1)}` : null
+  // No job line to say it: the foot does, so the words are never missing and never said twice.
+  const word = jobLine ? null : state.asking ? 'Needs your confirmation' : state.busy ? 'Digitalising' : null
   const said = [
     s.composer, s.title, state.kinds.map(k => kindWord[k]).join(' and '),
     s.bars ? `${s.bars} bars` : '', owner ? `${owner === 'Yours' ? 'your book' : `from ${owner}`}` : '',
-    state.busy === 'converting' ? 'converting to Digital' : state.busy ? 'being read' : '', jobLine ?? '',
-    dot === 'ask' ? 'needs your confirmation' : dot === 'fail' ? `import failed: ${oneLine(state.failed ?? '')}` : '',
+    state.busy === 'reading' ? 'being read' : state.busy && job?.kind !== 'omr_convert' ? 'converting to Digital' : '', jobLine ?? '',
+    dot === 'ask' ? (job?.state === 'needs_review' ? '' : 'needs your confirmation') : dot === 'fail' ? `import failed: ${oneLine(state.failed ?? '')}` : '',
     shared ? 'shared with a group' : '',
   ].filter(Boolean).join(', ')
   return (
     <motion.button
-      type="button" className={`card ${owner ? 'is-row' : ''}`} onClick={onOpen} aria-label={said} aria-haspopup="dialog"
+      type="button" className={`card ${owner ? 'is-row' : ''} ${rope ? 'has-rope' : ''}`} onClick={onOpen} aria-label={said} aria-haspopup="dialog"
       initial={false} animate={reduced ? undefined : { y: selected ? -3 : 0 }} transition={SPRING_LAYOUT}
       whileTap={reduced ? undefined : { scale: 0.985 }}
     >
@@ -275,7 +279,7 @@ function BookCard({ score: s, state, share, selected, onOpen, owner }: {
       <span className="grow" />
       <MiniStaff score={s} />
       <span className="card-foot">
-        <span>{owner ?? (s.bars ? `${s.bars.toLocaleString('en')} bars` : '—')}</span>
+        <span>{word ?? owner ?? (s.bars ? `${s.bars.toLocaleString('en')} bars` : '—')}</span>
         <span className="card-tags">
           {shared && <span className="card-shared" aria-hidden="true" />}
           {state.kinds.map(k => <span key={k} className="r3-tag">{kindWord[k]}</span>)}
@@ -283,8 +287,7 @@ function BookCard({ score: s, state, share, selected, onOpen, owner }: {
       </span>
       {dot === 'fail' && state.failed && <span className="card-fail">{oneLine(state.failed)}</span>}
       {jobLine && <span className="card-live" aria-hidden="true">{jobLine}</span>}
-      {(state.busy || job?.state === 'running' || job?.state === 'queued') && !dot && <span className="card-ring" aria-hidden="true" />}
-      {dot && <span className={`card-dot is-${dot}`} aria-hidden="true" />}
+      {rope && <Rope state={rope} />}
     </motion.button>
   )
 }

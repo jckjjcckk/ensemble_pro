@@ -17,6 +17,7 @@ import { ShareSheet } from './Groups'
 import { placeOf, IStand } from './layout'
 import { EASE_OUT } from './Sheet'
 import { liveWord, type BookShare, type BookState, type LiveJob } from './book'
+import { Rope } from './Rope'
 import { fmtDateTime, useStore } from './store'
 
 const kindWord = { pdf: 'PDF', digital: 'Digital' } as const
@@ -166,8 +167,8 @@ function Body({ score: s, state: st, share, onClose, onAsk, onConvert, convertMs
         ) : st.convert ? (
           <JobTile job={st.convert} wide={!splitTile} canAnswer={canEdit} onOpen={() => { if (st.convert!.ask && canEdit) onAsk(st.convert!.ask) }} />
         ) : canConvert && (
-          <button type="button" className={`bs-tile ${splitTile ? '' : 'is-wide'} ${st.busy === 'converting' ? 'is-busy' : ''}`} disabled={!!st.busy} onClick={onConvert}>
-            {st.busy === 'converting' ? <span className="r3-ring" aria-hidden="true" /> : <IConvert />}
+          <button type="button" className={`bs-tile ${splitTile ? '' : 'is-wide'} ${st.busy === 'converting' ? 'is-busy has-rope' : ''}`} disabled={!!st.busy} onClick={onConvert}>
+            {st.busy === 'converting' ? <Rope state="working" /> : <IConvert />}
             <span className="bs-tile-text">
               <b>{st.busy === 'converting' ? 'Converting to Digital' : 'Convert to Digital'}</b>
               <span>{st.busy === 'converting' ? 'Starting' : s.pages ? `About ${convertMinutes(s.pages)} minutes for ${s.pages} ${s.pages === 1 ? 'page' : 'pages'}` : 'About a minute a page'}</span>
@@ -229,8 +230,8 @@ function StateLine({ score: s, state: st, canEdit, borrowed, onAsk }: { score: S
   const navigate = useNavigate()
   if (st.asking) {
     return (
-      <div className="bs-state is-ask">
-        <span className="card-dot is-ask is-inline" aria-hidden="true" />
+      <div className="bs-state is-ask has-rope">
+        <Rope state="asking" />
         <span className="bs-state-text"><b>The librarian has a question</b>{st.question && <span>{st.question.split('?')[0]}?</span>}</span>
         {st.ask && canEdit
           ? <button type="button" className="r3-btn is-solid" onClick={() => onAsk(st.ask!)}>Answer</button>
@@ -240,8 +241,8 @@ function StateLine({ score: s, state: st, canEdit, borrowed, onAsk }: { score: S
   }
   if (st.busy === 'reading') {
     return (
-      <div className="bs-state">
-        <span className="r3-ring" aria-hidden="true" />
+      <div className="bs-state has-rope">
+        <Rope state="working" />
         <span className="bs-state-text"><b>Digitalising in progress</b><span>{s.book === 'digital' ? 'Reading the file. The parts appear when it finishes.' : 'The librarian is reading the pages. It asks here if a page cannot be placed.'}</span></span>
       </div>
     )
@@ -249,8 +250,8 @@ function StateLine({ score: s, state: st, canEdit, borrowed, onAsk }: { score: S
   if (st.failed) {
     const camera = s.pageSource?.kind === 'images'
     return (
-      <div className="bs-state is-fail">
-        <span className="card-dot is-fail is-inline" aria-hidden="true" />
+      <div className="bs-state is-fail has-rope">
+        <Rope state="failed" />
         <span className="bs-state-text"><b>{s.status === 'failed' ? 'Reading stopped' : 'The conversion stopped'}</b><span>{st.failed}</span></span>
         {s.status === 'failed' && camera && !borrowed && <button type="button" className="r3-btn is-line" onClick={() => navigate('/scan')}>Rescan</button>}
       </div>
@@ -274,16 +275,15 @@ function JobTile({ job: j, wide, canAnswer, onOpen }: { job: LiveJob; wide: bool
   const asks = j.state === 'needs_review'
   return (
     <button
-      type="button" className={`bs-tile is-job ${wide ? 'is-wide' : ''} ${asks ? 'is-ask' : ''}`} onClick={onOpen} aria-haspopup="dialog"
+      type="button" className={`bs-tile is-job has-rope ${wide ? 'is-wide' : ''} ${asks ? 'is-ask' : ''}`} onClick={onOpen} aria-haspopup="dialog"
       aria-label={`${j.what}. ${word}. ${j.detail}`}
     >
-      {asks ? <span className="card-dot is-ask is-inline" aria-hidden="true" /> : <span className="r3-ring" aria-hidden="true" />}
+      <Rope state={asks ? 'asking' : 'working'} />
       <span className="bs-tile-text">
         <b>{j.what}</b>
         <span aria-live="polite">{j.detail}</span>
       </span>
       <span className={`bs-job-word ${asks ? 'is-ask' : ''}`}>{word}</span>
-      {j.state === 'running' && j.progress > 0 && <span className="bs-job-meter" aria-hidden="true"><span style={{ width: `${Math.round(Math.min(1, j.progress) * 100)}%` }} /></span>}
     </button>
   )
 }

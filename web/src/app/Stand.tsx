@@ -37,6 +37,7 @@ import { PickHint, VoiceButton, VoiceGhosts, VoiceTray } from './VoiceNotes'
 import { PlayParts, usePlayState, type PlayHead } from './PlayParts'
 import { ApiError, apiFailure, convertToDigital } from '../lib/api'
 import { liveWord, type BookState } from './book'
+import { WorkLoop } from './Rope'
 
 type Tool = null | 'marking' | 'cut' | 'voice'
 
@@ -480,7 +481,7 @@ export default function Stand({ score, pages, strip: stripId }: { score: Score; 
                 <span className="card-dot is-ask is-inline" aria-hidden="true" />The librarian has a question
               </button>
             )}
-            {!st.asking && st.busy && <div role="menuitem" aria-disabled="true" className="sm-item is-status"><span className="r3-ring" aria-hidden="true" />Digitalising in progress</div>}
+            {!st.asking && st.busy && <div role="menuitem" aria-disabled="true" className="sm-item is-status"><WorkLoop />Digitalising in progress</div>}
             {!st.asking && !st.busy && st.failed && <div role="menuitem" aria-disabled="true" className="sm-item is-status"><span className="card-dot is-fail is-inline" aria-hidden="true" />{score.status === 'failed' ? 'Reading stopped' : 'The conversion stopped'}</div>}
             {st.hasPdf && st.digitalReady && (
               <button type="button" role="menuitem" className="sm-item" onClick={() => { setMoreOpen(false); navigate(pages ? `/score/${score.id}` : `/score/${score.id}/pages`, { replace: true }) }}>

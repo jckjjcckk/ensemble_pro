@@ -1,6 +1,6 @@
 /** Voice notes on the Stand (013): the push-to-talk button, the tray of proposed marks, and their ghosts on the page.
  *  Only the admin who leads the layer on screen sees any of it (players never receive proposed rows). Muse blue
- *  (`--muse`) appears here and nowhere else: it means Muse is listening or proposing. Glass values from
+ *  (`--muse`) means Muse is listening or proposing (and, as the rope in Rope.tsx, working on a book). Glass values from
  *  docs/design liquid_glass M5_GlassSurface (frost, rim, the lit-from-inside glow driven by `--level`, the wash). */
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
