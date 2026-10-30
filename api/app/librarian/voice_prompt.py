@@ -6,7 +6,8 @@ bars inside the score, the audience a known part, member or the ensemble. The ad
 
 The facts carry the book's groups (`derive_groups`, from the part names: strings, voices, woodwinds, brass,
 percussion, keyboard; a concerto is a Soloist plus the Orchestra), which the exclusion rule refers to (prompt v4e,
-docs/features/013-v4e-eval.md part b).
+docs/features/013-v4e-eval.md part b), and its landmarks (`landmarks.py`: key and meter changes, tempo words, double
+bars, repeats, coda, segno, fine, section titles, each at its bar), which a place named from one resolves to (part a).
 """
 
 from __future__ import annotations
@@ -86,6 +87,46 @@ def derive_groups(parts: list[str]) -> list[tuple[str, list[str]]]:
     return out
 
 
+# ---------- the book's landmarks (v4e part a) ----------
+
+TRANSIENT_TEMPO = re.compile(r"\b(rit|ritard|ritardando|riten|ritenuto|rall|rallentando|accel|accelerando|stringendo|"
+                             r"allargando|smorz|smorzando|calando|morendo|slentando)\b", re.I)
+MAX_LANDMARK_LINES = 60
+
+
+def landmark_lines(landmarks: list[dict], bar_last: int) -> list[str]:
+    """The landmarks as the facts say them. A boundary is "between bars N and N+1" (the eval's lm15: "double bar after
+    bar 150" made "the bar before the double bar" 149). A tempo heading runs to the bar before the next heading, or the
+    end ("Adagio bars 121-160"); a rit. or accel. is just where it is printed. A coda runs to the end. Rehearsal letters
+    are on their own line already."""
+    lms = sorted((d for d in landmarks if isinstance(d, dict) and isinstance(d.get("bar"), int)), key=lambda d: d["bar"])
+    heads = [d["bar"] for d in lms if d.get("kind") == "tempo" and not TRANSIENT_TEMPO.search(d.get("label") or "")]
+    out: list[str] = []
+    for d in lms:
+        kind, label, bar, after = d.get("kind"), (d.get("label") or "").strip(), d["bar"], d.get("bar_after")
+        where = f"between bars {bar} and {after}" if isinstance(after, int) else f"at bar {bar}"
+        if kind == "rehearsal":
+            continue
+        if kind == "key_change":
+            line = f"key change {where}" + (f" ({label})" if label else "")
+        elif kind == "meter_change":
+            line = f"meter change {where}" + (f" ({label})" if label else "")
+        elif kind == "tempo" and not TRANSIENT_TEMPO.search(label):
+            end = next((h - 1 for h in heads if h > bar), bar_last)
+            line = f"{label} bars {bar}-{end}" if end > bar else f"{label} at bar {bar}"
+        elif kind == "double_bar":
+            line = f"double bar {where}"
+        elif kind == "segno":
+            line = f"segno {where}"
+        elif kind == "coda" and re.fullmatch(r"(the\s+)?coda\.?", label, re.I):
+            line = f"coda bars {bar}-{bar_last}" if bar_last > bar else f"coda at bar {bar}"
+        else:                                   # tempo change words, repeats, To Coda, Fine, D.C., section titles
+            line = f"{label} {where}"
+        if line not in out:
+            out.append(line)
+    return out[:MAX_LANDMARK_LINES]
+
+
 @dataclass(frozen=True)
 class ScoreFacts:
     parts: list[str]
@@ -95,12 +136,17 @@ class ScoreFacts:
     rehearsal_marks: list[str] = field(default_factory=lambda: list("ABCDEF"))
     # None: the line is left out (the eval prompts before v4e); the app always passes a list (`derive_groups`).
     groups: list[tuple[str, list[str]]] | None = None
+    # `landmarks.py` dicts; None leaves the line out (the eval prompts before v4e), [] says "none listed".
+    landmarks: list[dict] | None = None
 
     def as_text(self) -> str:
         out = (f"Parts: {', '.join(self.parts) or 'none named'}.\n"
                f"Members (players addressed by name): {', '.join(self.members) or 'none'}.\n"
                f"Bars: {self.bar_first} to {self.bar_last}.\n"
                f"Rehearsal letters: {', '.join(self.rehearsal_marks) or 'none'}.")
+        if self.landmarks is not None:
+            lines = landmark_lines(self.landmarks, self.bar_last)
+            out += "\nLandmarks: " + ("; ".join(lines) if lines else "none listed") + "."
         if self.groups:
             out += "\nGroups: " + " ".join(f"{g}: {', '.join(ps)}." for g, ps in self.groups)
         return out
@@ -181,7 +227,8 @@ def checked_marks(answer: object, transcript: str, facts: ScoreFacts) -> tuple[l
 
 
 # ---------- the prompt (eval version v4, chosen 2026-10-29; v4d rule edits 2026-10-30: flow marks and roster
-# scope, docs/features/013-text-eval.md; v4e 2026-10-30: the book's groups, docs/features/013-v4e-eval.md) ----------
+# scope, docs/features/013-text-eval.md; v4e 2026-10-30: the book's landmarks and
+# groups, docs/features/013-v4e-eval.md) ----------
 
 SYSTEM = ("You turn a conductor's spoken rehearsal instruction into proposed marks on the players' parts. "
           "Answer with JSON only.")
@@ -201,7 +248,10 @@ RULES = """Rules:
 - position: "bar" for one bar (bar_to = bar_from) or two adjacent bars named as one place (a pickup into bar 81 is
   bar_from 80, bar_to 81); "range" for "from X to Y" (bar_to = Y, or null for "to the end"); "mark" when the place
   is a landmark the score must resolve: a rehearsal letter, a double bar, a key change, a coda, a section (bars
-  null, name the landmark in text); "global" for the whole piece or its very beginning or end (bars null).
+  null, name the landmark in text); "global" for the whole piece or its very beginning or end (bars null). When the score facts list a
+  landmark with its bars, a place named from it resolves to bars ("two after the key change", "the bar
+  before the double bar", "from the coda", "in the slow section"): use "bar" or "range"; a landmark the
+  facts do not list stays "mark".
 - audience: "ensemble" when everyone is meant (the whole group, the whole choir, tutti) or nobody is named. Seat nicknames: firsts = Violin I, seconds =
   Violin II, fiddles = both violin parts. When the speaker excludes a part ("everyone except X", "everyone else",
   "all but X"), list every other part of the widest group in the score facts that holds X (or of the group the

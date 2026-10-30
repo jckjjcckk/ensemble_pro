@@ -171,7 +171,12 @@ GROUPS_V4E_NEW = """list every other part of the widest group in the score facts
   speaker names: "strings except the cellos"), never parts of another group; a soloist alone in its group
   is excluded from the Orchestra ("everyone but the piano" = every Orchestra part). A group the speaker
   names ("the strings", "the orchestra") is every part listed in it."""
-V4E_EDITS = [(GROUPS_V4E_OLD, GROUPS_V4E_NEW)]
+LANDMARKS_V4E_OLD = '"global" for the whole piece or its very beginning or end (bars null).'
+LANDMARKS_V4E_NEW = ('"global" for the whole piece or its very beginning or end (bars null). When the score facts list a\n'
+                     '  landmark with its bars, a place named from it resolves to bars ("two after the key change", "the bar\n'
+                     '  before the double bar", "from the coda", "in the slow section"): use "bar" or "range"; a landmark the\n'
+                     '  facts do not list stays "mark".')
+V4E_EDITS = [(LANDMARKS_V4E_OLD, LANDMARKS_V4E_NEW), (GROUPS_V4E_OLD, GROUPS_V4E_NEW)]
 
 RULES_V4E = RULES_V4D
 for _old, _new in V4E_EDITS:
