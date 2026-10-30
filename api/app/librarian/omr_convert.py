@@ -45,7 +45,8 @@ Steps:
      (a re-run replaces the file and updates the same row). The file is read back through the import's own
      `book_facts`: `measures` rows (upsert, never delete); `parts` rows as the import writes them when the book has
      none, else the book's own part names are kept (positionally, when the counts agree) and only their
-     `storage_path` moves to the digital file; score facts only where the score has none: key, meter, bars, pages,
+     `storage_path` moves to the digital file; the file's landmarks (`landmarks.from_musicxml`) replace the ones page
+     reading found in `scores.landmarks`; score facts only where the score has none: key, meter, bars, pages,
      and from the front-matter form composer, work (the opus) and tempo (the metronome Spark read from the heading;
      Audiveris's unchecked marks are still never taken). `status`, `progress` and `current_interpretation_id` are not
      touched. Last, `engrave_step` draws the pages (engrave.py).
@@ -72,7 +73,7 @@ from music21 import converter, stream
 from PIL import Image
 
 from ..llm import _client as default_client, model_name as default_model
-from . import Job, JobContext, handler
+from . import Job, JobContext, handler, landmarks
 from .engrave import SshEngraver, engrave_step
 from .import_musicxml import book_facts, part_groups, write_measures, write_parts
 from .musicxml_fix import PageLayout, fix_musicxml
@@ -403,6 +404,8 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
     elif not existing:
         write_parts(ctx.db, score_id, f["groups"], path)
     write_measures(ctx.db, score_id, f["numbers"])
+    # The digital version's landmarks replace the ones page reading found (013 v4e: the MusicXML is the record).
+    landmarks.save(ctx.db, score_id, f["landmarks"], "musicxml")
     # Facts only where the score has none. Tempo comes from the metronome Spark read in the heading, never from an
     # unchecked Audiveris mark (the Goldberg Aria prints none and Audiveris once gave 72).
     mm = form.get("metronome") or {}

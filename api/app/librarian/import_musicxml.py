@@ -7,6 +7,8 @@ tempo, duration, pages estimate). Parts are named by `part_groups`, which `part_
 density heuristic until the `brief` job (Spark) replaces it. `book_facts`, `write_parts` and `write_measures` are
 shared with Convert to Digital (`omr_convert`, feature 005), so a transcribed book is read the way an imported one is.
 The pages are then engraved by MuseScore on the box (`engrave_step`, both layouts, best effort) before the book is ready.
+The book's landmarks (key and meter changes, tempo words, double bars, repeats, coda, segno, fine, section titles,
+rehearsal marks; `landmarks.from_musicxml`, no model) go to `scores.landmarks` for the voice-note prompt (013 v4e).
 """
 from __future__ import annotations
 
@@ -17,6 +19,7 @@ from typing import Any
 from music21 import converter, key as m21key, meter as m21meter, stream, tempo as m21tempo
 
 from . import Job, JobContext, handler
+from . import landmarks
 from .engrave import engrave_step
 from .signature import canonical_key, canonical_meter
 
@@ -74,7 +77,7 @@ def difficulty_of(parts) -> int:
 def book_facts(s) -> dict[str, Any]:
     """What a parsed MusicXML says about its book: the parts as the app names them (`part_groups`), the measure
     numbers, and the score facts in canonical form (key, meter, tempo, duration, a pages estimate, title, composer,
-    movement). Shared by the import (Path A) and Convert to Digital (`omr_convert`, feature 005)."""
+    movement), and the landmarks it prints (`landmarks.from_musicxml`). Shared by the import (Path A) and Convert to Digital (`omr_convert`, feature 005)."""
     groups = part_groups(s)
     p0 = s.parts[0]
     measures = list(p0.getElementsByClass("Measure"))
@@ -90,6 +93,10 @@ def book_facts(s) -> dict[str, Any]:
     bpm = int(mm[0].number) if mm and mm[0].number else None
     quarters = float(s.highestTime or 0)
     md = s.metadata
+    try:
+        marks = landmarks.from_musicxml(s)
+    except Exception:  # noqa: BLE001  (a landmark the reader trips on never fails the import)
+        marks = []
     return {
         "groups": groups, "names": [n for n, _ in groups], "numbers": numbers,
         "key_sig": canonical_key(ks[0].asKey(mode).name) if ks else None,
@@ -98,6 +105,7 @@ def book_facts(s) -> dict[str, Any]:
         "pages": max(1, round(len(measures) / 24)),
         "title": (md.title or "").strip() if md else "", "composer": (md.composer or "").strip() if md else "",
         "movement": (md.movementName or "").strip() if md else "",
+        "landmarks": marks,
     }
 
 
@@ -143,12 +151,15 @@ async def import_musicxml(job: Job, ctx: JobContext, *, engraver: Any = None) ->
 
     await ctx.progress(0.7, f"Writing {len(numbers)} measures")
     write_measures(ctx.db, score_id, numbers)
+    landmarks.save(ctx.db, score_id, f["landmarks"], "musicxml")
 
     summary = {
         "pages": None, "systems": None, "measures": len(numbers), "first_measure": numbers[0] if numbers else None,
         "title": title, "composer": composer, "movement": movement, "parts": names,
         "flagged": {"pages_unreadable": 0, "bars_doubtful": 0},
-        "log": [f"Read {len(names)} parts and {len(numbers)} measures from MusicXML"],
+        "landmarks": len(f["landmarks"]),
+        "log": [f"Read {len(names)} parts and {len(numbers)} measures from MusicXML"]
+               + ([f"{len(f['landmarks'])} landmarks (key and meter changes, tempo words, double bars, repeats, signs)"] if f["landmarks"] else []),
     }
     ctx.db.table("interpretations").update({
         "status": "done", "summary": summary, "latency_ms": int((time.time() - t0) * 1000), "finished_at": ctx.now(),

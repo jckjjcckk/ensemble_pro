@@ -215,6 +215,9 @@ async def test_import_engraves_before_the_book_is_ready():
     out = await import_musicxml(j, StoreCtx(j, db, {}), engraver=box)
     assert out["engraving"]["ok"] and [r["layout"] for r in box.runs] == ["display", "original"]
     assert db.rows["scores"][0]["status"] == "ready"
+    # 013 v4e: the quartet's landmarks are on the score row for the voice prompt (music21, no model)
+    assert db.rows["scores"][0]["landmarks"] == [{"kind": "repeat", "label": "end repeat", "bar": 114, "bar_after": 115,
+                                                   "source": "musicxml"}]
     rows = [r for r in db.rows["sources"] if r["kind"] == KIND]
     assert len(rows) == 2 and all(r["meta"]["source_id"] == "x1" for r in rows)
     # The fake positions name 32 bars; the quartet's numbers run to 313, so every ordinal joins a number.
