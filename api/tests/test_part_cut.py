@@ -602,3 +602,121 @@ async def test_recheck_claim_takes_the_voice_clef_from_a_one_entry_chorus():
     assert out["systems_cut"] == 1
     prompt = t.calls[5]["messages"][0]["content"][1]["text"]
     assert "this block is the Tenor: 1 staff in the tenor clef." in prompt and "voice staves of the chorus" in prompt
+
+
+# ---------------------------------------------------------------- the book's label memory (006 agentic memory rule)
+
+KLAV_HEADER = text(json.dumps({"instruments": [{"label": "Flöten", "staves": 1}, {"label": "Oboen", "staves": 1}, {"label": "Hörner", "staves": 1},
+                                               {"label": "Klavier", "staves": 2}, {"label": "Violine I", "staves": 1}], "key": "C major", "time": "4/4"}))
+
+
+def label_margin(margins: list[tuple[str, list[int]]], wanted: list[int] | None = None):
+    """The label reply with the printed margin labels Spark read on system 1."""
+    return text(json.dumps({"systems": [{"index": 1, "wanted_staves": [4, 5] if wanted is None else wanted, "status": "playing",
+                                         "margin_labels": [{"text": t, "staves": s} for t, s in margins]}], "confidence": "high"}))
+
+
+def doubt(label: str):
+    """The recheck of PC3 p. 2 and 3 (2026-10-30): the label is read right, the crop is doubted for neighbour ink."""
+    return text(json.dumps({"matches": False, "staves_seen": 3, "clefs_seen": ["treble", "bass"], "label_seen": label,
+                            "why": f"{label} brace shows treble and bass but notes from the staff above intrude at the top edge"}))
+
+
+@pytest.mark.asyncio
+async def test_the_header_seeds_the_memory_and_a_known_label_outweighs_the_crops_doubts():
+    """The book's first page reads "Klavier"; page 2 prints "Klav.". Both pages' rechecks doubt the crop (neighbour
+    ink) while reading the label right: the label the memory knows settles both, no question."""
+    script = [tool("read_header", {}), KLAV_HEADER,
+              tool("read_page", {"page": 1}), label_margin([("Flöten", [1]), ("Klavier", [4, 5])]), commit(1, [4, 5]), doubt("Klavier"),
+              tool("read_page", {"page": 2}), label_margin([("Fl.", [1]), ("Klav.", [4, 5])]), commit(2, [4, 5]), doubt("Klav."),
+              tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(2)
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 2 and out["questions"] == 0 and ctx.result["agent"]["refusals"] == {}
+    sc = ctx.result["agent"]["scratch"]
+    assert [sc["commits"][k]["rechecks"][0]["verdict"] for k in ("1:1", "2:1")] == ["label", "label"]
+    assert sc["pages"]["2"]["proposal"][0]["remembered"]["Piano"] == {"staves": [4, 5], "label": "Klav.", "source": "model", "origin": "header", "page": 1}
+    page2_prompt = t.calls[7]["messages"][0]["content"][1]["text"]
+    assert 'Known labels in this book: "Klavier" is Piano (read from the first page)' in page2_prompt
+    mem = db.rows["scores"][0]["label_memory"]["entries"]
+    assert mem["klavier"]["part"] == "Piano" and mem["klavier"]["source"] == "model"
+    interp = [r for r in db.rows["interpretations"] if r.get("engine") == "part-cut-agent"][0]
+    assert interp["summary"]["settled_by_memory"] == 2
+
+
+@pytest.mark.asyncio
+async def test_a_human_answer_is_remembered_for_the_later_pages():
+    """Page 1's margin is bare to the label read, so the doubting recheck parks the run; the admin answers [4, 5]. The
+    label the recheck saw on that block ("Klavier") is remembered as the admin's; page 2 prints "Klav.", which
+    resolves to it, so page 2 is committed with no recheck and no second question: one question for the book."""
+    script = [tool("read_header", {}), KLAV_HEADER, tool("read_page", {"page": 1}), label_margin([]),
+              commit(1, [4, 5]), doubt("Klavier"), commit(1, [4, 5]), doubt("Klavier"), commit(1, [4, 5]), doubt("Klavier")]
+    client, t = fake_client(script)
+    job, ctx, db = world(2)
+    out = await part_cut(job, ctx, client=client)
+    assert out["question_payload"]["kind"] == "choose_staves" and out["question_payload"]["page"] == 1
+    assert {"label": "Klavier", "part": "Piano", "source": "model", "origin": "header", "page": 1} in out["question_payload"]["known_labels"]
+    db.rows["jobs"][-1]["result"] = out
+    client2, t2 = fake_client([tool("read_page", {"page": 2}), label_margin([("Klav.", [4, 5])]), commit(2, [4, 5]), tool("finish", {})])
+    job2, ctx2, _ = world(2, {"answer": {"staves": [4, 5]}, "resume_from": job.id}, db=db)
+    out2 = await part_cut(job2, ctx2, client=client2)
+    assert out2["systems_cut"] == 2 and out2["questions"] == 1                     # at most one question for the two pages
+    assert len(t2.calls) == 4                                                       # page 2: no recheck call at all
+    assert "Remembered for the later pages: 'Klavier' is Piano" in t2.calls[0]["messages"][-1]["content"]
+    sc = ctx2.result["agent"]["scratch"]
+    assert sc["commits"]["2:1"]["rechecks"] == [{"block": [4, 5], "verdict": "remembered", "source": "human", "labels": ["Klav."], "pages": [1]}]
+    mem = db.rows["scores"][0]["label_memory"]["entries"]
+    assert mem["klavier"]["source"] == "human" and mem["klavier"]["origin"] == "answer" and mem["klavier"]["page"] == 1 and mem["klavier"]["job_id"] == job2.id
+    assert 'Known labels in this book: "Klavier" is Piano (confirmed by the user on page 1)' in t2.calls[1]["messages"][0]["content"][1]["text"]
+
+
+@pytest.mark.asyncio
+async def test_a_new_label_still_asks():
+    """A label the memory does not know ("Org." for the wanted Piano) settles nothing: three doubting rechecks park
+    the run with the question as before, and nothing is learned from the model."""
+    script = [tool("read_header", {}), KLAV_HEADER, tool("read_page", {"page": 1}), label_margin([("Org.", [4, 5])]),
+              commit(1, [4, 5]), doubt("Org."), commit(1, [4, 5]), doubt("Org."), commit(1, [4, 5]), doubt("Org.")]
+    client, t = fake_client(script)
+    job, ctx, db = world(1)
+    out = await part_cut(job, ctx, client=client)
+    assert out["question_payload"]["kind"] == "choose_staves" and "remembered" not in ctx.result["agent"]["scratch"]["pages"]["1"]["proposal"][0]
+    assert "org" not in db.rows["scores"][0]["label_memory"]["entries"]
+
+
+@pytest.mark.asyncio
+async def test_a_human_memory_settles_only_where_the_page_agrees():
+    """The admin confirmed "Klav." earlier (in the row); on this page the label read puts "Klav." on [3, 4] while the
+    wanted-staves read says [4, 5]: the two reads disagree, nothing is settled, and the recheck runs as usual."""
+    script = [tool("read_header", {}), KLAV_HEADER, tool("read_page", {"page": 1}), label_margin([("Klav.", [3, 4])]),
+              commit(1, [4, 5]), RECHECK_PIANO, tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(1)
+    db.rows["scores"][0]["label_memory"] = {"entries": {"klav": {"label": "Klav.", "part": "Piano", "source": "human", "origin": "answer", "page": 7}}}
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1 and len(t.calls) == 7
+    prop = ctx.result["agent"]["scratch"]["pages"]["1"]["proposal"][0]
+    assert "remembered" not in prop and prop["label_conflicts"] == [{"instrument": "Piano", "label": "Klav.", "label_staves": [3, 4], "proposed": [4, 5]}]
+    assert ctx.result["agent"]["scratch"]["commits"]["1:1"]["rechecks"][0]["verdict"] == "yes"
+
+
+@pytest.mark.asyncio
+async def test_the_cut_reuses_the_books_header():
+    """The book's first reading (process_pages, 004) already holds the header: read_header makes no model call."""
+    book = {"page": 1, "expected_staves": 6, "instruments": [
+        {"position": 1, "name": "Flute", "label": "Flute", "abbreviations": ["Fl."], "boxes": [1], "staves": 1, "clefs": ["treble"], "family": "woodwind"},
+        {"position": 2, "name": "Oboe", "label": "Oboe", "abbreviations": [], "boxes": [2], "staves": 1, "clefs": ["treble"], "family": "woodwind"},
+        {"position": 3, "name": "Horn", "label": "Horn", "abbreviations": [], "boxes": [3], "staves": 1, "clefs": ["treble"], "family": "brass"},
+        {"position": 4, "name": "Klavier", "label": "Klavier", "abbreviations": ["Klav."], "boxes": [4, 5], "staves": 2, "clefs": ["treble", "bass"], "family": "keyboard"},
+        {"position": 5, "name": "Violine I", "label": "Violine I", "abbreviations": [], "boxes": [6], "staves": 1, "clefs": ["treble"], "family": "strings"}]}
+    script = [tool("read_header", {}), tool("read_page", {"page": 1}), LABEL, commit(1, [4, 5]), RECHECK_PIANO, tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(1)
+    db.rows["interpretations"][0]["params"] = {"state": {"header": book}}
+    db.rows["parts"] = [{"score_id": job.score_id, "name": n} for n in ("Flute", "Oboe", "Horn", "Piano", "Violin I")]
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1 and len(t.calls) == 6
+    sc = ctx.result["agent"]["scratch"]
+    assert sc["header"]["from_book"] and sc["log"][0].startswith("Header from the book's first reading (page 1)")
+    mem = db.rows["scores"][0]["label_memory"]["entries"]
+    assert mem["klav"]["part"] == "Piano" and mem["violine i"]["part"] == "Violin I"

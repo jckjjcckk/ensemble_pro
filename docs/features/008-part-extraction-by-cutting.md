@@ -405,6 +405,70 @@ is the whole S+A pair and nothing else: the page-edge bands are gone and p173 an
 earlier runs held half the page there). Left: the grey gutter strip at the far left of each crop, and the "CORO"
 margin label cut to "R O." on p172.
 
+## The book's label memory (2026-10-30, migration `20261030140000_label_memory.sql`)
+
+CK cut the piano out of the Beethoven Piano Concerto 3 (Breitkopf: "Klavier" on page 1, "Klav." after) and was asked
+"which staves are the piano?" on every page. Reproduced on the local stack (PC3 test pages 1 to 4, score
+`f00ff3d7`): parked on p. 2 s2 ([19, 20]), answered [19, 20], parked again on p. 3 s2 ([17, 18]). Why:
+
+- The refusals were the closed recheck doubting a correct crop for reasons that are not the instrument ("three
+  staves" from a sliver of the staff above, "sf notes from the staff above intrude at the top edge") while it read
+  the label right every time (`label_seen` "Klav.", clefs treble and bass). The handler stored `label_seen` and
+  never used it.
+- Nothing carried a decision forward. The admin's answer committed that one system (`recheck=False`) and became a
+  sentence in the agent's history; the next page ran the same recheck, refused three times, and asked again.
+- The book's first reading (`process_pages`, 004) had read the header with "Klavier" and its abbreviation "Klav.";
+  `read_header` read page 1 again with its own Spark call, and the header's abbreviations only reached the prompt
+  text, never a check. `header.family("Klav.")` was None ("klav" was not in the piano synonyms).
+
+The rule now (006, "Agentic memory rule"): what a book's earlier reads and the admin's answers established is
+remembered and applied to later pages and later jobs.
+
+- **Store**: `scores.label_memory` (jsonb, default `{}`), written by the API only. `{entries: {<norm label>: {label,
+  part, source: "human" | "model", origin: "answer" | "header" | "header-abbreviation" | "page", page, staves,
+  job_id, at}}, updated_at}`. Keys are the label normalised (`label_memory.norm`: lower case, no dots, commas or
+  brackets). A human entry is never overwritten by a model read; a human answer overwrites anything; a model read
+  never moves a model entry to another part. Writes merge with the row as it is (another job may have learned
+  meanwhile); a missing column (hosted before the migration) never fails the job, and the job's state keeps a copy
+  (`scratch.label_memory`) so a resumed run keeps what it learned.
+- **Resolve**: the same key first, then the same instrument by the header's synonym table ("Pfte." is "Pianoforte";
+  "klav" added to the piano synonyms) or as an abbreviation (first word a prefix of at least three letters), numerals
+  agreeing ("Vl. I" is not "Violine II"). Two matching entries for different parts leave the label unresolved.
+- **Seeded** by `process_pages` from its header (each printed name and abbreviation as the part the reading named:
+  "Klavier" and "Klav." are "Piano"), and by `part_cut.read_header` from the header it uses. `read_header` now takes
+  the book's header from the current interpretation (`params.state.header`, when it has the staff count) instead
+  of reading page 1 again (004: the header is read once per book); a book never read that way still reads page 1.
+- **Read per page**: the label call also returns every printed margin label with its staff numbers
+  (`margin_labels: [{text, staves}]` per system; Spark reads labels, geometry placed the staves). A wanted
+  instrument whose label resolves through the memory is `remembered` on that system when the page's proposal
+  agrees; a system the proposal left empty is filled from the label (source model); when the two reads disagree
+  nothing is remembered (`label_conflicts`) and the usual checks decide. The prompt carries the known labels ("In
+  this book, "Klav." is Piano (confirmed by the user on page 2)").
+- **Commit**: a block the memory settled from a human answer is committed with no recheck call (verdict
+  `remembered`; count, labels and geometry checks still run). A block settled by the model's memory still gets the
+  recheck; a no or a clef refusal whose `label_seen` resolves to the block's instrument is accepted (verdict
+  `label`): two reads agree on the printed label and the book knows what it is. A label the memory does not know
+  settles nothing, so a genuinely new label still asks.
+- **Learn**: a commit that passed every recheck with a yes remembers the margin labels on its staves (source model,
+  origin page, never a label the synonym table gives to another instrument); the admin's answer remembers the margin
+  labels on the chosen staves, else the label the refused recheck saw on that very block (source human, origin
+  answer). The answer message to the agent says what was remembered. The `choose_staves` payload carries
+  `known_labels` and `margin_labels`; the interpretation summary counts `settled_by_memory`.
+
+Live (2026-10-30, local stack, PC3 pages 1 to 4, Muse Spark 1.3, effort low): before, parked on p. 2 s2 and,
+after the answer, again on p. 3 s2 ($0.14 for the two runs to the second question; the page reading before them $0.12); after, a fresh run went to
+`done` with 7 of 7 systems cut and 0 questions, $0.138, 87 s, no header call (taken from the book's reading). The
+labels were read on every system ("Klavier" on p. 1, "Klav." after); p. 2 s2 and p. 3 s2 were accepted on the
+label (the recheck doubted the crop as before), the other five passed the recheck. Same staves as the answered
+run. Tests: `tests/test_label_memory.py` (normalisation, seed, provenance, ambiguity, the row) and five handler
+cases in `tests/test_part_cut.py` (the header seed settles "Klavier" then "Klav." with no question; a bare first
+page asks once and the answer settles "Klav." on page 2 with no recheck; a new label still asks; a disagreeing page
+is not settled; the book's header is reused). 284 passed.
+
+Not done: `process_pages` does not consult the memory for its own parts question (its admin answers are part names
+without the printed labels); a page with no margin labels at all is not settled by the memory (by-order still
+proposes full systems); the web's Choose the staves dialog does not show what was remembered.
+
 ## On the iPad (web, 2026-10-28 night)
 
 The action is called **Split by instrument** everywhere in the app (never "cut parts": *cut* is the bar-range
@@ -432,7 +496,8 @@ visibility on the book's own file) and export their own file as MusicXML.
 - Spark JSON: malformed on about half the page calls at low effort; stray-token repair (`}-math]`,
   `word=digits`) and one retry stay; a bracket-closing repair for truncation was planned before the 8k budget
   made it rare.
-- Apply the migration to the hosted project when CK says (the routes are wired).
+- Apply the migrations to the hosted project when CK says (the routes are wired): `20261028090000_part_images_source`
+  and `20261030140000_label_memory` (without the latter the cut runs, but remembers nothing between jobs).
 - Decision pending from CK: whether item 6 becomes "intake + part cut" with OMR only behind practice mode.
 
 ## Files and output dirs

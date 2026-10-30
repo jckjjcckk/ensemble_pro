@@ -34,6 +34,7 @@ from anthropic import AsyncAnthropic
 
 from ..llm import _client as default_client, model_name as default_model
 from . import Job, JobContext, ScoreFailure, handler
+from . import label_memory
 from .cut import page_measures
 from .labels import PageLabels, canon_part, label_page, match_part, read_header
 from .signature import read_signature
@@ -352,6 +353,13 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
     if part_names:
         ctx.db.table("parts").upsert([{"score_id": score_id, "name": name, "position": i, "difficulty": difficulty.get(name) or 3}
                                       for i, name in enumerate(part_names)], on_conflict="score_id,name").execute()
+
+    # The book's label memory (008, 006 agentic memory rule): the header's printed names and abbreviations as the parts
+    # this reading named ("Klavier" and "Klav." are the "Piano"), so a later part cut starts from what was read here.
+    if header and header.get("instruments"):
+        mem = label_memory.load(ctx.db, score_id)
+        if mem.seed_from_header(header, part_names) and label_memory.save(ctx.db, score_id, mem):
+            state["log"].append(f"Label memory: {len(mem.entries)} printed labels remembered from the header")
 
     doubtful = sum(1 for p in placements if p["confidence"] != "high")
     title = next((PageLabels.from_dict(state["pages"][k]["labels"]).title for k in pages_read if PageLabels.from_dict(state["pages"][k]["labels"]).title), "")

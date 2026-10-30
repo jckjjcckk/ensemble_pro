@@ -61,6 +61,16 @@ First uses: 008 part cut (`read_header`, `list_pages`, `read_page`, `commit_syst
 Path B page-slicing tools (`list_pages`, `read_page`, `set_page_order`, `assign_parts`, `reread`, `ask_admin`,
 `finish`); 013 voice note (`score_facts`, `propose`, `finish`).
 
+## Agentic memory rule (CK, 2026-10-30)
+
+Work and human answers within a book are remembered and reused: a handler never asks the admin again what an
+earlier read or an earlier answer in the same book already settled. The loop's history is not the memory (it ends
+with the job and no check reads it); a handler keeps what it learned on the book, with its provenance (human or
+model, which page, which job), consults it before it asks, passes it to the model as context for later pages, and
+lets a human answer outrank any model read. A genuinely new fact still asks. First use: 008's label memory
+(`scores.label_memory`, `app/librarian/label_memory.py`): a printed staff label ("Klav.") is the part the header or
+the admin said it is, on every later page and in every later cut of the book.
+
 ## Where it came from
 
 Meta's Agents 101 workshop (`meta-models/legal-agent-workshop`, read 2026-10-27, clone in the scratchpad

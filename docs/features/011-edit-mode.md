@@ -19,7 +19,7 @@ where the thing may simply not be printed. The Answer is a small JSON in the sha
 
 | kind | from | payload | answer |
 |---|---|---|---|
-| `choose_staves` | `part_cut` (008) | `page, system, instrument ("Soprano + Alto"), instruments [..], interpretation_id, proposal, blocks [{staves, instruments}], staves_per_instrument, last_attempt, feedback, staff_boxes [{index, y_top, y_bottom, x0, x1}], image_key, allowed {staves, blocks, absent: true}, answer_format` | `{staves: [11, 12]}`, `{blocks: [[11], [13]]}` or `{staves: "absent"}` |
+| `choose_staves` | `part_cut` (008) | `page, system, instrument ("Soprano + Alto"), instruments [..], interpretation_id, proposal, blocks [{staves, instruments}], staves_per_instrument, last_attempt, feedback, staff_boxes [{index, y_top, y_bottom, x0, x1}], image_key, allowed {staves, blocks, absent: true}, answer_format, known_labels [{label, part, source, origin, page}], margin_labels [{text, staves}]` (the answer is remembered for the book's later pages: 008 label memory) | `{staves: [11, 12]}`, `{blocks: [[11], [13]]}` or `{staves: "absent"}` |
 | parts on a page (unnamed) | `process_pages` (004) | the page and what Spark saw | part names top to bottom, list or comma-separated |
 
 Planned: `set_page_order` (continuity check failed), `assign_parts(page, parts)`, a part name conflict, a

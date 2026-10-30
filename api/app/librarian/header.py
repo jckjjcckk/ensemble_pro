@@ -90,7 +90,7 @@ def reconcile(data: dict[str, Any], geom: dict) -> dict[str, Any]:
 
 # instrument names as editions print them (Italian, German, French, English, abbreviations), lower case, no dots
 SYNONYMS = {
-    "piano": ["piano", "pianoforte", "klavier", "pfte", "pno", "p-no", "pf", "cembalo", "clavier"],
+    "piano": ["piano", "pianoforte", "klavier", "klav", "pfte", "pno", "p-no", "pf", "cembalo", "clavier"],
     "violin": ["violin", "violins", "violino", "violini", "violine", "violinen", "violon", "violons", "vl", "vn", "vln", "viol"],
     "viola": ["viola", "violas", "viole", "bratsche", "bratschen", "altos", "va", "vla"],
     "cello": ["cello", "cellos", "celli", "violoncello", "violoncelli", "violoncelle", "vc", "vcl", "vcll"],

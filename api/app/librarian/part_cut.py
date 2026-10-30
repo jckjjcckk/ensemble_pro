@@ -23,6 +23,12 @@ page, system, instruments, proposal, blocks, staff_boxes, image_key, allowed}`; 
 "absent"}` or `{blocks: [[...], ...] | "absent"}` is applied as if the commit succeeded and the run resumes. `finish`
 refuses while a page is uncommitted.
 
+The book's label memory (`label_memory.py`, `scores.label_memory`; 006 agentic memory rule, CK 2026-10-30): the
+header (the book's own, from `process_pages`, when it has one) seeds it, the label call reads every printed margin
+label per system, and a wanted instrument whose label the memory knows is settled on that system: from an admin's
+answer, no recheck; from a model read, the recheck's doubts give way when it saw the same label. Commits that pass
+every check and the admin's answers teach it, so a page printing "Klav." is not asked about again.
+
 Writes: strips to `{score_id}/parts/{slug}/p{page:03}-s{k}.png` (slug = the instruments' slugs joined with "+"), a
 derived `sources` row (kind `part_images`, needs migration 20261028090000) whose meta carries `instruments` and the
 per-system blocks, an `interpretations` row (engine `part-cut-agent`) whose summary carries the counts and the log,
@@ -44,9 +50,11 @@ from ..agent import AgentState, Refusal, Stop, ToolBox, run_agent
 from ..llm import _client as default_client, model_name as default_model
 from . import Job, JobContext, handler
 from . import header as hdr
+from . import label_memory
 from .ask import ASK_SYSTEM, NoJSON, ask_model  # noqa: F401  (re-exported: the benchmark imports ASK_SYSTEM from here)
 from .cut import cut_system, overlay_png, page_geometry, to_png, verify
 from .header import same_instrument  # noqa: F401  (re-exported: the matcher lives with the header)
+from .label_memory import LabelMemory, same_part
 from .process_pages import page_paths
 
 ENGINE = "part-cut-agent"
@@ -55,10 +63,10 @@ RECHECK_MAX_TOKENS = 4000   # Spark's reasoning counts against max_tokens; 3 of 
 SYSTEM = """You are an orchestral librarian cutting the chosen instruments' staves out of a scanned full score. Geometry has already found every staff, system and barline; you only decide which numbered staves belong to the wanted instruments on each system, then commit them. Work page by page: read_header once, then for each page read_page and commit_system for every system (the staff numbers of every wanted instrument, or "absent" when none of their staves are printed in that system), then finish. Trust the margin labels first, then clefs, brace and score order. Call exactly one tool per turn, no prose."""
 
 LABEL_PROMPT = """Page {page} of a scanned full score. Every staff has a blue box and a yellow tag with its number ({first}..{last}, top to bottom); grey boxes mark the systems: {systems_desc}. Instrument wanted: "{instrument}" ({staves} staves per system according to the header).
-{header_context}For each system give the staff numbers that belong to the wanted instrument (empty if its staves are not printed in that system) and whether it is "playing", "resting" or "absent". Return only JSON: {{"systems": [{{"index": 1, "wanted_staves": [11, 12], "status": "playing"}}], "confidence": "high|medium|low", "notes": ""}}"""
+{header_context}For each system give the staff numbers that belong to the wanted instrument (empty if its staves are not printed in that system) and whether it is "playing", "resting" or "absent". Also list every instrument name printed in that system's left margin, exactly as printed (abbreviations as they are), with the staff numbers each one labels (empty when the margin is bare). Return only JSON: {{"systems": [{{"index": 1, "wanted_staves": [11, 12], "status": "playing", "margin_labels": [{{"text": "Klav.", "staves": [11, 12]}}]}}], "confidence": "high|medium|low", "notes": ""}}"""
 
 LABEL_PROMPT_MULTI = """Page {page} of a scanned full score. Every staff has a blue box and a yellow tag with its number ({first}..{last}, top to bottom); grey boxes mark the systems: {systems_desc}. Instruments wanted: {wanted_desc}.
-{header_context}For each system give, for each wanted instrument, the staff numbers that belong to it (empty if its staves are not printed in that system) and whether it is "playing", "resting" or "absent". Return only JSON: {{"systems": [{{"index": 1, "wanted": [{example}]}}], "confidence": "high|medium|low", "notes": ""}}"""
+{header_context}For each system give, for each wanted instrument, the staff numbers that belong to it (empty if its staves are not printed in that system) and whether it is "playing", "resting" or "absent". Also list every instrument name printed in that system's left margin, exactly as printed (abbreviations as they are), with the staff numbers each one labels (empty when the margin is bare). Return only JSON: {{"systems": [{{"index": 1, "wanted": [{example}], "margin_labels": [{{"text": "Fl.", "staves": [1]}}]}}], "confidence": "high|medium|low", "notes": ""}}"""
 
 RECHECK_PROMPT = """This image is a block of staves cut from a scanned full score. {claim} Does this crop look like that: {n} staff{plural}{clef_phrase}, and no staff of another instrument? Judge from the margin label when one is printed, else from the clef{plural}, the brace or bracket and the writing.{voice_hint} Return only JSON: {{"matches": true|false, "staves_seen": {n}, "clefs_seen": ["treble"], "label_seen": "text of any margin label or empty", "why": "one line"}}"""
 
@@ -198,7 +206,118 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
     sc.setdefault("commits", {})    # "page:system" -> {"staves" | "absent", "blocks", "key", "verify"}
     sc.setdefault("questions", 0)
     sc.setdefault("log", [])
+    sc.setdefault("seen_labels", {})   # "page:system" -> [{block, label}]: the label the recheck saw on a refused block
     cache: dict[int, tuple[Any, Any, Any]] = {}   # page -> (geom, bw, page image), not persisted
+
+    # The book's label memory (006 agentic memory rule): what earlier reads and the admin's answers say each printed label
+    # is. The row is the store; the job's state keeps a copy so a resumed run keeps what it learned without the column.
+    mem = label_memory.load(ctx.db, score_id)
+    stored = {k: e["source"] for k, e in mem.entries.items()}
+    mem.merge(LabelMemory.from_dict(sc.get("label_memory")))
+    mem.changed = any(stored.get(k) != e["source"] for k, e in mem.entries.items())   # the row lacks what the run learned
+
+    def remember() -> None:
+        label_memory.save(ctx.db, score_id, mem)
+        sc["label_memory"] = mem.to_dict()
+
+    def proposal_of(page: int, system: int) -> dict | None:
+        return next((q for q in (sc["pages"].get(str(page)) or {}).get("proposal", []) if q["system"] == system), None)
+
+    def margin_labels(raw: Any, sysd: dict | None) -> list[dict]:
+        """The printed margin labels Spark read on a system: [{text, staves}], staves inside the system only."""
+        out = []
+        for ml in raw if isinstance(raw, list) else []:
+            if not isinstance(ml, dict):
+                continue
+            text = str(ml.get("text") or ml.get("label") or "").strip()
+            st = sorted(set(int(x) for x in (ml.get("staves") or []) if str(x).strip().lstrip("-").isdigit()))
+            if sysd is not None:
+                st = [x for x in st if x in sysd["staff_indices"]]
+            if text and st:
+                out.append({"text": text, "staves": st})
+        return out
+
+    def label_fits(label: str, inst: str) -> bool:
+        """A printed label may be learned as `inst` unless the synonym table names another instrument for it (a human
+        who chose the staves "Hr." and "Klav." print on did not say the horn is the piano)."""
+        fl, fi = hdr.family(label), hdr.family(inst.split(" (")[0]) or hdr.family(inst)
+        return not (fl and fi and fl != fi)
+
+    def apply_memory(n: int, q: dict, sysd: dict) -> None:
+        """Resolve the system's printed margin labels through the memory. A wanted instrument whose label resolves is
+        `remembered` on that system with the label's staves, with the memory entry's source, when the page's proposal
+        agrees (both reads come from the same Spark call; they must agree for a human entry to settle the block). A
+        system the proposal left empty is filled from the label (source "model": the recheck still runs). When the
+        two disagree nothing is remembered and the usual checks decide."""
+        per = q["per_instrument"]
+        rem: dict[str, dict] = {}
+        for inst in instruments:
+            hits = [(ml, e) for ml in q.get("margin_labels") or [] if (e := mem.resolve(ml["text"])) is not None and same_part(e["part"], inst)]
+            if not hits:
+                continue
+            staves = sorted(set(x for ml, _ in hits for x in ml["staves"]))
+            own = sorted(per.get(inst) or [])
+            want = header_staves(inst)
+            if len(staves) != want:     # a brace label read against one staff of the pair: the proposal's pair, when it holds it
+                if len(own) == want and set(staves) <= set(own):
+                    staves = own
+                else:
+                    continue
+            human = [e for _, e in hits if e["source"] == "human"]
+            e = (human or [e for _, e in hits])[0]
+            label = hits[0][0]["text"]
+            if own and own != staves:
+                q.setdefault("label_conflicts", []).append({"instrument": inst, "label": label, "label_staves": staves, "proposed": own})
+                sc["log"].append(f"Page {n} system {q['system']}: the label {label!r} ({inst}) sits on {staves} but the labels proposed {own}; not settled")
+                continue
+            source = e["source"]
+            if not own:
+                per[inst] = staves
+                source = "model"
+                sc["log"].append(f"Page {n} system {q['system']}: {inst} on {staves} by the label {label!r}, where the labels proposed none")
+            rem[inst] = {"staves": staves, "label": label, "source": source, "origin": e.get("origin"), "page": e.get("page")}
+        if rem:
+            q["remembered"] = rem
+            union = sorted(set(x for v in per.values() for x in v))
+            if union != q["staves"]:
+                q.update(staves=union, blocks=runs(union), status="remembered")
+
+    def settled(page: int, system: int, block: list[int]) -> dict | None:
+        """The block is exactly what the memory resolved for every instrument it holds: who settled it."""
+        rem = (proposal_of(page, system) or {}).get("remembered") or {}
+        insts = block_instruments(page, system, block)
+        if not insts or any(i not in rem for i in insts):
+            return None
+        if sorted(set(block)) != sorted(set(x for i in insts for x in rem[i]["staves"])):
+            return None
+        return {"source": "human" if all(rem[i]["source"] == "human" for i in insts) else "model", "instruments": insts,
+                "labels": [rem[i]["label"] for i in insts], "pages": [rem[i]["page"] for i in insts]}
+
+    def learn_from(page: int, system: int, chosen: list[int], source: str) -> list[str]:
+        """After a commit: the printed labels on the committed staves are the wanted instruments'. `source` "human" for
+        the admin's answer (the page's margin labels, else the label the refused recheck saw on that very block),
+        "model" for a commit that passed every check."""
+        key = f"{page}:{system}"
+        labels = list((proposal_of(page, system) or {}).get("margin_labels") or [])
+        if source == "human":
+            labels += [{"text": x["label"], "staves": x["block"]} for x in sc["seen_labels"].get(key, []) if x.get("label") and sorted(x["block"]) == sorted(chosen)]
+        learned: list[str] = []
+        for ml in labels:
+            if not set(ml["staves"]) <= set(chosen):
+                continue
+            if len(instruments) == 1:
+                cands = list(instruments)
+            else:
+                cands = [i for i in instruments if (e := mem.resolve(ml["text"])) is not None and same_part(e["part"], i)] \
+                    or [i for i in instruments if label_memory.same_label(ml["text"], i)]
+            if len(cands) != 1 or not label_fits(ml["text"], cands[0]):
+                continue
+            if mem.learn(ml["text"], cands[0], source, "answer" if source == "human" else "page", page=page, staves=ml["staves"], job_id=job.id):
+                learned.append(f"{ml['text']!r} is {cands[0]}")
+        if learned:
+            sc["log"].append(f"Page {page} system {system}: remembered " + "; ".join(learned) + (" (the admin's answer)" if source == "human" else ""))
+            remember()
+        return learned
 
     def load_page(n: int):
         """Geometry of a page, with the header's staff count driving the staff recovery once the header is read
@@ -396,6 +515,11 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         rechecks: list[dict] = []
         if recheck:
             for block, crop in zip(blocks, crops):
+                known = settled(page, system, block)
+                if known and known["source"] == "human":
+                    # the admin already said what this label is: the recheck would only second-guess the same label
+                    rechecks.append({"block": block, "verdict": "remembered", "source": "human", "labels": known["labels"], "pages": known["pages"]})
+                    continue
                 fields, expected_clefs, voice = recheck_claim(page, system, block)
                 prompt = RECHECK_PROMPT.format(**fields)
                 said = await ask_model(ctx, c, m, prompt, to_png(crop), max_tokens=RECHECK_MAX_TOKENS)
@@ -406,8 +530,18 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                 seen = said.get("clefs_seen") if isinstance(said.get("clefs_seen"), list) else ([said["clefs_seen"]] if said.get("clefs_seen") else [])
                 fit = clefs_fit(seen, expected_clefs, voice)
                 verdict = "yes" if matches and fit else ("clef" if matches else "no")
+                label_seen = str(said.get("label_seen") or "").strip()
+                if verdict != "yes" and known:
+                    # Two reads agree on the printed label (the page's margin labels put it on exactly this block, and the
+                    # crop alone shows it) and the book's memory says what it is: the label wins over the crop's doubts
+                    # (neighbour ink at the edge, a staff count misread; PC3 p. 2 and 3, 2026-10-30).
+                    e = mem.resolve(label_seen) if label_seen else None
+                    if e is not None and any(same_part(e["part"], i) for i in known["instruments"]):
+                        verdict = "label"
                 rechecks.append({"block": block, "verdict": verdict, "matches": bool(matches), "staves_seen": said.get("staves_seen"),
                                  "clefs_seen": seen, "label_seen": said.get("label_seen"), "why": said.get("why")})
+                if verdict in ("no", "clef") and label_seen:
+                    sc["seen_labels"].setdefault(key, []).append({"block": block, "label": label_seen})
                 if verdict == "no":
                     raise Refusal(f"re-reading the block of staves {block} alone against the header ({fields['claim']}), the model says it does not "
                                   f"match ({said.get('why', '')}; label seen {said.get('label_seen') or 'none'!r}, clefs seen {seen})")
@@ -421,13 +555,45 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         sc["commits"][key] = {"staves": staves, "blocks": blocks, "key": storage_key, "boxes": boxes, "verify": verifies, "bars": sysd["n_measures"],
                               "modes": [v["mode"] for v in verifies], "voices": voices, "rechecks": rechecks}
         how = f"{len(blocks)} blocks stacked" if len(blocks) > 1 else "one block"
-        sc["log"].append(f"Page {page} system {system}: staves {staves} cut ({how}), {sysd['n_measures']} bars")
-        return {"committed": key, "staves": staves, "blocks": blocks, "storage_key": storage_key, "bars": sysd["n_measures"]}
+        by_memory = [r for r in rechecks if r["verdict"] in ("remembered", "label")]
+        sc["log"].append(f"Page {page} system {system}: staves {staves} cut ({how}), {sysd['n_measures']} bars"
+                         + (f"; settled by the book's labels ({', '.join(r['verdict'] for r in by_memory)})" if by_memory else ""))
+        learned = learn_from(page, system, staves, "human" if not recheck else "model") if (not recheck or all(r["verdict"] == "yes" for r in rechecks)) else []
+        out = {"committed": key, "staves": staves, "blocks": blocks, "storage_key": storage_key, "bars": sysd["n_measures"]}
+        if by_memory:
+            out["settled_by"] = [{"block": r["block"], "verdict": r["verdict"]} for r in by_memory]
+        if learned:
+            out["remembered"] = learned
+        return out
 
     box = ToolBox()
 
+    def book_header() -> dict | None:
+        """The header the book's first reading took (`process_pages`, 004: read once per book) when it has the staff
+        count; None when the book was never read that way (the cut then reads page 1 itself)."""
+        try:
+            cur = (ctx.db.table("scores").select("current_interpretation_id").eq("id", score_id).single().execute().data or {}).get("current_interpretation_id")
+            row = (ctx.db.table("interpretations").select("params").eq("id", cur).single().execute().data or {}) if cur else {}
+        except Exception:  # noqa: BLE001
+            return None
+        h = (((row or {}).get("params") or {}).get("state") or {}).get("header") or {}
+        if not h.get("instruments") or not h.get("expected_staves"):
+            return None
+        return {k: v for k, v in h.items() if k not in ("overlay_png", "cost_usd")}
+
+    def book_parts() -> list[str]:
+        try:
+            rows = ctx.db.table("parts").select("name").eq("score_id", score_id).execute().data or []
+        except Exception:  # noqa: BLE001
+            return []
+        return [r["name"] for r in rows if r.get("name") and " + " not in r["name"]]
+
     @box.tool("read_header", "Read the score header on page 1: instruments in order, staves each, clefs, key, time. Call once, first.", {"properties": {}})
     async def read_header(args, st):
+        if sc["header"] is None and (book := book_header()) is not None:
+            sc["header"] = {**book, "from_book": True}
+            sc["log"].append(f"Header from the book's first reading (page {book.get('page') or 1}): "
+                             f"{', '.join(f'{i['name']} ({i['staves']})' for i in book['instruments'])}; {book['expected_staves']} staves")
         if sc["header"] is None:
             geom, bw, im = load_page(1)
             if not geom["staves"]:
@@ -451,6 +617,8 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                              + ("" if h["validation"]["match"] else f", geometry found {h['validation']['geometry_staves_system1']} in system 1")
                              + (f"; {len(retries)} retry: {retries}" if retries else ""))
         h = sc["header"]
+        if mem.seed_from_header(h, book_parts()):
+            remember()
         matched = {}
         for i in instruments:
             match = hdr.match_instrument(h.get("instruments") or [], i)
@@ -496,12 +664,12 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         desc = "; ".join(f"system {s['index']} = staves {s['staff_indices'][0]}..{s['staff_indices'][-1]} ({s['n_measures']} bars)" for s in geom["systems"])
         if len(instruments) == 1:
             prompt = LABEL_PROMPT.format(page=n, first=1, last=len(geom["staves"]), systems_desc=desc, instrument=instruments[0],
-                                         staves=header_staves(instruments[0]), header_context=header_context(geom))
+                                         staves=header_staves(instruments[0]), header_context=header_context(geom) + mem.context(instruments))
         else:
             wanted_desc = ", ".join(f'"{i}" ({header_staves(i)} staves per system according to the header)' for i in instruments)
             example = ", ".join(json.dumps({"instrument": i, "staves": [], "status": "playing"}) for i in instruments)
             prompt = LABEL_PROMPT_MULTI.format(page=n, first=1, last=len(geom["staves"]), systems_desc=desc, wanted_desc=wanted_desc,
-                                               example=example, header_context=header_context(geom))
+                                               example=example, header_context=header_context(geom) + mem.context(instruments))
         try:
             lab = await ask_model(ctx, c, m, prompt, ov, max_tokens=8000, require="systems")
         except NoJSON as e:   # no labels: the header's score order still proposes the full systems
@@ -509,6 +677,12 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         sc["cost_usd"] = sc.get("cost_usd", 0.0) + lab.pop("_cost_usd", 0.0)
         label_retries = lab.pop("_retries", [])
         proposal = [proposal_entry(s, i) for i, s in enumerate(lab.get("systems") or []) if isinstance(s, dict)]
+        for q, s in zip(proposal, [s for s in lab.get("systems") or [] if isinstance(s, dict)]):
+            sysd = next((g for g in geom["systems"] if g["index"] == q["system"]), None)
+            if (ml := margin_labels(s.get("margin_labels"), sysd)):
+                q["margin_labels"] = ml
+            if sysd is not None and ml:
+                apply_memory(n, q, sysd)
         for s in geom["systems"]:   # a system the labels left out: the header's order, when the system is the full set
             if any(q["system"] == s["index"] for q in proposal):
                 continue
@@ -581,7 +755,9 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         state.refusals = {}
         out = await do_commit(int(q["page"]), int(q["system"]), chosen, recheck=False)
         sc["log"].append(f"Page {q['page']} system {q['system']}: {chosen} chosen by the admin")
-        answer_text = f"The admin decided page {q['page']} system {q['system']}: {json.dumps(chosen)}. It is committed ({json.dumps(out)}). Continue with the next uncommitted system or finish."
+        answer_text = (f"The admin decided page {q['page']} system {q['system']}: {json.dumps(chosen)}. It is committed ({json.dumps(out)}). "
+                       + (f"Remembered for the later pages: {'; '.join(out['remembered'])}. " if out.get("remembered") else "")
+                       + "Continue with the next uncommitted system or finish.")
 
     def persist(d: dict[str, Any]) -> None:
         ctx.result["agent"] = d
@@ -614,7 +790,10 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                    "image_key": read.get("overlay_key"),
                    "allowed": {"staves": "list of staff numbers from staff_boxes (a skipped staff splits the cut into stacked blocks)",
                                "blocks": "lists of staff numbers, one per block", "absent": True},
-                   "answer_format": '{"staves": [11, 12]} or {"blocks": [[11], [13]]} or {"staves": "absent"}'}
+                   "answer_format": '{"staves": [11, 12]} or {"blocks": [[11], [13]]} or {"staves": "absent"}',
+                   "known_labels": [{k: e.get(k) for k in ("label", "part", "source", "origin", "page")} for e in mem.entries.values()
+                                    if any(same_part(e["part"], i) for i in instruments)],
+                   "margin_labels": (prop or {}).get("margin_labels") or []}
         question = f"Which staves on page {n}, system {k} are {label}'s? {q.get('feedback', '')}"
         st.question, st.question_payload = question, payload     # the typed question is what the resume reads
         ctx.result["agent"] = st.to_dict()
@@ -651,7 +830,9 @@ def write_interpretation(ctx: JobContext, score_id: str, src: dict, intake_id: s
     commits = sc["commits"].values()
     summary = {"instrument": label, "instruments": instruments, "pages": len(pages), "pages_read": len(sc["pages"]), "systems_cut": sum(1 for v in commits if v["key"]),
                "absent": sum(1 for v in commits if not v["key"]), "questions_asked": sc["questions"] + (1 if st.status == "needs_review" else 0),
-               "turns": st.turn, "status": st.status, "models": {"geometry": "opencv", "labels": "spark"}, "log": (sc["log"] + st.log)[-40:]}
+               "turns": st.turn, "status": st.status, "models": {"geometry": "opencv", "labels": "spark"},
+               "settled_by_memory": sum(1 for v in commits if any(r.get("verdict") in ("remembered", "label") for r in v.get("rechecks") or [])),
+               "log": (sc["log"] + st.log)[-40:]}
     existing = sc.get("interpretation_id")
     row = {"status": "running" if st.status != "done" else "done", "summary": summary, "cost_usd": cost, "latency_ms": int((time.time() - t0) * 1000)}
     if existing:

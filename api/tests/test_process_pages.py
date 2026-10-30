@@ -188,6 +188,9 @@ async def test_the_header_count_recovers_the_staff_and_the_page_reads_itself():
     log = db.rows["interpretations"][0]["summary"]["log"]
     assert log[1].startswith("Page 1, score header: 6 staves per full system") and "1 staves recovered" in log[2]
     assert [r["name"] for r in db.rows["parts"]] == ["Flute", "Oboe", "Horn", "Piano", "Violin I"]
+    # the header's names become the book's label memory, as the parts this reading named (008, 006 memory rule)
+    mem = db.rows["scores"][0]["label_memory"]["entries"]
+    assert mem["piano"]["part"] == "Piano" and mem["piano"]["source"] == "model" and mem["piano"]["origin"] == "header" and len(mem) == 5
     # Spark is told the parts already read from page 2 on (never the header's names: a keyboard header reads "Aria." as the instrument)
     assert "Parts already read" not in ctx.prompts[0] and "Parts already read on earlier pages of this book: Flute; Oboe" in ctx.prompts[1].replace(", in score order", "")
     assert sum(1 for ch in ctx.charges if ch.cost_usd > 0) == 4 and out["cost_usd"] == pytest.approx(float(sum(ch.cost_usd for ch in ctx.charges)))
