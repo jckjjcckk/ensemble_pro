@@ -54,6 +54,20 @@ Done means: "Second violins, start at 34, skip 42 to 48" becomes a confirmed cut
   known failure, below) and came out for the ensemble.
 - Tests: `api/tests/test_transcribe_voice.py` (rows per audience, member and ensemble, letters, to the end,
   global, refusals, nothing to mark, WAV checks, the route's permissions).
+- The Stand (`web/src/app/voice.ts`, `VoiceNotes.tsx`, `voice.css`, `web/src/lib/recorder.ts`): a glass "Hold to
+  speak" button for whoever leads the layer on screen (Space or Enter hold on a keyboard; a tap under 400 ms only
+  shows the hint). Recording is raw PCM through an AudioWorklet resampled to 16 kHz WAV (MediaRecorder on iOS gives
+  m4a, which Voice Transcribe refuses), stopped at 120 s; `Info.plist` asks for the microphone. Listening lights
+  the glass in Muse blue with the voice level; working drifts the multicolour wash. The tray (a sheet) holds one
+  card per `mark_id`: kind, place, text, audience chips (the quickest fix), the quote, Accept / Edit / Dismiss,
+  Accept all per take, "Left out: …" for refusals, "Nothing to mark", and "Tap a bar" for unplaced marks. Ghosts
+  (glass, Muse-blue rim) sit over the proposed bars per system; a card tap jumps there, a ghost tap opens its card.
+  Proposed rows never draw as marks; the job is watched by Realtime on its row plus a 2 s poll, 60 s at most.
+- Checked 2026-10-30 in the browser on the local stack with real Meta calls (the pane blocks the microphone, so
+  the take was fed through a replaced `getUserMedia`): v02 → "Cut 42–48", Violin II, in about 5 s; card tap → the
+  ghost at bar 42; Accept → one live row for Violin II. v21 on a string quartet → "sfz at 65" for everyone plus
+  "Left out: Alto is not a part in this book"; Dismiss deletes. Not yet checked: a real microphone on the iPad
+  (WKWebView's prompt, AudioWorklet from a blob URL), a player's stand receiving the accepted mark live.
 
 ## Rules and decisions
 
@@ -180,5 +194,7 @@ $1.69, judge $1.29); round one $1.93, round two $1.09.
 
 ## Next steps
 
-1. A second voice for the 30 lines; re-run `voice_eval.py run --prompt v4`.
-2. `transcribe_voice` handler on the agent loop; confirm UI on the admin iPad; live push to the stands.
+1. CK on the real iPad: hold to speak, the microphone prompt, a take, accept; a second iPad as a player to see
+   the mark arrive.
+2. A second voice for the 30 lines; re-run `voice_eval.py run --prompt v4`.
+3. Rehearsal sessions (start/end on the Stand) and `session_id` on takes; then listening mode on the same seams.
