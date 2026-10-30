@@ -106,12 +106,51 @@ ensemble with the word kept in the text (v4 turned "brass" into Bass, and "Marco
 - Latency, the always-on pipeline and the confidence gate: `013-always-on.md`. The few-shot examples are unchanged,
   and `experiments/voice/prompts.py` keeps v4 as scored and checks the app against `RULES_V4D`.
 
+## Prompt v4e (2026-10-30)
+
+The app's prompt is now **v4e**: v4d plus two parts of the library-of-context eval (`013-v4e-eval.md`). (a) The facts
+list the book's **landmarks** with bars, and a place named from a listed one ("two after the key change", "the bar
+before the double bar", "in the slow section") resolves to `bar` or `range`; a landmark not listed stays `mark`, as
+before. (b) The facts list the book's **groups**, and an exclusion lists the other parts of the widest listed group
+holding the excluded part (a soloist is excluded from the Orchestra); the hardcoded strings/voices pair is gone.
+Part (c), a musical-terms mishearing line, is not adopted: no measured gain (v4d already read every mangle on text).
+
+- **Groups** (`voice_prompt.derive_groups`, from the part names through the header's synonym table): Strings,
+  Woodwinds, Brass, Percussion, Keyboard, Voices in score order; a book whose instruments span two sections has an
+  Orchestra, and its one piano (or a part named solo) is the Soloist, in no other group. A quartet is Strings, a
+  choir Voices, strings + choir the two v4d groups (so book A behaves as before).
+- **Landmarks** (`scores.landmarks`, migration `20261030160000_score_landmarks.sql`; `app/librarian/landmarks.py`):
+  `{kind, label, bar, bar_after, source}`, kinds key_change, meter_change, tempo, double_bar, repeat, coda, segno,
+  fine, section, rehearsal; source `musicxml` or `page`. Digital books: music21 at import and on Convert to Digital
+  (`landmarks.from_musicxml`, no model). Scanned books: the per-page Spark read points each printed landmark at a bar
+  box, geometry gives the bar (004). A converted book's MusicXML landmarks replace the page ones. The facts say a
+  boundary as "double bar between bars 150 and 151" (the eval's one v4e miss, lm15, read "double bar after bar 150"
+  so "the bar before the double bar" came back 149), a tempo heading as a range to the next heading ("Andante bars
+  151-210"), a coda to the end. A book with none says "Landmarks: none listed." (behaves as v4d: the clean-130 guard).
+- **ASR keywords** gain a trimmed glossary of 31 musical terms (`transcribe_voice.MUSIC_TERMS`): fermata, sforzando,
+  pizzicato, ritardando… The eval's term-word errors went 5 → 3 of 34 in both runs; `pizz`, `cut`, `piano`,
+  `forte`, `mezzo`, `mute`, `bar`, `letter` are left out ("pizz" + "cut" split "pizzicato" into "pizz cut").
+
+Scores, the app's own prompt builder with the eval's confidence field, facts built as `transcribe_voice.Score` builds
+them, effort minimal, one run (`api/experiments/voice_text/live_v4e/`, $0.41 for 159 calls):
+
+| set | eval v4d | eval v4e (2 runs) | app v4e (1 run) |
+|---|---|---|---|
+| messy100 landmark cases (20) | 0 | 19, 19 | **20** (lm15 now bar 150) |
+| messy100 concerto group cases (9) | 4 | 9, 9 | **8** (g15: audiences right, "Rest at 240" kind marking, not text) |
+| clean 130: instructions right (100) | 100 | 100 | **99** (f04 split into two marks at 57) |
+| clean 130: with stand text | 97 | 97 | 96 |
+| clean 130: false positives (30) | 0 | 0 | **0** |
+
+`experiments/voice/prompts.py` keeps `RULES_V4D` and checks the app against `RULES_V4E` at import.
+
 ## Rules and decisions
 
 - Voice instructions are proposals: the admin confirms before anything goes live. No speech error alters
   anyone's music (external review 2026-10-26).
 - Admin only: only the admin can enable voice notes and only during a rehearsal session they started.
-- One Spark call per note, effort low, output budget as in 006; quotes are verbatim. Prompt v4d since 2026-10-30.
+- One Spark call per note, effort low, output budget as in 006; quotes are verbatim. Prompt v4e since 2026-10-30
+  (v4d earlier the same day).
 - Voice Transcribe facts (000): 16-bit mono WAV at 16 or 24 kHz, at most 10 min and 32 MB, turn-level
   timestamps only, `keywords` biasing (feed the part names and rehearsal letters), diarisation, $0.18 per
   hour. Spark 1.3 audio is "not fully supported": audio goes to Voice Transcribe, not to Spark.
@@ -225,8 +264,13 @@ $1.69, judge $1.29); round one $1.93, round two $1.09.
   each turn to Spark with the previous turn as context.
 - Leading short words ("Lin,", "Cello,") vanish in transcription; if CK's audio has them, try a longer lead-in or
   name the members first in `keywords`.
-- Rehearsal letters need the score's marks (`measure_placements.rehearsal_mark`); "the last page", "the key
-  change", "the coda" need score facts that MusicXML has and scans may not.
+- Rehearsal letters need the score's marks (`measure_placements.rehearsal_mark`, or a digital book's MusicXML
+  rehearsal marks). "The key change", "the coda", "the double bar" resolve when `scores.landmarks` lists them
+  (v4e); books imported or read before 2026-10-30 have none until re-imported, converted or read again. A scanned
+  page's key-change label is often wrong (the bar is right) and start repeats at a system's start are missed (004).
+  Untested: "everyone but the piano" in a choir-with-piano or piano-quintet book (no Orchestra group there).
+  `scores.landmarks` is on the local stack only: hosted needs `supabase db push --linked` (reads and writes
+  tolerate the missing column).
 - Member names in the transcript must resolve to `members` (Lin, Inès).
 
 ## Next steps

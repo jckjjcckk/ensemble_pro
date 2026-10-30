@@ -23,6 +23,7 @@ only the roadmap, status per feature, the decisions log, CK's to-do and the setu
 | 013 | [Collaboration intelligence](013-collaboration-intelligence.md) | built (push-to-talk) | Voice Transcribe + Spark |
 | 013 | [Always-on listening (research)](013-always-on.md) | research | Voice Transcribe realtime + Spark |
 | 013 | [Text eval and prompt v4d](013-text-eval.md) | experiment | Spark |
+| 013 | [Library-of-context eval, prompt v4e](013-v4e-eval.md) | experiment, adopted (a, b) | Spark + Voice Transcribe |
 | 014 | [Rehearsal tools](014-rehearsal-tools.md) | idea | none |
 | 015 | [iOS wrapper](015-ios-wrapper.md) | idea | none |
 | 016 | [Benchmark tool](016-benchmark-tool.md) | to design | Spark, SAM optional |

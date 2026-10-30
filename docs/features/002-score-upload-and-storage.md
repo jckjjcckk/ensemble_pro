@@ -27,7 +27,13 @@ keep the page order, and hand off to a job. OMR is never a prerequisite (000).
   are one part, commit 2c2a6b9), one stable `measures` row per number (313 for Op. 18/1), interpretation
   v(n+1) with engine `musicxml`, score facts (F major, 3/4, 132 bpm, 426 s; key mode by analysis), title
   from the file when the MusicXML has none. Difficulty is a density heuristic (too high: 5/4/4/5 for Op. 18)
-  until the Spark `brief` job replaces it.
+  until the Spark `brief` job replaces it. Since 2026-10-30 (013 prompt v4e) the import also reads the book's
+  landmarks (`landmarks.from_musicxml`, no model): key and meter changes after the first, printed tempo words and
+  metronome changes (music21's own name for a bare metronome mark is skipped), double bars and repeat barlines as
+  "between bars N and N+1", 1st/2nd-time bars, segno, coda, To Coda, Fine, D.C./D.S., section titles, rehearsal
+  marks; dolce, cresc. and the like are not places. They go to `scores.landmarks` with source `musicxml` (Convert
+  to Digital does the same and replaces the page reading's). Op. 18/1 i: one, the exposition's end repeat between
+  bars 114 and 115 (the file prints a metronome mark and no tempo word). Tests: `test_landmarks_musicxml.py`.
 - Web: `importMusicXml` in `data.tsx` creates the row, uploads, calls the API; Import MusicXML in the dock for
   admins and owners; signed URLs for score files.
 - `api/scripts/smoke_import.py` on the local stack: upload through RLS, job done in 3 s, reimport keeps measure

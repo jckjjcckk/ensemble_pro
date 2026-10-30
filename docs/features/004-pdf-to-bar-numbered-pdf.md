@@ -163,6 +163,35 @@ that remain, the matcher, the header count recovering a staff inside `process_pa
 header, no header call before the first music); `test_signature.py` and `test_import_pdf.py` script the header
 call.
 
+## Printed landmarks for voice notes (2026-10-30, 013 prompt v4e)
+
+The per-page Spark read (`labels.py`, item 8) also names what is printed on the page that marks a place: tempo words
+and metronome marks, key and time signature changes, double bars, repeats, segno, coda, To Coda, Fine, D.C./D.S.,
+section titles. Each is pointed at a provisional bar box exactly as rehearsal letters are; Spark is told not to
+count or number bars. `process_pages` gives each box its bar from the geometry count (`landmarks_at_bars`; a double
+bar or an end repeat is the boundary after its box) and writes `scores.landmarks` with source `page` (013). A
+landmark whose box Spark leaves null, points off the page, or that sits over a box Spark itself doubts is dropped
+and logged ("Page 3: landmark 'rit.' left out (no box)"), never guessed. A converted book's MusicXML landmarks
+replace the page ones.
+
+Eval (`api/experiments/landmarks_page/`, Muse Spark 1.3, effort low; Goldberg BGA pp. 2-3, Chopin op. 26/1 pp. 14-16;
+20 printed landmarks counted by eye; $0.155 for 10 calls):
+
+| page | printed | r1 found | r1 invented | r2 found | r2 invented |
+|---|---|---|---|---|---|
+| Goldberg BGA p. 2 (end of Aria, Var. 1) | 4 | 4 | 1 (start repeat, box 19) | 4 | 0 |
+| Goldberg BGA p. 3 (Var. 1, Var. 2) | 5 | 5 | 0 | 3 (start repeat, 2/4 missed) | 0 |
+| Chopin op. 26/1 p. 14 (ritenuto x2, end repeat, Fine, key change) | 5 | 4 (end repeat missed; key "3 flats" for 5) | 0 | 4 + end repeat named a double bar ("4 flats") | 0 |
+| Chopin p. 15 (start repeat, meno mosso, ritenuto, end repeat) | 4 | 3 (start repeat pointed at no box, dropped) | 0 | 3 (same) | 0 |
+| Chopin p. 16 (start repeat, ritenuto) | 2 | 2 | 0 | 2 | 0 |
+| **total** | **20** | **18** | **1** | **16 (+1)** | **0** |
+
+r1 invented a start repeat; the prompt was tightened once (only what is printed: a repeat sign is two dots beside a
+double barline, never inferred; count the new key's flats; one barline can carry two landmarks) and r2 invented
+none. Known weak spots: a key change's label (the bar is right), a start repeat at a system's start, and geometry
+errors carry over (Chopin p. 14 has a key-signature-only box after the last bar; p. 15's last system is one box for
+three bars, so its end repeat lands two bars early).
+
 ## Records
 
 From the grounding README, now in the schema (feature 001 migration):
@@ -180,7 +209,8 @@ From the grounding README, now in the schema (feature 001 migration):
   `box {x0, y0, x1, y1}` as fractions of the page image, `confidence` high | medium | low from geometry
   (barline width, coverage, header-zone merges) with Spark as a second opinion, `flag`, `rehearsal_mark`.
 - `parts`: `name` as printed, `position`, `difficulty` 1 to 5 (UI shows one word), `storage_path`.
-- `scores`: `status, progress, pages, bars, key_sig, meter, tempo_bpm, duration_sec, failure_reason`.
+- `scores`: `status, progress, pages, bars, key_sig, meter, tempo_bpm, duration_sec, failure_reason`, `landmarks`
+  (013 v4e, migration `20261030160000`, local stack only until `supabase db push --linked`).
 
 ## Rules and decisions
 
