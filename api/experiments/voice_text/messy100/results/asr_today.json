@@ -1,0 +1,322 @@
+{
+ "v01": {
+  "transcript": "Everyone, bar 34, piano please. Really piano.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/D4DD4772AF244DFC8624871064DD13BE"
+  }
+ },
+ "v03": {
+  "transcript": "cellos, bar 12, that's an up bow, up bow on the first note.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/14EA289FA83A452785492F89DBDFD987"
+  }
+ },
+ "v02c": {
+  "transcript": "Okay, first and second. Actually, no, just the second. Just second violins from 42 to 48, we're cutting that. Go straight to 49.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/A417697CD87F47A9826545CAE6D9460A"
+  }
+ },
+ "v02": {
+  "transcript": "Second violins from 42 to 48, we are cutting that. Go straight to 49. 49.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/82B3AF6068A64B3192B17604C96CA268"
+  }
+ },
+ "v01c": {
+  "transcript": "Okay, now everyone bar thirty-two. No, no. Thirty-four, please. Piano just piano",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/C5C646C7125B402486E84E289981DD59"
+  }
+ },
+ "v03c": {
+  "transcript": "Drums and cellos bar 12 that's a up bar no not just not no drums up bow for the cello on the first note",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/363F9BB61E8046ECAB83872E57BE5BDF"
+  }
+ },
+ "v04": {
+  "transcript": "autos breathe after the word rest in bar 60, not before.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/FC260AE916734F1FBA38DB7498729779"
+  }
+ },
+ "v06": {
+  "transcript": "Let's take it from the top.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/1DA8247A85594B0DBBB1AD8E98637FCB"
+  }
+ },
+ "v05": {
+  "transcript": "From letter C everybody we take it a little slower more weight",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/479C0AFA28464DB1865523A6B95D3677"
+  }
+ },
+ "v06c": {
+  "transcript": "Let's take it from the top",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/0C619AEA72804041980E841B83FA5032"
+  }
+ },
+ "v04c": {
+  "transcript": "Breathe after the word rest in bar 60 not before. No sorry, I mean sopranos",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/A8E7153DBDFF4721ABDF6DCEEBD048FE"
+  }
+ },
+ "v05c": {
+  "transcript": "from letter D everybody no from letter C everybody just a little slower more weight okay",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/06B6CF5804F4468F87352F3207333077"
+  }
+ },
+ "v07": {
+  "transcript": "Violas you are late at 71 The entry is on the end of two",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/5D8471901051489C9774F802397B22C1"
+  }
+ },
+ "v08": {
+  "transcript": "Bar 112 everyone. Crescendo through 116.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/54F20C1CF3C4467F86134071ADE336C6"
+  }
+ },
+ "v08c": {
+  "transcript": "bar 112 everyone bar 112 crescendo through the 116",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/EFD484ED8AAF409196E6D96CD7874377"
+  }
+ },
+ "v09": {
+  "transcript": "tenors and basses, bar 20, sing the consonant early. The T before the beat.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/77201B212BC84344BD5FEAA9A4DFA585"
+  }
+ },
+ "v07c": {
+  "transcript": "The first violin you are late at 71 What was that? Okay, violas, the entry is on the end end of two.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/3AE6C1DD4B2845C7AF225B1EF2A0CCDE"
+  }
+ },
+ "v10": {
+  "transcript": "No louder in eighty-eight. The opposite. Hold it back.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/1118154A2DF04D07A5FE53E8F7B9B828"
+  }
+ },
+ "v09c": {
+  "transcript": "Soprano and Alto, you're good. Tenors and Basses, bar 20, sing the consonant early, the T before the beat.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/A6A65E023FCB414D9AD1378FC0F1A19E"
+  }
+ },
+ "v10c": {
+  "transcript": "In 88, the opposite hold back",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/7B2A73E9214C4D16AF3C3514BE4D9A45"
+  }
+ },
+ "v11": {
+  "transcript": "C sharp in bar 15 is flat. Listen to the viola there.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/59BF7A4F14E548B2B0250220724A4962"
+  }
+ },
+ "v12": {
+  "transcript": "Pick up to 34. First, that's where you come in. Nobody else.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/0E9C8125972D4032B47E8679FAF7CB99"
+  }
+ },
+ "v14": {
+  "transcript": "okay, that's launch. Back at 130.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/8775A135F8B641BBB602AC8A736D8DDC"
+  }
+ },
+ "v15": {
+  "transcript": "Set the cello, bar 50, pizzicato,",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/FF52A8FA774440DA9C2D65B71483E8DA"
+  }
+ },
+ "v13": {
+  "transcript": "sopranos, we will skip the repeat on the second time through, so after bar 40, go straight on.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/88C556533DB245299F3C6DFFD04D3F07"
+  }
+ },
+ "v16": {
+  "transcript": "and second from 96 to the end, no vibrato",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/3330CD2FAA4D4962BF845DCEFCFE7D2E"
+  }
+ },
+ "v17": {
+  "transcript": "Bar 203, basses, that's a low E. You're singing the octave",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/F2F4DCC3E60C4BECB417BC31AD405943"
+  }
+ },
+ "v20": {
+  "transcript": "Can someone open a window?",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/C9DE84AF1D1B4994A185E7FA24DFE273"
+  }
+ },
+ "v18": {
+  "transcript": "firsts, bar seven, down bow, both of you.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/71EB8E0154E946CDADED0CAF12F1A7D3"
+  }
+ },
+ "v19": {
+  "transcript": "From the double bar after letter B we are cutting to letter D.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/3C782BC763424307A27676D42BC37874"
+  }
+ },
+ "v22": {
+  "transcript": "Inès, bar 30, then that harmonic tried on the A string.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/3AEB4529B0F04071B4C1936F2EAF34BE"
+  }
+ },
+ "v21": {
+  "transcript": "bar 64 altos and tenors, breath mark, then 65, sforzato, everyone,",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/AC37EE946E374EC98C91BBBC716E1F5C"
+  }
+ },
+ "v23": {
+  "transcript": "whole choir the last page diminuendo to nothing",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/9D2F702AE73B42A1A4F0985F75132463"
+  }
+ },
+ "v24": {
+  "transcript": "Once more from twenty-two and this time don't rush.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/68179654AACA4B36A96D69BAC1ACDB65"
+  }
+ },
+ "v25": {
+  "transcript": "Viola, retard in the bar before letter F then a tempo at F",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/A9DE80768BF74187BC006CBCEF60B3EA"
+  }
+ },
+ "v26": {
+  "transcript": "seconds mark it bar 55 is forte 56 is piano subito",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/BD618357A01647439C4C68242C53364F"
+  }
+ },
+ "v27": {
+  "transcript": "Right in a fermenta on the last chord.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/8E34A048CB964493914D938BE27A0BF3"
+  }
+ },
+ "v28": {
+  "transcript": "Bar three, that's four beats, not three. Count it",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/A5F316D12C3D4D78BE6BA4490871ECB0"
+  }
+ },
+ "v30": {
+  "transcript": "right bar one, here we go.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/C179715B83C14963BE2BDF87B1642F5C"
+  }
+ },
+ "v29": {
+  "transcript": "Sopranos, from the key change we are all we're all down an octave till the coda.",
+  "errors": [],
+  "close": 1000,
+  "ack": {
+   "sessionId": "voyager/duplex/DAFB5AE6F4014492B78F596BD92F9704"
+  }
+ }
+}
