@@ -303,6 +303,12 @@ async def test_convert_writes_the_digital_version_with_flags_and_the_facts():
     assert "current_interpretation_id" not in s
     assert [(p["name"], p["storage_path"]) for p in db.rows["parts"]] == [("Piano", key)]
     assert sorted(m["number"] for m in db.rows["measures"]) == [1, 2]
+    # 014: the digital version is playable: one MIDI track for the piano and a bar map, recorded on the score
+    assert out["playback"]["ok"] and out["playback"]["tracks"] == 1 and out["playback"]["bars"] == 2
+    assert s["playback"]["midi"] == f"{SCORE}/playback/score.mid" and s["playback"]["source_id"] == out["source_id"]
+    assert db.storage.files[s["playback"]["midi"]].startswith(b"MThd") and s["playback"]["parts"] == ["Piano"]
+    bm = json.loads(db.storage.files[s["playback"]["bar_map"]])
+    assert [b["bar"] for b in bm["bars"]] == [1, 2] and bm["meters"][0]["meter"] == "3/4" and bm["tempos"][0]["qpm"] == 72.0
 
 
 async def test_a_render_check_that_fails_reverts_the_named_bars_and_flags_them():

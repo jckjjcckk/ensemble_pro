@@ -73,7 +73,7 @@ from music21 import converter, stream
 from PIL import Image
 
 from ..llm import _client as default_client, model_name as default_model
-from . import Job, JobContext, handler, landmarks
+from . import Job, JobContext, handler, landmarks, playback
 from .engrave import SshEngraver, engrave_step
 from .import_musicxml import book_facts, part_groups, write_measures, write_parts
 from .musicxml_fix import PageLayout, fix_musicxml
@@ -377,7 +377,8 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
     ctx.storage_upload(path, data, CONTENT_TYPE)
 
     # Read the file back the way the import reads a MusicXML: what the app will open is what the rows describe.
-    f = await asyncio.to_thread(lambda: book_facts(converter.parse(data, format="musicxml")))
+    parsed = await asyncio.to_thread(lambda: converter.parse(data, format="musicxml"))
+    f = await asyncio.to_thread(book_facts, parsed)
     names = f["names"]
     flagged = [b["number"] for b in flags]
     cost = budget.summary()
@@ -415,6 +416,8 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
     fill = {k: v for k, v in facts.items() if v is not None and score_row.get(k) in (None, "")}
     if fill:
         ctx.db.table("scores").update(fill).eq("id", score_id).execute()
+    # Play the parts (014): the digital file as MIDI, one track per part, and its bar map.
+    played = await playback.write_step(ctx, score_id, row["id"], parsed)
     write_s = time.time() - t_write
 
     # The pages: MuseScore on the box, both layouts (engrave.py). Best effort: the digital version is written and read
@@ -424,6 +427,7 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
     ctx.result["note"] = f"Digital: {len(f['numbers'])} bars, {len(flagged)} to check" + ("" if engraving.get("ok") else f". {engraving.get('reason')}")
     return {
         "source_id": row["id"], "instruments": names, "bars": len(f["numbers"]), "flagged_bars": flagged, "engraving": engraving,
+        "playback": played,
         "seconds": round(time.time() - t0, 1), "cost_usd": cost["total_usd"], "cost_per_page": cost["per_page"],
         "pages": book_run["pdf_pages"], "page_kinds": [(k["pdf_page"], k["kind"]) for k in kinds], "cover": cover_key,
         "pages_unreadable": doc["unreadable"], "spark_calls": budget.calls, "spark_skipped": budget.skipped,

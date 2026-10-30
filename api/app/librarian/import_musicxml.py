@@ -9,6 +9,7 @@ shared with Convert to Digital (`omr_convert`, feature 005), so a transcribed bo
 The pages are then engraved by MuseScore on the box (`engrave_step`, both layouts, best effort) before the book is ready.
 The book's landmarks (key and meter changes, tempo words, double bars, repeats, coda, segno, fine, section titles,
 rehearsal marks; `landmarks.from_musicxml`, no model) go to `scores.landmarks` for the voice-note prompt (013 v4e).
+The parts are written as MIDI with a bar map for "play the parts" (`playback.write_step`, 014, `scores.playback`).
 """
 from __future__ import annotations
 
@@ -19,7 +20,7 @@ from typing import Any
 from music21 import converter, key as m21key, meter as m21meter, stream, tempo as m21tempo
 
 from . import Job, JobContext, handler
-from . import landmarks
+from . import landmarks, playback
 from .engrave import engrave_step
 from .signature import canonical_key, canonical_meter
 
@@ -165,6 +166,10 @@ async def import_musicxml(job: Job, ctx: JobContext, *, engraver: Any = None) ->
         "status": "done", "summary": summary, "latency_ms": int((time.time() - t0) * 1000), "finished_at": ctx.now(),
     }).eq("id", interp["id"]).execute()
 
+    # Play the parts (014): one MIDI track per part and the bar map, next to the file; best effort, no model.
+    await ctx.progress(0.8, "Preparing playback")
+    played = await playback.write_step(ctx, score_id, source_id, s)
+
     # The pages the reader shows: MuseScore on the box, both layouts (engrave.py). Best effort, before the book is
     # ready so it opens engraved; without the box the reader engraves on the device.
     engraving = await engrave_step(ctx, score_id, source_id, box=engraver, progress=0.85)
@@ -185,4 +190,5 @@ async def import_musicxml(job: Job, ctx: JobContext, *, engraver: Any = None) ->
         facts["work"] = movement or title
     ctx.db.table("scores").update(facts).eq("id", score_id).execute()
     await ctx.progress(1.0, "Ready")
-    return {"interpretation_id": interp["id"], "parts": names, "measures": len(numbers), "seconds": round(time.time() - t0, 1), "engraving": engraving}
+    return {"interpretation_id": interp["id"], "parts": names, "measures": len(numbers), "seconds": round(time.time() - t0, 1), "engraving": engraving,
+            "playback": played}
