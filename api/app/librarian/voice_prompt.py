@@ -24,10 +24,10 @@ class ScoreFacts:
     rehearsal_marks: list[str] = field(default_factory=lambda: list("ABCDEF"))
 
     def as_text(self) -> str:
-        return (f"Parts: {', '.join(self.parts)}.\n"
-                f"Members (players addressed by name): {', '.join(self.members)}.\n"
+        return (f"Parts: {', '.join(self.parts) or 'none named'}.\n"
+                f"Members (players addressed by name): {', '.join(self.members) or 'none'}.\n"
                 f"Bars: {self.bar_first} to {self.bar_last}.\n"
-                f"Rehearsal letters: {', '.join(self.rehearsal_marks)}.")
+                f"Rehearsal letters: {', '.join(self.rehearsal_marks) or 'none'}.")
 
 
 def parse_answer(text: str) -> object:

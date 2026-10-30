@@ -32,8 +32,8 @@ class Completion:
     charge: Charge
 
 
-def _client() -> AsyncAnthropic:
-    if settings.llm_provider == "meta":
+def _client(provider: str | None = None) -> AsyncAnthropic:
+    if (provider or settings.llm_provider) == "meta":
         # The SDK appends /v1/messages itself; META_API_BASE_URL is written with its /v1 (as Meta documents it).
         base = settings.meta_api_base_url.rstrip("/")
         base = base[:-3] if base.endswith("/v1") else base
@@ -41,20 +41,22 @@ def _client() -> AsyncAnthropic:
     return AsyncAnthropic(api_key=settings.anthropic_api_key, max_retries=1)
 
 
-def model_name() -> str:
-    return settings.meta_model if settings.llm_provider == "meta" else settings.anthropic_model
+def model_name(provider: str | None = None) -> str:
+    return settings.meta_model if (provider or settings.llm_provider) == "meta" else settings.anthropic_model
 
 
 async def complete(
     user_text: str, *, system: str | None = None, effort: str = "low", max_tokens: int = 4096,
-    image_png_b64: str | None = None,
+    image_png_b64: str | None = None, provider: str | None = None,
 ) -> Completion:
+    """`provider` overrides LLM_PROVIDER for one call: voice notes always use Spark, the model their prompt was tuned on."""
+    provider = provider or settings.llm_provider
     content: list[dict] = []
     if image_png_b64:
         content.append({"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": image_png_b64}})
     content.append({"type": "text", "text": user_text})
     kwargs: dict = {
-        "model": model_name(), "max_tokens": max_tokens,
+        "model": model_name(provider), "max_tokens": max_tokens,
         "messages": [{"role": "user", "content": content}],
     }
     if system:
@@ -63,12 +65,12 @@ async def complete(
     # reasoning from ~310 to ~70 output tokens). Spark's reasoning counts against max_tokens, so give it room:
     # a 64-token cap returned an empty reply.
     kwargs["output_config"] = {"effort": effort}
-    if settings.llm_provider == "meta":
+    if provider == "meta":
         kwargs["max_tokens"] = max(max_tokens, 1024)
-    res = await _client().messages.create(**kwargs)
+    res = await _client(provider).messages.create(**kwargs)
     text = "".join(b.text for b in res.content if b.type == "text")
     usage = res.usage
-    model = res.model or model_name()
+    model = res.model or model_name(provider)
     cost = price(model, usage.input_tokens, usage.output_tokens)
-    kind = "spark" if settings.llm_provider == "meta" else "claude"
-    return Completion(text, Charge(settings.llm_provider, model, kind, cost, usage.input_tokens, usage.output_tokens))
+    kind = "spark" if provider == "meta" else "claude"
+    return Completion(text, Charge(provider, model, kind, cost, usage.input_tokens, usage.output_tokens))

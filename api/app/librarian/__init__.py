@@ -103,7 +103,7 @@ def handler(kind: str) -> Callable[[Handler], Handler]:
 
 def load_handlers() -> None:
     """Import every handler module so it registers. Add new modules here."""
-    from . import engrave, import_musicxml, import_pdf, part_cut, part_split  # noqa: F401
+    from . import engrave, import_musicxml, import_pdf, part_cut, part_split, transcribe_voice  # noqa: F401
     try:
         from . import process_pages, transcribe_voice, brief  # noqa: F401  (intelligence thread)
     except ImportError:
