@@ -151,6 +151,19 @@ def audiences(mark: dict, score: Score) -> list[dict]:
     return out
 
 
+def plain(reason: str) -> str:
+    """`check_mark`'s reason in words the admin reads in the tray ("Left out: …")."""
+    if m := re.match(r"audience 'part:(.+)'$", reason):
+        return f"{m.group(1)} is not a part in this book"
+    if m := re.match(r"audience 'member:(.+)'$", reason):
+        return f"{m.group(1)} is not in this group"
+    if m := re.match(r"bar_(?:from|to) (\S+) outside (\S+)$", reason):
+        return f"bar {m.group(1)} is not in this book (bars {m.group(2).replace('-', '–')})"
+    if reason.startswith("quote not verbatim"):
+        return "a mark on words that were not said"
+    return "a mark Muse could not read"
+
+
 # ---------- Voice Transcribe ----------
 
 def pcm_wav(data: bytes) -> tuple[bytes, float]:
@@ -228,7 +241,7 @@ async def transcribe_voice(job: Job, ctx: JobContext, *, transcribe: Transcriber
         except ValueError:
             answer, result["refused"] = [], ["the model's answer was not JSON"]
         ok, refused = checked_marks(answer, transcript, score.facts)
-        result["refused"] += refused
+        result["refused"] += [plain(r) for r in refused]
         rows: list[dict] = []
         for m in ok:
             bars, auds = place(m, score), audiences(m, score)
@@ -242,7 +255,7 @@ async def transcribe_voice(job: Job, ctx: JobContext, *, transcribe: Transcriber
                     "kind": m["kind"], "body": m["text"].strip(), "status": "proposed", "author_id": job.created_by,
                     "measure_from": score.bar_ids[bars[0]], "measure_to": score.bar_ids[bars[1]], **a,
                     "payload": {"source": "voice", "utterance_id": utterance, "mark_id": mark_id, "quote": m["quote"],
-                                "transcript": transcript, "position": m["position"]},
+                                "transcript": transcript, "position": m["position"], "bar": bars[0], "bar_to": bars[1]},
                 })
             result["proposed"] += 1
         if rows:

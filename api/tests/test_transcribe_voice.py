@@ -96,6 +96,7 @@ async def test_a_take_becomes_proposed_rows_one_per_audience_sharing_a_mark_id()
     assert all(r["status"] == "proposed" and r["author_id"] == "u1" and r["payload"]["source"] == "voice" for r in rows)
     cut = [r for r in rows if r["kind"] == "cut"][0]
     assert (cut["measure_from"], cut["measure_to"], cut["audience"], cut["audience_part"]) == ("m42", "m48", "part", "Violin II")
+    assert (cut["payload"]["bar"], cut["payload"]["bar_to"]) == (42, 48)      # Realtime inserts carry no joined bar numbers
     soft = [r for r in rows if r["kind"] == "dynamic"]
     assert {r["audience_part"] for r in soft} == {"Violin I", "Violin II"} and len({r["payload"]["mark_id"] for r in soft}) == 1
     assert cut["payload"]["mark_id"] != soft[0]["payload"]["mark_id"]
@@ -135,7 +136,8 @@ async def test_checks_refuse_invented_quotes_and_bars_outside_the_score():
     answer = [mark(bar_from=12, bar_to=12, text="mf", quote="something nobody said"),
               mark(bar_from=900, bar_to=900, text="mf at 900", quote="bar nine hundred")]
     out, _, db, _ = await run("Everyone mezzo forte at bar nine hundred.", answer)
-    assert out["proposed"] == 0 and len(out["refused"]) == 2 and not db.rows.get("annotations")
+    assert out["proposed"] == 0 and not db.rows.get("annotations")
+    assert out["refused"] == ["a mark on words that were not said", "bar 900 is not in this book (bars 1–240)"]
 
 
 async def test_nothing_to_mark_and_silence_write_nothing():
@@ -143,6 +145,13 @@ async def test_nothing_to_mark_and_silence_write_nothing():
     assert out["proposed"] == 0 and out["refused"] == [] and not db.rows.get("annotations")
     out, ctx, db, _ = await run("", [])
     assert out["transcript"] == "" and ctx.prompts == [] and [c.kind for c in ctx.charges] == ["voice"]
+
+
+def test_refusals_read_as_words():
+    from app.librarian.transcribe_voice import plain
+    assert plain("audience 'part:Alto'") == "Alto is not a part in this book"
+    assert plain("audience 'member:Ana'") == "Ana is not in this group"
+    assert plain("kind 'tempo'") == "a mark Muse could not read"
 
 
 def test_only_mono_16_bit_speech_rates_pass():
