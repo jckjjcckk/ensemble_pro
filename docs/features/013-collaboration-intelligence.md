@@ -67,7 +67,20 @@ Done means: "Second violins, start at 34, skip 42 to 48" becomes a confirmed cut
   card per `mark_id`: kind, place, text, audience chips (the quickest fix), the quote, Accept / Edit / Dismiss,
   Accept all per take, "Left out: …" for refusals, "Nothing to mark", and "Tap a bar" for unplaced marks. Ghosts
   (glass, Muse-blue rim) sit over the proposed bars per system; a card tap jumps there, a ghost tap opens its card.
-  Proposed rows never draw as marks; the job is watched by Realtime on its row plus a 2 s poll, 60 s at most.
+  Proposed rows never draw as marks; the job is watched by Realtime on its row plus a 2 s poll until it is done or
+  failed (five minutes at most; the worker's two retries say "Trying again…"). Send again first asks the job, so a
+  job that is still working is watched again, never doubled; a reason the job gave about the recording itself is
+  shown and offers no resend.
+- Accepting is one transaction (web half audit, 2026-10-30): `commit_marks` (migration 20261030120000) removes,
+  changes and adds a card's rows together, as the caller, so the annotations policies decide every row; a row
+  gone or not the caller's refuses the whole call. Every row it writes carries its bars in `payload.bar` /
+  `bar_to`, which is what a player's Realtime copy (no joined measures) draws from: an edited cut reaches the
+  stand at its new bars. A cut whose text only names its bars ("Cut 42–48") is rewritten with them. A refusal or
+  no connection puts the card back from memory and says why ("Not saved. No connection. Try again."). The bar
+  steppers stop at the book's last bar; an unplaced item keeps the audience it was heard with. Checked
+  `api/scripts/smoke_commit_marks_local.py` (16 checks on the local stack: a batch with one bad write changes
+  nothing, a player is refused, edit bars, keep one part, drop one, add a player) and in the browser (accept with
+  bars 44–48 and Cello swapped for Lin; the same accept with the request failing rolls back and says so).
 - Checked 2026-10-30 in the browser on the local stack with real Meta calls (the pane blocks the microphone, so
   the take was fed through a replaced `getUserMedia`): v02 → "Cut 42–48", Violin II, in about 5 s; card tap → the
   ghost at bar 42; Accept → one live row for Violin II. v21 on a string quartet → "sfz at 65" for everyone plus

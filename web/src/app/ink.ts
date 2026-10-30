@@ -329,12 +329,13 @@ export function useBarMarks(scoreId: string, me: Me | null, opts: { partIdByName
 
   /**
    * Several row writes as one step (013, accepting or dismissing a voice proposal): removes, changes to held rows and
-   * new rows, applied here at once and then written. Bars are given as numbers and resolved to `measures.id`. On a
-   * refusal the score's rows are fetched again, so the screen shows what the database holds. Resolves to whether
-   * every write went through.
+   * new rows, shown here at once and then written in one transaction (`commit_marks`, migration
+   * 20261030120000_commit_marks): all of it or none of it. Bars are given as numbers; every row written carries them
+   * in `payload.bar` / `bar_to` too, which is what another reader's Realtime copy draws from. On a refusal (or no
+   * connection) the rows go back to what they were here, and the reason is returned for the card to show, or null.
    */
-  const commit = useCallback(async (w: { remove?: string[]; update?: MarkPatch[]; insert?: MarkInsert[] }): Promise<boolean> => {
-    if (!synced) return false
+  const commit = useCallback(async (w: { remove?: string[]; update?: MarkPatch[]; insert?: MarkInsert[] }): Promise<string | null> => {
+    if (!synced) return 'Voice notes need a book that syncs.'
     const m = meRef.current
     const del = w.remove ?? [], upd = w.update ?? []
     const ins = (w.insert ?? []).map(x => ({ ...x, id: newId() }))
@@ -346,11 +347,14 @@ export function useBarMarks(scoreId: string, me: Me | null, opts: { partIdByName
         audience: who.audience, audiencePart: who.audience === 'part' ? who.part : null, audienceMember: who.audience === 'member' ? who.member : null,
       }
     }
+    const touched = new Set([...del, ...upd.map(p => p.id)])
+    const was = recsRef.current.filter(x => touched.has(x.id))
+    const after = new Map(was.map(r => { const p = upd.find(u => u.id === r.id); return [r.id, p ? patched(r, p) : r] }))
     del.forEach(id => removing.current.add(id))
     upd.forEach(p => pending.current.add(p.id))
     ins.forEach(x => pending.current.add(x.id))
     setRecs(xs => [
-      ...xs.filter(x => !del.includes(x.id)).map(x => { const p = upd.find(u => u.id === x.id); return p ? patched(x, p) : x }),
+      ...xs.filter(x => !del.includes(x.id)).map(x => (upd.some(u => u.id === x.id) ? after.get(x.id) ?? x : x)),
       ...ins.map(x => patched({
         id: x.id, scoreId, kind: x.kind, body: x.body, audience: 'ensemble', audiencePart: null, audienceMember: null,
         authorId: m!.userId!, createdAt: now, barFrom: x.barFrom, barTo: x.barTo, status: x.status, payload: x.payload,
@@ -360,56 +364,38 @@ export function useBarMarks(scoreId: string, me: Me | null, opts: { partIdByName
       audience: who.audience, audience_part: who.audience === 'part' ? who.part : null, audience_member_id: who.audience === 'member' ? who.member : null,
     })
     try {
-      const nums = [...new Set([...upd.flatMap(p => [p.barFrom, p.barTo]), ...ins.flatMap(x => [x.barFrom, x.barTo])].filter((n): n is number => n != null))]
-      const idOf = new Map<number, string>()
-      if (nums.length) {
-        const { data, error: e1 } = await supabase.rpc('measure_ids', { p_score: scoreId, p_numbers: nums })
-        if (e1) throw e1
-        for (const r of data as { number: number; id: string }[]) { idOf.set(r.number, r.id); bars.current.set(r.id, r.number) }
-        const missing = nums.find(n => !idOf.has(n))
-        if (missing != null) throw new Error(`This score has no bar ${missing}.`)
-      }
-      if (del.length) {
-        const { error: e } = await supabase.from('annotations').delete().in('id', del)
-        if (e) throw e
-      }
-      for (const p of upd) {
-        const row: Row = {
-          ...(p.status ? { status: p.status } : {}), ...(p.body !== undefined ? { body: p.body } : {}),
-          ...(p.barFrom != null ? { measure_from: idOf.get(p.barFrom) } : {}), ...(p.barTo != null ? { measure_to: idOf.get(p.barTo) } : {}),
-          ...(p.who ? whoCols(p.who) : {}),
-        }
-        const { data, error: e } = await supabase.from('annotations').update(row).eq('id', p.id).select(markSelect()).single()
-        if (e) throw e
-        const rec = toRec(data as unknown as Row, bars.current)
-        if (rec) upsert(rec)
-      }
-      if (ins.length) {
-        const lay = layerRef.current
-        const rows: Row[] = ins.map(x => ({
-          id: x.id, score_id: scoreId, kind: x.kind, measure_from: idOf.get(x.barFrom), measure_to: idOf.get(x.barTo),
-          author_id: m!.userId, body: x.body, status: x.status, payload: { ...x.payload, bar: x.barFrom, bar_to: x.barTo }, ...whoCols(x.who),
-          ...(lay !== undefined && !layerColumn.missing ? { ensemble_id: lay } : {}),
-        }))
-        const { data, error: e } = await supabase.from('annotations').insert(rows).select(markSelect())
-        if (e) throw e
-        for (const r of (data ?? []) as unknown as Row[]) { const rec = toRec(r, bars.current); if (rec) upsert(rec) }
-      }
+      const lay = layerRef.current
+      const { data, error: e } = await supabase.rpc('commit_marks', {
+        p_score: scoreId, p_layer: lay ?? null, p_remove: del,
+        // Every change names the row's bars as they will be, so measure ids and the payload's copy move together.
+        p_update: upd.map(p => {
+          const r = after.get(p.id)
+          return {
+            id: p.id, bar_from: r?.barFrom ?? p.barFrom, bar_to: r?.barTo ?? p.barTo,
+            ...(p.status ? { status: p.status } : {}), ...(p.body !== undefined ? { body: p.body } : {}), ...(p.who ? whoCols(p.who) : {}),
+          }
+        }),
+        p_insert: ins.map(x => ({ id: x.id, kind: x.kind, bar_from: x.barFrom, bar_to: x.barTo, status: x.status, body: x.body, payload: x.payload, ...whoCols(x.who) })),
+      })
+      if (e) throw e
+      for (const r of (data ?? []) as Row[]) { const rec = toRec(r, bars.current); if (rec) upsert(rec) }
       setError(null)
-      return true
+      return null
     } catch (e) {
-      setError(e instanceof Error ? e.message : String((e as { message?: string })?.message ?? e))
-      // After a refusal the optimistic rows are wrong: read the truth again, once the guards above are let go.
-      window.setTimeout(() => void refetch(), 0)
-      return false
+      const msg = e instanceof Error ? e.message : String((e as { message?: string })?.message ?? e)
+      const reason = !navigator.onLine || /fetch|network|load failed/i.test(msg) ? 'No connection.' : msg
+      // Nothing was written (one transaction): put back what was here, without asking the server again.
+      const back = new Set(ins.map(x => x.id))
+      setRecs(xs => [...xs.filter(x => !back.has(x.id) && !touched.has(x.id)), ...was])
+      return reason
     } finally {
       del.forEach(id => removing.current.delete(id))
       upd.forEach(p => pending.current.delete(p.id))
       ins.forEach(x => pending.current.delete(x.id))
     }
-  }, [scoreId, synced, upsert, refetch])
+  }, [scoreId, synced, upsert])
 
-  return { marks, proposed, add, remove, commit, toggleHighlight, synced, error, live: status }
+  return { marks, proposed, add, remove, commit, reload: refetch, toggleHighlight, synced, error, live: status }
 }
 
 // ---------------------------------------------------------------- scribbles

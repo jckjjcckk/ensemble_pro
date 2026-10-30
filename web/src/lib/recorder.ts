@@ -100,39 +100,51 @@ export async function startRecording(opts: Options = {}): Promise<Recorder> {
     if (frames >= limit) opts.onLimit?.()
   }
 
-  const source = ctx.createMediaStreamSource(stream)
-  // A silent sink keeps the graph pulling on every engine without playing the voice back.
-  const mute = ctx.createGain()
-  mute.gain.value = 0
-  mute.connect(ctx.destination)
-  let node: AudioNode
-  let url: string | null = null
-  try {
-    if (!ctx.audioWorklet) throw new Error('no worklet')
-    url = URL.createObjectURL(new Blob([WORKLET], { type: 'application/javascript' }))
-    await ctx.audioWorklet.addModule(url)
-    const w = new AudioWorkletNode(ctx, 'folio-tap', { numberOfInputs: 1, numberOfOutputs: 1, channelCount: 1, channelCountMode: 'explicit' })
-    w.port.onmessage = e => take(e.data as Float32Array)
-    node = w
-  } catch {
-    // Older engines: the deprecated ScriptProcessor does the same job on the main thread.
-    const sp = ctx.createScriptProcessor(2048, 1, 1)
-    sp.onaudioprocess = e => take(new Float32Array(e.inputBuffer.getChannelData(0)))
-    node = sp
-  } finally {
-    if (url) URL.revokeObjectURL(url)
-  }
-  source.connect(node)
-  node.connect(mute)
-  // The context was made inside the touch; once the stream is live, ask again in case the engine held it suspended.
-  if (ctx.state !== 'running') await ctx.resume().catch(() => undefined)
-
+  let source: MediaStreamAudioSourceNode | null = null
+  let node: AudioNode | null = null
   const release = () => {
     if (!open) return
     open = false
-    try { source.disconnect(); node.disconnect() } catch { /* already gone */ }
+    try { source?.disconnect(); node?.disconnect() } catch { /* already gone */ }
     stream.getTracks().forEach(t => t.stop())
     void ctx.close().catch(() => undefined)
+  }
+
+  // From here on the microphone is open: anything that goes wrong lets it go before saying so.
+  try {
+    source = ctx.createMediaStreamSource(stream)
+    // A silent sink keeps the graph pulling on every engine without playing the voice back.
+    const mute = ctx.createGain()
+    mute.gain.value = 0
+    mute.connect(ctx.destination)
+    let url: string | null = null
+    try {
+      if (!ctx.audioWorklet) throw new Error('no worklet')
+      url = URL.createObjectURL(new Blob([WORKLET], { type: 'application/javascript' }))
+      await ctx.audioWorklet.addModule(url)
+      const w = new AudioWorkletNode(ctx, 'folio-tap', { numberOfInputs: 1, numberOfOutputs: 1, channelCount: 1, channelCountMode: 'explicit' })
+      w.port.onmessage = e => take(e.data as Float32Array)
+      node = w
+    } catch {
+      // Older engines: the deprecated ScriptProcessor does the same job on the main thread.
+      const sp = ctx.createScriptProcessor(2048, 1, 1)
+      sp.onaudioprocess = e => take(new Float32Array(e.inputBuffer.getChannelData(0)))
+      node = sp
+    } finally {
+      if (url) URL.revokeObjectURL(url)
+    }
+    source.connect(node)
+    node.connect(mute)
+    // The context was made inside the touch; once the stream is live, ask again in case the engine held it suspended.
+    if (ctx.state !== 'running') await ctx.resume().catch(() => undefined)
+  } catch {
+    release()
+    throw new MicError('failed', 'The microphone could not be opened.')
+  }
+  // A context that will not run records silence: say so now rather than send an empty take.
+  if ((ctx.state as string) !== 'running') {
+    release()
+    throw new MicError('failed', 'The microphone did not start.')
   }
 
   return {
@@ -150,7 +162,10 @@ export async function startRecording(opts: Options = {}): Promise<Recorder> {
 }
 
 /** Band-limited resampling (a Hann-windowed sinc, eight zero crossings of the low-pass each side), so a 48 kHz voice
- *  comes down to 16 kHz without folding its hiss into the speech band. */
+ *  comes down to 16 kHz without folding its hiss into the speech band. The kernel is tabulated once per call at
+ *  `PHASES` fractional offsets, so a two-minute take is multiply-adds only (no sin/cos per tap): about a tenth of a
+ *  second on an iPad rather than a frozen second or two. */
+const PHASES = 256
 export function resample(x: Float32Array, from: number, to: number): Float32Array {
   if (from === to) return x
   const r = from / to
@@ -158,15 +173,26 @@ export function resample(x: Float32Array, from: number, to: number): Float32Arra
   const out = new Float32Array(n)
   const fc = Math.min(1, to / from) * 0.94 // the cutoff, as a fraction of the source's Nyquist
   const half = Math.ceil(8 / fc)
+  const taps = 2 * half
+  // table[p * taps + j]: the weight of x[c - half + 1 + j] when the output falls p / PHASES past sample c.
+  const table = new Float32Array((PHASES + 1) * taps)
+  for (let p = 0; p <= PHASES; p++) {
+    for (let j = 0; j < taps; j++) {
+      const d = p / PHASES + half - 1 - j
+      const a = Math.PI * fc * d
+      table[p * taps + j] = Math.abs(d) >= half ? 0 : (d === 0 ? 1 : Math.sin(a) / a) * (0.5 + 0.5 * Math.cos((Math.PI * d) / half))
+    }
+  }
   for (let i = 0; i < n; i++) {
     const t = i * r
     const c = Math.floor(t)
+    const row = Math.round((t - c) * PHASES) * taps
+    const k0 = c - half + 1
+    const j0 = Math.max(0, -k0), j1 = Math.min(taps - 1, x.length - 1 - k0)
     let acc = 0, wsum = 0
-    for (let k = Math.max(0, c - half + 1); k <= Math.min(x.length - 1, c + half); k++) {
-      const d = t - k
-      const a = Math.PI * fc * d
-      const h = (d === 0 ? 1 : Math.sin(a) / a) * (0.5 + 0.5 * Math.cos((Math.PI * d) / half))
-      acc += x[k] * h
+    for (let j = j0; j <= j1; j++) {
+      const h = table[row + j]
+      acc += x[k0 + j] * h
       wsum += h
     }
     out[i] = wsum ? acc / wsum : 0

@@ -2,14 +2,17 @@
    from docs/design liquid_glass M5_GlassSurface and the glass probe: a light frost (1.2 px), a silver hairline rim, a
    glint; listening lights the glass from inside in Muse blue, brighter with the voice (--level, 0..1); placing a note
    drifts a soft multicolour wash through it. Muse blue (--muse) is used here only. No SVG refraction: the frost is a
-   plain backdrop-filter, which iPad Safari and the app's webview draw. */
+   plain backdrop-filter, which iPad Safari and the app's webview draw.
+   Words on glass must read over anything behind it (a white page, black notation, the dark desk): the pane is tinted
+   with the theme's paper at 74%, which keeps the frost and the page showing through and holds its text at 5.8:1 or
+   better in dark mode and 8:1 in light, worst case. The ghosts carry no text on the pane, so they stay near-clear. */
 
 /* ---------------------------------------------------------------- the glass */
 
 .fo .vglass {
   --level: 0;
   position: relative; isolation: isolate; border: 0;
-  background: hsl(0 0% 100% / 0.14);
+  background: color-mix(in srgb, var(--paper) 74%, transparent);
   -webkit-backdrop-filter: blur(1.2px) saturate(1.2) brightness(1.03);
   backdrop-filter: blur(1.2px) saturate(1.2) brightness(1.03);
   box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.12) inset, 0 0 10px 4px rgba(0, 0, 0, 0.06) inset, 0 4px 16px rgba(17, 17, 26, 0.06), 0 12px 36px rgba(17, 17, 26, 0.08);
@@ -24,9 +27,11 @@
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
 }
-.fo .vglass > .v-glint { background: radial-gradient(120% 60% at 30% 0%, hsl(0 0% 100% / 0.35), transparent 55%); }
-.fo .vglass > .v-glow { opacity: 0; transition: opacity 180ms cubic-bezier(0.16, 1, 0.3, 1); }
-.fo .vglass > .v-wash { overflow: hidden; opacity: 0; transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1); }
+.fo .vglass > .v-glint { background: radial-gradient(120% 60% at 30% 0%, hsl(0 0% 100% / var(--glint, 0.35)), transparent 55%); }
+@media (prefers-color-scheme: dark) { .fo:not([data-theme='light']) .vglass { --glint: 0.1; --glow-max: 0.16; } }
+.fo[data-theme='dark'] .vglass { --glint: 0.1; --glow-max: 0.16; }
+.fo .vglass > .v-glow { opacity: 0; transition: opacity 160ms cubic-bezier(0.16, 1, 0.3, 1); }
+.fo .vglass > .v-wash { overflow: hidden; opacity: 0; transition: opacity 180ms cubic-bezier(0.16, 1, 0.3, 1); }
 .fo .vglass > .v-wash::before {
   content: ''; position: absolute; inset: -70% -30%;
   background:
@@ -38,7 +43,7 @@
     radial-gradient(closest-side at 88% 18%, #FFF7DF, transparent),
     #F7E9E4;
   filter: blur(12px);
-  animation: v-drift 11s ease-in-out infinite alternate;
+  animation: v-drift 6s ease-in-out infinite alternate;
   animation-play-state: paused;
 }
 @keyframes v-drift {
@@ -53,7 +58,8 @@
 }
 .fo .vglass.is-lit > .v-glow, .fo .v-pill[data-state='listening'] > .v-glow {
   opacity: 1;
-  background: radial-gradient(90% 120% at 50% 50%, rgb(var(--muse-rgb) / 0.06), rgb(var(--muse-rgb) / calc(0.14 + 0.16 * var(--level))));
+  /* In dark mode the blue fill is held lower (--glow-max): the light clock over it keeps its contrast. */
+  background: radial-gradient(90% 120% at 50% 50%, rgb(var(--muse-rgb) / 0.06), rgb(var(--muse-rgb) / calc(var(--glow-max, 0.3) * (0.47 + 0.53 * var(--level)))));
   box-shadow: inset 0 0 calc(10px + 12px * var(--level)) calc(1px + 3px * var(--level)) rgb(var(--muse-rgb) / calc(0.35 + 0.4 * var(--level))), inset 0 0 2px 1px rgba(210, 230, 255, 0.9);
 }
 .fo .vglass.is-lit > .v-glint, .fo .v-pill[data-state='listening'] > .v-glint { background: radial-gradient(120% 60% at 30% 0%, hsl(214 100% 97% / 0.55), transparent 55%); }
@@ -90,7 +96,14 @@
 
 .fo .v-count { height: 48px; padding: 0 16px; border-radius: 24px; display: inline-flex; align-items: center; gap: 7px; font: 500 13px/1 var(--font-ui); }
 .fo .v-count > span:not([aria-hidden]) { position: relative; z-index: 1; }
-.fo .v-count-n { font-size: 17px; color: var(--muse); }
+.fo .v-count-n { font-size: 17px; color: var(--text); }
+
+/* Portrait on the smaller iPads: the count sits over the pill rather than beside it, so the row stays clear of the
+   page number at the foot of the page, and a mark that did not save says so above the button, not under it. */
+@media (orientation: portrait) and (max-width: 820px) {
+  .fo .v-row { flex-direction: column; align-items: flex-end; }
+  .fo .stand:has(.v-dock) .mark-error { bottom: calc(88px + env(safe-area-inset-bottom)); }
+}
 
 /* One line over the button: how it works after a tap, or what went wrong with a retry. */
 .fo .v-say {
@@ -102,7 +115,7 @@
 .fo .v-say.is-problem > span { flex: 1; min-width: 0; color: var(--fail); }
 .fo .v-say-btn { flex: none; height: 36px; padding: 0 12px; border: 0; border-radius: 9px; background: var(--seg); font: 600 13px/1 var(--font-ui); color: var(--text); position: relative; }
 .fo .v-say-btn::after { content: ''; position: absolute; inset: -4px 0; }
-.fo .v-say-x { flex: none; display: inline-grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 9px; background: transparent; color: var(--text-3); }
+.fo .v-say-x { flex: none; display: inline-grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 9px; background: transparent; color: var(--text-3); }
 
 /* Choosing a bar for something Muse could not place. */
 .fo .v-pickhint {

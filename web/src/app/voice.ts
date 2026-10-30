@@ -13,6 +13,7 @@ import { ApiError, apiFailure, sendVoice } from '../lib/api'
 import type { Recording } from '../lib/recorder'
 import { newId } from './presence'
 import { sameWho, whoOf, type Layer, type MarkInsert, type MarkPatch, type MarkRec, type Who } from './ink'
+import { barRange } from './store'
 
 /** Heard, but not on a bar the score has (a rehearsal letter it lacks, "the last page"). */
 export interface Unplaced { text: string; kind: string; position: string; audience: string[]; quote: string }
@@ -25,6 +26,8 @@ export interface VoiceResult {
 }
 
 type Phase = 'sending' | 'queued' | 'running' | 'done' | 'failed'
+/** The parts and players a note can be for. */
+export interface Roster { parts: string[]; members: { id: string; name: string }[] }
 export interface TakeProblem { kind: 'offline' | 'server' | 'job'; message: string }
 
 export interface Take {
@@ -38,6 +41,8 @@ export interface Take {
   utteranceId?: string
   result?: VoiceResult
   problem?: TakeProblem
+  /** An attempt failed and the worker will try the job again. */
+  retrying?: boolean
   /** The recording, kept for a retry until the job is done. */
   wav: Blob | null
   /** Unplaced items still waiting, each with the bar the admin tapped for it. */
@@ -77,7 +82,23 @@ export interface Draft { body: string; barFrom: number; barTo: number; who: Who[
 const KINDS: AnnotationKind[] = ['cut', 'dynamic', 'marking', 'text', 'breath', 'bowing']
 const asKind = (k: unknown): AnnotationKind => (KINDS.includes(k as AnnotationKind) ? (k as AnnotationKind) : 'text')
 const JOB_POLL_MS = 2000
-const JOB_WAIT_MS = 60_000
+/** A job is watched until it is done or failed. The worker retries a failed attempt twice (10 s, then 20 s later), so
+ *  an answer comes within two minutes when a worker is up; past this, the take stops waiting, and Send again first
+ *  asks the job once more, so a job that does finish is never doubled by a second one. */
+const JOB_WAIT_MS = 5 * 60_000
+
+/** The job's own words when the handler gave a reason the admin can act on (`ScoreFailure`); technical text stays in
+ *  `jobs.error`. */
+function jobWords(err: unknown): { message: string; final: boolean } {
+  const e = typeof err === 'string' ? err : ''
+  if (e.startsWith('ScoreFailure: ')) { const m = e.slice(14).trim(); return { message: /[.!?]$/.test(m) ? m : `${m}.`, final: true } }
+  return { message: 'Muse couldn’t place that note.', final: false }
+}
+
+/** A cut's stand text that only restates its bars ("Cut 42–48") follows the bars when they are edited. */
+const BARE_CUT = /^cut(?:\s+(?:bars?\s+)?\d+(?:\s*[–-]\s*\d+)?)?$/i
+export const cutText = (kind: AnnotationKind, body: string, from: number, to: number) =>
+  kind === 'cut' && BARE_CUT.test(body.trim()) ? `Cut ${barRange(from, to)}` : body
 
 function parseResult(r: unknown): VoiceResult {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -135,7 +156,7 @@ function cardOf(rows: MarkRec[], quotes: Map<string, string>): Card {
  *  new row (or reuses a row whose audience was taken away), one taken away and not reused is deleted. */
 export function acceptWrites(card: Card, d: Draft, utteranceId: string | null): { update: MarkPatch[]; insert: MarkInsert[]; remove: string[] } {
   const want = d.who.length ? d.who : [{ audience: 'ensemble' } as Who]
-  const body = d.body.trim() || card.body
+  const body = cutText(card.kind, d.body.trim() || card.body, d.barFrom, d.barTo)
   if (card.unplaced) {
     const markId = newId()
     return {
@@ -173,8 +194,11 @@ export function acceptWrites(card: Card, d: Draft, utteranceId: string | null): 
  * The voice takes of this visit and the proposals waiting on this score's layer, as tray groups (newest first).
  * `proposed` comes from the marks hook; proposals left from an earlier visit form groups of their own.
  */
-export function useVoice({ scoreId, layer, token, proposed, onArrive }: {
-  scoreId: string; layer: Layer; token: string | null; proposed: MarkRec[]; onArrive?: (t: Take) => void
+export function useVoice({ scoreId, layer, token, proposed, roster, reload, onArrive }: {
+  scoreId: string; layer: Layer; token: string | null; proposed: MarkRec[]; roster: Roster
+  /** Read the score's marks again: a finished job's proposals are fetched even if their Realtime inserts were missed. */
+  reload?: () => void
+  onArrive?: (t: Take) => void
 }) {
   const [all, setTakes] = useState<Take[]>([])
   // A take belongs to the score and layer it was spoken on; another one starts an empty tray.
@@ -182,7 +206,8 @@ export function useVoice({ scoreId, layer, token, proposed, onArrive }: {
   const takes = useMemo(() => all.filter(t => t.scope === scope), [all, scope])
   const tokenRef = useRef(token)
   const arriveRef = useRef(onArrive)
-  useLayoutEffect(() => { tokenRef.current = token; arriveRef.current = onArrive })
+  const reloadRef = useRef(reload)
+  useLayoutEffect(() => { tokenRef.current = token; arriveRef.current = onArrive; reloadRef.current = reload })
   const patch = useCallback((key: string, fn: (t: Take) => Take) => setTakes(ts => ts.map(t => (t.key === key ? fn(t) : t))), [])
 
   const post = useCallback(async (key: string, wav: Blob) => {
@@ -206,10 +231,16 @@ export function useVoice({ scoreId, layer, token, proposed, onArrive }: {
     void post(key, rec.wav)
   }, [post, scope])
 
-  const retry = useCallback((key: string) => {
+  const retry = useCallback(async (key: string) => {
     const t = takes.find(x => x.key === key)
-    if (!t?.wav) return
-    patch(key, x => ({ ...x, at: Date.now(), phase: 'sending', problem: undefined, jobId: undefined, utteranceId: undefined, result: undefined, closed: false }))
+    if (!t) return
+    // A job that stopped being watched may still be working or done: watch it again rather than send a second one.
+    if (t.jobId) {
+      const { data } = await supabase.from('jobs').select('status').eq('id', t.jobId).maybeSingle()
+      if (data && data.status !== 'failed') { patch(key, x => ({ ...x, phase: 'queued', problem: undefined, closed: false })); return }
+    }
+    if (!t.wav) return
+    patch(key, x => ({ ...x, at: Date.now(), phase: 'sending', problem: undefined, retrying: false, jobId: undefined, utteranceId: undefined, result: undefined, closed: false }))
     void post(key, t.wav)
   }, [takes, patch, post])
 
@@ -224,13 +255,17 @@ export function useVoice({ scoreId, layer, token, proposed, onArrive }: {
       if (row.status === 'done') {
         stop()
         const result = parseResult(row.result)
-        patch(key, t => ({ ...t, phase: 'done', result, wav: null, unplaced: result.unplaced.map(item => ({ id: newId(), item, bar: null })) }))
+        patch(key, t => (t.phase === 'done' ? t : { ...t, phase: 'done', retrying: false, result, wav: null, unplaced: result.unplaced.map(item => ({ id: newId(), item, bar: null })) }))
+        if (result.proposed > 0) reloadRef.current?.()
       } else if (row.status === 'failed') {
         stop()
-        patch(key, t => ({ ...t, phase: 'failed', problem: { kind: 'job', message: 'Couldn’t use that recording.' } }))
+        const w = jobWords(row.error)
+        // A reason about the recording itself will not change on a second send: no Send again.
+        patch(key, t => ({ ...t, phase: 'failed', retrying: false, problem: { kind: 'job', message: w.message }, ...(w.final ? { wav: null } : {}) }))
       } else if (row.status === 'running' || row.status === 'queued') {
         const phase = row.status
-        patch(key, t => (t.phase === phase || t.phase === 'done' || t.phase === 'failed' ? t : { ...t, phase }))
+        const retrying = !!row.error
+        patch(key, t => (t.phase === 'done' || t.phase === 'failed' || (t.phase === phase && !!t.retrying === retrying) ? t : { ...t, phase, retrying }))
       }
     }
     const ch = supabase.channel(`job:${jobId}:${newId().slice(0, 8)}`)
@@ -239,7 +274,7 @@ export function useVoice({ scoreId, layer, token, proposed, onArrive }: {
     const poll = window.setInterval(() => {
       if (Date.now() - t0 > JOB_WAIT_MS) {
         stop()
-        patch(key, t => ({ ...t, phase: 'failed', problem: { kind: 'job', message: 'No answer within a minute.' } }))
+        patch(key, t => ({ ...t, phase: 'failed', problem: { kind: 'job', message: 'Muse hasn’t answered yet.' } }))
         return
       }
       void supabase.from('jobs').select('id,status,result,error').eq('id', jobId).maybeSingle().then(({ data }) => onRow(data))
@@ -308,7 +343,8 @@ export function useVoice({ scoreId, layer, token, proposed, onArrive }: {
       const mine = t.utteranceId ? cards.filter(c => utt(c) === t.utteranceId) : []
       mine.forEach(c => claimed.add(c.key))
       const loose: Card[] = t.unplaced.map(u => ({
-        key: `${t.key}:${u.id}`, kind: asKind(u.item.kind), body: u.item.text, barFrom: u.bar, barTo: u.bar, who: [], quote: u.item.quote, rows: [],
+        key: `${t.key}:${u.id}`, kind: asKind(u.item.kind), body: u.item.text, barFrom: u.bar, barTo: u.bar,
+        who: parseAudience(u.item.audience, roster.parts, roster.members), quote: u.item.quote, rows: [],
         unplaced: { takeKey: t.key, id: u.id, item: u.item },
       }))
       const all = [...mine, ...loose]
@@ -326,7 +362,7 @@ export function useVoice({ scoreId, layer, token, proposed, onArrive }: {
       out.push({ key: `u:${k}`, at, transcript: earlier.get(k)?.transcript ?? null, cards: cs, refused: [] })
     }
     return out.sort((a, b) => b.at - a.at)
-  }, [takes, proposed, earlier])
+  }, [takes, proposed, earlier, roster])
 
   const close = useCallback((key: string) => patch(key, t => ({ ...t, closed: true, wav: null })), [patch])
   const settle = useCallback((key: string) => patch(key, t => ({ ...t, settled: t.settled + 1 })), [patch])

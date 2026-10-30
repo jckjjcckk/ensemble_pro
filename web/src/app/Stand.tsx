@@ -222,16 +222,16 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
   const [voiceFocus, setVoiceFocus] = useState<string | null>(null)
   const [picking, setPicking] = useState<Card | null>(null)
   const listening = useRef(false)
-  const voice = useVoice({
-    scoreId: score.id, layer, token: session?.access_token ?? null, proposed: canVoice ? quick.proposed : [],
-    // A take that found something opens the tray, unless the admin is in the middle of another tool.
-    onArrive: () => { if (!tool && !scribble && !menu.menu && !picking && !listening.current) setTrayOpen(true) },
-  })
-  const voiceCards = useMemo(() => voice.groups.flatMap(g => g.cards), [voice.groups])
   const roster = useMemo(() => ({
     parts: ensemble ? parts.map(p => p.name) : [],
     members: (ensemble?.members ?? []).map(m => ({ id: m.id, name: memberName(m) })),
   }), [ensemble, parts])
+  const voice = useVoice({
+    scoreId: score.id, layer, token: session?.access_token ?? null, proposed: canVoice ? quick.proposed : [], roster, reload: quick.reload,
+    // A take that found something opens the tray, unless the admin is in the middle of another tool.
+    onArrive: () => { if (!tool && !scribble && !menu.menu && !picking && !listening.current) setTrayOpen(true) },
+  })
+  const voiceCards = useMemo(() => voice.groups.flatMap(g => g.cards), [voice.groups])
 
   // Follow the admin (players): the spread follows the admin's bar; the reader's own turn lets go.
   const [following, setFollowing] = useState(false)
@@ -602,7 +602,7 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
         {canVoice && !tool && !scribble && !picking && (
           <VoiceButton voice={voice} reduced={reduced} lifted={!!zoom} under={trayOpen} onListening={on => { listening.current = on }} onOpen={() => setTrayOpen(true)} />
         )}
-        <PickHint card={picking} onCancel={() => { setPicking(null); setTrayOpen(true) }} />
+        <PickHint card={picking} reduced={reduced} onCancel={() => { setPicking(null); setTrayOpen(true) }} />
         <InkBar open={scribble} tool={inkTool} color={inkColor} status={ink.synced ? ink.state : 'local'} onTool={setInkTool} onColor={setInkColor} onDone={endScribble} />
         <Fade show={!!quick.error} className="mark-error" role="alert">Could not save that mark. {quick.error}</Fade>
       </main>
@@ -629,7 +629,7 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
       </Sheet>
       {canVoice && (
         <VoiceTray
-          open={trayOpen} onClose={() => setTrayOpen(false)} voice={voice} commit={quick.commit} roster={roster} focus={voiceFocus}
+          open={trayOpen} onClose={() => setTrayOpen(false)} voice={voice} commit={quick.commit} roster={roster} lastBar={score.bars || undefined} focus={voiceFocus}
           onShow={c => { if (c.barFrom != null) { setVoiceFocus(c.key); jump(c.barFrom) } }}
           onPick={c => { setPicking(c); setVoiceFocus(c.key); setTrayOpen(false); menu.close() }}
         />

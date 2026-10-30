@@ -12,11 +12,12 @@ import { barRange, kindLabel } from './store'
 import { IClose, IMic } from './icons'
 import { Sheet } from './Sheet'
 import { sameWho, type MarkInsert, type MarkPatch, type Who } from './ink'
-import { acceptWrites, type Card, type Draft, type Group, type useVoice } from './voice'
+import { acceptWrites, cutText, type Card, type Draft, type Group, type Roster, type useVoice } from './voice'
 import './voice.css'
 
 type Voice = ReturnType<typeof useVoice>
-type Commit = (w: { remove?: string[]; update?: MarkPatch[]; insert?: MarkInsert[] }) => Promise<boolean>
+/** Writes a card's rows in one transaction; resolves to why it did not, or null. */
+type Commit = (w: { remove?: string[]; update?: MarkPatch[]; insert?: MarkInsert[] }) => Promise<string | null>
 
 /** A hold shorter than this is a tap: nothing is sent. */
 const HOLD_MS = 400
@@ -103,8 +104,12 @@ export function VoiceButton({ voice, reduced, lifted, under, onListening, onOpen
     voice.send(r)
   }
 
-  // Leaving the Stand mid-take lets the microphone go.
-  useEffect(() => () => { take.current?.rec?.cancel(); take.current = null }, [])
+  // Leaving the Stand mid-take lets the microphone go, also when it is still opening (`begin` cancels it on arrival).
+  useEffect(() => () => {
+    const t = take.current
+    take.current = null
+    if (t) { t.ended = true; t.rec?.cancel() }
+  }, [])
 
   useEffect(() => {
     if (mode !== 'listening') return
@@ -160,7 +165,7 @@ export function VoiceButton({ voice, reduced, lifted, under, onListening, onOpen
           <motion.div key="err" className="v-say is-problem" role="alert"
             initial={{ opacity: 0, y: reduced ? 0 : 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.16 }}>
             <span>{line}</span>
-            {failed?.wav && <button type="button" className="v-say-btn" onClick={() => voice.retry(failed.key)}>Send again</button>}
+            {failed?.wav && <button type="button" className="v-say-btn" onClick={() => void voice.retry(failed.key)}>Send again</button>}
             {mode === 'mic' && <button type="button" className="v-say-btn" onClick={() => { setMicMsg(null); setMode('idle') }}>Try again</button>}
             {failed && <button type="button" className="v-say-x" aria-label="Put it away" onClick={() => voice.close(failed.key)}><IClose size={16} /></button>}
           </motion.div>
@@ -179,9 +184,10 @@ export function VoiceButton({ voice, reduced, lifted, under, onListening, onOpen
           onKeyDown={onKeyDown} onKeyUp={onKeyUp} onContextMenu={e => e.preventDefault()}
         >
           <GlassLayers />
-          <span className="v-pill-in" aria-live="polite">
+          {/* The clock is in the label; announcing it would read every tick. */}
+          <span className="v-pill-in" aria-live={state === 'listening' ? 'off' : 'polite'}>
             {state === 'listening' ? <><span className="v-dot" aria-hidden="true" /><span className="v-time num">{clock(sec)}</span></>
-              : state === 'working' ? <span>Placing your note…</span>
+              : state === 'working' ? <span>{latest?.retrying ? 'Trying again…' : 'Placing your note…'}</span>
                 : flash ? <span>{flash}</span>
                   : <><IMic size={20} />Hold to speak</>}
           </span>
@@ -197,14 +203,22 @@ export function VoiceButton({ voice, reduced, lifted, under, onListening, onOpen
  *  "proposed · 42". A tap opens its card in the tray. Accepted, it becomes the ordinary mark; dismissed, it fades. */
 export function VoiceGhosts({ geo, cards, focus, onOpen }: { geo: Geo; cards: Card[]; focus: string | null; onOpen: (key: string) => void }) {
   const lenses = cards.flatMap(c => (c.barFrom == null ? [] : spanRects(geo, c.barFrom, c.barTo ?? c.barFrom).map((r, i) => ({ c, r, i }))))
+  // A ghost lets the pointer through to the spread's drag; only a press that stays put (a tap) opens its card.
+  const down = useRef<{ x: number; y: number } | null>(null)
   return (
     <AnimatePresence>
       {lenses.map(({ c, r, i }) => (
         <motion.button
           key={`${c.key}:${r.first}`} type="button" className={`vglass v-ghost ${focus === c.key ? 'is-focus' : ''}`}
           style={{ left: r.x - 3, top: r.y - 12, width: r.w + 6, height: r.h + 24 }}
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.24 } }} transition={{ duration: 0.2 }}
-          onClick={e => { e.stopPropagation(); onOpen(c.key) }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.18 } }} transition={{ duration: 0.16 }}
+          onPointerDown={e => { down.current = { x: e.clientX, y: e.clientY } }}
+          onClick={e => {
+            e.stopPropagation()
+            const d = down.current
+            down.current = null
+            if (!d || Math.hypot(e.clientX - d.x, e.clientY - d.y) < 10) onOpen(c.key)
+          }}
           aria-label={`Proposed ${kindLabel[c.kind].toLowerCase()}, ${placeOf(c.barFrom, c.barTo)}: ${c.body}. Open it in voice notes`}
         >
           <GlassLayers />
@@ -217,8 +231,6 @@ export function VoiceGhosts({ geo, cards, focus, onOpen }: { geo: Geo; cards: Ca
 
 // ---------------------------------------------------------------- the tray
 
-interface Roster { parts: string[]; members: { id: string; name: string }[] }
-
 const whoLabel = (w: Who, roster: Roster) =>
   w.audience === 'ensemble' ? 'Everyone' : w.audience === 'part' ? w.part : roster.members.find(m => m.id === w.member)?.name ?? 'One player'
 
@@ -227,14 +239,20 @@ const whoLabel = (w: Who, roster: Roster) =>
  * quotes) and its time; under it one card per mark with its kind, place, the stand text, who it is for and the words
  * it came from. Accept sends it to the stands, Edit changes text, bars and audience first, Dismiss drops it.
  */
-export function VoiceTray({ open, onClose, voice, commit, roster, focus, onShow, onPick }: {
-  open: boolean; onClose: () => void; voice: Voice; commit: Commit; roster: Roster; focus: string | null
+export function VoiceTray({ open, onClose, voice, commit, roster, lastBar, focus, onShow, onPick }: {
+  open: boolean; onClose: () => void; voice: Voice; commit: Commit; roster: Roster
+  /** The book's last bar: the bar steppers stop there. */
+  lastBar?: number
+  focus: string | null
   onShow: (c: Card) => void; onPick: (c: Card) => void
 }) {
   // Each edited card's draft, with the bar it was drafted on: an unplaced item given another bar takes the new one.
   const [drafts, setDrafts] = useState<Record<string, Draft & { at: number | null }>>({})
   const [busy, setBusy] = useState<Set<string>>(() => new Set())
-  const [failed, setFailed] = useState<Set<string>>(() => new Set())
+  // Read and written at once (Accept all runs cards in a row): state alone would let a second tap through.
+  const busyNow = useRef(new Set<string>())
+  /** Why a card's last write did not go through. */
+  const [failed, setFailed] = useState<Record<string, string>>({})
   const scroller = useRef<HTMLDivElement>(null)
 
   // Opened at a ghost: its card comes into view.
@@ -251,7 +269,14 @@ export function VoiceTray({ open, onClose, voice, commit, roster, focus, onShow,
     return own.at === c.barFrom ? own : { ...own, ...bars }
   }
   const setDraft = (c: Card, d: Partial<Draft>) => setDrafts(x => ({ ...x, [c.key]: { ...draftOf(c), ...d, at: c.barFrom } }))
-  const mark = (key: string, on: boolean, set: typeof setBusy) => set(s => { const n = new Set(s); if (on) n.add(key); else n.delete(key); return n })
+  const setBusyOn = (key: string, on: boolean) => {
+    if (on) busyNow.current.add(key); else busyNow.current.delete(key)
+    setBusy(new Set(busyNow.current))
+  }
+  const setReason = (key: string, why: string | null) => setFailed(x => {
+    const { [key]: _, ...rest } = x
+    return why ? { ...rest, [key]: why } : rest
+  })
 
   const settled = (g: Group, c: Card) => {
     if (c.unplaced) voice.dropUnplaced(c.unplaced.takeKey, c.unplaced.id)
@@ -259,19 +284,19 @@ export function VoiceTray({ open, onClose, voice, commit, roster, focus, onShow,
     setDrafts(x => Object.fromEntries(Object.entries(x).filter(([k]) => k !== c.key)))
   }
   const accept = async (g: Group, c: Card) => {
-    if (c.barFrom == null || busy.has(c.key)) return
-    mark(c.key, true, setBusy); mark(c.key, false, setFailed)
-    const ok = await commit(acceptWrites(c, draftOf(c), g.take?.utteranceId ?? (c.rows[0]?.payload?.utterance_id as string | undefined) ?? null))
-    mark(c.key, false, setBusy)
-    if (ok) settled(g, c); else mark(c.key, true, setFailed)
+    if (c.barFrom == null || busyNow.current.has(c.key)) return
+    setBusyOn(c.key, true); setReason(c.key, null)
+    const why = await commit(acceptWrites(c, draftOf(c), g.take?.utteranceId ?? (c.rows[0]?.payload?.utterance_id as string | undefined) ?? null))
+    setBusyOn(c.key, false)
+    if (why == null) settled(g, c); else setReason(c.key, why)
   }
   const dismiss = async (g: Group, c: Card) => {
-    if (busy.has(c.key)) return
+    if (busyNow.current.has(c.key)) return
     if (!c.rows.length) { settled(g, c); return }
-    mark(c.key, true, setBusy)
-    const ok = await commit({ remove: c.rows.map(r => r.id) })
-    mark(c.key, false, setBusy)
-    if (ok) settled(g, c); else mark(c.key, true, setFailed)
+    setBusyOn(c.key, true); setReason(c.key, null)
+    const why = await commit({ remove: c.rows.map(r => r.id) })
+    setBusyOn(c.key, false)
+    if (why == null) settled(g, c); else setReason(c.key, why)
   }
   const acceptAll = async (g: Group) => { for (const c of g.cards) if (c.barFrom != null) await accept(g, c) }
 
@@ -294,14 +319,14 @@ export function VoiceTray({ open, onClose, voice, commit, roster, focus, onShow,
             return (
               <li key={g.key} className="v-group">
                 <div className="v-group-head">
-                  <p className="v-heard">{g.transcript ? `“${g.transcript}”` : placing ? 'Placing your note…' : t?.phase === 'failed' ? 'Not heard' : 'Earlier'}</p>
+                  <p className="v-heard">{g.transcript ? `“${g.transcript}”` : placing ? (t?.retrying ? 'Trying again…' : 'Placing your note…') : t?.phase === 'failed' ? 'Not heard' : 'Earlier'}</p>
                   <span className="v-muse">Muse · {timeOf(g.at)}</span>
                 </div>
-                {placing && g.transcript && <p className="v-group-msg">Placing your note…</p>}
+                {placing && g.transcript && <p className="v-group-msg">{t?.retrying ? 'Trying again…' : 'Placing your note…'}</p>}
                 {t?.phase === 'failed' && (
                   <div className="v-group-msg is-problem">
                     <span>{t.problem?.message ?? 'Couldn’t use that recording.'}</span>
-                    {t.wav && <button type="button" className="btn btn-line is-small" onClick={() => voice.retry(t.key)}>Send again</button>}
+                    {t.wav && <button type="button" className="btn btn-line is-small" onClick={() => void voice.retry(t.key)}>Send again</button>}
                     <button type="button" className="btn btn-quiet is-small" onClick={() => voice.close(t.key)}>Dismiss</button>
                   </div>
                 )}
@@ -314,7 +339,7 @@ export function VoiceTray({ open, onClose, voice, commit, roster, focus, onShow,
                 {g.refused.length > 0 && <p className="v-refused">Left out: {g.refused.join('; ')}</p>}
                 {g.cards.map(c => (
                   <VoiceCard
-                    key={c.key} card={c} draft={draftOf(c)} roster={roster} focused={focus === c.key} busy={busy.has(c.key)} failed={failed.has(c.key)}
+                    key={c.key} card={c} draft={draftOf(c)} roster={roster} lastBar={lastBar} focused={focus === c.key} busy={busy.has(c.key)} failed={failed[c.key] ?? null}
                     onDraft={d => setDraft(c, d)} onShow={() => onShow(c)} onPick={() => onPick(c)}
                     onAccept={() => void accept(g, c)} onDismiss={() => void dismiss(g, c)}
                   />
@@ -333,8 +358,8 @@ export function VoiceTray({ open, onClose, voice, commit, roster, focus, onShow,
   )
 }
 
-function VoiceCard({ card: c, draft: d, roster, focused, busy, failed, onDraft, onShow, onPick, onAccept, onDismiss }: {
-  card: Card; draft: Draft; roster: Roster; focused: boolean; busy: boolean; failed: boolean
+function VoiceCard({ card: c, draft: d, roster, lastBar, focused, busy, failed, onDraft, onShow, onPick, onAccept, onDismiss }: {
+  card: Card; draft: Draft; roster: Roster; lastBar?: number; focused: boolean; busy: boolean; failed: string | null
   onDraft: (d: Partial<Draft>) => void; onShow: () => void; onPick: () => void; onAccept: () => void; onDismiss: () => void
 }) {
   const [editing, setEditing] = useState(false)
@@ -351,10 +376,12 @@ function VoiceCard({ card: c, draft: d, roster, focused, busy, failed, onDraft, 
     onDraft({ who: next.length ? next : [{ audience: 'ensemble' }] })
   }
   const has = (w: Who) => d.who.some(x => sameWho(x, w))
+  const top = lastBar && lastBar > 0 ? lastBar : Infinity
   const step = (which: 'barFrom' | 'barTo', by: number) => {
-    const f = which === 'barFrom' ? Math.max(1, d.barFrom + by) : d.barFrom
-    const t = which === 'barTo' ? Math.max(f, d.barTo + by) : Math.max(f, d.barTo)
-    onDraft({ barFrom: f, barTo: t })
+    const f = which === 'barFrom' ? Math.min(top, Math.max(1, d.barFrom + by)) : d.barFrom
+    const t = Math.min(top, which === 'barTo' ? Math.max(f, d.barTo + by) : Math.max(f, d.barTo))
+    // A cut's text that only names its bars ("Cut 42–48") moves with them.
+    onDraft({ barFrom: f, barTo: t, body: cutText(c.kind, d.body, f, t) })
   }
 
   return (
@@ -379,9 +406,9 @@ function VoiceCard({ card: c, draft: d, roster, focused, busy, failed, onDraft, 
           {(['barFrom', 'barTo'] as const).map(k => (
             <div key={k} className="v-step">
               <span className="r3-label">{k === 'barFrom' ? 'From' : 'To'}</span>
-              <button type="button" className="v-step-btn" onClick={() => step(k, -1)} aria-label={`${k === 'barFrom' ? 'First' : 'Last'} bar earlier`}>−</button>
+              <button type="button" className="v-step-btn" onClick={() => step(k, -1)} disabled={d[k] <= (k === 'barTo' ? d.barFrom : 1)} aria-label={`${k === 'barFrom' ? 'First' : 'Last'} bar earlier`}>−</button>
               <span className="num v-step-val">{d[k]}</span>
-              <button type="button" className="v-step-btn" onClick={() => step(k, 1)} aria-label={`${k === 'barFrom' ? 'First' : 'Last'} bar later`}>+</button>
+              <button type="button" className="v-step-btn" onClick={() => step(k, 1)} disabled={d[k] >= top} aria-label={`${k === 'barFrom' ? 'First' : 'Last'} bar later`}>+</button>
             </div>
           ))}
         </div>
@@ -400,7 +427,7 @@ function VoiceCard({ card: c, draft: d, roster, focused, busy, failed, onDraft, 
       )}
 
       {c.quote && <blockquote className="v-quote">“{c.quote}”</blockquote>}
-      {failed && <p className="r3-msg">Not saved. Try again.</p>}
+      {failed && <p className="r3-msg" role="alert">Not saved. {failed.replace(/\.?$/, '.')} Try again.</p>}
 
       <div className="v-acts">
         {placed ? <>
@@ -414,11 +441,12 @@ function VoiceCard({ card: c, draft: d, roster, focused, busy, failed, onDraft, 
 }
 
 /** Choosing the bar for something Muse heard but could not place: the stage takes the next bar tap. */
-export function PickHint({ card, onCancel }: { card: Card | null; onCancel: () => void }) {
+export function PickHint({ card, reduced, onCancel }: { card: Card | null; reduced: boolean; onCancel: () => void }) {
+  const y = reduced ? 0 : 8
   return (
     <AnimatePresence>
       {card && (
-        <motion.div key="pick" className="vglass v-pickhint is-lit" role="status" initial={{ opacity: 0, y: 8, x: '-50%' }} animate={{ opacity: 1, y: 0, x: '-50%' }} exit={{ opacity: 0, y: 8, x: '-50%' }} transition={{ duration: 0.18 }}>
+        <motion.div key="pick" className="vglass v-pickhint is-lit" role="status" initial={{ opacity: 0, y, x: '-50%' }} animate={{ opacity: 1, y: 0, x: '-50%' }} exit={{ opacity: 0, y, x: '-50%' }} transition={{ duration: 0.16 }}>
           <GlassLayers />
           <span className="v-pickhint-text">Tap the bar for “{card.quote || card.body}”</span>
           <button type="button" className="v-btn is-quiet" onClick={onCancel}>Cancel</button>

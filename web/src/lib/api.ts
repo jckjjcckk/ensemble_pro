@@ -107,18 +107,24 @@ export function apiFailure(e: unknown, what: string): string {
  *  `ensemble_id` (left out for the book's own layer). 202 `{job_id, utterance_id}`; the `transcribe_voice` job then
  *  writes the proposals as `annotations` with `status = 'proposed'`. */
 export interface VoiceStart { job_id: string; utterance_id: string }
+const VOICE_UPLOAD_MS = 45_000
 export async function sendVoice(scoreId: string, wav: Blob, where: { ensembleId: string | null; sessionId?: string | null }, token: string): Promise<VoiceStart> {
   const q = new URLSearchParams()
   if (where.ensembleId) q.set('ensemble_id', where.ensembleId)
   if (where.sessionId) q.set('session_id', where.sessionId)
   const qs = q.toString()
   let res: Response
+  // A take is at most ~4 MB; an upload that has not been answered in this long is stuck, not slow.
+  const stuck = new AbortController()
+  const timer = setTimeout(() => stuck.abort(), VOICE_UPLOAD_MS)
   try {
     res = await fetch(`${apiBase}/scores/${scoreId}/voice${qs ? `?${qs}` : ''}`, {
-      method: 'POST', headers: { 'Content-Type': 'audio/wav', Authorization: `Bearer ${token}` }, body: wav,
+      method: 'POST', headers: { 'Content-Type': 'audio/wav', Authorization: `Bearer ${token}` }, body: wav, signal: stuck.signal,
     })
   } catch {
-    throw new ApiError(0, 'The librarian could not be reached. Check the connection and try again.')
+    throw new ApiError(0, stuck.signal.aborted ? 'The note took too long to send. Check the connection and send it again.' : 'The librarian could not be reached. Check the connection and try again.')
+  } finally {
+    clearTimeout(timer)
   }
   if (!res.ok) throw await refusal(res)
   return res.json() as Promise<VoiceStart>
