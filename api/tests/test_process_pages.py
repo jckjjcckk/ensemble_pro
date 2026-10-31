@@ -213,6 +213,7 @@ async def test_without_a_header_the_missed_staff_is_a_question():
     assert state["header"]["expected_staves"] is None and "no JSON" in state["header"]["error"]
     assert "staves are not recovered" in state["log"][1]
     assert out.get("question") and "with staves [1, 1, 1, 2, 1], but it has 5 staves" in out["question"]
+    assert out["question_payload"]["remembered"] == []                # nothing remembered for a five-staff system yet
 
 
 async def test_a_page_with_no_music_before_the_first_system_costs_no_header_call():
@@ -280,3 +281,72 @@ async def test_landmarks_get_their_bars_from_the_count_and_ambiguous_ones_are_le
     log = db.rows["interpretations"][0]["summary"]["log"]
     assert "Page 1: landmark 'rit.' left out (no box)" in log and "Page 2: landmark 'Trio' left out (box 2 not on the page)" in log
     assert "3 landmarks read" in " ".join(log) and db.rows["interpretations"][0]["summary"]["landmarks"] == 3
+
+
+# ---------------------------------------------------------------- the book's memory before a question (follow-up, 2026-10-31)
+
+def test_a_page_with_no_labels_takes_the_layout_of_an_earlier_page_of_the_same_staff_count():
+    from app.librarian.label_memory import LabelMemory
+    m = LabelMemory()
+    m.learn_layout(3, [], "Violin", [1], "model", "page", page=1)
+    m.learn_layout(3, [], "Piano", [2, 3], "model", "page", page=1)
+    parts, why = assign_parts(geo_systems(3, 3), labels_for([], []), ["Violin", "Piano"], 4, None, m)
+    assert why is None and [p["parts"] for p in parts] == [["Violin", "Piano"]] * 2 and parts[0]["staves_per_part"] == [1, 2]
+    assert parts[0]["remembered"][0]["how"] == "layout" and parts[0]["remembered"][0]["page"] == 1
+    # without the memory, or for a staff count it has not seen, the page still asks
+    assert assign_parts(geo_systems(3), labels_for([]), ["Violin", "Piano"], 4, None)[1].startswith("Spark named no parts")
+    assert assign_parts(geo_systems(4), labels_for([]), ["Violin", "Piano"], 4, None, m)[1].startswith("Spark named no parts")
+    # staves that do not add up take the layout when it names the same parts
+    parts, why = assign_parts(geo_systems(3), labels_for(["Violin", "Piano"], spp=[[2, 2]]), ["Violin", "Piano"], 4, None, m)
+    assert why is None and parts[0]["staves_per_part"] == [1, 2]
+    # a disputed layout settles nothing
+    m.learn_layout(3, [], "Piano", [1, 2], "model", "page", page=2)
+    assert assign_parts(geo_systems(3), labels_for([]), ["Violin", "Piano"], 4, None, m)[1].startswith("Spark named no parts")
+
+
+def test_a_name_the_parts_do_not_match_is_what_the_memory_says_its_label_is():
+    """PC5 p. 4 (E2E night): a label the synonyms do not know was a question on the page read although the admin had
+    already said what it is; once an answer (or a read) has tied the label to a part, it is that part."""
+    from app.librarian.label_memory import LabelMemory
+    known = ["Violino I", "Viola", "Violoncello e Contrabasso"]
+    assert "earlier pages did not have" in assign_parts(geo_systems(3), labels_for(["Viol. I", "Vla.", "Xq."]), known, 4)[1]
+    m = LabelMemory()
+    m.learn("Xq.", "Violoncello e Contrabasso", "human", "answer", page=4)
+    parts, why = assign_parts(geo_systems(3), labels_for(["Viol. I", "Vla.", "Xq."]), known, 5, None, m)
+    assert why is None and parts[0]["parts"] == known and parts[0]["remembered"][0] == {
+        "how": "label", "label": "Xq", "part": "Violoncello e Contrabasso", "page": 4, "source": "human"}
+
+
+def test_an_answer_is_remembered_only_where_its_staves_are_known():
+    from app.librarian.label_memory import LabelMemory
+    from app.librarian.process_pages import answer_staves, learn_page
+    assert answer_staves(3, ["Violin", "Piano"], (["Vl.", "Pfte."], [1, 2])) == ([1, 2], True)          # Spark's own counts
+    assert answer_staves(3, ["Violin", "Viola", "Cello"]) == ([1, 1, 1], True)                         # one staff each
+    hdr = {"instruments": [{"label": "Violin", "staves": 1}, {"label": "Piano", "staves": 2}]}
+    assert answer_staves(3, ["Violin", "Piano"], ([], []), hdr) == ([1, 2], True)                     # the header's counts
+    assert answer_staves(10, ["A", "B", "C"]) == ([4, 3, 3], False)                                    # an even split is a guess
+    lay = LabelMemory()
+    lay.learn_layout(3, [], "Piano", [1, 2], "human", "answer", page=2)
+    lay.learn_layout(3, [], "Violin", [3], "human", "answer", page=2)
+    assert answer_staves(3, ["Piano", "Violin"], mem=lay) == ([2, 1], True)                            # "As on page 2"
+    m = LabelMemory()
+    systems = geo_systems(3, 10)
+    parts = [{"index": 1, "parts": ["Violin", "Piano"], "staves_per_part": [1, 2]}, {"index": 2, "parts": ["A", "B", "C"], "staves_per_part": [4, 3, 3]}]
+    said = learn_page(m, 4, systems, parts, labels_for(["Vl.", "Pfte."], ["A", "B", "C"]), "human", "job2", sure=[True, False])
+    assert m.full_layout(3)["source"] == "human" and m.full_layout(10) is None
+    assert m.resolve("Vl.")["part"] == "Violin" and m.resolve("Vl.")["source"] == "human" and len(said) == 4
+
+
+async def test_a_page_with_no_labels_is_read_with_the_first_pages_layout_not_asked():
+    """End to end: page 2's label call names no parts (no margin labels); page 1's layout for six staves applies, the
+    book is ready, and the layouts are kept on the score row for the next reading or split."""
+    job, db, pages = bowed_world(2)
+    bare = {**LABELS, "systems": [{"index": 1, "parts": [], "staves_per_part": []}]}
+    ctx = PromptCtx(job, db, pages, labels=[LABELS, bare])
+    c, _ = fake_client([sig(), HEADER])
+    out = await process_pages(job, ctx, client=c, model="muse-spark-1.3")
+    assert not out.get("question") and db.rows["scores"][0]["status"] == "ready"
+    log = db.rows["interpretations"][0]["summary"]["log"]
+    assert any("Page 2 system 1: Flute, Oboe, Horn, Piano, Violin I as on page 1" in l for l in log)
+    lay = db.rows["scores"][0]["label_memory"]["layouts"]["6"]["parts"]
+    assert lay["Piano"]["positions"] == [4, 5] and lay["Piano"]["source"] == "model" and lay["Piano"]["page"] == 1

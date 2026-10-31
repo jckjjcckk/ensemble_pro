@@ -7,7 +7,10 @@
  *  - Choose the staves (008, `part_cut` `choose_staves`; F_Staves): the plain page with the line in question lit and the
  *    rest dimmed, the librarian's guess already chosen; tap the staves that are the part (tap again to let go), or say it
  *    is not on this line. A musician's words only (CK, 2026-10-31): no staff numbers, no blocks, no model; what refused
- *    the cut stays behind a small "Why am I asked?" for the admin who wants it. */
+ *    the cut stays behind a small "Why am I asked?" for the admin who wants it.
+ *  - Either says "remembered from page N" where the book's memory supplied a value (an earlier answer, or a read):
+ *    the line's remembered instruments under the staves question's title, and an "As on page N" choice on the parts
+ *    question when the book knows the page's shape (`remembered.ts`). */
 import { useEffect, useMemo, useState } from 'react'
 import type { Score } from '../mock'
 import { answerJob, apiFailure } from '../lib/api'
@@ -17,11 +20,12 @@ import type { AskJob, ChooseStaves, StaffBox } from './data'
 import { Dialog } from './Surfaces'
 import { MY_LIBRARY } from './data'
 import { useStore } from './store'
+import { fromPage, layoutFor, layoutLabels, rememberedLine, type Layout } from './remembered'
 
 const isStaves = (q: unknown): q is ChooseStaves => !!q && typeof q === 'object' && (q as ChooseStaves).kind === 'choose_staves'
 
 /** The reader's question on a page (`process_pages`): the parts it read, the parts it knows so far. */
-interface PageParts { page?: number; spark_parts?: string[]; known_parts?: string[]; system_staves?: number[]; interpretation_id?: string; header_parts?: string[] }
+interface PageParts { page?: number; spark_parts?: string[]; known_parts?: string[]; system_staves?: number[]; interpretation_id?: string; header_parts?: string[]; remembered?: Layout[] }
 type Box = { x0: number; y0: number; x1: number; y1: number }
 interface GeoSystem { index: number; box: Box; staves: number }
 
@@ -100,7 +104,10 @@ function PartsBody({ job, q, score, onClose }: { job: AskJob; q: PageParts; scor
   const known = q.known_parts ?? []
   const found = q.spark_parts ?? []
   const stavesPer = q.system_staves?.length ? Math.max(...q.system_staves) : Math.max(known.length, found.length)
-  const [pick, setPick] = useState<'known' | 'found' | 'other'>(known.length ? 'known' : found.length ? 'found' : 'other')
+  // The layout the book remembers for systems of this many staves (an earlier page's, or the admin's answer there).
+  const lay = layoutFor(q.remembered, stavesPer)
+  const layNames = lay?.parts ?? []
+  const [pick, setPick] = useState<'remembered' | 'known' | 'found' | 'other'>(lay ? 'remembered' : known.length ? 'known' : found.length ? 'found' : 'other')
   const [typed, setTyped] = useState('')
   const [systems, setSystems] = useState<GeoSystem[] | null>(null)
   const [busy, setBusy] = useState(false)
@@ -118,7 +125,7 @@ function PartsBody({ job, q, score, onClose }: { job: AskJob; q: PageParts; scor
     return () => { live = false }
   }, [q.interpretation_id, q.page])
 
-  const names = pick === 'known' ? known : pick === 'found' ? found : typed.split(/[,;\n]/).map(x => x.trim()).filter(Boolean)
+  const names = pick === 'remembered' ? layNames : pick === 'known' ? known : pick === 'found' ? found : typed.split(/[,;\n]/).map(x => x.trim()).filter(Boolean)
   const knownFit = perStaff(known, stavesPer)
   const foundFit = perStaff(found, stavesPer)
   const fit = perStaff(names, stavesPer)
@@ -157,23 +164,29 @@ function PartsBody({ job, q, score, onClose }: { job: AskJob; q: PageParts; scor
           <div className="ask-thumb-page">
           {url ? <img src={url} alt="" draggable={false} decoding="async" onError={e => { e.currentTarget.style.visibility = 'hidden' }} /> : <span className="ask-thumb-wait">Page {q.page}</span>}
           {systems?.map(sys => {
-            const lab = perStaff(names, sys.staves).labels
+            const lab = pick === 'remembered' && lay && sys.staves === lay.staves ? layoutLabels(lay) : perStaff(names, sys.staves).labels
             const h = (sys.box.y1 - sys.box.y0) / sys.staves
             return lab.map((l, i) => (
-              <span key={`${sys.index}-${i}`} className={`ask-staff-label ${fit.matches ? '' : 'is-doubt'}`} style={{ top: `${(sys.box.y0 + h * (i + 0.5)) * 100}%`, right: `${(1 - sys.box.x0) * 100}%` }}>{l}</span>
+              <span key={`${sys.index}-${i}`} className={`ask-staff-label ${fit.matches || pick === 'remembered' ? '' : 'is-doubt'}`} style={{ top: `${(sys.box.y0 + h * (i + 0.5)) * 100}%`, right: `${(1 - sys.box.x0) * 100}%` }}>{l}</span>
             ))
           })}
           <span className="ask-thumb-cap">page {q.page}</span>
           </div>
         </div>
         <div className="ask-choices" role="radiogroup" aria-label="Parts on this page">
-          {known.length > 0 && (
+          {lay && (
+            <button type="button" role="radio" aria-checked={pick === 'remembered'} className="ask-choice" onClick={() => setPick('remembered')}>
+              <span className="ask-choice-h"><b>{lay.page ? `As on page ${lay.page}` : 'As on an earlier page'}</b><span className="ask-chip is-ok">remembered from {fromPage(lay.page, lay.source)}</span></span>
+              <span className="ask-choice-names">{layNames.join(' · ')}</span>
+            </button>
+          )}
+          {known.length > 0 && known.join('|') !== layNames.join('|') && (
             <button type="button" role="radio" aria-checked={pick === 'known'} className="ask-choice" onClick={() => setPick('known')}>
               <span className="ask-choice-h"><b>Same as earlier pages</b><span className={`ask-chip ${knownFit.matches ? 'is-ok' : 'is-doubt'}`}>{knownFit.matches ? `${stavesPer} staves · matches` : `${plural(known.length, 'name')} · ${stavesPer} staves`}</span></span>
               <span className="ask-choice-names">{known.join(' · ')}</span>
             </button>
           )}
-          {found.length > 0 && found.join('|') !== known.join('|') && (
+          {found.length > 0 && found.join('|') !== known.join('|') && found.join('|') !== layNames.join('|') && (
             <button type="button" role="radio" aria-checked={pick === 'found'} className="ask-choice" onClick={() => setPick('found')}>
               <span className="ask-choice-h"><b>What the librarian read here</b><span className={`ask-chip ${foundFit.matches ? 'is-ok' : 'is-doubt'}`}>{foundFit.matches ? `${stavesPer} staves · matches` : `${plural(found.length, 'name')} · ${stavesPer} staves`}</span></span>
               <span className="ask-choice-names is-muted">{found.join(' · ')}</span>
@@ -214,6 +227,7 @@ function StavesBody({ job, q, score, onClose }: { job: AskJob; q: ChooseStaves; 
   const url = useSigned(plain ? q.page_key : q.image_key ?? pagePath(score, q.page))
   const frame = plain ? { w: q.image_px![0], h: q.image_px![1] } : size
   const instrument = q.instrument || 'the part'
+  const remembered = rememberedLine(q.remembered)
 
   const send = async (answer: number[] | 'absent') => {
     if (!session) return
@@ -239,7 +253,7 @@ function StavesBody({ job, q, score, onClose }: { job: AskJob; q: ChooseStaves; 
       <AskHead where={`splitting by instrument · page ${q.page}${pagesOf(score) ? ` of ${pagesOf(score)}` : ''}, ${line} line`} onLater={onClose} />
       <div className="ask-title">
         <h2>Which staves are the <i>{instrument}</i>’s on this line?</h2>
-        <span>Tap them.{proposed.length ? ' The librarian’s guess is already chosen.' : ''}</span>
+        <span>Tap them.{remembered ? ` Already chosen: ${remembered}.` : proposed.length ? ' The librarian’s guess is already chosen.' : ''}</span>
       </div>
       <div className="ask-body is-staves">
         <div className="ask-page" aria-label={`Page ${q.page}, the ${line} line lit`}>
@@ -270,7 +284,7 @@ function StavesBody({ job, q, score, onClose }: { job: AskJob; q: ChooseStaves; 
         {q.feedback && (
           <details className="ask-why">
             <summary>Why am I asked?</summary>
-            <p>The librarian tried this line three times and could not settle it. What it last noted, for whoever wants the detail:</p>
+            <p>The librarian tried this line three times and could not settle it.{remembered ? ' What the book remembers from earlier pages is already chosen; the rest of this line is new to it.' : ''} What it last noted, for whoever wants the detail:</p>
             <p className="ask-why-raw">{q.feedback}</p>
           </details>
         )}

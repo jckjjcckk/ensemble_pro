@@ -55,7 +55,12 @@ export interface ChooseStaves {
   image_px?: [number, number] | null
   allowed: { staves: string; absent: boolean }
   answer_format: string
+  /** What the book's memory placed on this line (an earlier answer or read, by its label or the line's shape). */
+  remembered?: RememberedPlace[]
 }
+
+/** One wanted instrument the book's memory placed on a line (008, 006 agentic memory rule). */
+export interface RememberedPlace { instrument: string; staves: number[]; page: number | null; source: 'human' | 'model'; how: 'label' | 'layout'; label?: string | null }
 
 export type PartJobStatus = 'queued' | 'running' | 'needs_review' | 'done' | 'failed'
 

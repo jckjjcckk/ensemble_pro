@@ -46,6 +46,7 @@ from anthropic import AsyncAnthropic
 from ..llm import _client as default_client, model_name as default_model
 from . import Job, JobContext, ScoreFailure, handler
 from . import label_memory, landmarks
+from .label_memory import LabelMemory
 from .cut import page_measures
 from .labels import PageLabels, canon_part, doubtful_names, label_page, match_part, read_header
 from .signature import read_signature
@@ -120,19 +121,26 @@ def header_names(header: dict[str, Any] | None) -> list[str]:
     return [canon_part(i.get("label") or i.get("name") or "") for i in (header or {}).get("instruments") or [] if (i.get("label") or i.get("name"))]
 
 
-def page_doubts(labels: PageLabels, geo_systems: list[dict[str, Any]], known: list[str], header: dict[str, Any] | None) -> list[str]:
+def page_doubts(labels: PageLabels, geo_systems: list[dict[str, Any]], known: list[str], header: dict[str, Any] | None,
+                mem: LabelMemory | None = None) -> list[str]:
     """Why a page's labels read at effort minimal are not kept: a part name given twice in a system or a bare family
     name the book has several of (`labels.doubtful_names`), or an assignment that would park on a question
-    (`assign_parts`: names missing, not adding up to the staves, a part neither the earlier pages nor the header have).
-    The 004 speed eval's guard: such a page is read again at low before anyone is asked."""
+    (`assign_parts`: names missing, not adding up to the staves, a part neither the earlier pages nor the header have,
+    after the book's memory has had its say). The 004 speed eval's guard: such a page is read again at low before anyone
+    is asked."""
     systems = [(s["index"], labels.parts_for_system(s["index"])[0]) for s in geo_systems]
     why = doubtful_names(systems, list(known) + header_names(header))
-    _, park = assign_parts(geo_systems, labels, list(known), 2 if known else 1, header)
+    _, park = assign_parts(geo_systems, labels, list(known), 2 if known else 1, header, mem)
     return why + ([park] if park else [])
 
 
+def _same_parts(a: list[str], b: list[str]) -> bool:
+    """Two lists of part names for one system name the same parts in the same order."""
+    return len(a) == len(b) and all(x == y or match_part(x, [y]) is not None for x, y in zip(a, b))
+
+
 def assign_parts(geo_systems: list[dict[str, Any]], labels: PageLabels, known: list[str], page_no: int,
-                 header: dict[str, Any] | None = None) -> tuple[list[dict[str, Any]], str | None]:
+                 header: dict[str, Any] | None = None, mem: LabelMemory | None = None) -> tuple[list[dict[str, Any]], str | None]:
     """Parts per system from Spark; a reason when the assignment is ambiguous and the admin must decide.
 
     Every system needs Spark's parts, adding up to the staves the geometry found. Systems on one page may differ:
@@ -140,11 +148,24 @@ def assign_parts(geo_systems: list[dict[str, Any]], labels: PageLabels, known: l
     it is not a question when its parts are parts the book already has. On a later page each name is matched to the
     parts read so far (`labels.match_part`: exact, an abbreviation, a shared numeral) and stored under that name; a
     name that matches none is accepted when the score header lists it (a part resting on the first pages), and is a
-    question otherwise, as is a system where two names match one part. The first page read sets the parts."""
+    question otherwise, as is a system where two names match one part. The first page read sets the parts.
+
+    The book's memory (`mem`, 006 agentic memory rule) is consulted before any of that asks: a system Spark named no
+    parts for (a page that prints no labels), or whose staves do not add up, takes the layout an earlier page of the
+    book settled for a system of the same staff count (`LabelMemory.full_layout`; for staves that do not add up only when
+    it names the same parts in the same order); a name the parts do not match is the part the memory says its label is
+    (`LabelMemory.resolve`: an earlier answer, or a read). Each system so settled carries `remembered` (how, page,
+    source), for the log and for the question's "remembered from page N"."""
     per_system = []
     for s in geo_systems:
         parts, spp = labels.parts_for_system(s["index"])
         staves = s["staves"]
+        remembered: list[dict[str, Any]] = []
+        bad = (not parts or (spp and (len(spp) != len(parts) or sum(spp) != staves)) or (not spp and staves % len(parts)))
+        lay = mem.full_layout(staves) if mem is not None and bad else None
+        if lay and (not parts or _same_parts(parts, lay["parts"])):
+            parts, spp = list(lay["parts"]), list(lay["staves_per_part"])
+            remembered.append({"how": "layout", "page": lay["page"], "source": lay["source"], "parts": parts, "staves_per_part": spp})
         if not parts:
             return [], f"Spark named no parts for system {s['index']} ({staves} staves)"
         if spp and (len(spp) != len(parts) or sum(spp) != staves):
@@ -153,7 +174,7 @@ def assign_parts(geo_systems: list[dict[str, Any]], labels: PageLabels, known: l
             if staves % len(parts):
                 return [], f"Spark reads system {s['index']} as {', '.join(parts)}, which does not divide its {staves} staves"
             spp = split_staves(staves, parts)
-        per_system.append({"index": s["index"], "parts": parts, "staves_per_part": spp})
+        per_system.append({"index": s["index"], "parts": parts, "staves_per_part": spp, **({"remembered": remembered} if remembered else {})})
     if not known:
         return per_system, None
     in_header = header_names(header)
@@ -166,6 +187,8 @@ def assign_parts(geo_systems: list[dict[str, Any]], labels: PageLabels, known: l
             if k is None and match_part(name, in_header) is not None:
                 k = name
                 pool.append(name)
+            if k is None and mem is not None and (e := mem.resolve(name)) is not None and (k := match_part(e["part"], pool)) is not None:
+                p.setdefault("remembered", []).append({"how": "label", "label": name, "part": k, "page": e.get("page"), "source": e["source"]})
             if k is None or k in named:
                 unknown.append(name)
                 k = name
@@ -178,8 +201,69 @@ def assign_parts(geo_systems: list[dict[str, Any]], labels: PageLabels, known: l
     return per_system, None
 
 
-def apply_answer(geo_systems: list[dict[str, Any]], parts: list[str]) -> list[dict[str, Any]]:
-    return [{"index": s["index"], "parts": parts, "staves_per_part": split_staves(s["staves"], parts)} for s in geo_systems]
+def apply_answer(geo_systems: list[dict[str, Any]], parts: list[str], labels: PageLabels | None = None,
+                 header: dict[str, Any] | None = None, mem: LabelMemory | None = None) -> list[dict[str, Any]]:
+    """The admin's parts on every system of the page, with the staves each takes (`answer_staves`)."""
+    out = []
+    for s in geo_systems:
+        spp, _ = answer_staves(s["staves"], parts, (labels or PageLabels()).parts_for_system(s["index"]), header, mem)
+        out.append({"index": s["index"], "parts": parts, "staves_per_part": spp})
+    return out
+
+
+def answer_staves(staves: int, parts: list[str], read: tuple[list[str], list[int]] = ([], []), header: dict[str, Any] | None = None,
+                  mem: LabelMemory | None = None) -> tuple[list[int], bool]:
+    """How many staves each answered part takes on a system, and whether that is known rather than guessed: one staff
+    each when the names are as many as the staves; the book's remembered layout for this staff count when the answer
+    names its parts (the dialog's "As on page N"); Spark's own counts when it read as many parts and they add up; the
+    header's counts when every part is in it and they add up; else an even split (a guess, never remembered as a
+    layout: PC5 p. 4's answer covered systems of 8 and 10 staves)."""
+    if not parts:
+        return [], False
+    if len(parts) == staves:
+        return [1] * staves, True
+    lay = mem.full_layout(staves) if mem is not None else None
+    if lay and _same_parts(parts, lay["parts"]):
+        return list(lay["staves_per_part"]), True
+    names, spp = read
+    if len(names) == len(parts) and len(spp) == len(parts) and sum(spp) == staves:
+        return list(spp), True
+    entries = (header or {}).get("instruments") or []
+    counts = []
+    for p in parts:
+        e = next((i for i in entries if match_part(p, [canon_part(i.get("label") or i.get("name") or "")]) is not None), None)
+        counts.append(int(e.get("staves") or 1) if e else None)
+    if all(c is not None for c in counts) and sum(counts) == staves:
+        return counts, True
+    return split_staves(staves, parts), False
+
+
+def learn_page(mem: LabelMemory, page_no: int, geo_systems: list[dict[str, Any]], parts: list[dict[str, Any]], labels: PageLabels,
+               source: str, job_id: str | None, sure: list[bool] | None = None) -> list[str]:
+    """What a page settles for the book's memory: each system's layout (parts and their staves, by staff count) and each
+    label Spark read that was taken as another name ("Vcllo." as the "Violoncello"). `source` "model" for a page
+    assigned without a question, "human" for the admin's answer (`sure`: per system, whether the answer's staves are
+    known, not split evenly)."""
+    said: list[str] = []
+    staves_of = {s["index"]: s["staves"] for s in geo_systems}
+    origin = "answer" if source == "human" else "page"
+    for k, sp in enumerate(parts):
+        n = staves_of.get(sp["index"])
+        if not n or sum(sp["staves_per_part"]) != n or (sure is not None and not sure[k]):
+            continue
+        if any(r.get("how") == "layout" for r in sp.get("remembered") or []):
+            continue                                       # taken from the memory: nothing new
+        at = 1
+        for name, c in zip(sp["parts"], sp["staves_per_part"]):
+            if mem.learn_layout(n, [], name, list(range(at, at + c)), source, origin, page=page_no, system=sp["index"], job_id=job_id):
+                said.append(f"{n}-staff layout: {name} on {list(range(at, at + c))}")
+            at += c
+        read, _ = labels.parts_for_system(sp["index"])
+        if len(read) == len(sp["parts"]):
+            for printed, name in zip(read, sp["parts"]):
+                if label_memory.norm(printed) != label_memory.norm(name) and mem.learn(printed, name, source, origin, page=page_no, job_id=job_id):
+                    said.append(f"{printed!r} is {name}")
+    return said
 
 
 @handler("process_pages")
@@ -214,6 +298,9 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
         if interp:
             state = interp["params"].get("state") or {}
             state["log"].append(f"Attempt {job.attempts}: {sum(1 for p in state.get('pages', {}).values() if not p.get('ambiguous'))} pages already read are kept")
+    # The book's memory (006 agentic memory rule): what earlier pages, readings, part cuts and the admin's answers settled
+    # about this book's labels and system layouts, consulted before a page asks (`assign_parts`).
+    mem = label_memory.load(ctx.db, score_id)
     if interp and answer:
         interp["params"] = {**interp["params"], "job_id": job.id}
         state = interp["params"].get("state") or {}
@@ -225,8 +312,12 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
             for sy in page["geometry"]["systems"]:
                 offered += PageLabels.from_dict(page["labels"]).parts_for_system(sy["index"])[0]
             answer = parse_answer(raw_answer, offered)
-            page["parts"] = apply_answer(page["geometry"]["systems"], answer)
+            page_labels = PageLabels.from_dict(page["labels"])
+            page["parts"] = apply_answer(page["geometry"]["systems"], answer, page_labels, state.get("header"), mem)
             page["ambiguous"] = None
+            sure = [answer_staves(sy["staves"], answer, page_labels.parts_for_system(sy["index"]), state.get("header"), mem)[1] for sy in page["geometry"]["systems"]]
+            if (said := learn_page(mem, int(page_q), page["geometry"]["systems"], page["parts"], page_labels, "human", job.id, sure)):
+                state["log"].append(f"Page {page_q}: remembered from the admin's answer: " + "; ".join(said))
             page["answered"] = True
             state["known_parts"] = state.get("known_parts", []) + [p for p in answer if p not in state.get("known_parts", [])]
             state["log"].append(f"Page {page_q}: parts set to {', '.join(answer)} by the admin")
@@ -333,7 +424,7 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
             labels = await label_page(ctx, png, geo_d, effort=effort, known=known)
             state["cost_usd"] = float(Decimal(str(state["cost_usd"])) + labels.cost_usd)
             read_at, why = effort, []
-            if effort != FALLBACK_EFFORT and (why := page_doubts(labels, geo_d["systems"], known, header)):
+            if effort != FALLBACK_EFFORT and (why := page_doubts(labels, geo_d["systems"], known, header, mem)):
                 state["log"].append(f"Page {i}: the parts read at {effort} are doubted ({'; '.join(why)}); read again at {FALLBACK_EFFORT}")
                 labels = await label_page(ctx, png, geo_d, effort=FALLBACK_EFFORT, known=known)
                 state["cost_usd"] = float(Decimal(str(state["cost_usd"])) + labels.cost_usd)
@@ -356,10 +447,17 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
             if page["unreadable"]:
                 state["log"].append(f"Page {i} could not be read ({geo_d['log'][-1].lower()})")
                 continue
-            parts, why = assign_parts(geo_d["systems"], PageLabels.from_dict(page["labels"]), state["known_parts"], i, header)
+            page_labels = PageLabels.from_dict(page["labels"])
+            parts, why = assign_parts(geo_d["systems"], page_labels, state["known_parts"], i, header, mem)
             page["parts"], page["ambiguous"] = parts, why
             if why:
                 return i
+            for sp in parts:
+                for r in sp.get("remembered") or []:
+                    state["log"].append(f"Page {i} system {sp['index']}: " + (
+                        f"{', '.join(r['parts'])} as on page {r['page']} (the book's {sp_staves(geo_d, sp['index'])}-staff layout, {'the admin' if r['source'] == 'human' else 'read'})"
+                        if r["how"] == "layout" else f"{r['label']!r} is {r['part']} (remembered from page {r['page']}, {'the admin' if r['source'] == 'human' else 'read'})"))
+            learn_page(mem, i, geo_d["systems"], parts, page_labels, "model", job.id)
             on_page = list(dict.fromkeys(name for p in parts for name in p["parts"]))
             for name in on_page:
                 if name not in state["known_parts"]:
@@ -414,10 +512,13 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
             "spark_parts": spark_parts, "known_parts": state["known_parts"],
             "options": [o for o in (spark_parts, state["known_parts"]) if o],
             "header_parts": header_names(header), "expected_staves": expected,
+            # what the book's memory knows for systems of this page's shape, for the dialog's "remembered from page N"
+            "remembered": remembered_layouts(mem, geo_d["systems"]),
             "answer_format": "part names top to bottom, a list or comma-separated, e.g. Piano I, Piano II",
         }
         state["question"] = {"page": i, "question": question}
         state["log"].append(f"Asked which parts are on page {i}")
+        label_memory.save(ctx.db, score_id, mem)
         state["latency_ms"] = state.get("latency_ms", 0) + int((time.time() - t0) * 1000)
         save_state()
         summary = partial_summary(state, n_pages, question)
@@ -505,10 +606,10 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
 
     # The book's label memory (008, 006 agentic memory rule): the header's printed names and abbreviations as the parts
     # this reading named ("Klavier" and "Klav." are the "Piano"), so a later part cut starts from what was read here.
-    if header and header.get("instruments"):
-        mem = label_memory.load(ctx.db, score_id)
-        if mem.seed_from_header(header, part_names) and label_memory.save(ctx.db, score_id, mem):
-            state["log"].append(f"Label memory: {len(mem.entries)} printed labels remembered from the header")
+    if header and header.get("instruments") and mem.seed_from_header(header, part_names):
+        state["log"].append(f"Label memory: {len(mem.entries)} printed labels remembered from the header")
+    if label_memory.save(ctx.db, score_id, mem):
+        state["log"].append(f"Label memory saved: {len(mem.entries)} labels, {len(mem.layouts)} system layouts")
 
     doubtful = sum(1 for p in placements if p["confidence"] != "high")
     title = next((PageLabels.from_dict(state["pages"][k]["labels"]).title for k in pages_read if PageLabels.from_dict(state["pages"][k]["labels"]).title), "")
@@ -552,6 +653,20 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
     await ctx.progress(1.0, "Ready")
     return {**ctx.result, "interpretation_id": interp_id, "version": version, "pages": n_pages, "measures": len(placements), "parts": part_names,
             "doubtful": doubtful, "cost_usd": state["cost_usd"], "seconds": round(time.time() - t0, 1)}
+
+
+def sp_staves(geo_d: dict[str, Any], index: int) -> int:
+    return next((s["staves"] for s in geo_d["systems"] if s["index"] == index), 0)
+
+
+def remembered_layouts(mem: LabelMemory, geo_systems: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The whole layouts the book remembers for the staff counts of a page's systems: [{staves, parts, staves_per_part,
+    page, source}], one per count."""
+    out = []
+    for n in dict.fromkeys(s["staves"] for s in geo_systems):
+        if (lay := mem.full_layout(n)) is not None:
+            out.append({"staves": n, **lay})
+    return out
 
 
 async def _nothing() -> None:

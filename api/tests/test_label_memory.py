@@ -108,3 +108,43 @@ def test_a_missing_column_never_fails_the_job():
     assert m.entries == {}
     m.learn("Klav.", "Piano", "human", "answer")
     assert save(Broken(), "s1", m) is False and m.changed
+
+
+# ---------------------------------------------------------------- layouts (follow-up, 2026-10-31)
+
+def test_a_layout_is_kept_by_staff_count_with_the_humans_word_first():
+    m = LabelMemory()
+    assert m.learn_layout(3, [], "Violin", [1], "model", "page", page=1) and m.learn_layout(3, [], "Piano", [2, 3], "model", "page", page=1)
+    assert m.layout_part(3, [], "Pianoforte")["positions"] == [2, 3] and m.layout_part(2, [], "Piano") is None
+    assert m.full_layout(3) == {"parts": ["Violin", "Piano"], "staves_per_part": [1, 2], "source": "model", "page": 1}
+    assert not m.learn_layout(3, [], "Piano", [2, 3], "model", "page", page=4)          # known: the first read stands
+    assert m.learn_layout(3, [], "Piano", [1, 2], "model", "page", page=5)               # a second read disagrees: disputed
+    assert m.layout_part(3, [], "Piano") is None and m.full_layout(3) is None
+    assert m.learn_layout(3, [], "Piano", [2, 3], "human", "answer", page=6, system=2)   # the admin settles it
+    e = m.layout_part(3, [], "Piano")
+    assert e["source"] == "human" and e["page"] == 6 and e["system"] == 2 and not e.get("disputed")
+    assert not m.learn_layout(3, [], "Piano", [1, 2], "model", "page", page=7)           # a model read never moves the human
+    assert m.learn_layout(3, [], "Cello", [1], "human", "answer", page=8)                # a human takes staff 1 from the violin
+    assert m.full_layout(3)["parts"] == ["Cello", "Piano"] and m.full_layout(3)["source"] == "human"
+
+
+def test_a_labelled_system_takes_only_the_layout_of_the_same_labels_in_order():
+    m = LabelMemory()
+    m.learn_layout(4, ["Vl. I", "Vl. II", "Vla.", "Vc."], "Viola", [3], "human", "answer", page=2)
+    assert m.layout_part(4, ["Vl.I", "Vl. II", "Vla", "Vc"], "Viola")["positions"] == [3]          # the same labels, normalised
+    assert m.layout_part(4, ["Vc.", "Vla.", "Vl. II", "Vl. I"], "Viola") is None                  # another order
+    assert m.layout_part(4, [], "Viola")["positions"] == [3]                                      # a bare system of that count
+    assert m.full_layout(4) is None                                                               # one part is not the whole system
+
+
+def test_layouts_survive_the_row_and_merge_under_the_same_rule():
+    db = FakeDB()
+    db.rows["scores"] = [{"id": "s1"}]
+    m = load(db, "s1")
+    m.learn_layout(1, [], "Pianoforte", [1], "human", "answer", page=12, system=4)
+    db.rows["scores"][0]["label_memory"] = {"entries": {}, "layouts": {"2": {"staves": 2, "labels": [], "parts": {
+        "Pianoforte": {"positions": [1, 2], "source": "model", "origin": "page", "page": 8}}}, "bad": {"staves": 2, "parts": {"X": {"positions": [5], "source": "model"}}}}}
+    assert save(db, "s1", m)
+    again = load(db, "s1")
+    assert set(again.layouts) == {"1", "2"} and again.layout_part(1, [], "Piano")["source"] == "human"
+    assert again.layout_part(2, [], "Pianoforte")["positions"] == [1, 2]

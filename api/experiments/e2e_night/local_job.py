@@ -6,7 +6,7 @@ alone) with exactly the payload the API would give it (`routes/jobs.answer_job`,
 
     PYTHONPATH=. OMR_HOST=yoga uv run python -m experiments.e2e_night.local_job answer <slug> <job_id> '<json>'
     PYTHONPATH=. OMR_HOST=yoga uv run python -m experiments.e2e_night.local_job convert <slug> [pages]
-    PYTHONPATH=. uv run python -m experiments.e2e_night.local_job cut <slug> <instrument> [instrument ...]
+    PYTHONPATH=. uv run python -m experiments.e2e_night.local_job cut <slug> <instrument> [instrument ...] [--pages 8-12]
     PYTHONPATH=. uv run python -m experiments.e2e_night.local_job again <slug> <job_id>     (a failed job's payload, again)
 
 Answer only questions a local run parked: a parked agent's transcript carries the Meta key's redacted_thinking, which
@@ -82,11 +82,13 @@ def convert(slug: str, pages: list[int] | None = None) -> dict:
     return row
 
 
-def cut(slug: str, instruments: list[str]) -> dict:
+def cut(slug: str, instruments: list[str], pages: list[int] | None = None) -> dict:
     guard(0.5)
     a = As()
     s = state(slug)
     payload = {"score_id": s["score_id"], "parts_key": parts_key(instruments), "instruments": instruments}
+    if pages:
+        payload["pages"] = pages      # an excerpt (the experiment budget: 3-5 pages a file)
     row = _insert_running({"kind": "part_cut", "score_id": s["score_id"], "created_by": a.uid, "payload": payload})
     s["jobs"][row["id"]] = {"kind": row["kind"], "created_at": row["created_at"], "local": True}
     s["cut_label"] = "cut:" + "+".join(instruments)
@@ -111,7 +113,13 @@ def main() -> None:
         row = answer(slug, rest[0], json.loads(rest[1]))
         label = "local:" + state(slug).get("cut_label", row["kind"])
     elif cmd == "cut":
-        row = cut(slug, rest)
+        pages = None
+        if "--pages" in rest:
+            k = rest.index("--pages")
+            a, _, b = rest[k + 1].partition("-")
+            pages = list(range(int(a), int(b or a) + 1))
+            rest = rest[:k] + rest[k + 2:]
+        row = cut(slug, rest, pages)
         label = "local:" + state(slug)["cut_label"]
     elif cmd == "again":
         row = again(slug, rest[0])

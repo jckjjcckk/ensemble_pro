@@ -401,6 +401,108 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
             if union != q["staves"]:
                 q.update(staves=union, blocks=runs(union), status="remembered")
 
+    def system_labels(q: dict | None) -> list[str]:
+        """The margin labels printed on a system, top to bottom: with the staff count, the shape a layout is kept under."""
+        return [ml["text"] for ml in sorted((q or {}).get("margin_labels") or [], key=lambda ml: min(ml["staves"]))]
+
+    def apply_layout(n: int, q: dict, sysd: dict) -> None:
+        """The book's layout memory on one system (follow-up to the agentic memory rule, 2026-10-31): where an earlier
+        system of the same staff count (and the same printed labels in the same order, when this one prints any) had the
+        wanted instrument. An admin's answer (source human) puts the instrument there whatever this page's proposal said,
+        and settles it like the admin's answer would; a model read only fills a system the label call left out altogether
+        (never one it called absent), and the recheck still runs. A label-less page (a sonata's later pages, Cappi p. 12's grand staff the geometry took for two
+        systems) is no longer asked about again."""
+        idx = sysd["staff_indices"]
+        per = q["per_instrument"]
+        rem: dict[str, dict] = dict(q.get("remembered") or {})
+        changed = False
+        for inst in instruments:
+            if (rem.get(inst) or {}).get("source") == "human":
+                continue
+            e = mem.layout_part(len(idx), system_labels(q), inst)
+            if e is None or max(e["positions"]) > len(idx):
+                continue
+            staves = [idx[x - 1] for x in e["positions"]]
+            own = sorted(per.get(inst) or [])
+            info = {"staves": staves, "label": None, "how": "layout", "origin": e.get("origin"), "page": e.get("page"), "system": e.get("system")}
+            if e["source"] == "human":
+                if own == staves and (rem.get(inst) or {}).get("how") == "layout":
+                    continue
+                if own and own != staves:
+                    sc["log"].append(f"Page {n} system {q['system']}: {inst} on {staves} as the admin answered for a {len(idx)}-staff system on page {e.get('page')}, "
+                                     f"where the labels proposed {own}")
+                per[inst] = staves
+                rem[inst] = {**info, "source": "human", "agreed": True}
+                changed = True
+            elif not own and inst not in rem and q.get("status") == "unlabelled":
+                per[inst] = staves
+                rem[inst] = {**info, "source": "model", "agreed": False}
+                sc["log"].append(f"Page {n} system {q['system']}: {inst} on {staves} by the book's {len(idx)}-staff layout (page {e.get('page')}), where the labels proposed none")
+                changed = True
+        if rem:
+            q["remembered"] = rem
+        if changed:
+            union = sorted(set(x for v in per.values() for x in v))
+            q.update(staves=union, blocks=runs(union), status="remembered")
+
+    def refresh(page: int, system: int) -> dict | None:
+        """The system's proposal with what the memory has learned since the page was read (an answer on the line above)."""
+        q = proposal_of(page, system)
+        read = sc["pages"].get(str(page)) or {}
+        sysd = next((g for g in (read.get("geometry") or {}).get("systems") or [] if g["index"] == system), None)
+        if sysd is None:
+            return q
+        if q is None:               # a system nothing proposed: the memory may still know its shape
+            q = {"system": system, "staves": [], "blocks": [], "per_instrument": {}, "status": "unlabelled"}
+            apply_layout(page, q, sysd)
+            if not q["staves"]:
+                return None
+            read.setdefault("proposal", []).append(q)
+            read["proposal"].sort(key=lambda x: x["system"])
+            return q
+        apply_layout(page, q, sysd)
+        return q
+
+    def human_answer(page: int, system: int) -> list[int] | None:
+        """The staves the admin's earlier answers give this system, when they place every wanted instrument (by its
+        printed label or by the system's layout): the answer the admin would give again, so nobody is asked."""
+        rem = (proposal_of(page, system) or {}).get("remembered") or {}
+        if not all((rem.get(i) or {}).get("source") == "human" for i in instruments):
+            return None
+        return sorted(set(x for i in instruments for x in rem[i]["staves"]))
+
+    def remembered_of(page: int, system: int) -> list[dict]:
+        rem = (proposal_of(page, system) or {}).get("remembered") or {}
+        return [{"instrument": i, "staves": r["staves"], "page": r.get("page"), "source": r["source"], "how": r.get("how", "label"), "label": r.get("label")}
+                for i, r in rem.items() if i in instruments]
+
+    def learn_layout_from(page: int, sysd: dict, chosen: list[int], source: str) -> list[str]:
+        """After a commit: where each wanted instrument sits in a system of this shape. A split of several instruments
+        learns per instrument only when the commit is exactly the proposal (which staves are whose is then known)."""
+        prop = proposal_of(page, sysd["index"]) or {}
+        idx = sysd["staff_indices"]
+        if len(instruments) == 1:
+            places = {instruments[0]: chosen}
+        elif sorted(set(chosen)) == sorted(set(prop.get("staves") or [])):
+            per = prop.get("per_instrument") or {}
+            places = {i: sorted(per[i]) for i in instruments if per.get(i) and set(per[i]) <= set(chosen)}
+        else:
+            places = {}
+        said = []
+        for inst, staves in places.items():
+            if not staves or any(x not in idx for x in staves):
+                continue
+            if len(staves) < header_staves(inst) and len(staves) != len(idx):
+                continue        # fewer staves than the part has, on a system with more: not a shape to repeat (2a88828)
+            pos = [idx.index(x) + 1 for x in staves]
+            if mem.learn_layout(len(idx), system_labels(prop), inst, pos, source, "answer" if source == "human" else "page",
+                                page=page, system=sysd["index"], job_id=job.id):
+                said.append(f"{inst} on staff {pos} of a {len(idx)}-staff system")
+        if said:
+            sc["log"].append(f"Page {page} system {sysd['index']}: remembered " + "; ".join(said) + (" (the admin's answer)" if source == "human" else ""))
+            remember()
+        return said
+
     def settled(page: int, system: int, block: list[int]) -> dict | None:
         """The block is exactly what the memory resolved for every instrument it holds: who settled it."""
         rem = (proposal_of(page, system) or {}).get("remembered") or {}
@@ -604,7 +706,7 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                           + (f"adds staff {stray} that the labels give to no wanted instrument" if stray else f"does not hold the {sum(header_staves(i) for i in touched)} staves they expect")
                           + ". Commit the labelled staves, or a block that shares none of them if the labels are wrong")
 
-    async def do_commit(page: int, system: int, staves: list[int] | str, *, recheck: bool = True) -> dict:
+    async def do_commit(page: int, system: int, staves: list[int] | str, *, recheck: bool = True, by_memory: bool = False) -> dict:
         key = f"{page}:{system}"
         geom, bw, im = load_page(page)
         sysd = next((s for s in geom["systems"] if s["index"] == system), None)
@@ -623,6 +725,13 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         missing = [s for s in staves if s not in sysd["staff_indices"]]
         if missing:
             raise Refusal(f"staves {missing} are not in system {system} of page {page}, which has staves {sysd['staff_indices']}")
+        if recheck and not by_memory:
+            # The agentic memory rule (006): what the admin already answered for this line's labels or this system's shape
+            # is their answer again; it is committed as an answer is, with no count, crop or recheck refusal to ask over.
+            refresh(page, system)
+            by_memory = human_answer(page, system) == staves
+        if by_memory:
+            recheck = False
         want = want_total()
         if len(staves) != want and recheck:   # the admin's answer is final (011): no count, verify or recheck refusal
             per = ", ".join(f"{i} {header_staves(i)}" for i in instruments)
@@ -652,6 +761,10 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
             boxes.append(box)
             verifies.append({k: v for k, v in checks.items() if k != "clean"})
         rechecks: list[dict] = []
+        if by_memory:
+            rem = (proposal_of(page, system) or {}).get("remembered") or {}
+            rechecks = [{"block": b, "verdict": "remembered", "source": "human", "labels": [r.get("label") for r in rem.values()],
+                         "pages": [r.get("page") for r in rem.values()], "how": sorted({r.get("how", "label") for r in rem.values()})} for b in blocks]
         if recheck:
             for block, crop in zip(blocks, crops):
                 known = settled(page, system, block)
@@ -701,13 +814,18 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         how = f"{len(blocks)} blocks stacked" if len(blocks) > 1 else "one block"
         by_memory = [r for r in rechecks if r["verdict"] in ("remembered", "label", "brace")]
         sc["log"].append(f"Page {page} system {system}: staves {staves} cut ({how}), {sysd['n_measures']} bars"
-                         + (f"; settled by the book's labels ({', '.join(r['verdict'] for r in by_memory)})" if by_memory else ""))
+                         + (f"; settled by the book's memory ({', '.join(r['verdict'] for r in by_memory)})" if by_memory else ""))
         # Only upwards: an answer with fewer staves is a partial system (the Cappi p. 12 grand staff the geometry took for
         # two systems of one staff each), not a smaller instrument.
-        if not recheck and len(instruments) == 1 and len(staves) > header_staves(instruments[0]):
+        if not recheck and not by_memory and len(instruments) == 1 and len(staves) > header_staves(instruments[0]):
             sc["staves_answered"][instruments[0]] = len(staves)
             sc["log"].append(f"Page {page} system {system}: the admin's answer gives {label} {len(staves)} staves per system")
-        learned = learn_from(page, system, staves, "human" if not recheck else "model") if (not recheck or all(r["verdict"] in ("yes", "brace") for r in rechecks)) else []
+        learned: list[str] = []
+        if by_memory:
+            pass                                    # the memory's own word: nothing new to learn
+        elif not recheck or all(r["verdict"] in ("yes", "brace") for r in rechecks):
+            learned = learn_from(page, system, staves, "human" if not recheck else "model")
+            learned += learn_layout_from(page, sysd, staves, "human" if not recheck else "model")
         out = {"committed": key, "staves": staves, "blocks": blocks, "storage_key": storage_key, "bars": sysd["n_measures"]}
         if by_memory:
             out["settled_by"] = [{"block": r["block"], "verdict": r["verdict"]} for r in by_memory]
@@ -890,9 +1008,14 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                 continue
             per = {i: g for i in instruments if (g := hdr.by_order(sc["header"], i, s))}
             union = sorted(set(x for v in per.values() for x in v))
-            if union:
-                proposal.append({"system": s["index"], "staves": union, "blocks": runs(union), "per_instrument": per, "status": "by-order"})
+            proposal.append({"system": s["index"], "staves": union, "blocks": runs(union), "per_instrument": per, "status": "by-order" if union else "unlabelled"})
         proposal.sort(key=lambda q: q["system"])
+        for q in proposal:          # the book's layouts, for the systems of a shape it has seen (a label-less page most of all)
+            sysd = next((g for g in geom["systems"] if g["index"] == q["system"]), None)
+            if sysd is not None:
+                apply_layout(n, q, sysd)
+        # a system nothing proposed stays without a proposal (an "absent" commit there is refused, as before)
+        proposal = [q for q in proposal if q["status"] != "unlabelled"]
         summary = {"page": n, "staves": len(geom["staves"]),
                    "systems": [{"index": s["index"], "staves": s["staff_indices"], "bars": s["n_measures"]} for s in geom["systems"]],
                    "proposal": proposal, "confidence": lab.get("confidence"), "notes": lab.get("notes", "")}
@@ -981,9 +1104,33 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         persist(state.to_dict())
     if sc["header"] is not None:        # a resumed run: the pages not read yet are read ahead again
         start_prereads()
-    st = await run_agent(system=SYSTEM, tools=box, state=state, answer=answer_text, client=c, model=m, persist=persist, charge=ctx.charge,
+    loop_kw = dict(system=SYSTEM, tools=box, client=c, model=m, persist=persist, charge=ctx.charge,
+                   max_turns=8 + 6 * len(pages), max_cost_usd=float(p.get("max_cost_usd", 2.0)), max_refusals=3)
+    st = await run_agent(state=state, answer=answer_text,
                          user_text=None if resumed else f'Cut the part "{label}" (instruments: {json.dumps(instruments)}) from pages {pages}. Start with read_header.',
-                         max_turns=8 + 6 * len(pages), max_cost_usd=float(p.get("max_cost_usd", 2.0)), max_refusals=3)
+                         **loop_kw)
+    # Before the admin is asked (006 agentic memory rule): when the book's memory holds the admin's answer for this line
+    # (its printed labels, or a system of the same shape), that answer is committed and the run goes on unasked.
+    sc.setdefault("memory_answers", 0)
+    for _ in range(sum(len(v["geometry"]["systems"]) for v in sc["pages"].values()) + 1):
+        if st.status != "needs_review":
+            break
+        args = (st.question_payload or {}).get("args") or {}
+        n, k = int(args.get("page") or 0), int(args.get("system") or 0)
+        refresh(n, k)
+        known = human_answer(n, k)
+        if not known or f"{n}:{k}" in sc["commits"]:
+            break
+        try:
+            out = await do_commit(n, k, known, recheck=False, by_memory=True)
+        except Refusal:
+            break
+        sc["memory_answers"] += 1
+        froms = sorted({r["page"] for r in remembered_of(n, k) if r.get("page")})
+        said = f"the admin's answer on page{'s' if len(froms) > 1 else ''} {', '.join(str(x) for x in froms)}" if froms else "the admin's earlier answer"
+        sc["log"].append(f"Page {n} system {k}: {known} from the book's memory ({said}), not asked")
+        st = await run_agent(state=st, answer=(f"The book's memory settles page {n} system {k}: {json.dumps(known)}, as in {said} for a line of this shape. "
+                                               f"It is committed ({json.dumps(out)}). Continue with the next uncommitted system or finish."), **loop_kw)
     for t in prereads.values():         # pages the agent never read (a park, a pause): their calls stop here
         t.cancel()
     cost = float(Decimal(str(st.cost_usd)) + Decimal(str(sc.get("cost_usd", 0.0))))
@@ -1015,7 +1162,9 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                    "answer_format": '{"staves": [11, 12]} or {"blocks": [[11], [13]]} or {"staves": "absent"}',
                    "known_labels": [{k: e.get(k) for k in ("label", "part", "source", "origin", "page")} for e in mem.entries.values()
                                     if any(same_part(e["part"], i) for i in instruments)],
-                   "margin_labels": (prop or {}).get("margin_labels") or []}
+                   "margin_labels": (prop or {}).get("margin_labels") or [],
+                   # what the book's memory placed on this line, for the dialog's "remembered from page N"
+                   "remembered": remembered_of(n, k)}
         # In a musician's words (011); the refusal that led here stays in the payload's `feedback` for the "why".
         question = f"Which staves are the {label}'s on page {n}, line {k}?"
         st.question, st.question_payload = question, payload     # the typed question is what the resume reads
@@ -1063,7 +1212,7 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         ctx.db.table("parts").insert({"score_id": score_id, "name": label, "position": 1000}).execute()
     await ctx.progress(1.0, f"{label}: {len(keys)} systems cut")
     return {**ctx.result, "interpretation_id": interp["id"], "source_id": derived["id"], "systems_cut": len(keys), "absent": len(commits) - len(keys),
-            "questions": sc["questions"], "cost_usd": cost, "seconds": round(time.time() - t0, 1)}
+            "questions": sc["questions"], "answered_by_memory": sc.get("memory_answers", 0), "cost_usd": cost, "seconds": round(time.time() - t0, 1)}
 
 
 def write_interpretation(ctx: JobContext, score_id: str, src: dict, intake_id: str | None, instruments: list[str], part_slug: str, sc: dict, st: AgentState,
@@ -1075,6 +1224,7 @@ def write_interpretation(ctx: JobContext, score_id: str, src: dict, intake_id: s
                "absent": sum(1 for v in commits if not v["key"]), "questions_asked": sc["questions"] + (1 if st.status == "needs_review" else 0),
                "turns": st.turn, "status": st.status, "models": {"geometry": "opencv", "labels": "spark"},
                "settled_by_memory": sum(1 for v in commits if any(r.get("verdict") in ("remembered", "label") for r in v.get("rechecks") or [])),
+               "answered_by_memory": sc.get("memory_answers", 0),
                "log": (sc["log"] + st.log)[-40:]}
     existing = sc.get("interpretation_id")
     row = {"status": "running" if st.status != "done" else "done", "summary": summary, "cost_usd": cost, "latency_ms": int((time.time() - t0) * 1000)}

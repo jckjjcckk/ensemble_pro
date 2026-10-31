@@ -684,7 +684,7 @@ async def test_a_human_answer_is_remembered_for_the_later_pages():
     assert len(t2.calls) == 4                                                       # page 2: no recheck call at all
     assert "Remembered for the later pages: 'Klavier' is Piano" in t2.calls[0]["messages"][-1]["content"]
     sc = ctx2.result["agent"]["scratch"]
-    assert sc["commits"]["2:1"]["rechecks"] == [{"block": [4, 5], "verdict": "remembered", "source": "human", "labels": ["Klav."], "pages": [1]}]
+    assert sc["commits"]["2:1"]["rechecks"] == [{"block": [4, 5], "verdict": "remembered", "source": "human", "labels": ["Klav."], "pages": [1], "how": ["label"]}]
     mem = db.rows["scores"][0]["label_memory"]["entries"]
     assert mem["klavier"]["source"] == "human" and mem["klavier"]["origin"] == "answer" and mem["klavier"]["page"] == 1 and mem["klavier"]["job_id"] == job2.id
     assert 'Known labels in this book: "Klavier" is Piano (confirmed by the user on page 1)' in t2.calls[1]["messages"][0]["content"][1]["text"]
@@ -896,3 +896,68 @@ async def test_an_answer_with_fewer_staves_does_not_lower_the_count():
     assert sc["staves_answered"] == {}
     assert sc["commits"]["1:1"]["staves"] == [4] and sc["commits"]["2:1"]["staves"] == [4, 5]
     assert "you named 1" in json.dumps(ctx2.result["agent"]["log"])               # page 2's [4] still refused by the count
+
+
+# ---------------------------------------------------------------- the layout memory (follow-up, 2026-10-31)
+
+@pytest.mark.asyncio
+async def test_a_label_less_system_takes_the_layout_the_admin_answered_and_is_not_asked_again():
+    """A page that prints no labels (Cappi 1802, p. 12, E2E night): page 1's recheck doubts the piano three times and
+    the admin answers [4, 5]. That is remembered as where the Piano sits in a six-staff system. Page 2, read before the
+    answer, also prints no labels and Spark proposes the wrong pair: the remembered layout replaces the proposal, and when
+    the agent still commits the wrong pair until it is refused three times, the memory's answer is committed instead of
+    a second question."""
+    script = [tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), label_margin([]), tool("read_page", {"page": 2}), label_margin([], wanted=[1, 2])]
+    for _ in range(3):
+        script += [commit(1, [4, 5]), doubt("")]
+    client, _ = fake_client(script)
+    job, ctx, db = world(2)
+    out = await part_cut(job, ctx, client=client)
+    assert out["question_payload"]["page"] == 1 and out["question_payload"]["remembered"] == []
+    db.rows["jobs"][-1]["result"] = out
+    script2 = []
+    for _ in range(3):
+        script2 += [commit(2, [1, 2]), doubt("")]
+    script2 += [tool("finish", {})]
+    client2, t2 = fake_client(script2)
+    job2, ctx2, _ = world(2, {"answer": {"staves": [4, 5]}, "resume_from": job.id}, db=db)
+    out2 = await part_cut(job2, ctx2, client=client2)
+    lay = db.rows["scores"][0]["label_memory"]["layouts"]["6"]["parts"]["Piano"]
+    assert lay["positions"] == [4, 5] and lay["source"] == "human" and lay["origin"] == "answer" and lay["page"] == 1
+    sc = ctx2.result["agent"]["scratch"]
+    assert out2["systems_cut"] == 2 and out2["questions"] == 1 and out2["answered_by_memory"] == 1
+    assert sc["commits"]["2:1"]["staves"] == [4, 5] and sc["commits"]["2:1"]["rechecks"][0]["verdict"] == "remembered"
+    assert sc["commits"]["2:1"]["rechecks"][0]["how"] == ["layout"]
+    assert any("from the book's memory (the admin's answer on page 1), not asked" in l for l in sc["log"])
+    assert "The book's memory settles page 2 system 1: [4, 5]" in json.dumps(ctx2.result["agent"]["messages"])
+
+
+@pytest.mark.asyncio
+async def test_the_remembered_layout_is_committed_without_a_recheck_when_the_agent_proposes_it():
+    """The same book on a later split: the layout is in the book's memory, page 1 prints no labels; the agent commits
+    what the memory placed and no recheck is asked for (the admin's word), and the payload of any later question would
+    say where it came from."""
+    job, ctx, db = world(1)
+    db.rows["scores"][0]["label_memory"] = {"entries": {}, "layouts": {"6": {"staves": 6, "labels": [], "parts": {
+        "Piano": {"positions": [4, 5], "source": "human", "origin": "answer", "page": 3, "system": 2}}}}}
+    client, t = fake_client([tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), label_margin([], wanted=[]), commit(1, [4, 5]), tool("finish", {})])
+    out = await part_cut(job, ctx, client=client)
+    sc = ctx.result["agent"]["scratch"]
+    assert out["systems_cut"] == 1 and len(t.calls) == 6                     # header, labels and four agent turns: no recheck
+    assert sc["commits"]["1:1"]["rechecks"] == [{"block": [4, 5], "verdict": "remembered", "source": "human", "labels": [None], "pages": [3], "how": ["layout"]}]
+    prop = sc["pages"]["1"]["proposal"][0]
+    assert prop["staves"] == [4, 5] and prop["remembered"]["Piano"]["how"] == "layout" and prop["remembered"]["Piano"]["page"] == 3
+
+
+@pytest.mark.asyncio
+async def test_a_layout_learned_from_the_model_never_overrides_an_absent_read_and_never_settles():
+    """A model's layout fills only a system the label call left out; the recheck still runs on it."""
+    from app.librarian.label_memory import LabelMemory
+    m = LabelMemory()
+    m.learn_layout(6, [], "Piano", [4, 5], "model", "page", page=1)
+    assert m.layout_part(6, [], "Piano")["source"] == "model"
+    job, ctx, db = world(1)
+    db.rows["scores"][0]["label_memory"] = m.to_dict()
+    client, _ = fake_client([tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), LABEL_ABSENT, commit(1, "absent"), tool("finish", {})])
+    out = await part_cut(job, ctx, client=client)
+    assert out["absent"] == 1 and out["systems_cut"] == 0

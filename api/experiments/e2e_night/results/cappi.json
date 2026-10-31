@@ -220,6 +220,107 @@
     "parallel_fallback": "movement 4 has 3 staves, movement 1 had 2"
    },
    "yoga": []
+  },
+  {
+   "step": "local:cut:Pianoforte:question",
+   "at": "2026-10-31T04:25:42",
+   "seconds": 225.6,
+   "job": "c5b6401b-298b-4a23-af1b-72be0d5e1c26"
+  },
+  {
+   "step": "local:cut:Pianoforte",
+   "at": "2026-10-31T04:26:11",
+   "seconds": 11.1,
+   "job": "9b3a6617-eea4-4e79-95a5-89094ecfa6f5",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T11:26:00.595638+00:00",
+   "finished_at": "2026-10-31T11:26:09.604056+00:00",
+   "cost": 0.0137,
+   "chain_cost": 0.8039,
+   "result": {
+    "note": "Page 5 of 5, 24 systems cut",
+    "phase": {
+     "page": 5,
+     "pages": 5,
+     "systems_cut": 24
+    },
+    "paused": "Paused: turn limit reached"
+   },
+   "yoga": []
+  },
+  {
+   "step": "local:cut:Pianoforte:question",
+   "at": "2026-10-31T04:38:40",
+   "seconds": 120.2,
+   "job": "8125a8c8-761d-41ff-bac4-25822fdd8443"
+  },
+  {
+   "step": "local:cut:Pianoforte:question",
+   "at": "2026-10-31T04:39:24",
+   "seconds": 37.3,
+   "job": "5a9f2d87-70f8-4eaa-b915-721252760404"
+  },
+  {
+   "step": "local:cut:Pianoforte",
+   "at": "2026-10-31T04:39:44",
+   "seconds": 12.2,
+   "job": "60813784-8bab-4522-8ca3-bc0edaf2eb0a",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T11:39:32.459086+00:00",
+   "finished_at": "2026-10-31T11:39:42.40944+00:00",
+   "cost": 0.0057,
+   "chain_cost": 1.0037,
+   "result": {
+    "note": "Pianoforte: 26 systems cut",
+    "phase": {
+     "page": 5,
+     "pages": 5,
+     "systems_cut": 26
+    },
+    "absent": 0,
+    "seconds": 9.6,
+    "cost_usd": 0.19978175,
+    "questions": 2,
+    "source_id": "7fe95894-7cdd-42c2-b204-3c8d27e5fadd",
+    "systems_cut": 26,
+    "interpretation_id": "5a415a87-e9c7-415e-826b-adfbcf65abbe",
+    "answered_by_memory": 0
+   },
+   "yoga": []
+  },
+  {
+   "step": "local:cut:Pianoforte",
+   "at": "2026-10-31T04:41:40",
+   "seconds": 73.0,
+   "job": "cf57ce03-7914-4ce0-bb74-c9bedf30eeb8",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T11:40:27.152011+00:00",
+   "finished_at": "2026-10-31T11:41:38.362878+00:00",
+   "cost": 0.1029,
+   "chain_cost": 1.1066,
+   "result": {
+    "note": "Pianoforte: 26 systems cut",
+    "phase": {
+     "page": 5,
+     "pages": 5,
+     "systems_cut": 26
+    },
+    "absent": 0,
+    "seconds": 70.8,
+    "cost_usd": 0.1029455,
+    "questions": 0,
+    "source_id": "e300cc54-c18d-4885-9d0a-80a8d0b18212",
+    "systems_cut": 26,
+    "interpretation_id": "cae31c44-b376-49b4-9db4-e5eefbbbd359",
+    "answered_by_memory": 0
+   },
+   "yoga": []
   }
  ],
  "questions": [
@@ -271,6 +372,55 @@
    "answered_at": "2026-10-31T03:44:27",
    "status": 200,
    "follow_up": "2e0719bf-e374-4054-af3d-df80862476e3"
+  },
+  {
+   "job": "c5b6401b-298b-4a23-af1b-72be0d5e1c26",
+   "kind": "part_cut",
+   "question": "Which staves are the Pianoforte's on page 12, line 4?",
+   "asked_at": "2026-10-31T04:25:42",
+   "page": 12,
+   "label": "local:cut:Pianoforte",
+   "answer": {
+    "staves": [
+     7
+    ]
+   },
+   "answered_at": "2026-10-31T04:26:00",
+   "follow_up": "9b3a6617-eea4-4e79-95a5-89094ecfa6f5",
+   "local": true
+  },
+  {
+   "job": "8125a8c8-761d-41ff-bac4-25822fdd8443",
+   "kind": "part_cut",
+   "question": "Which staves are the Pianoforte's on page 10, line 3?",
+   "asked_at": "2026-10-31T04:38:40",
+   "page": 10,
+   "label": "local:cut:Pianoforte",
+   "answer": {
+    "staves": [
+     5,
+     6
+    ]
+   },
+   "answered_at": "2026-10-31T04:38:47",
+   "follow_up": "5a9f2d87-70f8-4eaa-b915-721252760404",
+   "local": true
+  },
+  {
+   "job": "5a9f2d87-70f8-4eaa-b915-721252760404",
+   "kind": "part_cut",
+   "question": "Which staves are the Pianoforte's on page 12, line 4?",
+   "asked_at": "2026-10-31T04:39:24",
+   "page": 12,
+   "label": "local:cut:Pianoforte",
+   "answer": {
+    "staves": [
+     7
+    ]
+   },
+   "answered_at": "2026-10-31T04:39:32",
+   "follow_up": "60813784-8bab-4522-8ca3-bc0edaf2eb0a",
+   "local": true
   }
  ],
  "jobs": {
@@ -303,6 +453,36 @@
   "2e0719bf-e374-4054-af3d-df80862476e3": {
    "kind": "part_cut",
    "created_at": "2026-10-31T10:44:27.185212+00:00"
+  },
+  "c5b6401b-298b-4a23-af1b-72be0d5e1c26": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T11:21:56.838199+00:00",
+   "local": true
+  },
+  "9b3a6617-eea4-4e79-95a5-89094ecfa6f5": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T11:26:00.652643+00:00",
+   "local": true
+  },
+  "8125a8c8-761d-41ff-bac4-25822fdd8443": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T11:36:40.066852+00:00",
+   "local": true
+  },
+  "5a9f2d87-70f8-4eaa-b915-721252760404": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T11:38:47.496905+00:00",
+   "local": true
+  },
+  "60813784-8bab-4522-8ca3-bc0edaf2eb0a": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T11:39:32.521747+00:00",
+   "local": true
+  },
+  "cf57ce03-7914-4ce0-bb74-c9bedf30eeb8": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T11:40:27.220259+00:00",
+   "local": true
   }
  },
  "import": {
@@ -590,5 +770,6 @@
   }
  ],
  "cut_label": "cut:Pianoforte",
- "human_wait_s": 279.9
+ "human_wait_s": 279.9,
+ "t_waiting_since": 1793446764.995466
 }

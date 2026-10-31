@@ -465,9 +465,38 @@ cases in `tests/test_part_cut.py` (the header seed settles "Klavier" then "Klav.
 page asks once and the answer settles "Klav." on page 2 with no recheck; a new label still asks; a disagreeing page
 is not settled; the book's header is reused). 284 passed.
 
-Not done: `process_pages` does not consult the memory for its own parts question (its admin answers are part names
-without the printed labels); a page with no margin labels at all is not settled by the memory (by-order still
-proposes full systems); the web's Choose the staves dialog does not show what was remembered.
+Not done at the time (2026-10-30), all three done 2026-10-31 below: `process_pages` did not consult the memory for its
+own parts question; a page with no margin labels was not settled by the memory; the dialog did not show what was
+remembered.
+
+### Before a question: layouts and answers reused (2026-10-31)
+
+Follow-ups the pianist test and the E2E night left open (cc4b30d and 2a88828 fixed two instances; this is the general
+rule). The memory also keeps **layouts** (`label_memory.layouts`): where each part sits in a system of a given staff
+count, keyed by that count plus the margin labels printed on it in order (a label-less system takes any layout of its
+count, a labelled one only its own key), positions 1-based within the system, with the same provenance rule (human over
+model; two model reads that disagree mark the part `disputed`, used by no one).
+
+- **Part cut**: an admin's answer teaches the layout of its line (not an answer with fewer staves than the part has on
+  a system with more, 2a88828); a commit that passes every check teaches a model layout. A human layout places the
+  instrument on a later system of that shape whatever the proposal said; a model layout only fills a system the label
+  call left out (never one it called absent), and the recheck still runs. A commit that matches the admin's earlier
+  answer for the line's labels or shape is the admin's answer again: no count, crop or recheck refusal (verdict
+  `remembered`, `how: layout | label`). Before a run parks, the memory is consulted: when it places every wanted
+  instrument on the asked line from a human answer, that is committed and the agent resumes unasked
+  (`answered_by_memory`). The question's payload carries `remembered` (instrument, staves, page, source, how).
+- **Page read** (`process_pages`): the memory is loaded first. A system Spark names no parts for (no printed labels),
+  or whose staves do not add up, takes the layout an earlier page settled for that staff count (for staves that do not
+  add up, only when it names the same parts in order); a name the parts do not match is the part the memory says its
+  label is. Each page assigned teaches its layouts (model); the admin's answer teaches labels and, when its staves are
+  known (one staff each, Spark's counts, the header's, or a remembered layout; never an even split), the layout
+  (human). The parts question carries `remembered` (the whole layouts known for the page's staff counts).
+- **iPad**: the staves question says "Already chosen: Violino I, remembered from page 2 (your answer)"; the parts
+  question offers "As on page N" with a "remembered from page N" chip when the book knows the page's shape.
+
+Measured on the Cappi 1802 p8-12 split (benchmark 3.13): before, 1 question and the run paused at the turn limit with
+p. 12 line 5 still refused; after, 2 questions (one a recheck doubt) and every system cut, the later lines of an
+answered shape committed with no recheck; the same split again asked nothing ($0.103).
 
 ## Speed pass (2026-10-30)
 

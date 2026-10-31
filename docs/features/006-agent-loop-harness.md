@@ -69,7 +69,9 @@ with the job and no check reads it); a handler keeps what it learned on the book
 model, which page, which job), consults it before it asks, passes it to the model as context for later pages, and
 lets a human answer outrank any model read. A genuinely new fact still asks. First use: 008's label memory
 (`scores.label_memory`, `app/librarian/label_memory.py`): a printed staff label ("Klav.") is the part the header or
-the admin said it is, on every later page and in every later cut of the book.
+the admin said it is, on every later page and in every later cut of the book. Since 2026-10-31 the same store keeps system
+layouts (which staves each part takes in a system of a given shape), the part cut commits the admin's remembered
+answer instead of parking a question, and the page read consults the memory before it asks (008, "Before a question").
 
 ## Park, answer, resume: what the iPad sees (2026-10-31)
 
