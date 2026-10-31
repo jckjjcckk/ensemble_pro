@@ -812,3 +812,39 @@ async def test_the_split_source_carries_bar_numbers_and_tacet_pages():
     assert (s1["bar_from"], s1["bar_to"]) == (1, 4) and [b[0] for b in s1["bars_at"]] == [1, 2, 3, 4]
     assert all(0 <= b[1] < b[2] <= 1 for b in s1["bars_at"])
     assert meta["tacet"] == [{"page": 2, "bar_from": 5, "bar_to": 6}] and meta["pages"] == [1, 2]
+
+
+def margin_multi(margins: list[tuple[str, list[int]]], **staves_by_instrument):
+    """The label reply for a split of several instruments, with the printed margin labels Spark read on system 1."""
+    return text(json.dumps({"systems": [{"index": 1, "wanted": [{"instrument": k, "staves": v, "status": "playing"} for k, v in staves_by_instrument.items()],
+                                         "margin_labels": [{"text": t, "staves": s} for t, s in margins]}], "confidence": "high"}))
+
+
+@pytest.mark.asyncio
+async def test_a_split_of_two_learns_the_label_the_admin_confirmed_on_the_proposed_staves():
+    """E2E night, PC5: a split of Violino I + Violoncello asked about the cello's shared staff ("Vcllo. e C-B.") on
+    page 2 and again on page 3: the answer taught the memory nothing, because a split of several instruments learned
+    a label only when the synonyms tied it to one of them. Here the label is one no table knows ("Xq."); the admin
+    confirms the proposal's staves [1] and [6], the label over staff 6 is learned as the Violine I's, and page 2
+    commits with no recheck call and no second question."""
+    script = [tool("read_header", {}), KLAV_HEADER, tool("read_page", {"page": 1}), margin_multi([("Fl.", [1]), ("Xq.", [6])], **{"Flöten": [1], "Violine I": [6]})]
+    for _ in range(3):
+        script += [tool("commit_system", {"page": 1, "system": 1, "blocks": [[1], [6]]}), doubt("Xq.")]
+    client, t = fake_client(script)
+    job, ctx, db = world(2, {"instruments": ["Flöten", "Violine I"], "instrument": None})
+    out = await part_cut(job, ctx, client=client)
+    assert out["question_payload"]["kind"] == "choose_staves" and out["question_payload"]["page"] == 1
+    db.rows["jobs"][-1]["result"] = out
+    client2, t2 = fake_client([tool("read_page", {"page": 2}), margin_multi([("Fl.", [1]), ("Xq.", [6])], **{"Flöten": [1], "Violine I": [6]}),
+                               tool("commit_system", {"page": 2, "system": 1, "blocks": [[1], [6]]}), tool("finish", {})])
+    job2, ctx2, _ = world(2, {"instruments": ["Flöten", "Violine I"], "instrument": None, "answer": {"staves": [1, 6]}, "resume_from": job.id}, db=db)
+    out2 = await part_cut(job2, ctx2, client=client2)
+    mem = db.rows["scores"][0]["label_memory"]["entries"]
+    assert mem["xq"]["part"] == "Violine I" and mem["xq"]["source"] == "human" and mem["xq"]["origin"] == "answer"
+    assert out2["systems_cut"] == 2 and out2["questions"] == 1 and len(t2.calls) == 4     # page 2: no recheck, no question
+    assert [r["verdict"] for r in ctx2.result["agent"]["scratch"]["commits"]["2:1"]["rechecks"]] == ["remembered", "remembered"]
+
+
+def test_breitkopf_cello_abbreviations_are_the_cello():
+    from app.librarian import header as hdr
+    assert hdr.family("Vcllo. e C.-B.") == "cello" and hdr.family("Vcello e C-B") == "cello" and hdr.family("C-B.") == "double bass"

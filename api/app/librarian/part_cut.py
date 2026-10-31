@@ -412,6 +412,16 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                 "labels": [rem[i]["label"] for i in insts], "pages": [rem[i]["page"] for i in insts],
                 "agreed": all(rem[i].get("agreed", False) for i in insts)}
 
+    def proposed_owner(page: int, system: int, chosen: list[int], staves: list[int]) -> list[str]:
+        """The wanted instrument the page's proposal put on these staves, when the committed staves are exactly the
+        proposal's: a split of two instruments learns a label the synonyms do not know (PC5's "Vcllo. e C-B." over
+        the cello's shared staff, E2E night 2026-10-31) the way a split of one does, instead of asking on every page."""
+        prop = proposal_of(page, system) or {}
+        if sorted(set(chosen)) != sorted(set(prop.get("staves") or [])):
+            return []
+        per = prop.get("per_instrument") or {}
+        return [i for i in instruments if set(staves) <= set(per.get(i) or [])]
+
     def learn_from(page: int, system: int, chosen: list[int], source: str) -> list[str]:
         """After a commit: the printed labels on the committed staves are the wanted instruments'. `source` "human" for
         the admin's answer (the page's margin labels, else the label the refused recheck saw on that very block),
@@ -428,7 +438,8 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                 cands = list(instruments)
             else:
                 cands = [i for i in instruments if (e := mem.resolve(ml["text"])) is not None and same_part(e["part"], i)] \
-                    or [i for i in instruments if label_memory.same_label(ml["text"], i)]
+                    or [i for i in instruments if label_memory.same_label(ml["text"], i)] \
+                    or proposed_owner(page, system, chosen, ml["staves"])
             if len(cands) != 1 or not label_fits(ml["text"], cands[0]):
                 continue
             if mem.learn(ml["text"], cands[0], source, "answer" if source == "human" else "page", page=page, staves=ml["staves"], job_id=job.id):
