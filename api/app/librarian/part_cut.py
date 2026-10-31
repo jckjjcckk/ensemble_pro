@@ -37,6 +37,7 @@ deleted). Agent state lives in `jobs.result.agent` (persisted every turn).
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import re
 import time
@@ -55,11 +56,19 @@ from .ask import ASK_SYSTEM, NoJSON, ask_model  # noqa: F401  (re-exported: the 
 from .cut import cut_system, overlay_png, page_geometry, to_png, verify
 from .header import same_instrument  # noqa: F401  (re-exported: the matcher lives with the header)
 from .label_memory import LabelMemory, same_part
-from .process_pages import page_paths
+from .process_pages import CONCURRENCY as PREREAD_CONCURRENCY, page_paths
 
 ENGINE = "part-cut-agent"
 STACK_GAP_SPACES = 1.5   # white gap between stacked blocks, in staff spaces
 RECHECK_MAX_TOKENS = 4000   # Spark's reasoning counts against max_tokens; 3 of 9 rechecks on Dvořák ran out at 2048 (GENERAL.md)
+# Efforts of the in-tool calls (speed pass 2026-10-30, benchmark 3.12). Labels at minimal: 20 of 21 pages gave the same
+# staves as low on the same overlay (Rach 1, PC3, B9 x2, Dvorak), the one difference low's error; a read `label_guard`
+# doubts is read again at low on the spot. Rechecks stay at low: 12 of 14 yes/no agreed, the two that did not were the
+# soprano C clef, the recheck's known weak spot.
+LABEL_EFFORT = "minimal"
+RECHECK_EFFORT = "low"
+FALLBACK_EFFORT = "low"
+PREREAD_PAGES = True   # every page's label call ahead of the agent (`start_prereads`); the scripted tests turn it off
 SYSTEM = """You are an orchestral librarian cutting the chosen instruments' staves out of a scanned full score. Geometry has already found every staff, system and barline; you only decide which numbered staves belong to the wanted instruments on each system, then commit them. Work page by page: read_header once, then for each page read_page and commit_system for every system (the staff numbers of every wanted instrument, or "absent" when none of their staves are printed in that system), then finish. Trust the margin labels first, then clefs, brace and score order. Call exactly one tool per turn, no prose."""
 
 LABEL_PROMPT = """Page {page} of a scanned full score. Every staff has a blue box and a yellow tag with its number ({first}..{last}, top to bottom); grey boxes mark the systems: {systems_desc}. Instrument wanted: "{instrument}" ({staves} staves per system according to the header).
@@ -172,6 +181,51 @@ def parse_answer(answer: Any) -> list[int] | str:
     return sorted(set(flat)) or "absent"
 
 
+def label_guard(lab: dict[str, Any], instruments: list[str], header: dict | None) -> list[str]:
+    """Why a label reply (`read_page`'s call) cannot be trusted as read: one printed label on two different staff sets
+    of one system, two wanted instruments on one staff, or a bare family name ("Horn") on a wanted instrument's staves
+    where the header has several parts of that family. A reply read at effort minimal with any reason is read again at
+    low (the 004 speed eval's guard)."""
+    from .labels import generic_name
+    pool = [str(i.get("label") or i.get("name") or "") for i in (header or {}).get("instruments") or []]
+    why: list[str] = []
+    for k, s in enumerate(lab.get("systems") or []):
+        if not isinstance(s, dict):
+            continue
+        idx = s.get("index", k + 1)
+        seen: dict[str, list[int]] = {}
+        wanted_staves: set[int] = set()
+        claimed: dict[int, str] = {}
+        rows = s.get("wanted") if isinstance(s.get("wanted"), list) else []
+        for w in rows:
+            if not isinstance(w, dict):
+                continue
+            for x in w.get("staves") or []:
+                if str(x).lstrip("-").isdigit():
+                    x = int(x)
+                    if x in claimed and claimed[x] != str(w.get("instrument")):
+                        why.append(f"system {idx}: staff {x} given to both {claimed[x]!r} and {w.get('instrument')!r}")
+                    claimed[x] = str(w.get("instrument"))
+                    wanted_staves.add(x)
+        for x in s.get("wanted_staves") or []:
+            if str(x).lstrip("-").isdigit():
+                wanted_staves.add(int(x))
+        for ml in s.get("margin_labels") or []:
+            if not isinstance(ml, dict):
+                continue
+            text = str(ml.get("text") or "").strip()
+            st = sorted(int(x) for x in (ml.get("staves") or []) if str(x).lstrip("-").isdigit())
+            if not text or not st:
+                continue
+            key = label_memory.norm(text)
+            if key in seen and seen[key] != st:
+                why.append(f"system {idx}: the label {text!r} is read on staves {seen[key]} and {st}")
+            seen.setdefault(key, st)
+            if set(st) & wanted_staves and generic_name(text, pool):
+                why.append(f"system {idx}: the label {text!r} on the wanted staves is a family name and the header has several")
+    return why
+
+
 @handler("part_cut")
 async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None = None, model: str | None = None) -> dict:
     t0 = time.time()
@@ -207,6 +261,8 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
     sc.setdefault("questions", 0)
     sc.setdefault("log", [])
     sc.setdefault("seen_labels", {})   # "page:system" -> [{block, label}]: the label the recheck saw on a refused block
+    sc.setdefault("prereads", {})      # str(page) -> the label call's answer, read ahead of the agent (kept for a resume)
+    sc.setdefault("label_fallbacks", [])   # [{page, why}]: a minimal label read the guard sent back to low
     cache: dict[int, tuple[Any, Any, Any]] = {}   # page -> (geom, bw, page image), not persisted
 
     # The book's label memory (006 agentic memory rule): what earlier reads and the admin's answers say each printed label
@@ -271,11 +327,12 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                 sc["log"].append(f"Page {n} system {q['system']}: the label {label!r} ({inst}) sits on {staves} but the labels proposed {own}; not settled")
                 continue
             source = e["source"]
+            agreed = bool(own)          # the proposal of the same call put the instrument on exactly the label's staves
             if not own:
                 per[inst] = staves
                 source = "model"
                 sc["log"].append(f"Page {n} system {q['system']}: {inst} on {staves} by the label {label!r}, where the labels proposed none")
-            rem[inst] = {"staves": staves, "label": label, "source": source, "origin": e.get("origin"), "page": e.get("page")}
+            rem[inst] = {"staves": staves, "label": label, "source": source, "origin": e.get("origin"), "page": e.get("page"), "agreed": agreed}
         if rem:
             q["remembered"] = rem
             union = sorted(set(x for v in per.values() for x in v))
@@ -291,7 +348,8 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         if sorted(set(block)) != sorted(set(x for i in insts for x in rem[i]["staves"])):
             return None
         return {"source": "human" if all(rem[i]["source"] == "human" for i in insts) else "model", "instruments": insts,
-                "labels": [rem[i]["label"] for i in insts], "pages": [rem[i]["page"] for i in insts]}
+                "labels": [rem[i]["label"] for i in insts], "pages": [rem[i]["page"] for i in insts],
+                "agreed": all(rem[i].get("agreed", False) for i in insts)}
 
     def learn_from(page: int, system: int, chosen: list[int], source: str) -> list[str]:
         """After a commit: the printed labels on the committed staves are the wanted instruments'. `source` "human" for
@@ -516,13 +574,16 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         if recheck:
             for block, crop in zip(blocks, crops):
                 known = settled(page, system, block)
-                if known and known["source"] == "human":
-                    # the admin already said what this label is: the recheck would only second-guess the same label
-                    rechecks.append({"block": block, "verdict": "remembered", "source": "human", "labels": known["labels"], "pages": known["pages"]})
+                if known and (known["source"] == "human" or known["agreed"]):
+                    # The admin already said what this label is, or the book's memory knows the printed label and the
+                    # page's proposal put the instrument on exactly these staves: the recheck would only second-guess
+                    # the same label (speed pass 2026-10-30: its true catches were all on unlabelled systems, which the
+                    # memory never settles; benchmark 3.12).
+                    rechecks.append({"block": block, "verdict": "remembered", "source": known["source"], "labels": known["labels"], "pages": known["pages"]})
                     continue
                 fields, expected_clefs, voice = recheck_claim(page, system, block)
                 prompt = RECHECK_PROMPT.format(**fields)
-                said = await ask_model(ctx, c, m, prompt, to_png(crop), max_tokens=RECHECK_MAX_TOKENS)
+                said = await ask_model(ctx, c, m, prompt, to_png(crop), max_tokens=RECHECK_MAX_TOKENS, effort=RECHECK_EFFORT)
                 sc["cost_usd"] = sc.get("cost_usd", 0.0) + said.pop("_cost_usd", 0.0)
                 matches = said.get("matches")
                 if isinstance(matches, str):
@@ -619,6 +680,7 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         h = sc["header"]
         if mem.seed_from_header(h, book_parts()):
             remember()
+        start_prereads()
         matched = {}
         for i in instruments:
             match = hdr.match_instrument(h.get("instruments") or [], i)
@@ -647,17 +709,14 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
             out.extend(lines if k == 0 else lines[1:])
         return ("\n".join(out) + "\n") if out else ""
 
-    @box.tool("read_page", "Geometry of one page (staves, systems, barlines) and the model's proposal of which staves are the wanted instruments', from the numbered overlay.", {"properties": {"page": {"type": "integer"}}, "required": ["page"]})
-    async def read_page(args, st):
-        n = int(args["page"])
-        if n not in pages:
-            return {"error": f"page {n} is not in this job; pages: {pages}"}
-        if str(n) in sc["pages"]:
-            return sc["pages"][str(n)]["summary"]
+    async def fetch_labels(n: int) -> dict | None:
+        """The page's label call (geometry, overlay, prompt, Spark; the fallback to low when the guard doubts a minimal
+        read). None for a page with no staves. Pre-read in two waves once the header is known (`start_prereads`)."""
+        if str(n) in sc["prereads"]:
+            return sc["prereads"][str(n)]
         geom, bw, im = load_page(n)
         if not geom["staves"]:
-            sc["pages"][str(n)] = {"geometry": geom, "proposal": [], "summary": {"page": n, "staves": 0, "systems": [], "note": "no staves found; commit every system as absent or skip"}}
-            return sc["pages"][str(n)]["summary"]
+            return None
         ov = overlay_png(im, geom)
         ov_key = f"{score_id}/parts/{part_slug}/overlay-p{n:03}.png"
         ctx.storage_upload(ov_key, ov, "image/png")
@@ -670,12 +729,67 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
             example = ", ".join(json.dumps({"instrument": i, "staves": [], "status": "playing"}) for i in instruments)
             prompt = LABEL_PROMPT_MULTI.format(page=n, first=1, last=len(geom["staves"]), systems_desc=desc, wanted_desc=wanted_desc,
                                                example=example, header_context=header_context(geom) + mem.context(instruments))
-        try:
-            lab = await ask_model(ctx, c, m, prompt, ov, max_tokens=8000, require="systems")
-        except NoJSON as e:   # no labels: the header's score order still proposes the full systems
-            lab = {"systems": [], "confidence": "low", "notes": f"label call failed ({e}); proposal by score order only", "_cost_usd": e.cost_usd}
-        sc["cost_usd"] = sc.get("cost_usd", 0.0) + lab.pop("_cost_usd", 0.0)
+        async def ask(effort: str) -> dict:
+            try:
+                got = await ask_model(ctx, c, m, prompt, ov, max_tokens=8000, require="systems", effort=effort)
+            except NoJSON as e:   # no labels: the header's score order still proposes the full systems
+                got = {"systems": [], "confidence": "low", "notes": f"label call failed ({e}); proposal by score order only", "_cost_usd": e.cost_usd}
+            sc["cost_usd"] = sc.get("cost_usd", 0.0) + got.pop("_cost_usd", 0.0)
+            return got
+
+        lab = await ask(LABEL_EFFORT)
+        lab["_effort"] = LABEL_EFFORT
+        if LABEL_EFFORT != FALLBACK_EFFORT and (why := label_guard(lab, instruments, sc["header"])):
+            sc["label_fallbacks"].append({"page": n, "why": why})
+            sc["log"].append(f"Page {n}: the labels read at {LABEL_EFFORT} are doubted ({'; '.join(why)}); read again at {FALLBACK_EFFORT}")
+            lab = await ask(FALLBACK_EFFORT)
+            lab["_effort"], lab["_fallback"] = FALLBACK_EFFORT, why
+        lab["_overlay_key"] = ov_key
+        sc["prereads"][str(n)] = lab
+        return lab
+
+    prereads: dict[int, asyncio.Task] = {}
+
+    def start_prereads() -> None:
+        """Every page's label call ahead of the agent, in two waves as page reading does (004): the first page alone,
+        then the rest, PREREAD_CONCURRENCY at once. The agent's read_page takes the answer when it is back; the memory
+        is applied then, with what the earlier commits taught it."""
+        todo = [n for n in pages if str(n) not in sc["pages"] and str(n) not in sc["prereads"] and n not in prereads]
+        if not todo or not PREREAD_PAGES:
+            return
+        first = asyncio.ensure_future(fetch_labels(todo[0]))
+        prereads[todo[0]] = first
+        gate = asyncio.Semaphore(PREREAD_CONCURRENCY)
+
+        async def later(n: int) -> dict | None:
+            try:
+                await asyncio.shield(first)
+            except Exception:  # noqa: BLE001  (the first page's failure is read_page's to report)
+                pass
+            async with gate:
+                return await fetch_labels(n)
+        for n in todo[1:]:
+            prereads[n] = asyncio.ensure_future(later(n))
+
+    @box.tool("read_page", "Geometry of one page (staves, systems, barlines) and the model's proposal of which staves are the wanted instruments', from the numbered overlay.", {"properties": {"page": {"type": "integer"}}, "required": ["page"]})
+    async def read_page(args, st):
+        n = int(args["page"])
+        if n not in pages:
+            return {"error": f"page {n} is not in this job; pages: {pages}"}
+        if str(n) in sc["pages"]:
+            return sc["pages"][str(n)]["summary"]
+        lab = await (prereads.pop(n) if n in prereads else fetch_labels(n))
+        geom, bw, im = load_page(n)
+        if lab is None:
+            sc["pages"][str(n)] = {"geometry": geom, "proposal": [], "summary": {"page": n, "staves": 0, "systems": [], "note": "no staves found; commit every system as absent or skip"}}
+            return sc["pages"][str(n)]["summary"]
+        lab = dict(lab)
+        ov_key = lab.pop("_overlay_key", None)
+        lab.pop("_effort", None)
+        lab.pop("_fallback", None)
+        lab.pop("_api", None)
         label_retries = lab.pop("_retries", [])
+        lab.pop("_repaired", None)
         proposal = [proposal_entry(s, i) for i, s in enumerate(lab.get("systems") or []) if isinstance(s, dict)]
         for q, s in zip(proposal, [s for s in lab.get("systems") or [] if isinstance(s, dict)]):
             sysd = next((g for g in geom["systems"] if g["index"] == q["system"]), None)
@@ -763,9 +877,13 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         ctx.result["agent"] = d
         ctx.db.table("jobs").update({"result": ctx.result}).eq("id", job.id).execute()
 
+    if sc["header"] is not None:        # a resumed run: the pages not read yet are read ahead again
+        start_prereads()
     st = await run_agent(system=SYSTEM, tools=box, state=state, answer=answer_text, client=c, model=m, persist=persist, charge=ctx.charge,
                          user_text=None if resumed else f'Cut the part "{label}" (instruments: {json.dumps(instruments)}) from pages {pages}. Start with read_header.',
                          max_turns=8 + 6 * len(pages), max_cost_usd=float(p.get("max_cost_usd", 2.0)), max_refusals=3)
+    for t in prereads.values():         # pages the agent never read (a park, a pause): their calls stop here
+        t.cancel()
     cost = float(Decimal(str(st.cost_usd)) + Decimal(str(sc.get("cost_usd", 0.0))))
     interp = write_interpretation(ctx, score_id, src, p.get("interpretation_id"), instruments, part_slug, sc, st, pages, cost, t0)
 

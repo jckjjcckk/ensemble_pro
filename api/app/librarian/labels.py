@@ -277,6 +277,32 @@ def _plain(name: str) -> tuple[str, ...]:
     return tuple(out)
 
 
+def generic_name(name: str, pool: list[str]) -> bool:
+    """A bare family name ("Horn", "Clarinets": no numeral) where the book has two or more parts of that family, so it
+    names no one part (004 speed eval: effort minimal named Rach 1's horns "Horn", "Horn" in 1 of 4 chains)."""
+    fam = hdr.family(name)
+    if fam is None or hdr.numerals(name):
+        return False
+    return len({canon_part(k).lower() for k in pool if hdr.family(k) == fam}) >= 2
+
+
+def doubtful_names(systems: list[tuple[int, list[str]]], pool: list[str]) -> list[str]:
+    """Why a page's part names cannot be trusted as read: a name given twice in one system (two staves, one part
+    name), or a generic family name (`generic_name`) against `pool` (the parts already read and the header's). The
+    guard on a page read at effort minimal: a page with any reason is read again at low."""
+    why: list[str] = []
+    for index, names in systems:
+        seen: set[str] = set()
+        for n in names:
+            k = canon_part(n).lower()
+            if k in seen:
+                why.append(f"system {index}: {n!r} is given to two parts")
+            seen.add(k)
+            if generic_name(n, pool):
+                why.append(f"system {index}: {n!r} is a family name and the book has several such parts")
+    return why
+
+
 def match_part(name: str, pool: list[str]) -> str | None:
     """The one entry of `pool` that is the same part as `name`, else None. Exact (canonical) names first; then the
     header's synonym families: a numbered name ("Violin I") matches an entry of its family that shares a numeral

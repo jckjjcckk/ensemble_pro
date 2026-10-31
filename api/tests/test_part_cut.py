@@ -131,6 +131,14 @@ def world(n_pages: int, payload_extra: dict[str, Any] | None = None, db: FakeDB 
 def commit(page: int, staves): return tool("commit_system", {"page": page, "system": 1, "staves": staves})
 
 
+@pytest.fixture(autouse=True)
+def _pages_in_call_order(monkeypatch):
+    """The scripted fake answers in call order, so these tests read each page when the agent asks for it; the read-ahead
+    is tested with a fake that answers by prompt (`test_part_cut_speed.py`)."""
+    import app.librarian.part_cut as pc
+    monkeypatch.setattr(pc, "PREREAD_PAGES", False)
+
+
 @pytest.mark.asyncio
 async def test_happy_path_three_pages():
     script = [tool("read_header", {}), HEADER]
@@ -624,20 +632,24 @@ def doubt(label: str):
 
 @pytest.mark.asyncio
 async def test_the_header_seeds_the_memory_and_a_known_label_outweighs_the_crops_doubts():
-    """The book's first page reads "Klavier"; page 2 prints "Klav.". Both pages' rechecks doubt the crop (neighbour
-    ink) while reading the label right: the label the memory knows settles both, no question."""
+    """The book's first page reads "Klavier"; page 2 prints "Klav.". The label the memory knows (from the header) sits on
+    exactly the staves the page's proposal gives the piano, so both blocks are settled with no recheck call (speed pass
+    2026-10-30: before, both rechecks doubted the crop for neighbour ink and the label outweighed them), no question."""
     script = [tool("read_header", {}), KLAV_HEADER,
-              tool("read_page", {"page": 1}), label_margin([("Flöten", [1]), ("Klavier", [4, 5])]), commit(1, [4, 5]), doubt("Klavier"),
-              tool("read_page", {"page": 2}), label_margin([("Fl.", [1]), ("Klav.", [4, 5])]), commit(2, [4, 5]), doubt("Klav."),
+              tool("read_page", {"page": 1}), label_margin([("Flöten", [1]), ("Klavier", [4, 5])]), commit(1, [4, 5]),
+              tool("read_page", {"page": 2}), label_margin([("Fl.", [1]), ("Klav.", [4, 5])]), commit(2, [4, 5]),
               tool("finish", {})]
     client, t = fake_client(script)
     job, ctx, db = world(2)
     out = await part_cut(job, ctx, client=client)
     assert out["systems_cut"] == 2 and out["questions"] == 0 and ctx.result["agent"]["refusals"] == {}
+    assert len(t.calls) == len(script)                                              # no recheck call at all
     sc = ctx.result["agent"]["scratch"]
-    assert [sc["commits"][k]["rechecks"][0]["verdict"] for k in ("1:1", "2:1")] == ["label", "label"]
-    assert sc["pages"]["2"]["proposal"][0]["remembered"]["Piano"] == {"staves": [4, 5], "label": "Klav.", "source": "model", "origin": "header", "page": 1}
-    page2_prompt = t.calls[7]["messages"][0]["content"][1]["text"]
+    assert [sc["commits"][k]["rechecks"][0]["verdict"] for k in ("1:1", "2:1")] == ["remembered", "remembered"]
+    assert [sc["commits"][k]["rechecks"][0]["source"] for k in ("1:1", "2:1")] == ["model", "model"]
+    assert sc["pages"]["2"]["proposal"][0]["remembered"]["Piano"] == {"staves": [4, 5], "label": "Klav.", "source": "model", "origin": "header",
+                                                                      "page": 1, "agreed": True}
+    page2_prompt = t.calls[6]["messages"][0]["content"][1]["text"]
     assert 'Known labels in this book: "Klavier" is Piano (read from the first page)' in page2_prompt
     mem = db.rows["scores"][0]["label_memory"]["entries"]
     assert mem["klavier"]["part"] == "Piano" and mem["klavier"]["source"] == "model"
