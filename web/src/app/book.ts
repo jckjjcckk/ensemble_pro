@@ -2,9 +2,10 @@
  *  Busy: the library is reading it (`scores.status` processing: a PDF being rasterised and read, 004, or a MusicXML
  *  import) or converting it to Digital (an `omr_convert` job queued or running, 005). A question: any parked job on the
  *  book (`needs_review`), or the reading run's interpretation marked `needs_review`. Failed: the read stopped, or the
- *  last conversion did and no transcription exists. A book carries one status dot at most: question over failure. */
+ *  last conversion did and no transcription exists. A book carries one state at most: question over failure over work. */
 import type { BookKind, Score } from '../mock'
 import { partLabel, type AskJob, type BookJob, type PartJob, type ScoreShare } from './data'
+import type { RopeState } from './Rope'
 
 /** A job working on the book that the sheet and the card show in place of the action that started it (CK, 2026-10-31:
  *  one at a time, never a duplicate): a split by instrument or a conversion to Digital, from its row over Realtime. */
@@ -19,7 +20,6 @@ export interface LiveJob {
   what: string
   /** Where it stands: "Page 2 of 4 · 3 systems cut", the handler's own note, or the question. */
   detail: string
-  progress: number
   /** The question to answer, when it is parked on one. */
   ask: AskJob | null
 }
@@ -90,7 +90,7 @@ function liveSplit(jobs: PartJob[]): LiveJob | null {
         : j.note ?? 'Reading the first page'
   return {
     id: j.id, kind: 'part_cut', state, resuming: state === 'queued' && j.resumed, what: `Splitting out ${partLabel(j.instruments)}`, detail,
-    progress: j.progress, ask: state === 'needs_review' ? { id: j.id, scoreId: j.scoreId, kind: 'part_cut', question: j.question, questionPayload: j.questionPayload } : null,
+    ask: state === 'needs_review' ? { id: j.id, scoreId: j.scoreId, kind: 'part_cut', question: j.question, questionPayload: j.questionPayload } : null,
   }
 }
 
@@ -100,7 +100,7 @@ function liveConvert(j: BookJob | undefined): LiveJob | null {
   return {
     id: j.id, kind: 'omr_convert', state, resuming: state === 'queued' && j.resumed, what: 'Converting to Digital',
     detail: state === 'needs_review' ? j.question ?? 'A question' : state === 'queued' ? 'Starting' : j.note ?? 'Working',
-    progress: j.progress, ask: state === 'needs_review' ? { id: j.id, scoreId: j.scoreId, kind: j.kind, question: j.question, questionPayload: j.questionPayload } : null,
+    ask: state === 'needs_review' ? { id: j.id, scoreId: j.scoreId, kind: j.kind, question: j.question, questionPayload: j.questionPayload } : null,
   }
 }
 
@@ -113,6 +113,12 @@ export function liveWord(j: LiveJob, canAnswer: boolean): string {
 
 /** The status dot's colour, or none when the book is fine. */
 export const dotOf = (b: BookState): 'ask' | 'fail' | null => (b.asking ? 'ask' : b.failed ? 'fail' : null)
+
+/** What the rope round the book's card says (Rope.tsx): a person is needed before anything else, else an agent at work. */
+export function ropeOf(b: BookState): RopeState | null {
+  const job = b.split ?? b.convert
+  return b.asking || job?.state === 'needs_review' ? 'asking' : b.failed ? 'failed' : b.busy || job ? 'working' : null
+}
 
 /** How a book stands with groups (`score_shares`). A personal book can be shared by reference with the owner's groups:
  *  it stays in the owner's library and each group reads it from there. Its dot and tags (above) are the book's own and

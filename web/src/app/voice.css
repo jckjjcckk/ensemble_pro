@@ -1,8 +1,8 @@
 /* Voice notes (013, VoiceNotes.tsx): the push-to-talk pill, the tray's proposed cards and the ghosts on the page. Values
    from docs/design liquid_glass M5_GlassSurface and the glass probe: a light frost (1.2 px), a silver hairline rim, a
-   glint; listening lights the glass from inside in Muse blue, brighter with the voice (--level, 0..1); placing a note
-   drifts a soft multicolour wash through it. Muse blue (--muse) is used here only. No SVG refraction: the frost is a
-   plain backdrop-filter, which iPad Safari and the app's webview draw.
+   glint; a lit surface glows from inside in Muse blue (--level, 0..1). The button's inside is drawn (PillStrands.tsx).
+   Muse blue (--muse) is used here only. No SVG refraction: the frost is a plain backdrop-filter, which iPad Safari and
+   the app's webview draw.
    Words on glass must read over anything behind it (a white page, black notation, the dark desk): the pane is tinted
    with the theme's paper at 74%, which keeps the frost and the page showing through and holds its text at 5.8:1 or
    better in dark mode and 8:1 in light, worst case. The ghosts carry no text on the pane, so they stay near-clear. */
@@ -18,7 +18,7 @@
   box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.12) inset, 0 0 10px 4px rgba(0, 0, 0, 0.06) inset, 0 4px 16px rgba(17, 17, 26, 0.06), 0 12px 36px rgba(17, 17, 26, 0.08);
   color: var(--text);
 }
-.fo .vglass > .v-glow, .fo .vglass > .v-wash, .fo .vglass > .v-glint, .fo .vglass > .v-rim {
+.fo .vglass > .v-glow, .fo .vglass > .v-glint, .fo .vglass > .v-rim {
   position: absolute; inset: 0; z-index: 0; border-radius: inherit; pointer-events: none;
 }
 .fo .vglass > .v-rim {
@@ -31,44 +31,19 @@
 @media (prefers-color-scheme: dark) { .fo:not([data-theme='light']) .vglass { --glint: 0.1; --glow-max: 0.16; } }
 .fo[data-theme='dark'] .vglass { --glint: 0.1; --glow-max: 0.16; }
 .fo .vglass > .v-glow { opacity: 0; transition: opacity 160ms cubic-bezier(0.16, 1, 0.3, 1); }
-.fo .vglass > .v-wash { overflow: hidden; opacity: 0; transition: opacity 180ms cubic-bezier(0.16, 1, 0.3, 1); }
-.fo .vglass > .v-wash::before {
-  content: ''; position: absolute; inset: -70% -30%;
-  background:
-    radial-gradient(closest-side at 18% 72%, #B68CF2, transparent),
-    radial-gradient(closest-side at 32% 26%, #9DBBFF, transparent),
-    radial-gradient(closest-side at 46% 48%, #F3A27E, transparent),
-    radial-gradient(closest-side at 66% 40%, #F6BE4F, transparent),
-    radial-gradient(closest-side at 58% 86%, #A9D266, transparent),
-    radial-gradient(closest-side at 88% 18%, #FFF7DF, transparent),
-    #F7E9E4;
-  filter: blur(12px);
-  animation: v-drift 6s ease-in-out infinite alternate;
-  animation-play-state: paused;
-}
-@keyframes v-drift {
-  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  50% { transform: translate(6%, -8%) rotate(28deg) scale(1.12); }
-  100% { transform: translate(-6%, 6%) rotate(-18deg) scale(1.04); }
-}
 
 /* Lit: the glass itself glows, light pooling at the rim like edge-lit acrylic, the halo spilling out. */
-.fo .vglass.is-lit, .fo .v-pill[data-state='listening'] {
+.fo .vglass.is-lit {
   box-shadow: 0 0 0 1px rgb(var(--muse-rgb) / calc(0.25 + 0.3 * var(--level))), 0 0 calc(14px + 22px * var(--level)) rgb(var(--muse-rgb) / calc(0.22 + 0.38 * var(--level))), 0 8px 24px rgba(17, 17, 26, 0.08);
 }
-.fo .vglass.is-lit > .v-glow, .fo .v-pill[data-state='listening'] > .v-glow {
+.fo .vglass.is-lit > .v-glow {
   opacity: 1;
   /* In dark mode the blue fill is held lower (--glow-max): the light clock over it keeps its contrast. */
   background: radial-gradient(90% 120% at 50% 50%, rgb(var(--muse-rgb) / 0.06), rgb(var(--muse-rgb) / calc(var(--glow-max, 0.3) * (0.47 + 0.53 * var(--level)))));
   box-shadow: inset 0 0 calc(10px + 12px * var(--level)) calc(1px + 3px * var(--level)) rgb(var(--muse-rgb) / calc(0.35 + 0.4 * var(--level))), inset 0 0 2px 1px rgba(210, 230, 255, 0.9);
 }
-.fo .vglass.is-lit > .v-glint, .fo .v-pill[data-state='listening'] > .v-glint { background: radial-gradient(120% 60% at 30% 0%, hsl(214 100% 97% / 0.55), transparent 55%); }
-.fo .vglass.is-lit > .v-rim, .fo .v-pill[data-state='listening'] > .v-rim { background: linear-gradient(150deg, #fff, rgb(150 195 255 / 0.95) 30%, rgb(var(--muse-rgb) / 0.55) 62%, #d6e7ff); }
-
-/* Placing the note: the wash drifts through the pane. It is pale in both themes, so the words over it stay dark. */
-.fo .v-pill[data-state='working'] { color: #1C1A16; box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.08) inset, 0 4px 16px rgba(17, 17, 26, 0.06), 0 12px 36px rgba(17, 17, 26, 0.08); }
-.fo .v-pill[data-state='working'] > .v-wash { opacity: 0.82; }
-.fo .v-pill[data-state='working'] > .v-wash::before { animation-play-state: running; }
+.fo .vglass.is-lit > .v-glint { background: radial-gradient(120% 60% at 30% 0%, hsl(214 100% 97% / 0.55), transparent 55%); }
+.fo .vglass.is-lit > .v-rim { background: linear-gradient(150deg, #fff, rgb(150 195 255 / 0.95) 30%, rgb(var(--muse-rgb) / 0.55) 62%, #d6e7ff); }
 
 /* ---------------------------------------------------------------- the button */
 
@@ -87,11 +62,17 @@
 .fo .v-pill {
   width: 236px; height: 56px; padding: 0; border-radius: 28px; font: 600 14px/1 var(--font-ui);
   touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
-  transition: transform 120ms var(--ease), box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* A heavier frost than the other glass: the strands are the texture here, the staves behind must not compete. */
+  -webkit-backdrop-filter: blur(7px) saturate(1.2); backdrop-filter: blur(7px) saturate(1.2);
+  transition: transform 120ms var(--ease);
 }
 .fo .v-pill:active { transform: scale(0.98); }
-.fo .v-pill-in { position: relative; z-index: 1; height: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; pointer-events: none; }
-.fo .v-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--muse); box-shadow: 0 0 10px rgb(var(--muse-rgb) / 0.9); }
+.fo .v-pill-in { position: relative; z-index: 1; height: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; pointer-events: none; text-shadow: 0 0 6px var(--paper), 0 0 12px var(--paper), 0 0 2px var(--paper); }
+.fo .v-pill > .v-strands { position: absolute; inset: 0; z-index: 0; overflow: hidden; border-radius: inherit; pointer-events: none; }
+.fo .v-strands > canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.fo .v-strands > .v-strands-glow { filter: blur(7px) saturate(1.2); }
+/* On the blue the words are white. Its lightest shades are drawn away from them most of the time; the shadow holds the rest. */
+.fo .v-pill[data-state='working'] .v-pill-in, .fo .v-pill[data-state='placed'] .v-pill-in { color: #fff; text-shadow: 0 1px 6px rgb(1 50 150 / 0.55); }
 .fo .v-time { font-size: 17px; letter-spacing: 0.04em; }
 
 .fo .v-count { height: 48px; padding: 0 16px; border-radius: 24px; display: inline-flex; align-items: center; gap: 7px; font: 500 13px/1 var(--font-ui); }
@@ -160,7 +141,7 @@
 .fo .v-all { align-self: flex-start; }
 
 .fo .v-card { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 18px; transition: box-shadow 180ms var(--ease), opacity 160ms var(--ease); }
-.fo .v-card > :not(.v-glow):not(.v-wash):not(.v-glint):not(.v-rim) { position: relative; z-index: 1; }
+.fo .v-card > :not(.v-glow):not(.v-glint):not(.v-rim) { position: relative; z-index: 1; }
 .fo .v-card.is-focus { --level: 0.3; box-shadow: 0 0 0 1px rgb(var(--muse-rgb) / 0.4), 0 0 18px rgb(var(--muse-rgb) / 0.25), 0 8px 24px rgba(17, 17, 26, 0.08); }
 .fo .v-card.is-busy { opacity: 0.7; }
 .fo .v-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 24px; }
@@ -197,6 +178,5 @@
 /* ---------------------------------------------------------------- reduced motion: no drift, a steady glow */
 
 @media (prefers-reduced-motion: reduce) {
-  .fo .vglass > .v-wash::before { animation: none; }
-  .fo .vglass, .fo .vglass > .v-glow, .fo .vglass > .v-wash, .fo .v-dock, .fo .v-card, .fo .v-ghost { transition: none; }
+  .fo .vglass, .fo .vglass > .v-glow, .fo .v-dock, .fo .v-card, .fo .v-ghost { transition: none; }
 }
