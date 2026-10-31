@@ -9,6 +9,11 @@ the score header on the numbered staff overlay (`labels.read_header`, the part c
 score order and the staff count of a full system). SAM 3.1 is not used: the experiment showed geometry finds
 systems in 30 ms without a network call, and SAM never sees a barline.
 
+The two closed questions are asked at once (asyncio.gather): neither reads the other's answer. Then the pages, in two
+waves: the first page with music alone (its parts name the book), then every other page at once, at most CONCURRENCY
+label calls in flight, each told the first page's parts; the parts are assigned afterwards in page order, so the result
+is the one a page-by-page run gives on the same answers.
+
 Per page: download the PNG the browser rasterised, `cut.page_measures` (the part cut's staff geometry: page-edge
 shadows masked, the working scale, staves as row-profile peaks, systems by the systemic line, the header's staff
 count driving the staff recovery, system barlines voted with a spacing-scaled tolerance; boxes as fractions,
@@ -21,13 +26,16 @@ facts and `ready` status.
 The deliberate realistic failure: when a page's staff-to-part assignment is ambiguous (Spark names no parts for a
 system, its parts do not add up to the staves the geometry found, or a page brings a part that neither earlier
 pages nor the score header have), the handler parks the run with `ctx.needs_review(question, payload)` and
-returns. A cut-away system (resting parts left out) is not a question when its parts are known. The pages already
-read are kept in `interpretations.params.state`, so the follow-up job (same payload plus `answer`: the part
-names top to bottom, as a list or a comma-separated string) continues from that page without paying for the
-earlier ones again.
+returns. A cut-away system (resting parts left out) is not a question when its parts are known. Every page read is
+kept in `interpretations.params.state` (the pages after the question too, read but not assigned), so the follow-up job
+(same payload plus `answer`: the part names top to bottom, as a list or a comma-separated string) continues from that
+page without paying for any page again. A page whose call fails loses none of the others: the attempt fails after the
+wave, and the worker's retry of the same job resumes the interpretation (`params.job_id`) and reads only that page.
 """
 from __future__ import annotations
 
+import asyncio
+import logging
 import re
 import time
 from decimal import Decimal
@@ -45,6 +53,8 @@ from .signature import read_signature
 ENGINE = "opencv-staff-geometry+spark-labels"
 LEVELS = ["high", "medium", "low"]
 SIGNATURE_PAGES = 4   # how far into the book the signature read looks for the first system (title and blank pages first)
+CONCURRENCY = 4       # label calls in flight in the second wave (Meta allows 150 a minute; 3 at once drew no 429)
+log = logging.getLogger("folio.process_pages")
 
 
 def downgrade(conf: str) -> str:
@@ -156,12 +166,20 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
     if not n_pages:
         raise RuntimeError("the source has no pages")
 
-    # Resume a parked run when an answer arrives; otherwise start interpretation v(n+1).
+    # Resume a parked run when an answer arrives, or this job's own run when the worker retries it after a fault (the pages it
+    # read are kept); otherwise start interpretation v(n+1).
     interp = None
     if answer:
         rows = ctx.db.table("interpretations").select("*").eq("score_id", score_id).eq("status", "needs_review").order("version", desc=True).limit(1).execute().data
         interp = rows[0] if rows else None
-    if interp:
+    elif job.attempts > 1:
+        rows = ctx.db.table("interpretations").select("*").eq("score_id", score_id).eq("status", "running").order("version", desc=True).limit(1).execute().data
+        interp = rows[0] if rows and (rows[0].get("params") or {}).get("job_id") == job.id and rows[0].get("source_id") == source_id else None
+        if interp:
+            state = interp["params"].get("state") or {}
+            state["log"].append(f"Attempt {job.attempts}: {sum(1 for p in state.get('pages', {}).values() if not p.get('ambiguous'))} pages already read are kept")
+    if interp and answer:
+        interp["params"] = {**interp["params"], "job_id": job.id}
         state = interp["params"].get("state") or {}
         question = state.get("question") or {}
         page_q = str(question.get("page", ""))
@@ -174,13 +192,13 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
             state["log"].append(f"Page {page_q}: parts set to {', '.join(answer)} by the admin")
         state["question"] = None
         ctx.db.table("interpretations").update({"status": "running", "params": {**interp["params"], "state": state}}).eq("id", interp["id"]).execute()
-    else:
+    elif not interp:
         prev = ctx.db.table("interpretations").select("version").eq("score_id", score_id).order("version", desc=True).limit(1).execute().data
         version = (prev[0]["version"] + 1) if prev else 1
         state = {"pages": {}, "known_parts": [], "log": [], "cost_usd": 0.0, "latency_ms": 0, "question": None}
         interp = ctx.db.table("interpretations").insert({
             "score_id": score_id, "source_id": source_id, "version": version, "engine": ENGINE, "status": "running",
-            "params": {"engine": ENGINE, "geometry": "cut.page_measures", "header_spaces": 12, "spark_effort": "low", "state": state},
+            "params": {"engine": ENGINE, "geometry": "cut.page_measures", "header_spaces": 12, "spark_effort": "low", "job_id": job.id, "state": state},
         }).execute().data[0]
     interp_id = interp["id"]
     version = interp["version"]
@@ -189,6 +207,20 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
     def save_state() -> None:
         ctx.db.table("interpretations").update({"params": {**interp["params"], "state": state}}).eq("id", interp_id).execute()
 
+    def record_header(header: dict[str, Any] | None) -> None:
+        if header:
+            ov = header.pop("overlay_png", None)
+            if ov:
+                header["overlay_key"] = f"{score_id}/header/p{header['page']:03}-overlay.png"
+                ctx.storage_upload(header["overlay_key"], ov, "image/png")
+            state["cost_usd"] = float(Decimal(str(state["cost_usd"])) + Decimal(str(header["cost_usd"])))
+            if header.get("expected_staves"):
+                insts = ", ".join(f"{i['name']} ({i['staves']})" for i in header["instruments"])
+                state["log"].append(f"Page {header['page']}, score header: {header['expected_staves']} staves per full system ({insts})")
+            else:
+                state["log"].append(f"Page {header['page']}, score header not read ({header.get('error', 'no instruments')}); staves are not recovered")
+        state["header"] = header
+
     pngs: dict[int, bytes] = {}
 
     def page_png(i: int) -> bytes:
@@ -196,14 +228,22 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
             pngs[i] = ctx.storage_download(paths[i - 1])
         return pngs[i]
 
-    # ---------------------------------------------------------------- the book's key and meter: the first system of the music
-    if "signature" not in state:
-        await ctx.progress(0.03, "Reading the key and time signature")
+    # ---------------------------------------------------------------- the book's key and meter, and the score header: one page, two reads at once
+    # Both closed questions look at the first page where the geometry finds a system: the signature on its first system, the header on
+    # its staff overlay. Neither depends on the other, so they are asked together (asyncio.gather); a page with no system costs neither a call.
+    if "signature" not in state or "header" not in state:
         title = (ctx.db.table("scores").select("title").eq("id", score_id).single().execute().data or {}).get("title") or ""
+        c, m = client or default_client(), model or default_model()
+    if "signature" not in state:
+        await ctx.progress(0.03, "Reading the key, the time signature and the score header")
+        want_header = "header" not in state
         # A whole PDF often opens with a title page and a blank page (Rach 1 two-piano, Gutheil 1919): the first system is
         # on the first page where the geometry finds one. Pages with no system cost no call; at most SIGNATURE_PAGES looked at.
         for sig_page in range(1, min(n_pages, SIGNATURE_PAGES) + 1):
-            sig = await read_signature(ctx, page_png(sig_page), client or default_client(), model or default_model(), title=title)
+            png = page_png(sig_page)
+            sig, header_read = await asyncio.gather(
+                read_signature(ctx, png, c, m, title=title),
+                read_header(ctx, png, c, m, page=sig_page, title=title) if want_header else _nothing())
             if not str(sig.get("error", "")).startswith("no system found"):
                 break
         sig["page"] = sig_page
@@ -215,82 +255,131 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
         state["cost_usd"] = float(Decimal(str(state["cost_usd"])) + Decimal(str(sig["cost_usd"])))
         said = ", ".join(x for x in (sig["key_sig"], sig["meter"]) if x)
         state["log"].append(f"Page {sig_page}, first system: {said}" if said else f"Page {sig_page}, first system: key and meter left blank (not sure)")
+        if want_header:
+            record_header(header_read if not str(sig.get("error", "")).startswith("no system found") else None)
         save_state()
         # the identity shows on the cover even while the run waits on a question
         ctx.db.table("scores").update(signature_facts(sig, confirmed(ctx, score_id))).eq("id", score_id).execute()
     signature = state["signature"]
-
-    # ---------------------------------------------------------------- the score header: staves per full system, instruments
     if "header" not in state:
-        header: dict[str, Any] | None = None
+        # only when a run stopped between the two writes: the signature is kept, the header is read on its page
         hp = signature.get("page") if not str(signature.get("error", "")).startswith("no system found") else None
         if hp:
             await ctx.progress(0.04, "Reading the score header")
-            title = (ctx.db.table("scores").select("title").eq("id", score_id).single().execute().data or {}).get("title") or ""
-            header = await read_header(ctx, page_png(hp), client or default_client(), model or default_model(), page=hp, title=title)
-            ov = header.pop("overlay_png", None)
-            if ov:
-                header["overlay_key"] = f"{score_id}/header/p{hp:03}-overlay.png"
-                ctx.storage_upload(header["overlay_key"], ov, "image/png")
-            state["cost_usd"] = float(Decimal(str(state["cost_usd"])) + Decimal(str(header["cost_usd"])))
-            if header.get("expected_staves"):
-                insts = ", ".join(f"{i['name']} ({i['staves']})" for i in header["instruments"])
-                state["log"].append(f"Page {hp}, score header: {header['expected_staves']} staves per full system ({insts})")
-            else:
-                state["log"].append(f"Page {hp}, score header not read ({header.get('error', 'no instruments')}); staves are not recovered")
-        state["header"] = header
+        record_header(await read_header(ctx, page_png(hp), c, m, page=hp, title=title) if hp else None)
         save_state()
     header = state["header"]
     expected = (header or {}).get("expected_staves")
 
-    # ---------------------------------------------------------------- per page: geometry, then Spark labels
-    for i, path in enumerate(paths, start=1):
-        key = str(i)
-        done = state["pages"].get(key)
-        if done and not done.get("ambiguous"):
-            continue
-        await ctx.progress(0.05 + 0.75 * (i - 1) / n_pages, f"Reading page {i} of {n_pages}")
+    # ---------------------------------------------------------------- per page: geometry, then Spark labels, in two waves
+    # Wave one reads the first page with music alone: its parts name the book, and the label prompt of every later page lists them.
+    # Wave two reads the remaining pages at once, at most CONCURRENCY Spark calls in flight, each told the first page's parts. A read
+    # page waits `pending`; the parts are then assigned in page order (`assign_in_order`), so each page is matched against the parts of
+    # the pages before it exactly as a page-by-page run would, and a question parks on the first ambiguous page. Every page read is kept
+    # in the state as it lands: a park keeps the later pages' labels (the answer's follow-up assigns them without a new call), and a page
+    # whose call failed does not lose the others (the worker's retry resumes this interpretation and reads only what is missing).
+    effort = interp["params"].get("spark_effort", "low")
+
+    def needs_read(i: int) -> bool:
+        p = state["pages"].get(str(i))
+        return not p or bool(p.get("ambiguous"))
+
+    async def read_page(i: int, known: list[str]) -> None:
         png = page_png(i)
         geo_d = page_measures(png, expected_staves=expected)
         if not geo_d["measures"]:
-            state["pages"][key] = {"unreadable": True, "geometry": geo_d, "labels": None, "parts": [], "ambiguous": None}
-            state["log"].append(f"Page {i} could not be read ({geo_d['log'][-1].lower()})")
-            save_state()
-            continue
-        await ctx.progress(0.05 + 0.75 * (i - 0.5) / n_pages, f"Labelling page {i} of {n_pages} with Spark")
-        labels = await label_page(ctx, png, geo_d, effort=interp["params"].get("spark_effort", "low"), known=state["known_parts"])
-        state["cost_usd"] = float(Decimal(str(state["cost_usd"])) + labels.cost_usd)
-        parts, why = assign_parts(geo_d["systems"], labels, state["known_parts"], i, header)
-        page = {"unreadable": False, "geometry": geo_d, "labels": labels.as_dict(), "parts": parts, "ambiguous": why}
-        state["pages"][key] = page
-        if why:
-            spark_parts = labels.parts_for_system(geo_d["systems"][0]["index"])[0]
-            question = f"Which parts are on page {i}, top to bottom? {why[0].upper() + why[1:]}."
-            payload = {
-                "page": i, "interpretation_id": interp_id, "system_staves": [s["staves"] for s in geo_d["systems"]],
-                "spark_parts": spark_parts, "known_parts": state["known_parts"],
-                "options": [o for o in (spark_parts, state["known_parts"]) if o],
-                "header_parts": header_names(header), "expected_staves": expected,
-                "answer_format": "part names top to bottom, a list or comma-separated, e.g. Piano I, Piano II",
-            }
-            state["question"] = {"page": i, "question": question}
-            state["log"].append(f"Asked which parts are on page {i}")
-            state["latency_ms"] = state.get("latency_ms", 0) + int((time.time() - t0) * 1000)
-            save_state()
-            summary = partial_summary(state, n_pages, question)
-            ctx.db.table("interpretations").update({"summary": summary, "cost_usd": state["cost_usd"]}).eq("id", interp_id).execute()
-            ctx.needs_review(question, payload, interpretation_id=interp_id)
-            ctx.result["pages_read"] = i
-            return ctx.result
-        on_page = list(dict.fromkeys(name for p in parts for name in p["parts"]))
-        for name in on_page:
-            if name not in state["known_parts"]:
-                state["known_parts"].append(name)
-        cut_away = sum(1 for p in parts if len(p["parts"]) < len(state["known_parts"]))
-        state["log"].append(f"Page {i}: {len(geo_d['systems'])} systems, {len(geo_d['measures'])} bars, parts {', '.join(on_page) or '?'}"
-                            + (f" ({cut_away} cut-away system{'s' if cut_away != 1 else ''})" if cut_away else "")
-                            + (f"; {sum(s['recovered'] for s in geo_d['systems'])} staves recovered" if any(s["recovered"] for s in geo_d["systems"]) else ""))
+            state["pages"][str(i)] = {"unreadable": True, "geometry": geo_d, "labels": None, "parts": [], "ambiguous": None, "pending": True}
+        else:
+            labels = await label_page(ctx, png, geo_d, effort=effort, known=known)
+            state["cost_usd"] = float(Decimal(str(state["cost_usd"])) + labels.cost_usd)
+            state["pages"][str(i)] = {"unreadable": False, "geometry": geo_d, "labels": labels.as_dict(), "parts": None, "ambiguous": None, "pending": True}
         save_state()
+        done = sum(1 for p in state["pages"].values() if not p.get("ambiguous"))
+        await ctx.progress(0.05 + 0.75 * done / n_pages, f"Read {done} of {n_pages} pages")
+
+    def assign_in_order() -> int | None:
+        """Assign the parts of every read page, in page order, up to the first page not read yet. Returns the page that asks."""
+        for i in range(1, n_pages + 1):
+            page = state["pages"].get(str(i))
+            if page is None or page.get("ambiguous"):
+                return None
+            if not page.pop("pending", False):
+                continue
+            geo_d = page["geometry"]
+            if page["unreadable"]:
+                state["log"].append(f"Page {i} could not be read ({geo_d['log'][-1].lower()})")
+                continue
+            parts, why = assign_parts(geo_d["systems"], PageLabels.from_dict(page["labels"]), state["known_parts"], i, header)
+            page["parts"], page["ambiguous"] = parts, why
+            if why:
+                return i
+            on_page = list(dict.fromkeys(name for p in parts for name in p["parts"]))
+            for name in on_page:
+                if name not in state["known_parts"]:
+                    state["known_parts"].append(name)
+            cut_away = sum(1 for p in parts if len(p["parts"]) < len(state["known_parts"]))
+            state["log"].append(f"Page {i}: {len(geo_d['systems'])} systems, {len(geo_d['measures'])} bars, parts {', '.join(on_page) or '?'}"
+                                + (f" ({cut_away} cut-away system{'s' if cut_away != 1 else ''})" if cut_away else "")
+                                + (f"; {sum(s['recovered'] for s in geo_d['systems'])} staves recovered" if any(s["recovered"] for s in geo_d["systems"]) else ""))
+        return None
+
+    def established() -> bool:
+        return any(not p["unreadable"] and not p.get("pending") and not p.get("ambiguous") for p in state["pages"].values())
+
+    asking = assign_in_order()                 # a resumed run may hold pages read and not yet assigned
+    if asking is None and not established():
+        for i in range(1, n_pages + 1):        # wave one: up to and including the first page with music
+            if needs_read(i):
+                await ctx.progress(0.05 + 0.75 * (i - 1) / n_pages, f"Reading page {i} of {n_pages}")
+                await read_page(i, list(state["known_parts"]))
+            if not state["pages"][str(i)]["unreadable"]:
+                break
+        asking = assign_in_order()
+        save_state()
+    failed: list[tuple[int, BaseException]] = []
+    if asking is None:
+        rest = [i for i in range(1, n_pages + 1) if needs_read(i)]
+        if rest:
+            await ctx.progress(0.05 + 0.75 * (n_pages - len(rest)) / n_pages, f"Reading {len(rest)} pages with Spark")
+            gate = asyncio.Semaphore(CONCURRENCY)
+            known = list(state["known_parts"])
+
+            async def gated(i: int) -> None:
+                async with gate:
+                    await read_page(i, known)
+
+            results = await asyncio.gather(*(gated(i) for i in rest), return_exceptions=True)
+            failed = [(i, r) for i, r in zip(rest, results) if isinstance(r, BaseException)]
+            for i, e in failed:
+                if not isinstance(e, Exception):
+                    raise e
+                log.warning("process_pages %s: page %d not read: %s: %s", score_id, i, type(e).__name__, e)
+        asking = assign_in_order()
+        save_state()
+    if asking is not None:
+        i = asking
+        page = state["pages"][str(i)]
+        geo_d, why = page["geometry"], page["ambiguous"]
+        spark_parts = PageLabels.from_dict(page["labels"]).parts_for_system(geo_d["systems"][0]["index"])[0]
+        question = f"Which parts are on page {i}, top to bottom? {why[0].upper() + why[1:]}."
+        payload = {
+            "page": i, "interpretation_id": interp_id, "system_staves": [s["staves"] for s in geo_d["systems"]],
+            "spark_parts": spark_parts, "known_parts": state["known_parts"],
+            "options": [o for o in (spark_parts, state["known_parts"]) if o],
+            "header_parts": header_names(header), "expected_staves": expected,
+            "answer_format": "part names top to bottom, a list or comma-separated, e.g. Piano I, Piano II",
+        }
+        state["question"] = {"page": i, "question": question}
+        state["log"].append(f"Asked which parts are on page {i}")
+        state["latency_ms"] = state.get("latency_ms", 0) + int((time.time() - t0) * 1000)
+        save_state()
+        summary = partial_summary(state, n_pages, question)
+        ctx.db.table("interpretations").update({"summary": summary, "cost_usd": state["cost_usd"]}).eq("id", interp_id).execute()
+        ctx.needs_review(question, payload, interpretation_id=interp_id)
+        ctx.result["pages_read"] = i
+        return ctx.result
+    if failed:
+        raise failed[0][1]
 
     # ---------------------------------------------------------------- one pass over the pages: numbers and records
     await ctx.progress(0.85, "Writing measures and parts")
@@ -416,6 +505,10 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
     await ctx.progress(1.0, "Ready")
     return {**ctx.result, "interpretation_id": interp_id, "version": version, "pages": n_pages, "measures": len(placements), "parts": part_names,
             "doubtful": doubtful, "cost_usd": state["cost_usd"], "seconds": round(time.time() - t0, 1)}
+
+
+async def _nothing() -> None:
+    return None
 
 
 def landmarks_at_bars(labels: PageLabels, number_of: dict[int, int], page_no: int, log: list[str]) -> list[dict[str, Any]]:

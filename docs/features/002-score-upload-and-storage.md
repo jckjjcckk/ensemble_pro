@@ -92,14 +92,17 @@ route and handlers (`import_score`, then `run_one` per job as the worker runs th
 | PDF (pages 1-5) | Outcome | Wall time after the route | Spark calls | Spend |
 |---|---|---|---|---|
 | Goldberg BGA (`goldberg-bga.pdf`), five pages of music | `ready`: 30 systems, 119 bars, G major 3/4, 5 bars doubtful | 73.0 s (render 0.3 s) | 6 | $0.0584 |
+| same pages (`goldberg-bga-p1-5.pdf`), 2026-10-30, pages in two waves (004) | `ready`: 119 bars, 3 doubtful, 24 landmarks | 46.4 s (render 0.4 s); 110.9 s page by page at bfac5d9, after the header read and the landmarks | 7 | $0.0728 |
 | Rach 1 two-piano, Gutheil 1919: title, blank, 3 of music | parked on page 4 (piano II drops out of the first two systems, so systems disagree); F# minor 4/4 read from page 3 | 65.7 s | 3 | $0.0345 |
 | same file, before the signature fix | parked on page 4; key and meter blank (read on the title page) | 56.9 s | 2 | $0.0461 |
 | Rach 1 full score, Gutheil 1919 | parked on page 1 (17 staves, the 004 geometry's 10 + 7 split); F# minor 4/4 | 31.4 s | 2 | $0.0193 |
 
 Per page of music: about 13.5 s and $0.011, almost all of it the one Spark labelling call (12-15 s between
 calls; geometry is milliseconds, rendering 0.07 s a page). The signature read adds one call, 4-17 s and
-$0.004-0.010. So a 10-page PDF that reads cleanly takes about 2.5 minutes after the upload and costs about
-$0.12; a 40-page one about 9 minutes and $0.45. Total spend for these four runs: $0.158 (Meta).
+$0.004-0.010. So a 10-page PDF that reads cleanly took about 2.5 minutes after the upload and cost about
+$0.12; a 40-page one about 9 minutes and $0.45. Since 2026-10-30 (004, two waves) the signature and header
+are read at once and the pages after the first four at a time: the five-page Goldberg reads in 46 s (110.9 s page by
+page), so by estimate 70 to 80 s for ten pages and about 3 minutes for forty, at the same spend per call. Total spend for these four runs: $0.158 (Meta).
 An orchestral or two-piano PDF whose systems change shape mid-page parks at the first such page and waits for
 the parts answer: automatic reading holds today for books whose systems keep the same parts on a page (keyboard,
 chamber music without dropped staves).
