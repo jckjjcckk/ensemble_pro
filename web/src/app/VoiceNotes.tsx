@@ -1,13 +1,14 @@
 /** Voice notes on the Stand (013): the push-to-talk button, the tray of proposed marks, and their ghosts on the page.
  *  Only the admin who leads the layer on screen sees any of it (players never receive proposed rows). Muse blue
  *  (`--muse`) means Muse is listening or proposing (and, as the rope in Rope.tsx, working on a book). Glass values from
- *  docs/design liquid_glass M5_GlassSurface (frost, rim, the lit-from-inside glow driven by `--level`, the wash). */
+ *  docs/design liquid_glass M5_GlassSurface (frost, rim, the lit-from-inside glow). The button's inside is PillStrands. */
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { startRecording, MicError, type Recorder } from '../lib/recorder'
 import { tap } from '../lib/native'
 import { spanRects, type Geo } from './geometry'
 import { KindIcon } from './marks'
+import { PillStrands, type PillState } from './PillStrands'
 import { barRange, kindLabel } from './store'
 import { IClose, IMic } from './icons'
 import { Sheet } from './Sheet'
@@ -26,12 +27,11 @@ const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60))
 const timeOf = (ms: number) => new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 const placeOf = (from: number | null, to: number | null) => (from == null ? 'no bar yet' : `${to != null && to !== from ? 'bars' : 'bar'} ${barRange(from, to ?? from)}`)
 
-/** The glass layers every Muse surface shares: tint, the Muse glow, the wash, a glint and the rim. */
+/** The glass layers every Muse surface shares: tint, the Muse glow, a glint and the rim. */
 function GlassLayers() {
   return (
     <>
       <span className="v-glow" aria-hidden="true" />
-      <span className="v-wash" aria-hidden="true" />
       <span className="v-glint" aria-hidden="true" />
       <span className="v-rim" aria-hidden="true" />
     </>
@@ -51,8 +51,8 @@ const micWords = (e: unknown) => {
 
 /**
  * Hold to speak: the microphone opens on pointer-down and the take is sent on release. A hold shorter than 400 ms is
- * a tap and only says how it works. While listening the glass lights up in Muse blue with the voice; while the
- * librarian places the note a wash drifts through it. Errors say what happened in one line, with a retry.
+ * a tap and only says how it works. The strands inside the glass carry the rest: they follow the voice, dissolve into
+ * blue while the librarian places the note, and settle solid when it has. Errors say what happened in one line, with a retry.
  */
 export function VoiceButton({ voice, reduced, lifted, under, onListening, onOpen }: {
   voice: Voice; reduced: boolean; lifted: boolean
@@ -66,12 +66,13 @@ export function VoiceButton({ voice, reduced, lifted, under, onListening, onOpen
   const [micMsg, setMicMsg] = useState<string | null>(null)
   /** The finished take whose words have left the button. */
   const [spent, setSpent] = useState<string | null>(null)
-  const pill = useRef<HTMLButtonElement>(null)
+  const level = useRef(0)
+  const words = useRef<HTMLSpanElement>(null)
   const take = useRef<{ t0: number; rec: Recorder | null; ended: boolean } | null>(null)
   const reducedRef = useRef(reduced)
   useEffect(() => { reducedRef.current = reduced })
 
-  const setLevel = (v: number) => pill.current?.style.setProperty('--level', reducedRef.current ? '0.4' : v.toFixed(3))
+  const setLevel = (v: number) => { level.current = reducedRef.current ? 0.4 : v }
 
   const begin = () => {
     if (take.current) return
@@ -125,13 +126,13 @@ export function VoiceButton({ voice, reduced, lifted, under, onListening, onOpen
   // A take that comes back with nothing to mark says so on the button for a moment.
   const latest = voice.latest
   const doneKey = latest?.phase === 'done' ? latest.key : null
-  const count = (latest?.result?.proposed ?? 0) + (latest?.result?.unplaced.length ?? 0)
-  const flash = doneKey && spent !== doneKey ? (count ? `${count} ${count === 1 ? 'mark' : 'marks'} to check` : 'Nothing to mark') : null
+  const proposed = latest?.result?.proposed ?? 0, unplaced = latest?.result?.unplaced.length ?? 0
+  const flash = doneKey && spent !== doneKey ? (proposed ? 'Placed' : unplaced ? `${unplaced} ${unplaced === 1 ? 'mark' : 'marks'} to check` : 'Nothing to mark') : null
   useEffect(() => {
     if (!doneKey) return
-    const id = window.setTimeout(() => setSpent(doneKey), 2600)
+    const id = window.setTimeout(() => setSpent(doneKey), proposed ? 1500 : 2600)
     return () => window.clearTimeout(id)
-  }, [doneKey])
+  }, [doneKey, proposed])
 
   const listenRef = useRef(onListening)
   useEffect(() => { listenRef.current = onListening })
@@ -139,7 +140,7 @@ export function VoiceButton({ voice, reduced, lifted, under, onListening, onOpen
 
   const working = mode !== 'listening' && !!latest && (latest.phase === 'sending' || latest.phase === 'queued' || latest.phase === 'running')
   const failed = mode !== 'listening' && latest?.phase === 'failed' && !latest.closed ? latest : null
-  const state = mode === 'listening' ? 'listening' : working ? 'working' : 'idle'
+  const state: PillState = mode === 'listening' ? 'listening' : working ? 'working' : flash ? 'placed' : 'idle'
 
   const onDown = (e: ReactPointerEvent<HTMLButtonElement>) => {
     if (e.button > 0) return
@@ -178,15 +179,17 @@ export function VoiceButton({ voice, reduced, lifted, under, onListening, onOpen
           </button>
         )}
         <button
-          ref={pill} type="button" className="vglass v-pill" data-state={state}
+          type="button" className="vglass v-pill" data-state={state}
           aria-label={state === 'listening' ? `Listening, ${clock(sec)}. Let go to send` : 'Voice note: hold to speak, let go to send'}
           onPointerDown={onDown} onPointerUp={() => void end()} onPointerCancel={() => void end()} onLostPointerCapture={() => void end()}
           onKeyDown={onKeyDown} onKeyUp={onKeyUp} onContextMenu={e => e.preventDefault()}
         >
-          <GlassLayers />
+          <PillStrands state={state} level={level} reduced={reduced} paused={under} words={words} />
+          <span className="v-glint" aria-hidden="true" />
+          <span className="v-rim" aria-hidden="true" />
           {/* The clock is in the label; announcing it would read every tick. */}
-          <span className="v-pill-in" aria-live={state === 'listening' ? 'off' : 'polite'}>
-            {state === 'listening' ? <><span className="v-dot" aria-hidden="true" /><span className="v-time num">{clock(sec)}</span></>
+          <span ref={words} className="v-pill-in" aria-live={state === 'listening' ? 'off' : 'polite'}>
+            {state === 'listening' ? <span className="v-time num">{clock(sec)}</span>
               : state === 'working' ? <span>{latest?.retrying ? 'Trying again…' : 'Placing your note…'}</span>
                 : flash ? <span>{flash}</span>
                   : <><IMic size={20} />Hold to speak</>}

@@ -4,6 +4,7 @@
  *  the run failed. `WorkLoop` is the same idea for a line of text with no card to wrap. Mock and reasoning:
  *  DESIGN.md, Motion. Canvas 2D, 30 frames a second, off-screen ropes not drawn; reduced motion draws one still frame. */
 import { useEffect, useRef } from 'react'
+import { enrol, onDark } from './fibres'
 
 export type RopeState = 'working' | 'asking' | 'failed'
 
@@ -13,34 +14,6 @@ const YELLOW = ['#E6B53A', '#D8A62B', '#C2911D']
 const RED = { light: ['#C94A3E', '#B5392E', '#9C2C22'], dark: ['#E0675A', '#D5574A', '#C94A3E'] } // the dark card takes a lighter red
 const TAU = Math.PI * 2
 const PAD = 12 // room outside the edge for the glow
-
-const reduce = typeof matchMedia === 'undefined' ? null : matchMedia('(prefers-reduced-motion: reduce)')
-
-// One clock for every rope on screen. The browser stops it for a hidden page.
-type Painter = { seen: boolean; paint: (t: number) => void }
-const painters = new Set<Painter>()
-let raf = 0, last = 0
-function frame(now: number) {
-  raf = painters.size ? requestAnimationFrame(frame) : 0
-  if (now - last < (reduce?.matches ? 1000 : 32)) return
-  last = now
-  const t = reduce?.matches ? 12 : now / 1000
-  painters.forEach(p => { if (p.seen) p.paint(t) })
-}
-function enrol(el: Element, paint: (t: number) => void) {
-  const p: Painter = { seen: true, paint }
-  const io = new IntersectionObserver(es => { p.seen = es[es.length - 1].isIntersecting })
-  io.observe(el)
-  painters.add(p)
-  if (!raf) raf = requestAnimationFrame(frame)
-  return () => { io.disconnect(); painters.delete(p) }
-}
-
-/** Is the theme around this element dark? Its text colour is the cheapest thing to ask. */
-function onDark(el: Element) {
-  const v = getComputedStyle(el).getPropertyValue('--text').trim()
-  return /^#/.test(v) && parseInt(v.slice(1, 3), 16) > 128
-}
 
 function setUp(c: CanvasRenderingContext2D, dpr: number, w: number, h: number, dark: boolean) {
   c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h)
