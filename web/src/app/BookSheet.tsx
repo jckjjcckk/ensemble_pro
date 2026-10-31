@@ -229,7 +229,7 @@ function StateLine({ score: s, state: st, canEdit, borrowed, onAsk }: { score: S
     return (
       <div className="bs-state is-ask">
         <span className="card-dot is-ask is-inline" aria-hidden="true" />
-        <span className="bs-state-text"><b>The librarian has a question</b>{st.question && <span>{st.question}</span>}</span>
+        <span className="bs-state-text"><b>The librarian has a question</b>{st.question && <span>{st.question.split('?')[0]}?</span>}</span>
         {st.ask && canEdit
           ? <button type="button" className="r3-btn is-solid" onClick={() => onAsk(st.ask!)}>Answer</button>
           : !canEdit && <span className="bs-state-who">{borrowed ? 'Its owner answers it' : 'The admin answers it'}</span>}

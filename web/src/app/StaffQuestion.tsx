@@ -4,8 +4,10 @@
  *  - Which parts are on page N (004, `process_pages`; docs/design/r3/F_Parts): three choices: the parts of the earlier
  *    pages, what the reader found on this page, or something else (one name per staff, top to bottom). The page beside
  *    them carries the labels of the current choice on its systems' staves.
- *  - Choose the staves (008, `part_cut` `choose_staves`; F_Staves): the page with the system in question lit and the
- *    others dimmed; tap the staves that are the part (tap again to let go), or say it is not on this page. */
+ *  - Choose the staves (008, `part_cut` `choose_staves`; F_Staves): the plain page with the line in question lit and the
+ *    rest dimmed, the librarian's guess already chosen; tap the staves that are the part (tap again to let go), or say it
+ *    is not on this line. A musician's words only (CK, 2026-10-31): no staff numbers, no blocks, no model; what refused
+ *    the cut stays behind a small "Why am I asked?" for the admin who wants it. */
 import { useEffect, useMemo, useState } from 'react'
 import type { Score } from '../mock'
 import { answerJob, apiFailure } from '../lib/api'
@@ -25,7 +27,8 @@ interface GeoSystem { index: number; box: Box; staves: number }
 
 const IChev = () => <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5l7 7-7 7" /></svg>
 const ICheck = () => <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5 9-10" /></svg>
-const ORDINAL = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth']
+const ORDINAL = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth', 'twentieth']
+const ordinal = (i: number) => ORDINAL[i] ?? `${i + 1}th`
 const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`
 const KEYBOARD = /piano|organ|harp|cembalo|harpsichord|celest|keyboard/i
 
@@ -34,7 +37,7 @@ export function StaffQuestion({ job, open, onClose }: { job: AskJob | null; open
   const q = job?.questionPayload ?? null
   const staves = isStaves(q) ? q : null
   const score = world.scores.find(s => s.id === job?.scoreId) ?? null
-  const label = staves ? `Which staves are the ${staves.instrument} on page ${staves.page}?` : `Which parts are on page ${(q as PageParts | null)?.page ?? ''}?`
+  const label = staves ? `Which staves are the ${staves.instrument}'s on this line?` : `Which parts are on page ${(q as PageParts | null)?.page ?? ''}?`
   return (
     <Dialog open={open && !!job && !!q} onClose={onClose} label={label} className="ask">
       {job && staves && <StavesBody key={job.id} job={job} q={staves} score={score} onClose={onClose} />}
@@ -129,7 +132,7 @@ function PartsBody({ job, q, score, onClose }: { job: AskJob; q: PageParts; scor
       world.reload()
       onClose()
     } catch (e) {
-      setMsg(apiFailure(e, 'Answering the reader'))
+      setMsg(apiFailure(e, 'Answering the librarian'))
     } finally {
       setBusy(false)
     }
@@ -137,7 +140,7 @@ function PartsBody({ job, q, score, onClose }: { job: AskJob; q: PageParts; scor
 
   const n = q.system_staves?.length ?? 0
   const layout = n ? `the page has ${n === 1 ? 'one system' : `${n} systems`} of ${stavesPer} staves` : ''
-  const story = known.length && found.length && known.length !== found.length ? `Earlier pages had ${plural(known.length, 'part')}; the reader named ${found.length} here.` : !known.length ? 'This is the first page the reader could not name for itself.' : 'The reader was unsure of the names here.'
+  const story = known.length && found.length && known.length !== found.length ? `Earlier pages had ${plural(known.length, 'part')}; the librarian read ${found.length} here.` : !known.length ? 'The librarian could not name the parts here.' : 'The librarian was unsure of the names here.'
   const where = [`page ${q.page}${pagesOf(score) ? ` of ${pagesOf(score)}` : ''}`, score?.answered ? `${score.answered} answered` : null].filter(Boolean).join(' · ')
   const mine = !score || score.ensembleId === MY_LIBRARY
 
@@ -171,7 +174,7 @@ function PartsBody({ job, q, score, onClose }: { job: AskJob; q: PageParts; scor
           )}
           {found.length > 0 && found.join('|') !== known.join('|') && (
             <button type="button" role="radio" aria-checked={pick === 'found'} className="ask-choice" onClick={() => setPick('found')}>
-              <span className="ask-choice-h"><b>What the reader found on this page</b><span className={`ask-chip ${foundFit.matches ? 'is-ok' : 'is-doubt'}`}>{foundFit.matches ? `${stavesPer} staves · matches` : `${plural(found.length, 'name')} · ${stavesPer} staves`}</span></span>
+              <span className="ask-choice-h"><b>What the librarian read here</b><span className={`ask-chip ${foundFit.matches ? 'is-ok' : 'is-doubt'}`}>{foundFit.matches ? `${stavesPer} staves · matches` : `${plural(found.length, 'name')} · ${stavesPer} staves`}</span></span>
               <span className="ask-choice-names is-muted">{found.join(' · ')}</span>
             </button>
           )}
@@ -204,7 +207,11 @@ function StavesBody({ job, q, score, onClose }: { job: AskJob; q: ChooseStaves; 
   const [size, setSize] = useState<{ w: number; h: number } | null>(null)
   const [busy, setBusy] = useState<'staves' | 'absent' | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
-  const url = useSigned(q.image_key ?? pagePath(score, q.page))
+  // The plain page when the question says what size its staff boxes are measured in; else the librarian's working
+  // overlay (an older question), whose own pixels the boxes are in.
+  const plain = !!q.page_key && Array.isArray(q.image_px) && q.image_px.length === 2
+  const url = useSigned(plain ? q.page_key : q.image_key ?? pagePath(score, q.page))
+  const frame = plain ? { w: q.image_px![0], h: q.image_px![1] } : size
   const instrument = q.instrument || 'the part'
 
   const send = async (answer: number[] | 'absent') => {
@@ -215,53 +222,61 @@ function StavesBody({ job, q, score, onClose }: { job: AskJob; q: ChooseStaves; 
       world.reload()
       onClose()
     } catch (e) {
-      setMsg(apiFailure(e, 'Answering the reader'))
+      setMsg(apiFailure(e, 'Answering the librarian'))
     } finally {
       setBusy(null)
     }
   }
   const toggle = (k: number) => setSel(s => { const n = new Set(s); if (n.has(k)) n.delete(k); else n.add(k); return n })
-  const band = boxes.length && size ? { top: boxes[0].y_top, bottom: boxes[boxes.length - 1].y_bottom } : null
+  const band = boxes.length && frame ? { top: boxes[0].y_top, bottom: boxes[boxes.length - 1].y_bottom } : null
   const pitch = boxes.length > 1 ? (boxes[boxes.length - 1].y_top - boxes[0].y_top) / (boxes.length - 1) : 60
   const chosen = [...sel].sort((a, b) => a - b)
+  const line = ordinal(q.system - 1)
 
   return (
     <>
-      <AskHead where={`splitting by instrument · page ${q.page}${pagesOf(score) ? ` of ${pagesOf(score)}` : ''}`} onLater={onClose} />
+      <AskHead where={`splitting by instrument · page ${q.page}${pagesOf(score) ? ` of ${pagesOf(score)}` : ''}, ${line} line`} onLater={onClose} />
       <div className="ask-title">
-        <h2>Which staff is the <i>{instrument}</i> in the {ORDINAL[q.system - 1] ?? `${q.system}th`} system?</h2>
-        <span>{q.feedback ? `${q.feedback} ` : 'The reader could not settle it. '}Tap the staff; your answer is final for this page.</span>
+        <h2>Which staves are the <i>{instrument}</i>’s on this line?</h2>
+        <span>Tap them.{proposed.length ? ' The librarian’s guess is already chosen.' : ''}</span>
       </div>
       <div className="ask-body is-staves">
-        <div className="ask-page" aria-label={`Page ${q.page}`}>
+        <div className="ask-page" aria-label={`Page ${q.page}, the ${line} line lit`}>
           <div className="ask-page-in" style={size ? { width: `min(100%, calc(56vh * ${(size.w / size.h).toFixed(4)}))` } : undefined}>
           {url ? <img src={url} alt="" draggable={false} decoding="async" onLoad={e => setSize({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })} /> : <span className="ask-thumb-wait">Loading page {q.page}</span>}
-          {band && size && (
+          {band && frame && size && (
             <>
-              <span className="ask-dim" style={{ top: 0, height: `${Math.max(0, (band.top - pitch * 0.6) / size.h) * 100}%` }} aria-hidden="true" />
-              <span className="ask-dim" style={{ top: `${Math.min(1, (band.bottom + pitch * 0.6) / size.h) * 100}%`, bottom: 0 }} aria-hidden="true" />
+              <span className="ask-dim" style={{ top: 0, height: `${Math.max(0, (band.top - pitch * 0.6) / frame.h) * 100}%` }} aria-hidden="true" />
+              <span className="ask-dim" style={{ top: `${Math.min(1, (band.bottom + pitch * 0.6) / frame.h) * 100}%`, bottom: 0 }} aria-hidden="true" />
             </>
           )}
-          {size && boxes.map((b, i) => {
+          {frame && size && boxes.map((b, i) => {
             const above = i > 0 ? (b.y_top + boxes[i - 1].y_bottom) / 2 : b.y_top - 10
             const below = i < boxes.length - 1 ? (b.y_bottom + boxes[i + 1].y_top) / 2 : b.y_bottom + 10
             const on = sel.has(b.index)
             return (
-              <button key={b.index} type="button" aria-pressed={on} aria-label={`Staff ${i + 1} of the system${on ? ', chosen' : ''}`} className="ask-staff"
-                style={{ left: `${(b.x0 / size.w) * 100}%`, width: `${((b.x1 - b.x0) / size.w) * 100}%`, top: `${(above / size.h) * 100}%`, height: `${((below - above) / size.h) * 100}%` }}
+              <button key={b.index} type="button" aria-pressed={on} aria-label={`The ${ordinal(i)} staff of the line${on ? `, the ${instrument}` : ''}`} className="ask-staff"
+                style={{ left: `${(b.x0 / frame.w) * 100}%`, width: `${((b.x1 - b.x0) / frame.w) * 100}%`, top: `${(above / frame.h) * 100}%`, height: `${((below - above) / frame.h) * 100}%` }}
                 onClick={() => toggle(b.index)}>
-                <span className="ask-staff-tag">{on ? instrument : i + 1}</span>
+                {on && <span className="ask-staff-tag">{instrument}</span>}
               </button>
             )
           })}
           </div>
-          <span className="ask-thumb-cap">page {q.page} · system {q.system}</span>
+          <span className="ask-thumb-cap">page {q.page} · {line} line</span>
         </div>
-        <span className="ask-note">Tap a staff to choose it, tap again to let go. A part can take more than one staff (the piano takes two).</span>
+        <span className="ask-note">Tap a staff again to let it go. A piano or a harp takes two staves.</span>
+        {q.feedback && (
+          <details className="ask-why">
+            <summary>Why am I asked?</summary>
+            <p>The librarian tried this line three times and could not settle it. What it last noted, for whoever wants the detail:</p>
+            <p className="ask-why-raw">{q.feedback}</p>
+          </details>
+        )}
         {msg && <p className="r3-msg" role="alert">{msg}</p>}
       </div>
       <div className="ask-foot">
-        <button type="button" className="r3-btn is-line is-big" disabled={!!busy} onClick={() => void send('absent')}>{busy === 'absent' ? 'Sending' : `The ${instrument} isn't on this page`}</button>
+        <button type="button" className="r3-btn is-line is-big" disabled={!!busy} onClick={() => void send('absent')}>{busy === 'absent' ? 'Sending' : `The ${instrument} isn’t on this line`}</button>
         <button type="button" className="r3-btn is-solid is-big" disabled={!chosen.length || !!busy} onClick={() => void send(chosen)}>
           {busy === 'staves' ? 'Sending' : chosen.length > 1 ? 'Use these staves' : 'Use this staff'} <ICheck />
         </button>

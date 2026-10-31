@@ -920,13 +920,16 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                    "staff_boxes": [{"index": s["index"], "y_top": s["y_top"], "y_bottom": s["y_bottom"], "x0": s["x0"], "x1": s["x1"]}
                                    for s in geom["staves"] if sysd is None or s["index"] in sysd["staff_indices"]],
                    "image_key": read.get("overlay_key"),
+                   # the plain page (no numbered tags) and the size the staff boxes are measured in, for the iPad's question
+                   "page_key": paths[n - 1] if 1 <= n <= len(paths) else None, "image_px": geom.get("image_px"),
                    "allowed": {"staves": "list of staff numbers from staff_boxes (a skipped staff splits the cut into stacked blocks)",
                                "blocks": "lists of staff numbers, one per block", "absent": True},
                    "answer_format": '{"staves": [11, 12]} or {"blocks": [[11], [13]]} or {"staves": "absent"}',
                    "known_labels": [{k: e.get(k) for k in ("label", "part", "source", "origin", "page")} for e in mem.entries.values()
                                     if any(same_part(e["part"], i) for i in instruments)],
                    "margin_labels": (prop or {}).get("margin_labels") or []}
-        question = f"Which staves on page {n}, system {k} are {label}'s? {q.get('feedback', '')}"
+        # In a musician's words (011); the refusal that led here stays in the payload's `feedback` for the "why".
+        question = f"Which staves are the {label}'s on page {n}, line {k}?"
         st.question, st.question_payload = question, payload     # the typed question is what the resume reads
         ctx.result["agent"] = st.to_dict()
         ctx.needs_review(question, payload, interpretation_id=interp["id"])

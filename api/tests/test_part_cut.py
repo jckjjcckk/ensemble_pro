@@ -209,7 +209,8 @@ async def test_escalates_to_needs_review_then_resumes_with_answer():
     q = out["question_payload"]
     assert q["kind"] == "choose_staves" and q["page"] == 1 and q["system"] == 1 and q["proposal"] == [4, 5] and q["last_attempt"] == [4]
     assert [b["index"] for b in q["staff_boxes"]] == [1, 2, 3, 4, 5, 6] and q["image_key"].endswith("/overlay-p001.png") and q["allowed"]["absent"] is True
-    assert "Which staves on page 1" in out["question"] and out["agent"]["status"] == "needs_review"
+    assert out["question"] == "Which staves are the Piano's on page 1, line 1?" and out["agent"]["status"] == "needs_review"
+    assert out["question_payload"]["page_key"].endswith("/pages/1.png") and out["question_payload"]["image_px"]
     interp = [r for r in db.rows["interpretations"] if r.get("engine") == "part-cut-agent"][0]
     assert interp["status"] == "needs_review" and interp["summary"]["questions_asked"] == 1
     # the admin answers; a follow-up job of the same kind carries the answer and resume_from
@@ -459,7 +460,7 @@ async def test_question_and_answer_carry_blocks():
     assert q["proposal"] == [1, 3] and q["blocks"] == [{"staves": [1], "instruments": ["Flute"]}, {"staves": [3], "instruments": ["Horn"]}]
     assert q["last_attempt"] == [[1], [9]] and q["staves_per_instrument"] == {"Flute": 1, "Horn": 1} and q["allowed"]["blocks"]
     assert "staves [9] are not in system 1" in q["feedback"]
-    assert "Which staves on page 1, system 1 are Flute + Horn's?" in out["question"]
+    assert out["question"] == "Which staves are the Flute + Horn's on page 1, line 1?"
     db.rows["jobs"][-1]["result"] = out
     client2, t2 = fake_client([tool("finish", {})])
     job2, ctx2, _ = world(1, {"instruments": ["Flute", "Horn"], "answer": {"blocks": [[1], [3]]}, "resume_from": job.id}, db=db)

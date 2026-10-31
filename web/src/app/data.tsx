@@ -49,6 +49,9 @@ export interface ChooseStaves {
   feedback?: string | null
   staff_boxes: StaffBox[]
   image_key: string | null
+  /** The plain page and the size the staff boxes are measured in (questions asked since 2026-10-31). */
+  page_key?: string | null
+  image_px?: [number, number] | null
   allowed: { staves: string; absent: boolean }
   answer_format: string
 }
