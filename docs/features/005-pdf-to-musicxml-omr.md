@@ -417,6 +417,46 @@ environment skips the box (the test suite's default, `tests/conftest.py`). Tests
 display copy, the measure numbers, the real Goldberg `.mpos` to boxes, the step and the job against a fake box, the
 import's step, the ssh exit 255 rule). The reader side is in 010.
 
+## Speed pass (2026-10-30)
+
+Goldberg BGA p1-5 through `experiments/omr/v2_run.py` (the real handler, OMR on yoga, real Spark), one run each:
+
+| step | before (HEAD 087e67b) | after |
+|---|---|---|
+| page kinds (upload now beside it) | 2.7 s | 2.2 s |
+| box: upload, Audiveris, render, pull | 100.6 s (Audiveris 88.9, whole book) | 53.7 s (Audiveris 44.4, five pages at once) |
+| Spark: front matter + 30-system reread + closed questions | 30.0 s (low, 6 in flight, front matter first) | 10.1 s (reread minimal, 12 in flight, all three at once) |
+| render check (MuseScore on the box + 29 questions) | 33.8 s (low) | 28.3 s (minimal) |
+| engrave both layouts | 17.5 s | 16.6 s |
+| **total** | **187.8 s, $0.313** | **114.7 s, $0.220** |
+| text F1 against the 70-item ground truth | 0.955 (P 1.0, R 0.914) | 0.963 (P 1.0, R 0.929) |
+
+An intermediate run (reread minimal, overlaps, render check at low, whole book) took 157.3 s, text F1 0.925 (P 0.969,
+R 0.886): run-to-run spread on the text is about +-0.03.
+
+- **Render check at minimal** (`omr_verify.VERIFY_RENDER_EFFORT`): that run's 29 pair images asked again twice at each
+  effort (`experiments/speed_pass/verify_replay.py`): every system answered the same in both runs of an effort; low vs
+  minimal the same yes/no and the same named measures on 28 of 29. On p2 s2 (bars 33-35) low said "no" twice ("tempo
+  text present in the scan is missing"; the Var. 1 heading, which the file never writes) where minimal said "yes"; a
+  "no" there reverts bar 33's correct p and cresc. Low said "yes" on that system in the live run. Median 3.88 -> 2.09 s
+  a call, $0.26 -> $0.20 for 58 calls.
+- **Audiveris per page** (`omr_box.py --parallel N`, `OMR_PARALLEL_PAGES`, default 5): each page its own one-page
+  book, N JVMs at once, stitched into the whole-book layout (each page a "movement" of its own, exports renamed in page
+  order), so `load_run` and `merge` are unchanged. Compared with the whole-book run through the app's `load_run` +
+  `merge` (`experiments/speed_pass/omr_parallel.py`, no model call):
+
+  | fixture | box s whole / per page | bars | numbering | notes per bar identical |
+  |---|---|---|---|---|
+  | Goldberg BGA p1-5 (Aria over p1-2, Var. 1 and 2 starting mid-page) | 100.4 / 56.0 | 119 = 119 | same | 115/119; in the other 4 (73, 77, 85, 100) the per-page run has notes the whole book lacks |
+  | Chopin op. 26 pp. 4-7 (Ekier; one movement over all four pages) | 77.1 / 46.4 | 70 = 70 | same | 35/70: from bar 38 the whole book is one bar off (its key change lands on 38, the printed one starts page 3 = bar 39; it fills bar 70 with a rest), the per-page run is not (it fills bar 38, page 2's last) |
+
+  Same time and key signatures on Goldberg. Adopted. A stitched book whose movements do not line up
+  (`BarsDoNotLineUp`: a page that prints fewer staves, a page Audiveris gives up on) is transcribed again as one book
+  (`result.parallel_fallback`). Lost by design: a tie or slur over a page turn, and each page's export restates clef,
+  key and time. Not tested: an orchestral or chamber book with cut-away systems; two converts at once on yoga
+  (10 JVMs, ~10 GB of its 14 GB).
+- Model calls time out at 180 s (was the SDK's 600 s): one front-matter call hung for 600 s in a run here.
+
 ## The box
 
 The OMR engines run on CK's Ryzen Ubuntu box, reached as ssh alias `omr` (CK's `~/.ssh/config`; LAN host,

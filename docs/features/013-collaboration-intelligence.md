@@ -144,6 +144,20 @@ them, effort minimal, one run (`api/experiments/voice_text/live_v4e/`, $0.41 for
 
 `experiments/voice/prompts.py` keeps `RULES_V4D` and checks the app against `RULES_V4E` at import.
 
+## Effort minimal in the app (2026-10-30, speed pass)
+
+`transcribe_voice` sends its one Spark call at effort minimal on chat completions, streamed (`VOICE_EFFORT`), the
+setting every voice eval ran at. The app's own call (v4e `build_prompt`, `llm.complete`) on CK's recorded lines and the
+negatives (realtime transcripts, `experiments/speed_pass/voice_regress.py`, 6 in flight, one run each):
+
+| | base lines, all five fields | retakes | negatives clean | median s | p90 s | median out tok | $ a line |
+|---|---|---|---|---|---|---|---|
+| Messages, low (before) | 21/26 | 7/9 | 23/23 | 1.83 | 3.50 | 426 | 0.0034 |
+| chat, minimal, streamed (after) | 21/26 | 7/9 | 23/23 | 1.08 | 2.30 | 237 | 0.0035 |
+
+Two lines swap (v23 right only at minimal, v26 only at low). `scripts/smoke_voice_local.py`, take to done on the local
+stack: v02 4.6 -> 3.3 s, v28 4.3 -> 2.9 s, v14 2.4 -> 2.4 s, same proposals, FAILS 0 both times.
+
 ## Rules and decisions
 
 - Voice instructions are proposals: the admin confirms before anything goes live. No speech error alters

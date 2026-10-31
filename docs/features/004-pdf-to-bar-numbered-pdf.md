@@ -252,6 +252,29 @@ page order with "Vl. I" filed under page 2's Violin I; the bound; a question on 
 and 5 and the answer assigning 4 and 5 with no call; a failed page 3 losing nothing and the retry reading only
 it; a retry of another job starting a new reading; the signature and header calls in flight together).
 
+## Effort minimal with a guard (2026-10-30, speed pass)
+
+`process_pages.PAGE_EFFORT = "minimal"`: the per-page label call goes to chat completions (`llm.complete` routes effort
+minimal there). `page_doubts` reads a page again at low (`FALLBACK_EFFORT`) when a part name is given twice in one
+system, a bare family name ("Horn") is not a part the book has while the book has several of that family
+(`labels.generic_name`), or `assign_parts` would park. The page's state records `effort` and `fallback`. Landmarks from a
+minimal read carry `trust: "low"`; `landmarks.for_facts` leaves their double bars out of the voice facts unless a trusted
+read has one at the same bar (minimal invented 3-4 double bars in 20 reads in the eval below).
+
+Measured (one run each, `experiments/pageread_speed` variant E and `experiments/speed_pass/import_run.py`):
+
+| what | before | after |
+|---|---|---|
+| Goldberg p1-5 import end to end (render + read, in-memory store) | 35.3 s, $0.091 | 23.9 s / 22.9 s, $0.062 / $0.060 |
+| same: bars, key, meter, parts, questions | 119, G major, 3/4, Piano, none | identical (both runs) |
+| 13-page corpus, median a page | 19.7 s at low (004-speed-eval A, 2 runs) | 7.4 s (keyboard 6.0, orchestral 9.7), $0.0127 |
+| labels (the eval's 42 checks a run) | 42/42 (84/84 over 2 runs) | 42/42 by the eval's rule; 38/42 as the scorer is written (B9's chorus named "Choir" over staves 12-15, and the scorer tests for "Coro"/"Chor") |
+| fallback fired | - | 0/13 with the final guard; 5/7 orchestral pages with the first guard (any family name), every one a false alarm ("Flutes" when page 1 read "Flutes", "Bass Trombone"), hence the bare-name rule |
+| landmarks found of 20 / invented | 17 (+1 half) / 0 | 17 (+1 half) / 2 (Goldberg p3 box 13 double bar, Chopin p16 start repeat) |
+
+The 004-speed-eval failure the guard is for (Rach p3 "Horn", "Horn") is caught by the duplicate rule and by the park
+check; its other minimal failure (B9's soprano called "Coro Alto" while every staff is named) is not.
+
 ## Records
 
 From the grounding README, now in the schema (feature 001 migration):

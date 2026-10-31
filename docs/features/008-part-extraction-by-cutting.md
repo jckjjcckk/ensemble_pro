@@ -469,7 +469,36 @@ Not done: `process_pages` does not consult the memory for its own parts question
 without the printed labels); a page with no margin labels at all is not settled by the memory (by-order still
 proposes full systems); the web's Choose the staves dialog does not show what was remembered.
 
-## On the iPad (web, 2026-10-28 night)
+## Speed pass (2026-10-30)
+
+- **Pages read ahead** (`start_prereads`, `PREREAD_PAGES`): once the header is known every page's label call starts, the
+  first page alone, then the rest 4 at once (page reading's waves, 004). The agent's `read_page` takes the answer when it
+  is back and applies the memory then, so what earlier commits taught still settles later pages; the replies are kept in
+  `scratch.prereads` for a resume. The prompt's "known labels" line is what the memory held when the call went out.
+- **Settled rechecks skipped**: a block the memory resolves from exactly the staves the page's proposal gives the
+  instrument (`remembered[...].agreed`) is committed with no recheck call, whatever the entry's source (before: only a
+  human entry; a model entry's recheck ran and its doubts were then overruled by the label). A block only the label
+  filled still gets the recheck.
+- **Labels at minimal** (`LABEL_EFFORT`) with `label_guard` (one printed label on two staff sets of a system, two wanted
+  instruments on one staff, a bare family name on the wanted staves where the header has several): a doubted read is
+  read again at low. **Rechecks stay at low** (`RECHECK_EFFORT`).
+
+The test (`experiments/speed_pass/part_cut_run.py --shadow`: every minimal label and recheck call also asked at low on the
+identical prompt and image, beside it):
+
+| book, wanted | pages | label staves same | recheck yes/no same | run |
+|---|---|---|---|---|
+| Rach 1 Gutheil, Piano | 5 | 5/5 | none asked (all settled) | 9/9 right, 0 questions |
+| PC3 test p1-4, Piano | 4 | 4/4 (one margin label spelt "Vcell." vs "Vcll.") | none asked | 7/7, 0 questions |
+| B9 test p3-6, Soprano | 2 with staves | 1/2: p4 s2 low put the soprano on staff 24, a viola (alto clef; no choir on the page); minimal said absent, right | none | 4 absent, 0 questions |
+| B9 choir p172-176, Soprano | 5 | 5/5 | 7/9 (the two differences both the soprano C clef, one each way) | 5/5 [12], 0 questions |
+| Dvořák 9 p5-9, Flute I | 5 | 5/5 | 5/5 | parked on p4 s2 by the geometric barline check, as before |
+
+The guard never fired (21 pages). Before / after on Rach 1 p1-5, Piano (n=1 / n=2): 93.8 s, 16 turns, header 14.9 s,
+5 label calls 43.8 s one after another, 8 rechecks 19.4 s, $0.148 -> 39.8 s / 39.1 s, 16-17 turns, 0 rechecks,
+$0.105 / $0.102; the same nine decisions, no question either way. The header was read by the cut in both (no book
+header in the in-memory store).
+
 
 The action is called **Split by instrument** everywhere in the app (never "cut parts": *cut* is the bar-range
 marking). `web/src/app/Parts.tsx` holds the picker, the job rows, the staff question and the finished splits,

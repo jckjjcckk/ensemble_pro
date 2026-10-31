@@ -1,6 +1,6 @@
 # 004 speed eval: effort minimal and a trimmed page answer
 
-Status: experiment, 2026-10-30 (no app code changed) | Meta model: Muse Spark 1.3 (the per-page label read of 004,
+Status: experiment, 2026-10-30; (2) shipped with a guard the same night (004 "Effort minimal with a guard", speed pass) | Meta model: Muse Spark 1.3 (the per-page label read of 004,
 `labels.label_page`) | Code: `api/experiments/pageread_speed/` (`prepare.py`, `run.py`, `score.py`, `prompt.py`; results
 gitignored under `results/`, every call in `spend.jsonl`) | Spend: **$1.53 of the $4 cap, 107 calls** (3 header reads,
 104 page reads).

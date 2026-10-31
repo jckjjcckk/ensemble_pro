@@ -31,6 +31,14 @@ and a record of what each page cost and what the models said about it.
   hosted project.
 - Local run of one handler: `cd api && uv run -m app.librarian.run <kind> --score <id>`.
 
+### Concurrency (2026-10-30, speed pass)
+
+`WORKER_CONCURRENCY` (default 2): the loop claims again while a slot is free and waits the 2 s poll or the end of a
+job; on stop the jobs in hand finish; 1 is the old loop. `claim_job`'s SKIP LOCKED keeps concurrent claims apart. Local
+stack, two queued 3-second jobs of a test-only kind (`experiments/speed_pass/worker_local.py`): concurrency 2 finished
+both in 3.1 s, started 2 ms apart, in 4 of 5 runs; the first run after a cold start ran them one after the other (6.2 s),
+not explained. Concurrency 1: 6.1-6.2 s. The handlers' own sync database calls still block the loop while they run.
+
 ## Spend
 
 - `spend` table: one row, `cap_usd` 60, service role only. `charge_usage()` runs in one transaction with one

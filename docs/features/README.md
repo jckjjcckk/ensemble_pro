@@ -12,6 +12,7 @@ only the roadmap, status per feature, the decisions log, CK's to-do and the setu
 | 002 | [Score upload and storage](002-score-upload-and-storage.md) | working (MusicXML) / prototype (pages) | none |
 | 003 | [Score header and page geometry](003-score-header-and-page-geometry.md) | working | Spark (header) |
 | 004 | [PDF to bar-numbered pages](004-pdf-to-bar-numbered-pdf.md) | working | Spark (labels) |
+| 004 | [Page read speed eval: effort minimal, trimmed answer](004-speed-eval.md) | experiment, minimal shipped with a guard | Spark (labels) |
 | 005 | [PDF to MusicXML, OMR on the box](005-pdf-to-musicxml-omr.md) | prototype | Spark (text, closed questions) |
 | 006 | [Agent loop harness](006-agent-loop-harness.md) | working | Spark (agent) |
 | 007 | [Jobs, spend, per-page metadata](007-jobs-spend-and-page-metadata.md) | working / idea | none |
