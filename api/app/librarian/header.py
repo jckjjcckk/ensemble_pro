@@ -108,6 +108,7 @@ SYNONYMS = {
     "timpani": ["timpani", "pauken", "timbales", "timp", "pk", "pauk"],
     "harp": ["harp", "arpa", "harfe", "harpe"],
     "organ": ["organ", "organo", "orgel", "orgue", "org"],
+    "celesta": ["celesta", "celeste", "célesta", "cel"],
     "soprano": ["soprano", "soprani", "sopran", "sopr", "canto", "discant"],
     "alto": ["alto", "alti", "alt", "contralto"],
     "tenor": ["tenor", "tenore", "tenori", "ten"],

@@ -77,7 +77,33 @@ LABEL_PROMPT = """Page {page} of a scanned full score. Every staff has a blue bo
 LABEL_PROMPT_MULTI = """Page {page} of a scanned full score. Every staff has a blue box and a yellow tag with its number ({first}..{last}, top to bottom); grey boxes mark the systems: {systems_desc}. Instruments wanted: {wanted_desc}.
 {header_context}For each system give, for each wanted instrument, the staff numbers that belong to it (empty if its staves are not printed in that system) and whether it is "playing", "resting" or "absent". Also list every instrument name printed in that system's left margin, exactly as printed (abbreviations as they are), with the staff numbers each one labels (empty when the margin is bare). Return only JSON: {{"systems": [{{"index": 1, "wanted": [{example}], "margin_labels": [{{"text": "Fl.", "staves": [1]}}]}}], "confidence": "high|medium|low", "notes": ""}}"""
 
-RECHECK_PROMPT = """This image is a block of staves cut from a scanned full score. {claim} Does this crop look like that: {n} staff{plural}{clef_phrase}, and no staff of another instrument? Judge from the margin label when one is printed, else from the clef{plural}, the brace or bracket and the writing.{voice_hint} Return only JSON: {{"matches": true|false, "staves_seen": {n}, "clefs_seen": ["treble"], "label_seen": "text of any margin label or empty", "why": "one line"}}"""
+RECHECK_PROMPT = """This image is a block of staves cut from a scanned full score. {claim} Does this crop look like that: {n} staff{plural}{clef_phrase}, and no staff of another instrument? Judge from the margin label when one is printed, else from the clef{plural}, the brace or bracket and the writing.{voice_hint}{brace_hint} Return only JSON: {{"matches": true|false, "staves_seen": {n}, "clefs_seen": ["treble"], "label_seen": "text of any margin label or empty", "why": "one line"}}"""
+
+# The brace rule (CK, 2026-10-31; PC5 p. 2, "Pfte." over two treble staves refused three times on its clefs): a braced
+# pair labelled for a keyboard instrument is that instrument whatever clefs its staves show, since both hands often
+# write in one clef. The recheck is told so, its clefs never refuse such a block, and a "no" whose own label is a
+# keyboard's, on as many staves as the part has, is accepted (`keyboard_brace`).
+KEYBOARD_FAMILIES = ("piano", "organ", "harp", "celesta")
+BRACE_HINT = (" A braced pair of staves labelled for a keyboard instrument (piano, pianoforte, Pfte., Klav., organ, harp, celesta)"
+              " is that instrument whatever clefs the staves show: both hands often write in the treble clef, or both in the"
+              " bass. Do not answer false because of the clefs.")
+
+
+def is_keyboard(name: str | None) -> bool:
+    return hdr.family(name or "") in KEYBOARD_FAMILIES
+
+
+def keyboard_brace(said: dict[str, Any], n: int) -> bool:
+    """The recheck said no (or saw unexpected clefs) on a block the header calls a keyboard's, yet the margin label it
+    read on the crop is a keyboard's and it counted as many staves as the part has: the brace rule accepts the block."""
+    label = str(said.get("label_seen") or "").strip()
+    seen = said.get("staves_seen")
+    try:
+        seen = int(seen) if seen is not None and str(seen).strip() != "" else None
+    except (TypeError, ValueError):
+        seen = None
+    return bool(label) and is_keyboard(label) and (seen is None or seen == n)
+
 
 # Clef names as the header and Spark spell them -> one name. "c" is a C clef of unknown line.
 CLEF_NAMES = {"treble": ("treble", "g", "g clef", "violin", "treble clef"), "bass": ("bass", "f", "f clef", "bass clef"),
@@ -392,7 +418,7 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         inst = header_entry(instrument)
         if inst is not None:
             return max(1, int(inst.get("staves") or 1))
-        return 2 if hdr.family(instrument) in ("piano", "harp", "organ") else 1
+        return 2 if hdr.family(instrument) in KEYBOARD_FAMILIES else 1
 
     def voice_flags(page: int, sysd: dict, block: list[int]) -> tuple[bool, bool]:
         """(the block is vocal, the staff above it is vocal), for the lyric rule of the clean pass: the block's
@@ -416,12 +442,14 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                 above = hdr.at_position(sc["header"], prev_sys, prev_sys["staff_indices"][-1])
         return voice, hdr.is_voice(above) if above else False
 
-    def recheck_claim(page: int, system: int, block: list[int]) -> tuple[dict[str, Any], list[str], bool]:
+    def recheck_claim(page: int, system: int, block: list[int]) -> tuple[dict[str, Any], list[str], bool, bool]:
         """What the header and the page labels say the block is, for the closed recheck: the prompt fields, the
-        expected clefs (the header's, per staff, when it read them) and whether the block is vocal."""
+        expected clefs (the header's, per staff, when it read them), whether the block is vocal, and whether it is a
+        keyboard's braced pair (the brace rule: no clefs claimed or checked)."""
         insts = block_instruments(page, system, block)
         entries = [header_entry(i) for i in insts]
-        clefs = [clef_name(c) for e in entries if e for c in (e.get("clefs") or []) if clef_name(c) not in (None, "c")]
+        keyboard = all(is_keyboard(i) or (e is not None and is_keyboard(e.get("label") or e.get("name"))) for e, i in zip(entries, insts))
+        clefs = [] if keyboard else [clef_name(c) for e in entries if e for c in (e.get("clefs") or []) if clef_name(c) not in (None, "c")]
         voice = any(hdr.is_voice(e, i) for e, i in zip(entries, insts))
         if voice and not clefs:
             clefs = [c for i in insts for c in [chorus_clef(i)] if c]
@@ -432,14 +460,15 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         if clefs:
             clef_phrase = f" in the {' and '.join(dict.fromkeys(clefs))} clef{'s' if len(set(clefs)) != 1 else ''}"
         claim = (f"According to the score header and the page's staff labels this block is {names}: {n} staff{'s' if n != 1 else ''}{clef_phrase}"
-                 + (" (the header did not read the clef)" if not clefs else "") + ".")
+                 + (" joined by a brace" if keyboard and n > 1 else " (the header did not read the clef)" if not clefs else "") + ".")
         voice_hint = ""
         if voice:
             voice_hint = (" These are voice staves of the chorus: the words under the notes are their lyrics. Older editions print the"
                           " choir in C clefs (a soprano staff in the soprano clef, C on the bottom line; alto in the alto clef, middle line;"
                           " tenor in the tenor clef, fourth line from the bottom): the part's own C clef, or the treble clef, counts as matching.")
-        fields = {"claim": claim, "n": n, "plural": "s" if n != 1 else "", "clef_phrase": clef_phrase, "voice_hint": voice_hint}
-        return fields, clefs, voice
+        fields = {"claim": claim, "n": n, "plural": "s" if n != 1 else "", "clef_phrase": clef_phrase, "voice_hint": voice_hint,
+                  "brace_hint": BRACE_HINT if keyboard else ""}
+        return fields, clefs, voice, keyboard
 
     def chorus_clef(instrument: str) -> str | None:
         """The voice's clef when the header lists the choir as one entry ("CORO.", 4 staves, clefs soprano, alto,
@@ -581,7 +610,7 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                     # memory never settles; benchmark 3.12).
                     rechecks.append({"block": block, "verdict": "remembered", "source": known["source"], "labels": known["labels"], "pages": known["pages"]})
                     continue
-                fields, expected_clefs, voice = recheck_claim(page, system, block)
+                fields, expected_clefs, voice, keyboard = recheck_claim(page, system, block)
                 prompt = RECHECK_PROMPT.format(**fields)
                 said = await ask_model(ctx, c, m, prompt, to_png(crop), max_tokens=RECHECK_MAX_TOKENS, effort=RECHECK_EFFORT)
                 sc["cost_usd"] = sc.get("cost_usd", 0.0) + said.pop("_cost_usd", 0.0)
@@ -589,9 +618,11 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                 if isinstance(matches, str):
                     matches = matches.strip().lower() in ("true", "yes", "y")
                 seen = said.get("clefs_seen") if isinstance(said.get("clefs_seen"), list) else ([said["clefs_seen"]] if said.get("clefs_seen") else [])
-                fit = clefs_fit(seen, expected_clefs, voice)
+                fit = keyboard or clefs_fit(seen, expected_clefs, voice)
                 verdict = "yes" if matches and fit else ("clef" if matches else "no")
                 label_seen = str(said.get("label_seen") or "").strip()
+                if verdict != "yes" and keyboard and keyboard_brace(said, fields["n"]):
+                    verdict = "brace"     # the brace rule: a keyboard's labelled pair, whatever its clefs
                 if verdict != "yes" and known:
                     # Two reads agree on the printed label (the page's margin labels put it on exactly this block, and the
                     # crop alone shows it) and the book's memory says what it is: the label wins over the crop's doubts
@@ -616,10 +647,10 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         sc["commits"][key] = {"staves": staves, "blocks": blocks, "key": storage_key, "boxes": boxes, "verify": verifies, "bars": sysd["n_measures"],
                               "modes": [v["mode"] for v in verifies], "voices": voices, "rechecks": rechecks}
         how = f"{len(blocks)} blocks stacked" if len(blocks) > 1 else "one block"
-        by_memory = [r for r in rechecks if r["verdict"] in ("remembered", "label")]
+        by_memory = [r for r in rechecks if r["verdict"] in ("remembered", "label", "brace")]
         sc["log"].append(f"Page {page} system {system}: staves {staves} cut ({how}), {sysd['n_measures']} bars"
                          + (f"; settled by the book's labels ({', '.join(r['verdict'] for r in by_memory)})" if by_memory else ""))
-        learned = learn_from(page, system, staves, "human" if not recheck else "model") if (not recheck or all(r["verdict"] == "yes" for r in rechecks)) else []
+        learned = learn_from(page, system, staves, "human" if not recheck else "model") if (not recheck or all(r["verdict"] in ("yes", "brace") for r in rechecks)) else []
         out = {"committed": key, "staves": staves, "blocks": blocks, "storage_key": storage_key, "bars": sysd["n_measures"]}
         if by_memory:
             out["settled_by"] = [{"block": r["block"], "verdict": r["verdict"]} for r in by_memory]

@@ -737,3 +737,33 @@ async def test_the_cut_reuses_the_books_header():
     assert sc["header"]["from_book"] and sc["log"][0].startswith("Header from the book's first reading (page 1)")
     mem = db.rows["scores"][0]["label_memory"]["entries"]
     assert mem["klav"]["part"] == "Piano" and mem["violine i"]["part"] == "Violin I"
+
+
+HEADER_PC5 = text(json.dumps({"instruments": [{"name": "Flauti", "staves": 1, "clefs": ["treble"]}, {"name": "Oboi", "staves": 1, "clefs": ["treble"]},
+                                              {"name": "Fagotti", "staves": 1, "clefs": ["bass"]}, {"name": "Pianoforte", "staves": 2, "clefs": ["treble", "bass"]},
+                                              {"name": "Violino I", "staves": 1, "clefs": ["treble"]}], "key": "E-flat major", "time": "4/4"}))
+
+
+@pytest.mark.asyncio
+async def test_brace_rule_a_keyboard_pair_is_the_keyboard_whatever_its_clefs():
+    """PC5 page 2 (the pianist, 2026-10-30): the header says the Pianoforte is treble and bass, the page's third system
+    prints "Pfte." over two treble staves, and the recheck said no three times on the clefs, which parked the run.
+    The brace rule: the recheck is told a braced keyboard pair is the keyboard whatever its clefs, claims no clefs for it,
+    and its no is overruled when the label it read is a keyboard's on as many staves as the part has. 0 questions."""
+    import app.librarian.part_cut as pc
+    no_on_clefs = text(json.dumps({"matches": False, "staves_seen": 2, "clefs_seen": ["treble", "treble"], "label_seen": "Pfte.",
+                                   "why": "both visible staves have treble clefs with brace labeled Pfte., no bass clef present"}))
+    script = [tool("read_header", {}), HEADER_PC5, tool("read_page", {"page": 1}), LABEL, commit(1, [4, 5]), no_on_clefs, tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(1, {"instruments": ["Pianoforte"]})
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1 and out["questions"] == 0 and out["agent"]["status"] == "done"
+    rc = ctx.result["agent"]["scratch"]["commits"]["1:1"]["rechecks"]
+    assert [r["verdict"] for r in rc] == ["brace"]
+    prompt = t.calls[5]["messages"][0]["content"][1]["text"] if isinstance(t.calls[5]["messages"][0]["content"], list) and len(t.calls[5]["messages"][0]["content"]) > 1 else json.dumps(t.calls[5])
+    assert "whatever clefs the staves show" in prompt and "joined by a brace" in prompt and "treble and bass clef" not in prompt
+    # a seen clef never refuses a keyboard pair, a matching yes with two treble clefs passes as it is
+    assert pc.keyboard_brace({"label_seen": "Klav.", "staves_seen": 2}, 2) and pc.keyboard_brace({"label_seen": "Celesta", "staves_seen": "2"}, 2)
+    assert not pc.keyboard_brace({"label_seen": "Vl. I", "staves_seen": 2}, 2) and not pc.keyboard_brace({"label_seen": "Pfte.", "staves_seen": 3}, 2)
+    assert not pc.keyboard_brace({"label_seen": "", "staves_seen": 2}, 2)
+    assert pc.is_keyboard("Pfte.") and pc.is_keyboard("Organo") and pc.is_keyboard("Harfe") and not pc.is_keyboard("Violoncello")
