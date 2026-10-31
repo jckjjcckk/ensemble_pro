@@ -1,0 +1,1302 @@
+{
+ "d04": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 118, \"bar_to\": 118, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"subito p at bar 118\", \"quote\": \"Bar 118, subito piano, everybody.\", \"confidence\": 0.98}]",
+  "seconds": 0.6903165419935249,
+  "first_object": 0.6436295419989619,
+  "usd": 0.00221495,
+  "input_tokens": 2030,
+  "cached_tokens": 753,
+  "output_tokens": 119,
+  "reasoning_tokens": 44
+ },
+ "d05": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 140, \"bar_to\": 140, \"audience\": [\"part:Viola\"], \"kind\": \"dynamic\", \"text\": \"pp at bar 140\", \"quote\": \"Violas, pianissimo at one forty.\", \"confidence\": 0.95}]",
+  "seconds": 0.704827083973214,
+  "first_object": 0.6661420000018552,
+  "usd": 0.0022829499999999997,
+  "input_tokens": 2030,
+  "cached_tokens": 753,
+  "output_tokens": 135,
+  "reasoning_tokens": 59
+ },
+ "d02": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 52, \"bar_to\": 52, \"audience\": [\"part:Cello\"], \"kind\": \"dynamic\", \"text\": \"mf at bar 52\", \"quote\": \"Cellos, mezzo forte at fifty-two.\", \"confidence\": 0.99}]",
+  "seconds": 0.8339823340065777,
+  "first_object": 0.7205357500060927,
+  "usd": 0.0022659499999999996,
+  "input_tokens": 2030,
+  "cached_tokens": 753,
+  "output_tokens": 131,
+  "reasoning_tokens": 56
+ },
+ "d01": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 20, \"bar_to\": 20, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"f at bar 20\", \"quote\": \"Everyone, bar twenty, forte.\", \"confidence\": 0.95}]",
+  "seconds": 0.8764990829804447,
+  "first_object": 0.8746282909996808,
+  "usd": 0.00131555,
+  "input_tokens": 2028,
+  "cached_tokens": 1777,
+  "output_tokens": 173,
+  "reasoning_tokens": 102
+ },
+ "d03": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 80, \"bar_to\": 84, \"audience\": [\"part:Soprano\"], \"kind\": \"dynamic\", \"text\": \"dim. 80\\u201384\", \"quote\": \"Sopranos, from eighty to eighty-four, diminuendo.\", \"confidence\": 0.97}]",
+  "seconds": 0.8450508749810979,
+  "first_object": 0.8304345829819795,
+  "usd": 0.00228795,
+  "input_tokens": 2034,
+  "cached_tokens": 753,
+  "output_tokens": 135,
+  "reasoning_tokens": 52
+ },
+ "d06": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 90, \"bar_to\": 93, \"audience\": [\"part:Bass\"], \"kind\": \"dynamic\", \"text\": \"cresc. 90-93, don't peak early\", \"quote\": \"Basses, crescendo from ninety to ninety-three, but don't get there too early.\", \"confidence\": 0.95}]",
+  "seconds": 0.9001798749959562,
+  "first_object": 0.8579074580047745,
+  "usd": 0.00131105,
+  "input_tokens": 2038,
+  "cached_tokens": 1777,
+  "output_tokens": 169,
+  "reasoning_tokens": 79
+ },
+ "d07": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 61, \"bar_to\": 61, \"audience\": [\"part:Violin II\"], \"kind\": \"dynamic\", \"text\": \"ff at bar 61\", \"quote\": \"Second violins, bar sixty-one, that's fortissimo, really go for it.\", \"confidence\": 0.95}]",
+  "seconds": 0.8199855840066448,
+  "first_object": 0.7977196249994449,
+  "usd": 0.0012388,
+  "input_tokens": 2038,
+  "cached_tokens": 1777,
+  "output_tokens": 152,
+  "reasoning_tokens": 67
+ },
+ "a01": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 38, \"bar_to\": 38, \"audience\": [\"part:Cello\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 38\", \"quote\": \"Cellos, pizz at bar thirty-eight.\", \"confidence\": 0.95}]",
+  "seconds": 0.6887207500112709,
+  "first_object": 0.6464667500113137,
+  "usd": 0.0031155,
+  "input_tokens": 2030,
+  "cached_tokens": 0,
+  "output_tokens": 136,
+  "reasoning_tokens": 58
+ },
+ "a02": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 44, \"bar_to\": 44, \"audience\": [\"part:Viola\"], \"kind\": \"marking\", \"text\": \"arco at bar 44\", \"quote\": \"Violas, arco at forty-four.\", \"confidence\": 0.95}]",
+  "seconds": 0.6925509999855421,
+  "first_object": 0.6624701659893617,
+  "usd": 0.0012020499999999999,
+  "input_tokens": 2029,
+  "cached_tokens": 1777,
+  "output_tokens": 146,
+  "reasoning_tokens": 69
+ },
+ "d09": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 33, \"bar_to\": 33, \"audience\": [\"part:Alto\"], \"kind\": \"dynamic\", \"text\": \"sfz downbeat at 33\", \"quote\": \"Altos, sforzando on the downbeat of 33.\", \"confidence\": 0.95}]",
+  "seconds": 0.7656031250080559,
+  "first_object": 0.747840542026097,
+  "usd": 0.00132005,
+  "input_tokens": 2035,
+  "cached_tokens": 1777,
+  "output_tokens": 172,
+  "reasoning_tokens": 89
+ },
+ "d08": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 160, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"pp 160\\u2013end\", \"quote\": \"Everyone, from one sixty to the end, keep it pianissimo.\", \"confidence\": 0.97}]",
+  "seconds": 0.9429184170148801,
+  "first_object": 0.8944777500000782,
+  "usd": 0.0025867,
+  "input_tokens": 2035,
+  "cached_tokens": 753,
+  "output_tokens": 205,
+  "reasoning_tokens": 126
+ },
+ "a03": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 70, \"bar_to\": 70, \"audience\": [\"ensemble\"], \"kind\": \"marking\", \"text\": \"Accents at bar 70\", \"quote\": \"Everybody, accents on every note in bar 70.\", \"confidence\": 0.98}]",
+  "seconds": 1.0733473330037668,
+  "first_object": 1.050708458002191,
+  "usd": 0.0011857999999999999,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 141,
+  "reasoning_tokens": 63
+ },
+ "a04": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 12, \"bar_to\": 15, \"audience\": [\"part:Violin II\"], \"kind\": \"marking\", \"text\": \"staccato 12\\u201315\", \"quote\": \"Second violins, staccato in bars twelve to fifteen.\", \"confidence\": 0.95}]",
+  "seconds": 0.8881477920222096,
+  "first_object": 0.886936875001993,
+  "usd": 0.0023942,
+  "input_tokens": 2034,
+  "cached_tokens": 753,
+  "output_tokens": 160,
+  "reasoning_tokens": 75
+ },
+ "a06": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 96, \"bar_to\": 96, \"audience\": [\"part:Soprano\"], \"kind\": \"marking\", \"text\": \"Fermata at bar 96\", \"quote\": \"Sopranos, the high note in 96, put a fermata on it.\", \"confidence\": 0.97}]",
+  "seconds": 0.8760736660042312,
+  "first_object": 0.864826750010252,
+  "usd": 0.00256195,
+  "input_tokens": 2039,
+  "cached_tokens": 753,
+  "output_tokens": 198,
+  "reasoning_tokens": 109
+ },
+ "a07": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 120, \"bar_to\": 128, \"audience\": [\"part:Cello\"], \"kind\": \"marking\", \"text\": \"senza vib. 120-128\", \"quote\": \"Cellos, no vibrato from one twenty to one twenty-eight.\", \"confidence\": 0.95}]",
+  "seconds": 0.9407793330028653,
+  "first_object": 0.9206542079919018,
+  "usd": 0.0013965499999999999,
+  "input_tokens": 2035,
+  "cached_tokens": 1777,
+  "output_tokens": 190,
+  "reasoning_tokens": 106
+ },
+ "a05": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"part:Violin I\"], \"kind\": \"marking\", \"text\": \"mutes on at E\", \"quote\": \"Firsts, mutes on at letter E.\", \"confidence\": 0.95}]",
+  "seconds": 1.2422464579867665,
+  "first_object": 1.2023768330109306,
+  "usd": 0.0015190499999999999,
+  "input_tokens": 2031,
+  "cached_tokens": 1777,
+  "output_tokens": 220,
+  "reasoning_tokens": 143
+ },
+ "a08": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 200, \"bar_to\": 200, \"audience\": [\"ensemble\"], \"kind\": \"marking\", \"text\": \"marcato, heavy at bar 200\", \"quote\": \"Everyone, bar 200, marcato, heavy.\", \"confidence\": 0.95}]",
+  "seconds": 1.1735176660004072,
+  "first_object": 1.1296108329843264,
+  "usd": 0.0016818,
+  "input_tokens": 2032,
+  "cached_tokens": 1777,
+  "output_tokens": 258,
+  "reasoning_tokens": 179
+ },
+ "t01": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 47, \"bar_to\": 47, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"rit. at bar 47\", \"quote\": \"Everyone, ritardando in bar 47.\", \"confidence\": 0.95}]",
+  "seconds": 0.946280417003436,
+  "first_object": 0.9409330839989707,
+  "usd": 0.00151055,
+  "input_tokens": 2031,
+  "cached_tokens": 1777,
+  "output_tokens": 218,
+  "reasoning_tokens": 143
+ },
+ "t02": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"A tempo at bar 50\", \"quote\": \"A tempo at bar fifty, everyone.\", \"confidence\": 0.95}]",
+  "seconds": 0.7630767090013251,
+  "first_object": 0.7228596670029219,
+  "usd": 0.00116255,
+  "input_tokens": 2028,
+  "cached_tokens": 1777,
+  "output_tokens": 137,
+  "reasoning_tokens": 64
+ },
+ "t03": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"From C: a little faster\", \"quote\": \"From letter C, a little faster, everyone.\", \"confidence\": 0.95}]",
+  "seconds": 1.0330865420110058,
+  "first_object": 1.032197249995079,
+  "usd": 0.00150205,
+  "input_tokens": 2031,
+  "cached_tokens": 1777,
+  "output_tokens": 216,
+  "reasoning_tokens": 143
+ },
+ "t04": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 88, \"bar_to\": 90, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"rit. at 88, a tempo at 90\", \"quote\": \"Bar eighty-eight, rit, then a tempo at ninety.\", \"confidence\": 0.95}]",
+  "seconds": 1.057012457982637,
+  "first_object": 1.0316878329904284,
+  "usd": 0.0017085499999999999,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 264,
+  "reasoning_tokens": 182
+ },
+ "t07": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 150, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"Broaden, molto rit. 150–end\", \"quote\": \"From bar one-fifty, everyone, broaden, molto rit to the end.\", \"confidence\": 0.95}]",
+  "seconds": 0.9070047500135843,
+  "first_object": 0.8407761249982286,
+  "usd": 0.0015393,
+  "input_tokens": 2037,
+  "cached_tokens": 1777,
+  "output_tokens": 223,
+  "reasoning_tokens": 139
+ },
+ "t05": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 30, \"bar_to\": 34, \"audience\": [\"part:Soprano\", \"part:Alto\", \"part:Tenor\", \"part:Bass\"], \"kind\": \"text\", \"text\": \"Don't rush 30\\u201334\", \"quote\": \"Choir, don't rush bars thirty to thirty-four.\", \"confidence\": 0.95}]",
+  "seconds": 1.2757427920005284,
+  "first_object": 1.2110780420189258,
+  "usd": 0.0016350499999999999,
+  "input_tokens": 2032,
+  "cached_tokens": 1777,
+  "output_tokens": 247,
+  "reasoning_tokens": 150
+ },
+ "t06": {
+  "text": "[{\"position\": \"global\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"big rit. at end\", \"quote\": \"Everyone, the last bar is a big ritardando.\", \"confidence\": 0.95}]",
+  "seconds": 1.2781067909963895,
+  "first_object": 1.2556470409908798,
+  "usd": 0.0031197,
+  "input_tokens": 2033,
+  "cached_tokens": 753,
+  "output_tokens": 331,
+  "reasoning_tokens": 257
+ },
+ "t08": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"part:Soprano\"], \"kind\": \"text\", \"text\": \"a tempo at key change\", \"quote\": \"Sopranos, at the key change, a tempo.\", \"confidence\": 0.9}]",
+  "seconds": 1.0335660839919,
+  "first_object": 1.0101244999968912,
+  "usd": 0.0013813,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 187,
+  "reasoning_tokens": 109
+ },
+ "c02": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 100, \"bar_to\": 108, \"audience\": [\"ensemble\"], \"kind\": \"cut\", \"text\": \"Cut 100\\u2013108\", \"quote\": \"We're cutting bars one hundred to one-oh-eight, everybody.\", \"confidence\": 0.97}]",
+  "seconds": 0.6820220839872491,
+  "first_object": 0.6386646249738988,
+  "usd": 0.00119005,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 142,
+  "reasoning_tokens": 64
+ },
+ "c01": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 42, \"bar_to\": 48, \"audience\": [\"ensemble\"], \"kind\": \"cut\", \"text\": \"Cut 42\\u201348\", \"quote\": \"Everyone, skip forty-two to forty-eight.\", \"confidence\": 0.95}]",
+  "seconds": 0.8490837500139605,
+  "first_object": 0.7622815000067931,
+  "usd": 0.00125855,
+  "input_tokens": 2030,
+  "cached_tokens": 1777,
+  "output_tokens": 159,
+  "reasoning_tokens": 85
+ },
+ "c04": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 24, \"bar_to\": 24, \"audience\": [\"ensemble\"], \"kind\": \"cut\", \"text\": \"No repeat at bar 24\", \"quote\": \"No repeat at bar 24, everyone, go straight on.\", \"confidence\": 0.95}]",
+  "seconds": 0.8453189999854658,
+  "first_object": 0.8066156659915578,
+  "usd": 0.0013728,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 185,
+  "reasoning_tokens": 107
+ },
+ "c06": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 81, \"bar_to\": 84, \"audience\": [\"part:Alto\", \"part:Tenor\"], \"kind\": \"cut\", \"text\": \"Cut 81\\u201384\", \"quote\": \"Altos and tenors, cut eighty-one through eighty-four.\", \"confidence\": 0.98}]",
+  "seconds": 0.8653593749913853,
+  "first_object": 0.8235249999852385,
+  "usd": 0.0012380499999999999,
+  "input_tokens": 2034,
+  "cached_tokens": 1777,
+  "output_tokens": 153,
+  "reasoning_tokens": 66
+ },
+ "c07": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 210, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"cut\", \"text\": \"Cut 210\\u2013end\", \"quote\": \"Everybody, cut from 210 to the end, we stop at 209.\", \"confidence\": 0.95}]",
+  "seconds": 0.8804937079839874,
+  "first_object": 0.8582989159913268,
+  "usd": 0.00259045,
+  "input_tokens": 2038,
+  "cached_tokens": 753,
+  "output_tokens": 205,
+  "reasoning_tokens": 123
+ },
+ "c08": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 42, \"bar_to\": 50, \"audience\": [\"part:Viola\"], \"kind\": \"cut\", \"text\": \"Cut 42\\u201350\", \"quote\": \"Violas, the cut is now forty-two to fifty, not forty-eight.\", \"confidence\": 0.95}]",
+  "seconds": 1.034533833997557,
+  "first_object": 1.0032746250217315,
+  "usd": 0.00281445,
+  "input_tokens": 2037,
+  "cached_tokens": 753,
+  "output_tokens": 258,
+  "reasoning_tokens": 174
+ },
+ "c03": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 61, \"bar_to\": 71, \"audience\": [\"part:Cello\"], \"kind\": \"cut\", \"text\": \"Cut 61–71\", \"quote\": \"Cellos, after bar sixty jump straight to seventy-two.\", \"confidence\": 0.9}]",
+  "seconds": 1.5765195410058368,
+  "first_object": 1.5403817080077715,
+  "usd": 0.00306445,
+  "input_tokens": 2033,
+  "cached_tokens": 753,
+  "output_tokens": 318,
+  "reasoning_tokens": 240
+ },
+ "c05": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"cut\", \"text\": \"Cut D\\u2013E\", \"quote\": \"From letter D to letter E is out, everyone.\", \"confidence\": 0.95}]",
+  "seconds": 1.623173541011056,
+  "first_object": 1.585301500017522,
+  "usd": 0.0021323,
+  "input_tokens": 2032,
+  "cached_tokens": 1777,
+  "output_tokens": 364,
+  "reasoning_tokens": 290
+ },
+ "b01": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 19, \"bar_to\": 19, \"audience\": [\"part:Violin I\"], \"kind\": \"bowing\", \"text\": \"Up bow at bar 19\", \"quote\": \"Firsts, up bow at bar 19.\", \"confidence\": 0.99}]",
+  "seconds": 0.9336126249982044,
+  "first_object": 0.9059589169919491,
+  "usd": 0.00121305,
+  "input_tokens": 2031,
+  "cached_tokens": 1777,
+  "output_tokens": 148,
+  "reasoning_tokens": 68
+ },
+ "b04": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 15, \"bar_to\": 15, \"audience\": [\"part:Viola\"], \"kind\": \"marking\", \"text\": \"Slur at bar 15\", \"quote\": \"Violas, slur the two eighths in bar 15, one bow.\", \"confidence\": 0.95}]",
+  "seconds": 0.788269833981758,
+  "first_object": 0.7659816249797586,
+  "usd": 0.0013718,
+  "input_tokens": 2039,
+  "cached_tokens": 1777,
+  "output_tokens": 183,
+  "reasoning_tokens": 96
+ },
+ "b05": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 27, \"bar_to\": 27, \"audience\": [\"part:Soprano\"], \"kind\": \"breath\", \"text\": \"Breath at 27\", \"quote\": \"Sopranos, breathe at the end of bar 27.\", \"confidence\": 0.98}]",
+  "seconds": 0.71439466701122,
+  "first_object": 0.6932362920197193,
+  "usd": 0.0012083,
+  "input_tokens": 2034,
+  "cached_tokens": 1777,
+  "output_tokens": 146,
+  "reasoning_tokens": 64
+ },
+ "b03": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 62, \"bar_to\": 62, \"audience\": [\"part:Violin II\"], \"kind\": \"bowing\", \"text\": \"Up-up (hooked) at bar 62\", \"quote\": \"Second violins, two up bows in a row at sixty-two, hooked.\", \"confidence\": 0.95}]",
+  "seconds": 1.3258804580254946,
+  "first_object": 1.2984602500218898,
+  "usd": 0.0014045499999999999,
+  "input_tokens": 2038,
+  "cached_tokens": 1777,
+  "output_tokens": 191,
+  "reasoning_tokens": 100
+ },
+ "b02": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 44, \"bar_to\": 44, \"audience\": [\"part:Cello\"], \"kind\": \"bowing\", \"text\": \"Down bow at bar 44\", \"quote\": \"Cellos, start bar 44 down bow.\", \"confidence\": 0.95}]",
+  "seconds": 1.5203305000031833,
+  "first_object": 1.3986000000149943,
+  "usd": 0.0019610499999999998,
+  "input_tokens": 2031,
+  "cached_tokens": 1777,
+  "output_tokens": 324,
+  "reasoning_tokens": 246
+ },
+ "b07": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 75, \"bar_to\": 75, \"audience\": [\"part:Alto\"], \"kind\": \"breath\", \"text\": \"Breath after beat 1 at 75\", \"quote\": \"Altos, a breath mark after the first beat of 75.\", \"confidence\": 0.95}]",
+  "seconds": 0.9395804579835385,
+  "first_object": 0.8890420829993673,
+  "usd": 0.0024847,
+  "input_tokens": 2035,
+  "cached_tokens": 753,
+  "output_tokens": 181,
+  "reasoning_tokens": 95
+ },
+ "b06": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 51, \"audience\": [\"part:Bass\"], \"kind\": \"breath\", \"text\": \"No breath 50\\u201351, carry over\", \"quote\": \"Basses, no breath between 50 and 51, carry it over.\", \"confidence\": 0.95}]",
+  "seconds": 1.4478565000172239,
+  "first_object": 1.4158754580130335,
+  "usd": 0.00191205,
+  "input_tokens": 2036,
+  "cached_tokens": 1777,
+  "output_tokens": 311,
+  "reasoning_tokens": 223
+ },
+ "l01": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 60, \"bar_to\": 60, \"audience\": [\"part:Cello\"], \"kind\": \"dynamic\", \"text\": \"Less at bar 60, let tune through\", \"quote\": \"Less cello at sixty, let the tune through.\", \"confidence\": 0.9}]",
+  "seconds": 1.1186350829957519,
+  "first_object": 1.0876032919913996,
+  "usd": 0.00132905,
+  "input_tokens": 2032,
+  "cached_tokens": 1777,
+  "output_tokens": 175,
+  "reasoning_tokens": 94
+ },
+ "b08": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 88, \"bar_to\": 88, \"audience\": [\"part:Cello\"], \"kind\": \"bowing\", \"text\": \"Separate bows at bar 88\", \"quote\": \"Cellos, separate bows at 88, don't slur.\", \"confidence\": 0.95}]",
+  "seconds": 1.13485220799339,
+  "first_object": 1.0890755000000354,
+  "usd": 0.0016133,
+  "input_tokens": 2035,
+  "cached_tokens": 1777,
+  "output_tokens": 241,
+  "reasoning_tokens": 158
+ },
+ "l02": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 90, \"bar_to\": 90, \"audience\": [\"part:Viola\"], \"kind\": \"dynamic\", \"text\": \"Back off at 90\", \"quote\": \"Violas, you're covering the melody at 90, back off.\", \"confidence\": 0.85}]",
+  "seconds": 0.9395875420013908,
+  "first_object": 0.8953775840054732,
+  "usd": 0.00133705,
+  "input_tokens": 2035,
+  "cached_tokens": 1777,
+  "output_tokens": 176,
+  "reasoning_tokens": 95
+ },
+ "l04": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 60, \"bar_to\": 60, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"Brass softer at 60\", \"quote\": \"Too much brass at sixty.\", \"confidence\": 0.9}]",
+  "seconds": 1.0603049580240622,
+  "first_object": 1.0159522920148447,
+  "usd": 0.0015523,
+  "input_tokens": 2027,
+  "cached_tokens": 1777,
+  "output_tokens": 229,
+  "reasoning_tokens": 158
+ },
+ "l05": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 33, \"bar_to\": 33, \"audience\": [\"part:Violin I\"], \"kind\": \"dynamic\", \"text\": \"More at bar 33 - melody\", \"quote\": \"Firsts, more at bar 33, you're the melody there.\", \"confidence\": 0.9}]",
+  "seconds": 0.883741999976337,
+  "first_object": 0.8638981249823701,
+  "usd": 0.00129455,
+  "input_tokens": 2035,
+  "cached_tokens": 1777,
+  "output_tokens": 166,
+  "reasoning_tokens": 82
+ },
+ "l06": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 150, \"bar_to\": 160, \"audience\": [\"part:Bass\"], \"kind\": \"dynamic\", \"text\": \"Louder 150-160\", \"quote\": \"Basses, louder please from 150 to 160, I can't hear you.\", \"confidence\": 0.95}]",
+  "seconds": 1.1649834999989253,
+  "first_object": 1.1458151249971706,
+  "usd": 0.0014458,
+  "input_tokens": 2037,
+  "cached_tokens": 1777,
+  "output_tokens": 201,
+  "reasoning_tokens": 117
+ },
+ "f01": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 12, \"bar_to\": 12, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"Start here next time at bar 12\", \"quote\": \"Next time we start at bar twelve, write that in.\", \"confidence\": 0.95}]",
+  "seconds": 1.2546372499782592,
+  "first_object": 1.2530623339989688,
+  "usd": 0.0019763,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 327,
+  "reasoning_tokens": 248
+ },
+ "l07": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"part:Violin II\"], \"kind\": \"dynamic\", \"text\": \"Balance down at B, violas have it\", \"quote\": \"Second violins, balance down at letter B, the violas have it.\", \"confidence\": 0.9}]",
+  "seconds": 1.9549494580132887,
+  "first_object": 1.9498920420010109,
+  "usd": 0.0021088,
+  "input_tokens": 2037,
+  "cached_tokens": 1777,
+  "output_tokens": 357,
+  "reasoning_tokens": 271
+ },
+ "l03": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 12, \"bar_to\": 12, \"audience\": [\"part:Alto\"], \"kind\": \"dynamic\", \"text\": \"Bring out at bar 12\", \"quote\": \"Bring out the altos at bar 12, everyone else lighter.\", \"confidence\": 0.9}, {\"position\": \"bar\", \"bar_from\": 12, \"bar_to\": 12, \"audience\": [\"part:Soprano\", \"part:Tenor\", \"part:Bass\"], \"kind\": \"dynamic\", \"text\": \"Lighter at bar 12\", \"quote\": \"Bring out the altos at bar 12, everyone else lighter.\", \"confidence\": 0.85}]",
+  "seconds": 2.624969750002492,
+  "first_object": 2.443371917004697,
+  "usd": 0.0034523,
+  "input_tokens": 2034,
+  "cached_tokens": 1777,
+  "output_tokens": 674,
+  "reasoning_tokens": 510
+ },
+ "f03": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 12, \"bar_to\": 12, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"Start here next time\", \"quote\": \"Start at bar 12 next time.\", \"confidence\": 0.95}]",
+  "seconds": 1.246258166996995,
+  "first_object": 1.2052312919986434,
+  "usd": 0.0017503,
+  "input_tokens": 2029,
+  "cached_tokens": 1777,
+  "output_tokens": 275,
+  "reasoning_tokens": 204
+ },
+ "f02": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"Start here next time at D\", \"quote\": \"For tomorrow, we'll begin at letter D, put a mark there.\", \"confidence\": 0.95}]",
+  "seconds": 1.5197331669915002,
+  "first_object": 1.4825194169825409,
+  "usd": 0.0022040500000000004,
+  "input_tokens": 2035,
+  "cached_tokens": 1777,
+  "output_tokens": 380,
+  "reasoning_tokens": 303
+ },
+ "f05": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 81, \"bar_to\": 81, \"audience\": [\"part:Violin II\"], \"kind\": \"text\", \"text\": \"Entry at bar 81\", \"quote\": \"Seconds, you'll come in at 81 after the cut, mark your entry.\", \"confidence\": 0.95}]",
+  "seconds": 1.0461377080064267,
+  "first_object": 1.044881541020004,
+  "usd": 0.00149255,
+  "input_tokens": 2037,
+  "cached_tokens": 1777,
+  "output_tokens": 212,
+  "reasoning_tokens": 128
+ },
+ "r02": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"part:Cello\"], \"kind\": \"marking\", \"text\": \"pizz. at B\", \"quote\": \"Cellos, at letter B, pizz.\", \"confidence\": 0.95}]",
+  "seconds": 0.9128044169920031,
+  "first_object": 0.8739755829737987,
+  "usd": 0.0013478,
+  "input_tokens": 2030,
+  "cached_tokens": 1777,
+  "output_tokens": 180,
+  "reasoning_tokens": 106
+ },
+ "r04": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"part:Viola\"], \"kind\": \"dynamic\", \"text\": \"cresc. into C\", \"quote\": \"Violas, crescendo into letter C.\", \"confidence\": 0.9}]",
+  "seconds": 0.910394291015109,
+  "first_object": 0.8022805410146248,
+  "usd": 0.00137755,
+  "input_tokens": 2030,
+  "cached_tokens": 1777,
+  "output_tokens": 187,
+  "reasoning_tokens": 113
+ },
+ "r03": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"Softer E\\u2013F\", \"quote\": \"From letter E to letter F, everybody softer.\", \"confidence\": 0.95}]",
+  "seconds": 1.0629118339857087,
+  "first_object": 1.0359672920021694,
+  "usd": 0.00151055,
+  "input_tokens": 2031,
+  "cached_tokens": 1777,
+  "output_tokens": 218,
+  "reasoning_tokens": 143
+ },
+ "r01": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"mp at A\", \"quote\": \"Letter A, everyone, mezzo piano.\", \"confidence\": 0.95}]",
+  "seconds": 1.237439416028792,
+  "first_object": 1.1741879580076784,
+  "usd": 0.0015632999999999999,
+  "input_tokens": 2029,
+  "cached_tokens": 1777,
+  "output_tokens": 231,
+  "reasoning_tokens": 163
+ },
+ "r05": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"part:Soprano\", \"part:Alto\"], \"kind\": \"breath\", \"text\": \"Breath at A\", \"quote\": \"Sopranos and altos, at letter A breathe together.\", \"confidence\": 0.95}]",
+  "seconds": 0.8899513749929611,
+  "first_object": 0.8698147909890395,
+  "usd": 0.0014068,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 193,
+  "reasoning_tokens": 109
+ },
+ "f04": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 57, \"bar_to\": 57, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"Start here next time, light at 57\", \"quote\": \"From 57 next time, and keep it light.\", \"confidence\": 0.9}]",
+  "seconds": 2.9552780840022024,
+  "first_object": 2.930951209011255,
+  "usd": 0.0037813,
+  "input_tokens": 2032,
+  "cached_tokens": 1777,
+  "output_tokens": 752,
+  "reasoning_tokens": 673
+ },
+ "x02": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"part:Cello\"], \"kind\": \"dynamic\", \"text\": \"f 2 bars after key change\", \"quote\": \"Two bars after the key change, cellos, forte.\", \"confidence\": 0.9}]",
+  "seconds": 1.0044851670099888,
+  "first_object": 0.9739271670114249,
+  "usd": 0.0015385499999999999,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 224,
+  "reasoning_tokens": 146
+ },
+ "x03": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"part:Viola\"], \"kind\": \"marking\", \"text\": \"Accent 3 after D\", \"quote\": \"Violas, three after letter D, that's an accent.\", \"confidence\": 0.9}]",
+  "seconds": 0.973276957985945,
+  "first_object": 0.9350971659878269,
+  "usd": 0.0014408,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 201,
+  "reasoning_tokens": 123
+ },
+ "r06": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"part:Violin I\"], \"kind\": \"bowing\", \"text\": \"Up bow at C\", \"quote\": \"Firsts, at letter C, up bow.\", \"confidence\": 0.95}]",
+  "seconds": 1.4281362920009997,
+  "first_object": 1.4057077089964878,
+  "usd": 0.0018717999999999999,
+  "input_tokens": 2031,
+  "cached_tokens": 1777,
+  "output_tokens": 303,
+  "reasoning_tokens": 227
+ },
+ "x04": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"subito p after double bar\", \"quote\": \"Everyone, the bar after the double bar, subito piano.\", \"confidence\": 0.9}]",
+  "seconds": 1.0895343750016764,
+  "first_object": 1.0617435830063187,
+  "usd": 0.0017935499999999999,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 284,
+  "reasoning_tokens": 209
+ },
+ "x01": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"rit. before C\", \"quote\": \"The bar before C, everyone, ritardando.\", \"confidence\": 0.95}]",
+  "seconds": 1.6696609999926295,
+  "first_object": 1.6339385409955867,
+  "usd": 0.0023563,
+  "input_tokens": 2031,
+  "cached_tokens": 1777,
+  "output_tokens": 417,
+  "reasoning_tokens": 345
+ },
+ "w01": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 212, \"bar_to\": 212, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"p at bar 212\", \"quote\": \"Everyone, bar two hundred and twelve, piano.\", \"confidence\": 0.95}]",
+  "seconds": 0.7671614999999292,
+  "first_object": 0.7444510420027655,
+  "usd": 0.00111955,
+  "input_tokens": 2031,
+  "cached_tokens": 1777,
+  "output_tokens": 126,
+  "reasoning_tokens": 52
+ },
+ "w02": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 101, \"bar_to\": 104, \"audience\": [\"part:Cello\"], \"kind\": \"cut\", \"text\": \"Cut 101\\u2013104\", \"quote\": \"Cellos, one-oh-one to one-oh-four, cut.\", \"confidence\": 0.97}]",
+  "seconds": 0.6400062500033528,
+  "first_object": 0.5755140840192325,
+  "usd": 0.00117855,
+  "input_tokens": 2034,
+  "cached_tokens": 1777,
+  "output_tokens": 139,
+  "reasoning_tokens": 58
+ },
+ "x06": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 42, \"bar_to\": 42, \"audience\": [\"part:Violin I\"], \"kind\": \"marking\", \"text\": \"mutes off at bar 42\", \"quote\": \"Firsts, mutes off two bars after bar forty.\", \"confidence\": 0.95}]",
+  "seconds": 0.9668322919751517,
+  "first_object": 0.8664936249842867,
+  "usd": 0.00131755,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 172,
+  "reasoning_tokens": 89
+ },
+ "x05": {
+  "text": "[{\"position\": \"mark\", \"bar_from\": null, \"bar_to\": null, \"audience\": [\"part:Bass\"], \"kind\": \"breath\", \"text\": \"Breath at coda before entry\", \"quote\": \"Basses, at the coda, breathe before you come in.\", \"confidence\": 0.95}]",
+  "seconds": 1.027085250010714,
+  "first_object": 0.9880942910094745,
+  "usd": 0.00179905,
+  "input_tokens": 2034,
+  "cached_tokens": 1777,
+  "output_tokens": 285,
+  "reasoning_tokens": 204
+ },
+ "w03": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 119, \"bar_to\": 119, \"audience\": [\"part:Alto\"], \"kind\": \"breath\", \"text\": \"Breath at 119\", \"quote\": \"Altos, bar a hundred and nineteen, breath.\", \"confidence\": 0.95}]",
+  "seconds": 0.8769669160246849,
+  "first_object": 0.8590625000069849,
+  "usd": 0.0012313,
+  "input_tokens": 2032,
+  "cached_tokens": 1777,
+  "output_tokens": 152,
+  "reasoning_tokens": 73
+ },
+ "m02": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 41, \"bar_to\": 41, \"audience\": [\"member:In\\u00e8s\"], \"kind\": \"bowing\", \"text\": \"Up bow at bar 41\", \"quote\": \"In\\u00e8s, up bow at forty-one.\", \"confidence\": 0.95}]",
+  "seconds": 0.7214005829882808,
+  "first_object": 0.681054332992062,
+  "usd": 0.0022264499999999996,
+  "input_tokens": 2029,
+  "cached_tokens": 753,
+  "output_tokens": 122,
+  "reasoning_tokens": 36
+ },
+ "m03": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 112, \"bar_to\": 112, \"audience\": [\"member:Lin\"], \"kind\": \"text\", \"text\": \"Entry at 112, a little earlier\", \"quote\": \"Lin, your entry at 112, a little earlier.\", \"confidence\": 0.85}]",
+  "seconds": 1.072228457982419,
+  "first_object": 1.0495517079834826,
+  "usd": 0.00139405,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 190,
+  "reasoning_tokens": 109
+ },
+ "w04": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 19, \"bar_to\": 19, \"audience\": [\"part:Violin II\"], \"kind\": \"bowing\", \"text\": \"Down bow at bar 19\", \"quote\": \"Second violins, bar ninety, nine, sorry, nineteen, down bow.\", \"confidence\": 0.9}]",
+  "seconds": 1.6388910840032622,
+  "first_object": 1.6079363340104464,
+  "usd": 0.00213005,
+  "input_tokens": 2037,
+  "cached_tokens": 1777,
+  "output_tokens": 362,
+  "reasoning_tokens": 276
+ },
+ "m05": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 70, \"bar_to\": 70, \"audience\": [\"member:In\\u00e8s\"], \"kind\": \"marking\", \"text\": \"Normal (no harmonic) at bar 70\", \"quote\": \"In\\u00e8s, bar seventy, take the harmonic out, play it normal.\", \"confidence\": 0.95}]",
+  "seconds": 1.0452823750092648,
+  "first_object": 0.9997512919944711,
+  "usd": 0.0015240499999999999,
+  "input_tokens": 2035,
+  "cached_tokens": 1777,
+  "output_tokens": 220,
+  "reasoning_tokens": 125
+ },
+ "m01": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 64, \"bar_to\": 64, \"audience\": [\"member:Lin\"], \"kind\": \"text\", \"text\": \"F in tune at bar 64\", \"quote\": \"Lin, bar 64, you're sharp on the F.\", \"confidence\": 0.85}]",
+  "seconds": 1.7303282500070054,
+  "first_object": 1.6312727920012549,
+  "usd": 0.0019338,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 317,
+  "reasoning_tokens": 237
+ },
+ "m06": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 20, \"bar_to\": 20, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"Marco softer at bar 20\", \"quote\": \"Marco, bar 20, softer.\", \"confidence\": 0.85}]",
+  "seconds": 1.04748374997871,
+  "first_object": 1.013031582988333,
+  "usd": 0.00165255,
+  "input_tokens": 2029,
+  "cached_tokens": 1777,
+  "output_tokens": 252,
+  "reasoning_tokens": 179
+ },
+ "m04": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 130, \"bar_to\": 130, \"audience\": [\"member:In\\u00e8s\"], \"kind\": \"dynamic\", \"text\": \"cresc. at 130\", \"quote\": \"In\\u00e8s and the violas, crescendo at 130.\", \"confidence\": 0.95}, {\"position\": \"bar\", \"bar_from\": 130, \"bar_to\": 130, \"audience\": [\"part:Viola\"], \"kind\": \"dynamic\", \"text\": \"cresc. at 130\", \"quote\": \"In\\u00e8s and the violas, crescendo at 130.\", \"confidence\": 0.95}]",
+  "seconds": 1.754300417000195,
+  "first_object": 1.5455326669907663,
+  "usd": 0.0021250500000000003,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 362,
+  "reasoning_tokens": 197
+ },
+ "mu01": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 30, \"bar_to\": 30, \"audience\": [\"part:Cello\"], \"kind\": \"marking\", \"text\": \"pizz. at 30\", \"quote\": \"Cellos pizz at 30,\", \"confidence\": 0.96}, {\"position\": \"bar\", \"bar_from\": 31, \"bar_to\": 31, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"mf at 31\", \"quote\": \"and everyone mf at 31.\", \"confidence\": 0.96}]",
+  "seconds": 1.1782889580063056,
+  "first_object": 1.0405035830044653,
+  "usd": 0.0019703,
+  "input_tokens": 2035,
+  "cached_tokens": 1777,
+  "output_tokens": 325,
+  "reasoning_tokens": 189
+ },
+ "mu02": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 12, \"bar_to\": 12, \"audience\": [\"part:Violin I\"], \"kind\": \"bowing\", \"text\": \"Up bow at bar 12\", \"quote\": \"Firsts, up bow at 12,\", \"confidence\": 0.95}, {\"position\": \"bar\", \"bar_from\": 12, \"bar_to\": 12, \"audience\": [\"part:Violin II\"], \"kind\": \"bowing\", \"text\": \"Down bow at bar 12\", \"quote\": \"seconds, down bow at 12.\", \"confidence\": 0.95}]",
+  "seconds": 1.1178354579897132,
+  "first_object": 0.893271332985023,
+  "usd": 0.0017913,
+  "input_tokens": 2038,
+  "cached_tokens": 1777,
+  "output_tokens": 282,
+  "reasoning_tokens": 134
+ },
+ "mu05": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 90, \"bar_to\": 90, \"audience\": [\"part:Tenor\"], \"kind\": \"marking\", \"text\": \"Accent at 90\", \"quote\": \"Bar 90, tenors, accent;\", \"confidence\": 0.95}, {\"position\": \"bar\", \"bar_from\": 92, \"bar_to\": 92, \"audience\": [\"part:Bass\"], \"kind\": \"marking\", \"text\": \"stacc. at 92\", \"quote\": \"bar 92, basses, staccato.\", \"confidence\": 0.95}]",
+  "seconds": 1.089451417006785,
+  "first_object": 0.8765914170071483,
+  "usd": 0.00165055,
+  "input_tokens": 2041,
+  "cached_tokens": 1777,
+  "output_tokens": 248,
+  "reasoning_tokens": 102
+ },
+ "mu03": {
+  "text": "[{\"position\": \"bar\",\"bar_from\": 40,\"bar_to\": 40,\"audience\": [\"part:Soprano\"],\"kind\": \"breath\",\"text\": \"Breath at 40\",\"quote\": \"Sopranos breathe at 40,\",\"confidence\": 0.98},{\"position\": \"bar\",\"bar_from\": 42,\"bar_to\": 42,\"audience\": [\"part:Alto\"],\"kind\": \"breath\",\"text\": \"Breath at 42\",\"quote\": \"altos breathe at 42.\",\"confidence\": 0.98}]",
+  "seconds": 1.5663985830033198,
+  "first_object": 1.3979487080068793,
+  "usd": 0.0021743,
+  "input_tokens": 2035,
+  "cached_tokens": 1777,
+  "output_tokens": 373,
+  "reasoning_tokens": 244
+ },
+ "mu04": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 55, \"bar_to\": 55, \"audience\": [\"part:Viola\"], \"kind\": \"dynamic\", \"text\": \"f at bar 55\", \"quote\": \"Violas forte at 55,\", \"confidence\": 0.95}, {\"position\": \"bar\", \"bar_from\": 55, \"bar_to\": 55, \"audience\": [\"part:Cello\"], \"kind\": \"dynamic\", \"text\": \"p at bar 55\", \"quote\": \"cellos piano at 55.\", \"confidence\": 0.95}]",
+  "seconds": 1.3877902500098571,
+  "first_object": 1.2365423339942936,
+  "usd": 0.0021020500000000003,
+  "input_tokens": 2035,
+  "cached_tokens": 1777,
+  "output_tokens": 356,
+  "reasoning_tokens": 218
+ },
+ "mu06": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 20, \"bar_to\": 24, \"audience\": [\"ensemble\"], \"kind\": \"cut\", \"text\": \"Cut 20\\u201324\", \"quote\": \"Everyone, cut 20 to 24,\", \"confidence\": 0.95}, {\"position\": \"bar\", \"bar_from\": 25, \"bar_to\": 25, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"p at bar 25\", \"quote\": \"and at 25 start piano.\", \"confidence\": 0.95}]",
+  "seconds": 1.337374708004063,
+  "first_object": 1.0818976660084445,
+  "usd": 0.00203655,
+  "input_tokens": 2037,
+  "cached_tokens": 1777,
+  "output_tokens": 340,
+  "reasoning_tokens": 204
+ },
+ "mu08": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 15, \"bar_to\": 15, \"audience\": [\"part:Alto\"], \"kind\": \"dynamic\", \"text\": \"cresc. at bar 15\", \"quote\": \"Altos, bar 15 crescendo,\", \"confidence\": 0.95}, {\"position\": \"bar\", \"bar_from\": 16, \"bar_to\": 16, \"audience\": [\"part:Tenor\"], \"kind\": \"dynamic\", \"text\": \"cresc. at bar 16\", \"quote\": \"then tenors at 16 the same.\", \"confidence\": 0.9}]",
+  "seconds": 1.4760751659923699,
+  "first_object": 1.3246214159880765,
+  "usd": 0.0022303,
+  "input_tokens": 2039,
+  "cached_tokens": 1777,
+  "output_tokens": 385,
+  "reasoning_tokens": 238
+ },
+ "mu07": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 70, \"bar_to\": 70, \"audience\": [\"part:Violin II\"], \"kind\": \"marking\", \"text\": \"Mute on at 70\", \"quote\": \"Seconds, mute on at 70,\", \"confidence\": 0.95}, {\"position\": \"bar\", \"bar_from\": 70, \"bar_to\": 70, \"audience\": [\"member:Lin\"], \"kind\": \"marking\", \"text\": \"Mute on at 70\", \"quote\": \"and Lin, you too.\", \"confidence\": 0.9}]",
+  "seconds": 1.939161917020101,
+  "first_object": 1.6972313340229448,
+  "usd": 0.00281605,
+  "input_tokens": 2035,
+  "cached_tokens": 1777,
+  "output_tokens": 524,
+  "reasoning_tokens": 383
+ },
+ "h01": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 40, \"bar_to\": 40, \"audience\": [\"part:Viola\"], \"kind\": \"dynamic\", \"text\": \"softer at bar 40\", \"quote\": \"violas a bit softer around forty.\", \"confidence\": 0.75}]",
+  "seconds": 1.3446090000215918,
+  "first_object": 1.3309936250152532,
+  "usd": 0.00140255,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 192,
+  "reasoning_tokens": 116
+ },
+ "h02": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 26, \"bar_to\": 26, \"audience\": [\"part:Cello\"], \"kind\": \"bowing\", \"text\": \"Up bow at bar 26\", \"quote\": \"I think, um, the cellos could, could try an up bow at, uh, twenty-six?\", \"confidence\": 0.85}]",
+  "seconds": 1.2220316670136526,
+  "first_object": 1.1921160420170054,
+  "usd": 0.00133005,
+  "input_tokens": 2043,
+  "cached_tokens": 1777,
+  "output_tokens": 172,
+  "reasoning_tokens": 82
+ },
+ "mu09": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 30, \"bar_to\": 34, \"audience\": [\"part:Cello\"], \"kind\": \"marking\", \"text\": \"pizz. at 30, arco at 34\", \"quote\": \"Cellos, pizz at 30 and arco at 34.\", \"confidence\": 0.95}]",
+  "seconds": 1.8880494999757502,
+  "first_object": 1.864197332994081,
+  "usd": 0.00242805,
+  "input_tokens": 2034,
+  "cached_tokens": 1777,
+  "output_tokens": 433,
+  "reasoning_tokens": 347
+ },
+ "h03": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 150, \"bar_to\": 154, \"audience\": [\"ensemble\"], \"kind\": \"cut\", \"text\": \"Cut 150\\u2013154\", \"quote\": \"Let's, hmm, let's maybe cut, like, 150 to 154, everybody, if that's okay.\", \"confidence\": 0.85}]",
+  "seconds": 0.7981382079888135,
+  "first_object": 0.7605212079943158,
+  "usd": 0.00136105,
+  "input_tokens": 2044,
+  "cached_tokens": 1777,
+  "output_tokens": 179,
+  "reasoning_tokens": 90
+ },
+ "mu10": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 60, \"bar_to\": 65, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"cresc. 60\\u201364, subito p at 65\", \"quote\": \"Everyone, crescendo from 60 to 64, then subito piano at 65.\", \"confidence\": 0.95}]",
+  "seconds": 1.8559795840119477,
+  "first_object": 1.8545387500198558,
+  "usd": 0.00264255,
+  "input_tokens": 2039,
+  "cached_tokens": 1777,
+  "output_tokens": 482,
+  "reasoning_tokens": 391
+ },
+ "h05": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 100, \"bar_to\": 100, \"audience\": [\"part:Violin I\"], \"kind\": \"marking\", \"text\": \"Less vibrato at bar 100\", \"quote\": \"Could the firsts, maybe, just a touch less vibrato, around bar 100 or so.\", \"confidence\": 0.85}]",
+  "seconds": 0.7133018339809496,
+  "first_object": 0.6887311669997871,
+  "usd": 0.0015157999999999999,
+  "input_tokens": 2042,
+  "cached_tokens": 1777,
+  "output_tokens": 216,
+  "reasoning_tokens": 124
+ },
+ "h04": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 88, \"bar_to\": 88, \"audience\": [\"part:Soprano\"], \"kind\": \"breath\", \"text\": \"Breathe after 88\", \"quote\": \"Sopranos, you know, it might be nicer to breathe, um, after 88 instead.\", \"confidence\": 0.85}]",
+  "seconds": 0.8922178340144455,
+  "first_object": 0.8659144589910284,
+  "usd": 0.00143505,
+  "input_tokens": 2042,
+  "cached_tokens": 1777,
+  "output_tokens": 197,
+  "reasoning_tokens": 106
+ },
+ "s02": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 200, \"bar_to\": 200, \"audience\": [\"ensemble\"], \"kind\": \"marking\", \"text\": \"Fermata at bar 200\", \"quote\": \"Everybody, right in a fermenta on bar two hundred.\", \"confidence\": 0.95}]",
+  "seconds": 0.694703417015262,
+  "first_object": 0.6770970840007067,
+  "usd": 0.00130605,
+  "input_tokens": 2034,
+  "cached_tokens": 1777,
+  "output_tokens": 169,
+  "reasoning_tokens": 89
+ },
+ "h06": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 47, \"bar_to\": 47, \"audience\": [\"part:Tenor\"], \"kind\": \"dynamic\", \"text\": \"cresc. into 47\", \"quote\": \"Uh, tenors, I'd, I'd like a little more, like a crescendo, into 47.\", \"confidence\": 0.9}]",
+  "seconds": 0.9684132500260603,
+  "first_object": 0.9463860840187408,
+  "usd": 0.00155955,
+  "input_tokens": 2043,
+  "cached_tokens": 1777,
+  "output_tokens": 226,
+  "reasoning_tokens": 136
+ },
+ "s03": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 2, \"bar_to\": 2, \"audience\": [\"part:Viola\"], \"kind\": \"bowing\", \"text\": \"Down bow at bar 2\", \"quote\": \"Violas, bar to, that's a down bow.\", \"confidence\": 0.85}]",
+  "seconds": 1.0445666250016075,
+  "first_object": 1.0438765840081032,
+  "usd": 0.00145655,
+  "input_tokens": 2032,
+  "cached_tokens": 1777,
+  "output_tokens": 205,
+  "reasoning_tokens": 125
+ },
+ "s04": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 49, \"bar_to\": 49, \"audience\": [\"part:Cello\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 49\", \"quote\": \"Chelos, pizz at forty-nine.\", \"confidence\": 0.95}]",
+  "seconds": 0.953147458989406,
+  "first_object": 0.9007699999783654,
+  "usd": 0.00144855,
+  "input_tokens": 2029,
+  "cached_tokens": 1777,
+  "output_tokens": 204,
+  "reasoning_tokens": 127
+ },
+ "s06": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 72, \"bar_to\": 72, \"audience\": [\"part:Viola\"], \"kind\": \"text\", \"text\": \"a tempo at 72\", \"quote\": \"Violets, a tempo at 72.\", \"confidence\": 0.9}]",
+  "seconds": 0.8631810420192778,
+  "first_object": 0.8255159170075785,
+  "usd": 0.00128955,
+  "input_tokens": 2031,
+  "cached_tokens": 1777,
+  "output_tokens": 166,
+  "reasoning_tokens": 89
+ },
+ "s01": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 15, \"bar_to\": 15, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"In tune at 15, listen to Viola\", \"quote\": \"bar fifteen is flat, listen to the viola there.\", \"confidence\": 0.75}]",
+  "seconds": 1.8693846670212224,
+  "first_object": 1.8092243749997579,
+  "usd": 0.0022513000000000003,
+  "input_tokens": 2032,
+  "cached_tokens": 1777,
+  "output_tokens": 392,
+  "reasoning_tokens": 313
+ },
+ "s07": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 40, \"bar_to\": 40, \"audience\": [\"part:Soprano\"], \"kind\": \"dynamic\", \"text\": \"mf at bar 40\", \"quote\": \"Sopranos, bar for tea, mezzo forte.\", \"confidence\": 0.75}]",
+  "seconds": 1.1780707080033608,
+  "first_object": 1.1541187500115484,
+  "usd": 0.0018262999999999999,
+  "input_tokens": 2032,
+  "cached_tokens": 1777,
+  "output_tokens": 292,
+  "reasoning_tokens": 213
+ },
+ "s08": {
+  "text": "[{\"position\": \"range\", \"bar_from\": 110, \"bar_to\": null, \"audience\": [\"part:Violin II\"], \"kind\": \"marking\", \"text\": \"no vibrato 110-end\", \"quote\": \"and seconds, from one ten to the end, no vibrato.\", \"confidence\": 0.95}]",
+  "seconds": 0.8088117500010412,
+  "first_object": 0.7602605000138283,
+  "usd": 0.00134555,
+  "input_tokens": 2035,
+  "cached_tokens": 1777,
+  "output_tokens": 178,
+  "reasoning_tokens": 95
+ },
+ "n01": {
+  "text": "{\"none\": true, \"confidence\": 0.99}",
+  "seconds": 0.8357053329818882,
+  "first_object": 0.8124822919780854,
+  "usd": 0.0009853,
+  "input_tokens": 2029,
+  "cached_tokens": 1777,
+  "output_tokens": 95,
+  "reasoning_tokens": 73
+ },
+ "n02": {
+  "text": "{\"none\": true, \"confidence\": 0.98}",
+  "seconds": 0.6918574160081334,
+  "first_object": 0.6507649160048459,
+  "usd": 0.0009100499999999999,
+  "input_tokens": 2030,
+  "cached_tokens": 1777,
+  "output_tokens": 77,
+  "reasoning_tokens": 55
+ },
+ "s05": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 120, \"bar_to\": 120, \"audience\": [\"part:Soprano\", \"part:Alto\", \"part:Tenor\"], \"kind\": \"dynamic\", \"text\": \"f at bar 120\", \"quote\": \"accept the basses, bar 120, forte.\", \"confidence\": 0.95}]",
+  "seconds": 2.0987118750053924,
+  "first_object": 2.0767964579863474,
+  "usd": 0.0035179499999999997,
+  "input_tokens": 2032,
+  "cached_tokens": 753,
+  "output_tokens": 425,
+  "reasoning_tokens": 335
+ },
+ "n04": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.7650059169973247,
+  "first_object": 0.7625800000096206,
+  "usd": 0.0010600499999999999,
+  "input_tokens": 2031,
+  "cached_tokens": 1777,
+  "output_tokens": 112,
+  "reasoning_tokens": 90
+ },
+ "s09": {
+  "text": "[{\"position\": \"bar\", \"bar_from\": 80, \"bar_to\": 80, \"audience\": [\"member:Lin\"], \"kind\": \"text\", \"text\": \"Entry at bar 80\", \"quote\": \"Lynn, bar eighty, you're late.\", \"confidence\": 0.7}]",
+  "seconds": 1.3986251660098787,
+  "first_object": 1.352021416008938,
+  "usd": 0.00222205,
+  "input_tokens": 2029,
+  "cached_tokens": 1777,
+  "output_tokens": 386,
+  "reasoning_tokens": 311
+ },
+ "n05": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.4929623329953756,
+  "first_object": 0.4764788330066949,
+  "usd": 0.00094705,
+  "input_tokens": 2029,
+  "cached_tokens": 1777,
+  "output_tokens": 86,
+  "reasoning_tokens": 64
+ },
+ "n06": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.42618133398354985,
+  "first_object": 0.4092183339816984,
+  "usd": 0.00077155,
+  "input_tokens": 2028,
+  "cached_tokens": 1777,
+  "output_tokens": 45,
+  "reasoning_tokens": 23
+ },
+ "n07": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.5558557499898598,
+  "first_object": 0.5369594589865301,
+  "usd": 0.0009593,
+  "input_tokens": 2032,
+  "cached_tokens": 1777,
+  "output_tokens": 88,
+  "reasoning_tokens": 66
+ },
+ "n03": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 1.3447906669753138,
+  "first_object": 1.2446174999931827,
+  "usd": 0.0010842999999999998,
+  "input_tokens": 2030,
+  "cached_tokens": 1777,
+  "output_tokens": 118,
+  "reasoning_tokens": 96
+ },
+ "n09": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.5417665829882026,
+  "first_object": 0.476754749979591,
+  "usd": 0.0008602999999999999,
+  "input_tokens": 2031,
+  "cached_tokens": 1777,
+  "output_tokens": 65,
+  "reasoning_tokens": 43
+ },
+ "n08": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.6074928750167601,
+  "first_object": 0.5583425420045387,
+  "usd": 0.0009398,
+  "input_tokens": 2030,
+  "cached_tokens": 1777,
+  "output_tokens": 84,
+  "reasoning_tokens": 62
+ },
+ "n10": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.5236250830057543,
+  "first_object": 0.475060458004009,
+  "usd": 0.0009010499999999999,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 74,
+  "reasoning_tokens": 52
+ },
+ "n11": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.5651896669878624,
+  "first_object": 0.5505923749879003,
+  "usd": 0.00089905,
+  "input_tokens": 2028,
+  "cached_tokens": 1777,
+  "output_tokens": 75,
+  "reasoning_tokens": 53
+ },
+ "n14": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.6027639590029139,
+  "first_object": 0.5716267919924576,
+  "usd": 0.00093655,
+  "input_tokens": 2041,
+  "cached_tokens": 1777,
+  "output_tokens": 80,
+  "reasoning_tokens": 58
+ },
+ "n12": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.8148130830086302,
+  "first_object": 0.7975221250089817,
+  "usd": 0.00089555,
+  "input_tokens": 2032,
+  "cached_tokens": 1777,
+  "output_tokens": 73,
+  "reasoning_tokens": 51
+ },
+ "n15": {
+  "text": "{\"none\": true, \"confidence\": 0.9}",
+  "seconds": 0.722201833006693,
+  "first_object": 0.7074209999991581,
+  "usd": 0.0011398,
+  "input_tokens": 2037,
+  "cached_tokens": 1777,
+  "output_tokens": 129,
+  "reasoning_tokens": 107
+ },
+ "n17": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.5903033750073519,
+  "first_object": 0.5739035840088036,
+  "usd": 0.00091205,
+  "input_tokens": 2035,
+  "cached_tokens": 1777,
+  "output_tokens": 76,
+  "reasoning_tokens": 54
+ },
+ "n13": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 1.20108345799963,
+  "first_object": 1.1910113749909215,
+  "usd": 0.0009355499999999999,
+  "input_tokens": 2030,
+  "cached_tokens": 1777,
+  "output_tokens": 83,
+  "reasoning_tokens": 61
+ },
+ "n16": {
+  "text": "{\"none\": true, \"confidence\": 0.9}",
+  "seconds": 1.2371234169986565,
+  "first_object": 1.1948770419985522,
+  "usd": 0.0016710499999999999,
+  "input_tokens": 2037,
+  "cached_tokens": 1777,
+  "output_tokens": 254,
+  "reasoning_tokens": 232
+ },
+ "n21": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.6723548749869224,
+  "first_object": 0.6680714159738272,
+  "usd": 0.00102805,
+  "input_tokens": 2036,
+  "cached_tokens": 1777,
+  "output_tokens": 103,
+  "reasoning_tokens": 81
+ },
+ "n20": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.7611116670013871,
+  "first_object": 0.7599973749893252,
+  "usd": 0.0010812999999999999,
+  "input_tokens": 2031,
+  "cached_tokens": 1777,
+  "output_tokens": 117,
+  "reasoning_tokens": 95
+ },
+ "n18": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.9385384159977548,
+  "first_object": 0.9178224580246024,
+  "usd": 0.00138605,
+  "input_tokens": 2030,
+  "cached_tokens": 1777,
+  "output_tokens": 189,
+  "reasoning_tokens": 167
+ },
+ "n19": {
+  "text": "{\"none\": true, \"confidence\": 0.98}",
+  "seconds": 1.0084237080009189,
+  "first_object": 0.9632659999770112,
+  "usd": 0.0010113,
+  "input_tokens": 2026,
+  "cached_tokens": 1777,
+  "output_tokens": 102,
+  "reasoning_tokens": 80
+ },
+ "n22": {
+  "text": "{\"none\": true, \"confidence\": 0.9}",
+  "seconds": 0.7421179579978343,
+  "first_object": 0.7157629169814754,
+  "usd": 0.00111855,
+  "input_tokens": 2037,
+  "cached_tokens": 1777,
+  "output_tokens": 124,
+  "reasoning_tokens": 102
+ },
+ "n25": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.5475765419832896,
+  "first_object": 0.5203664999862667,
+  "usd": 0.0008585499999999999,
+  "input_tokens": 2033,
+  "cached_tokens": 1777,
+  "output_tokens": 64,
+  "reasoning_tokens": 42
+ },
+ "n23": {
+  "text": "{\"none\": true, \"confidence\": 0.98}",
+  "seconds": 0.7343220829789061,
+  "first_object": 0.7148271249898244,
+  "usd": 0.00107405,
+  "input_tokens": 2032,
+  "cached_tokens": 1777,
+  "output_tokens": 115,
+  "reasoning_tokens": 93
+ },
+ "n27": {
+  "text": "{\"none\": true, \"confidence\": 0.9}",
+  "seconds": 0.5896471669839229,
+  "first_object": 0.5709092500037514,
+  "usd": 0.00097105,
+  "input_tokens": 2038,
+  "cached_tokens": 1777,
+  "output_tokens": 89,
+  "reasoning_tokens": 67
+ },
+ "n26": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.7132688339916058,
+  "first_object": 0.6850566249922849,
+  "usd": 0.0011148,
+  "input_tokens": 2034,
+  "cached_tokens": 1777,
+  "output_tokens": 124,
+  "reasoning_tokens": 102
+ },
+ "n29": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.4927087500109337,
+  "first_object": 0.4834180000179913,
+  "usd": 0.00092205,
+  "input_tokens": 2026,
+  "cached_tokens": 1777,
+  "output_tokens": 81,
+  "reasoning_tokens": 59
+ },
+ "n28": {
+  "text": "{\"none\": true, \"confidence\": 0.97}",
+  "seconds": 0.6938367919938173,
+  "first_object": 0.6690040419925936,
+  "usd": 0.00119655,
+  "input_tokens": 2028,
+  "cached_tokens": 1777,
+  "output_tokens": 145,
+  "reasoning_tokens": 123
+ },
+ "n30": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 0.6129077919758856,
+  "first_object": 0.5926214999926742,
+  "usd": 0.0009782999999999999,
+  "input_tokens": 2037,
+  "cached_tokens": 1777,
+  "output_tokens": 91,
+  "reasoning_tokens": 69
+ },
+ "n24": {
+  "text": "{\"none\": true, \"confidence\": 0.95}",
+  "seconds": 1.3385573329869658,
+  "first_object": 1.3183201249921694,
+  "usd": 0.00115055,
+  "input_tokens": 2032,
+  "cached_tokens": 1777,
+  "output_tokens": 133,
+  "reasoning_tokens": 111
+ }
+}

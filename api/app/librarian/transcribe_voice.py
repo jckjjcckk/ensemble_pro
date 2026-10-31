@@ -2,9 +2,10 @@
 
 The route (`POST /scores/{id}/voice`) stores the WAV at `{score_id}/voice/{utterance_id}.wav` and runs this job at once.
 Voice Transcribe (diarisation mode, the score's parts, players, letters and a trimmed glossary of musical terms as
-keywords) gives the transcript; one Spark call with the eval's chosen prompt (v4e, `voice_prompt.py`: the facts list the
-book's groups and its landmarks with bars, `scores.landmarks`) proposes marks; `checked_marks` drops any whose quote
-is not verbatim, whose bars fall outside the score or whose audience is unknown. Each survivor is written as
+keywords) gives the transcript; one Spark call with the eval's chosen prompt (v4f, `voice_prompt.py`: the facts list the
+book's groups and its landmarks with bars, `scores.landmarks`; the stand text keeps the conductor's words)
+proposes marks; `checked_marks` drops any whose quote is not verbatim, whose bars fall outside the score or whose
+audience is unknown. Each survivor is written as
 `annotations` rows with `status = 'proposed'`, one row per audience, sharing `payload.mark_id`; players never see a
 proposed row (`can_see_annotation`). A place named from a listed landmark comes back as bars; a mark the score
 cannot place (a landmark it has no record of) is returned in `result.unplaced` for the admin to put on a bar by hand. Nothing here ever makes a mark live.

@@ -228,7 +228,8 @@ def checked_marks(answer: object, transcript: str, facts: ScoreFacts) -> tuple[l
 
 # ---------- the prompt (eval version v4, chosen 2026-10-29; v4d rule edits 2026-10-30: flow marks and roster
 # scope, docs/features/013-text-eval.md; v4e 2026-10-30: the book's landmarks and
-# groups, docs/features/013-v4e-eval.md) ----------
+# groups, docs/features/013-v4e-eval.md; v4f 2026-10-31: the stand text keeps the conductor's words, CK's
+# decision, docs_offline/benchmark.md) ----------
 
 SYSTEM = ("You turn a conductor's spoken rehearsal instruction into proposed marks on the players' parts. "
           "Answer with JSON only.")
@@ -262,8 +263,13 @@ RULES = """Rules:
 - kind: "dynamic" for loudness and its changes; "marking" for a symbol or playing technique written on the music
   (pizz., arco, mute, accent, fermata, vibrato); "bowing" for up/down bow; "breath" for a breath mark; "cut" for a
   cut or a skipped repeat; "text" for any other spoken instruction (tempo, rit., character, rhythm, tuning, pitch).
-- text: what a player would pencil on the part, short, standard abbreviations (mf, sfz, cresc., dim., pizz., rit.),
-  with the place: "mf at bar 9", "Cut 130–137", "From E: lighter".
+- text: the conductor's own words with the place, the way a player pencils what was said: keep the remark as it
+  was said, never a remedy or a category word in its place. "Seconds, bar 30, you're too sharp on the F" is
+  "You're too sharp on the F, bar 30" (not "Lower the F", not "Intonation: F"); "in tune at bar fifteen" is "In
+  tune at bar 15"; "we're dragging from E" is "Dragging from E" (not "Push on from E"). Clean up lightly: drop
+  filler, false starts and the name of the part or player addressed, spell a misheard musical term right, write
+  numbers as digits and dynamics and terms the short way (mf, sfz, cresc., dim., pizz., rit.): "mf at bar 9",
+  "Cut 130–137".
 - quote: copy a contiguous span of the transcript exactly, character for character.
 - One object per audience: marks for different audiences are separate objects; several places for the same
   audience in one breath are one mark whose bars cover them.

@@ -128,7 +128,7 @@ def v5(transcript: str, facts: ScoreFacts, holdout: set[str], examples: list[dic
 v4r2 = v4
 
 
-# The app's prompt is v4e (below) with the full example list (no hold-out in production): keep the two in step.
+# The app's prompt is v4f (below) with the full example list (no hold-out in production): keep the two in step.
 from app.librarian import voice_prompt as _app  # noqa: E402
 
 # v4d (2026-10-30, docs/features/013-text-eval.md): v4 plus three rule edits found by the text eval. Flow marks: a
@@ -164,7 +164,7 @@ def v4d(transcript: str, facts: ScoreFacts, holdout: set[str], examples: list[di
 # v4e (2026-10-30, docs/features/013-v4e-eval.md): v4d plus the eval's parts (a) and (b), not (c) (the musical-terms
 # mishearing line had no measured gain). (b) the book's groups are listed in the facts and an exclusion refers to them
 # instead of the two hardcoded groups; (a) the book's landmarks with bars, and a place named from one resolves to bars.
-# The app's prompt is v4e; v4d stays above for reproducibility.
+# v4d stays above for reproducibility.
 GROUPS_V4E_OLD = """list every other part of X's group only, never parts of the other group (strings: Violin I,
   Violin II, Viola, Cello; voices: Soprano, Alto, Tenor, Bass)."""
 GROUPS_V4E_NEW = """list every other part of the widest group in the score facts that holds X (or of the group the
@@ -183,8 +183,24 @@ for _old, _new in V4E_EDITS:
     assert RULES_V4E.count(_old) == 1, _old
     RULES_V4E = RULES_V4E.replace(_old, _new)
 
-# The app's prompt is checked here at import: its rules are v4e (the header line aside) and its schema the list one.
-assert _app.RULES.split("\n", 1)[1] == RULES_V4E.split("\n", 1)[1] and _app.SCHEMA == SCHEMA_LIST
+# v4f (2026-10-31, CK's decision): the stand text keeps the conductor's own words, as a player pencils what was
+# said ("you're too sharp on the F" stays that), never a remedy ("Lower the F") or a category ("Intonation: F");
+# cleanup is light (filler, the addressee, a misheard term's spelling, digits, standard abbreviations). Scored on
+# the clean 130, messy 50 and messy 100 sets in experiments/voice_text/v4f. The app's prompt is v4f.
+TEXT_V4F_OLD = """- text: what a player would pencil on the part, short, standard abbreviations (mf, sfz, cresc., dim., pizz., rit.),
+  with the place: "mf at bar 9", "Cut 130–137", "From E: lighter"."""
+TEXT_V4F_NEW = """- text: the conductor's own words with the place, the way a player pencils what was said: keep the remark as it
+  was said, never a remedy or a category word in its place. "Seconds, bar 30, you're too sharp on the F" is
+  "You're too sharp on the F, bar 30" (not "Lower the F", not "Intonation: F"); "in tune at bar fifteen" is "In
+  tune at bar 15"; "we're dragging from E" is "Dragging from E" (not "Push on from E"). Clean up lightly: drop
+  filler, false starts and the name of the part or player addressed, spell a misheard musical term right, write
+  numbers as digits and dynamics and terms the short way (mf, sfz, cresc., dim., pizz., rit.): "mf at bar 9",
+  "Cut 130–137"."""
+assert RULES_V4E.count(TEXT_V4F_OLD) == 1, TEXT_V4F_OLD
+RULES_V4F = RULES_V4E.replace(TEXT_V4F_OLD, TEXT_V4F_NEW)
+
+# The app's prompt is checked here at import: its rules are v4f (the header line aside) and its schema the list one.
+assert _app.RULES.split("\n", 1)[1] == RULES_V4F.split("\n", 1)[1] and _app.SCHEMA == SCHEMA_LIST
 
 
 # Prompts that read both recognisers' transcripts (diarisation and push-to-talk) of the same file.

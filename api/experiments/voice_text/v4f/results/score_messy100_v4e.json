@@ -1,0 +1,6666 @@
+[
+ {
+  "id": "t01",
+  "cat": "terms",
+  "diff": 1,
+  "fix": "A",
+  "text": "Everyone, bar forty, fermenta on the downbeat.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "listed",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 40, \"bar_to\": 40, \"audience\": [\"ensemble\"], \"kind\": \"marking\", \"text\": \"fermata at bar 40\", \"quote\": \"Everyone, bar forty, fermenta on the downbeat.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 40,
+    "bar_to": 40,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "marking",
+    "text": "fermata at bar 40",
+    "quote": "Everyone, bar forty, fermenta on the downbeat.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.131610707991058,
+  "usd": 0.003712,
+  "output_tokens": 259,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Fermata at 40",
+    "fermata at bar 40",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "fermata at bar 40",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t02",
+  "cat": "terms",
+  "diff": 1,
+  "fix": "A",
+  "text": "Cellos, bar twelve, pizza cutter.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "listed",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 12, \"bar_to\": 12, \"audience\": [\"part:Cello\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 12\", \"quote\": \"Cellos, bar twelve, pizza cutter.\", \"confidence\": 0.9}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 12,
+    "bar_to": 12,
+    "audience": [
+     "part:Cello"
+    ],
+    "kind": "marking",
+    "text": "pizz. at bar 12",
+    "quote": "Cellos, bar twelve, pizza cutter.",
+    "confidence": 0.9
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.2602324160106946,
+  "usd": 0.00375925,
+  "output_tokens": 271,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "pizz. at 12",
+    "pizz. at bar 12",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.9,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "pizz. at bar 12",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t03",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "A",
+  "text": "Violas, at fifty retard and oh, then attempt oh at fifty-four.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "listed",
+  "reply": "[{\"position\": \"range\", \"bar_from\": 50, \"bar_to\": 54, \"audience\": [\"part:Viola\"], \"kind\": \"text\", \"text\": \"rit. at 50, a tempo at 54\", \"quote\": \"Violas, at fifty retard and oh, then attempt oh at fifty-four.\", \"confidence\": 0.75}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 50,
+    "bar_to": 54,
+    "audience": [
+     "part:Viola"
+    ],
+    "kind": "text",
+    "text": "rit. at 50, a tempo at 54",
+    "quote": "Violas, at fifty retard and oh, then attempt oh at fifty-four.",
+    "confidence": 0.75
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.414960082998732,
+  "usd": 0.0040485,
+  "output_tokens": 337,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "rit. 50, a tempo 54",
+    "rit. at 50, a tempo at 54",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.75,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "rit. at 50, a tempo at 54",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t04",
+  "cat": "terms",
+  "diff": 1,
+  "fix": "A",
+  "text": "Bar eighty-eight, spores and oh, everybody.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "listed",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 88, \"bar_to\": 88, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"sfz at 88\", \"quote\": \"Bar eighty-eight, spores and oh, everybody.\", \"confidence\": 0.65}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 88,
+    "bar_to": 88,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "dynamic",
+    "text": "sfz at 88",
+    "quote": "Bar eighty-eight, spores and oh, everybody.",
+    "confidence": 0.65
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 4.272171416989295,
+  "usd": 0.00588965,
+  "output_tokens": 1000,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "sfz at 88",
+    "sfz at 88",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.65,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "sfz at 88",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t05",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "A",
+  "text": "Seconds, bar thirty-two, arc oh.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "listed",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 32, \"bar_to\": 32, \"audience\": [\"part:Violin II\"], \"kind\": \"marking\", \"text\": \"arco at bar 32\", \"quote\": \"Seconds, bar thirty-two, arc oh.\", \"confidence\": 0.85}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 32,
+    "bar_to": 32,
+    "audience": [
+     "part:Violin II"
+    ],
+    "kind": "marking",
+    "text": "arco at bar 32",
+    "quote": "Seconds, bar thirty-two, arc oh.",
+    "confidence": 0.85
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.6996847919945139,
+  "usd": 0.003245,
+  "output_tokens": 150,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "arco at 32",
+    "arco at bar 32",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.85,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "arco at bar 32",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t06",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "A",
+  "text": "Firsts, from sixty to sixty-four, stuck auto, short and light.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "listed",
+  "reply": "[{\"position\": \"range\", \"bar_from\": 60, \"bar_to\": 64, \"audience\": [\"part:Violin I\"], \"kind\": \"marking\", \"text\": \"stacc., short and light 60-64\", \"quote\": \"Firsts, from sixty to sixty-four, stuck auto, short and light.\", \"confidence\": 0.85}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 60,
+    "bar_to": 64,
+    "audience": [
+     "part:Violin I"
+    ],
+    "kind": "marking",
+    "text": "stacc., short and light 60-64",
+    "quote": "Firsts, from sixty to sixty-four, stuck auto, short and light.",
+    "confidence": 0.85
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.9569247080071364,
+  "usd": 0.0025354,
+  "output_tokens": 209,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "stacc. 60–64",
+    "stacc., short and light 60-64",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.85,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "stacc., short and light 60-64",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t07",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "A",
+  "text": "Cellos, bar one-forty, the visi, top line and bottom line.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "listed",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 140, \"bar_to\": 140, \"audience\": [\"part:Cello\"], \"kind\": \"marking\", \"text\": \"divisi at bar 140\", \"quote\": \"Cellos, bar one-forty, the visi, top line and bottom line.\", \"confidence\": 0.75}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 140,
+    "bar_to": 140,
+    "audience": [
+     "part:Cello"
+    ],
+    "kind": "marking",
+    "text": "divisi at bar 140",
+    "quote": "Cellos, bar one-forty, the visi, top line and bottom line.",
+    "confidence": 0.75
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.5669836660090368,
+  "usd": 0.0030084,
+  "output_tokens": 320,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "div. at 140",
+    "divisi at bar 140",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.75,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "divisi at bar 140",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t08",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "A",
+  "text": "Sopranos, bar seventy-two, crash endo into seventy-five.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "unlisted",
+  "reply": "[{\"position\": \"range\", \"bar_from\": 72, \"bar_to\": 75, \"audience\": [\"part:Soprano\"], \"kind\": \"dynamic\", \"text\": \"cresc. 72\\u201375\", \"quote\": \"Sopranos, bar seventy-two, crash endo into seventy-five.\", \"confidence\": 0.85}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 72,
+    "bar_to": 75,
+    "audience": [
+     "part:Soprano"
+    ],
+    "kind": "dynamic",
+    "text": "cresc. 72–75",
+    "quote": "Sopranos, bar seventy-two, crash endo into seventy-five.",
+    "confidence": 0.85
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.1830717500124592,
+  "usd": 0.001616,
+  "output_tokens": 258,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "cresc. 72–75",
+    "cresc. 72–75",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.85,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "cresc. 72–75",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t09",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "A",
+  "text": "Altos and tenors, from ninety, dim in your endo to the end.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "unlisted",
+  "reply": "[{\"position\": \"range\", \"bar_from\": 90, \"bar_to\": null, \"audience\": [\"part:Alto\", \"part:Tenor\"], \"kind\": \"dynamic\", \"text\": \"dim. 90\\u2013end\", \"quote\": \"Altos and tenors, from ninety, dim in your endo to the end.\", \"confidence\": 0.9}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 90,
+    "bar_to": null,
+    "audience": [
+     "part:Alto",
+     "part:Tenor"
+    ],
+    "kind": "dynamic",
+    "text": "dim. 90–end",
+    "quote": "Altos and tenors, from ninety, dim in your endo to the end.",
+    "confidence": 0.9
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.0012218339834362,
+  "usd": 0.00360475,
+  "output_tokens": 232,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "dim. 90 to end",
+    "dim. 90–end",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.9,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "dim. 90–end",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t10",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "A",
+  "text": "Violins, bar one hundred, tenure toe on all four quarters.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "unlisted",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 100, \"bar_to\": 100, \"audience\": [\"part:Violin I\", \"part:Violin II\"], \"kind\": \"marking\", \"text\": \"Tenuto on all four quarters at bar 100\", \"quote\": \"Violins, bar one hundred, tenure toe on all four quarters.\", \"confidence\": 0.85}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 100,
+    "bar_to": 100,
+    "audience": [
+     "part:Violin I",
+     "part:Violin II"
+    ],
+    "kind": "marking",
+    "text": "Tenuto on all four quarters at bar 100",
+    "quote": "Violins, bar one hundred, tenure toe on all four quarters.",
+    "confidence": 0.85
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.221862540987786,
+  "usd": 0.00361675,
+  "output_tokens": 236,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "ten. at 100",
+    "Tenuto on all four quarters at bar 100",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.85,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Tenuto on all four quarters at bar 100",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t11",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "A",
+  "text": "Everyone, bar twenty-six, marked oh, really lean on it.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "unlisted",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 26, \"bar_to\": 26, \"audience\": [\"ensemble\"], \"kind\": \"marking\", \"text\": \"marc. at bar 26\", \"quote\": \"Everyone, bar twenty-six, marked oh, really lean on it.\", \"confidence\": 0.85}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 26,
+    "bar_to": 26,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "marking",
+    "text": "marc. at bar 26",
+    "quote": "Everyone, bar twenty-six, marked oh, really lean on it.",
+    "confidence": 0.85
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.735501875024056,
+  "usd": 0.004131,
+  "output_tokens": 357,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "marc. at 26",
+    "marc. at bar 26",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.85,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "marc. at bar 26",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t12",
+  "cat": "terms",
+  "diff": 3,
+  "fix": "A",
+  "text": "Violas, from one-twenty, con sore dino.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "unlisted",
+  "reply": "[{\"position\": \"range\", \"bar_from\": 120, \"bar_to\": null, \"audience\": [\"part:Viola\"], \"kind\": \"marking\", \"text\": \"con sord. from 120\", \"quote\": \"Violas, from one-twenty, con sore dino.\", \"confidence\": 0.9}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 120,
+    "bar_to": null,
+    "audience": [
+     "part:Viola"
+    ],
+    "kind": "marking",
+    "text": "con sord. from 120",
+    "quote": "Violas, from one-twenty, con sore dino.",
+    "confidence": 0.9
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.9639775409887079,
+  "usd": 0.0027994,
+  "output_tokens": 272,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "con sord. from 120",
+    "con sord. from 120",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.9,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "con sord. from 120",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t13",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "A",
+  "text": "Basses, bar sixty-eight, sub eat oh piano.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "unlisted",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 68, \"bar_to\": 68, \"audience\": [\"part:Bass\"], \"kind\": \"dynamic\", \"text\": \"sub. p at bar 68\", \"quote\": \"Basses, bar sixty-eight, sub eat oh piano.\", \"confidence\": 0.9}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 68,
+    "bar_to": 68,
+    "audience": [
+     "part:Bass"
+    ],
+    "kind": "dynamic",
+    "text": "sub. p at bar 68",
+    "quote": "Basses, bar sixty-eight, sub eat oh piano.",
+    "confidence": 0.9
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.0401812920172233,
+  "usd": 0.00360875,
+  "output_tokens": 235,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "sub. p at 68",
+    "sub. p at bar 68",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.9,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "sub. p at bar 68",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t14",
+  "cat": "terms",
+  "diff": 1,
+  "fix": "A",
+  "text": "Firsts, bar fifty-one, no vibrator there, just straight.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "unlisted",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 51, \"bar_to\": 51, \"audience\": [\"part:Violin I\"], \"kind\": \"marking\", \"text\": \"senza vib. at bar 51\", \"quote\": \"Firsts, bar fifty-one, no vibrator there, just straight.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 51,
+    "bar_to": 51,
+    "audience": [
+     "part:Violin I"
+    ],
+    "kind": "marking",
+    "text": "senza vib. at bar 51",
+    "quote": "Firsts, bar fifty-one, no vibrator there, just straight.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.0485722500015981,
+  "usd": 0.00357975,
+  "output_tokens": 227,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "senza vib. at 51",
+    "senza vib. at bar 51",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "senza vib. at bar 51",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t15",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "A",
+  "text": "Chelos and Violets, bar one-ten, pits.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "unlisted",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 110, \"bar_to\": 110, \"audience\": [\"part:Cello\", \"part:Viola\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 110\", \"quote\": \"Chelos and Violets, bar one-ten, pits.\", \"confidence\": 0.85}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 110,
+    "bar_to": 110,
+    "audience": [
+     "part:Cello",
+     "part:Viola"
+    ],
+    "kind": "marking",
+    "text": "pizz. at bar 110",
+    "quote": "Chelos and Violets, bar one-ten, pits.",
+    "confidence": 0.85
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.9327397499873769,
+  "usd": 0.00345275,
+  "output_tokens": 198,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "pizz. at 110",
+    "pizz. at bar 110",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.85,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "pizz. at bar 110",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t16",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "A",
+  "text": "Tenners, bar eighty-two, breath after the comma.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "part",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 82, \"bar_to\": 82, \"audience\": [\"part:Tenor\"], \"kind\": \"breath\", \"text\": \"Breath at 82\", \"quote\": \"Tenners, bar eighty-two, breath after the comma.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 82,
+    "bar_to": 82,
+    "audience": [
+     "part:Tenor"
+    ],
+    "kind": "breath",
+    "text": "Breath at 82",
+    "quote": "Tenners, bar eighty-two, breath after the comma.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.9412268750020303,
+  "usd": 0.0025049,
+  "output_tokens": 203,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Breath at 82",
+    "Breath at 82",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Breath at 82",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t17",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "A",
+  "text": "So pranos, from forty-four to forty-eight, lay gato, one line.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "listed",
+  "reply": "[{\"position\": \"range\", \"bar_from\": 44, \"bar_to\": 48, \"audience\": [\"part:Soprano\"], \"kind\": \"marking\", \"text\": \"legato 44-48, one line\", \"quote\": \"So pranos, from forty-four to forty-eight, lay gato, one line.\", \"confidence\": 0.6}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 44,
+    "bar_to": 48,
+    "audience": [
+     "part:Soprano"
+    ],
+    "kind": "marking",
+    "text": "legato 44-48, one line",
+    "quote": "So pranos, from forty-four to forty-eight, lay gato, one line.",
+    "confidence": 0.6
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.7818077499978244,
+  "usd": 0.00437275,
+  "output_tokens": 413,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "legato 44–48",
+    "legato 44-48, one line",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.6,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "legato 44-48, one line",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t18",
+  "cat": "terms",
+  "diff": 1,
+  "fix": "A",
+  "text": "Everybody, bar two hundred, fur mata on the last beat.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "unlisted",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 200, \"bar_to\": 200, \"audience\": [\"ensemble\"], \"kind\": \"marking\", \"text\": \"Fermata on last beat at bar 200\", \"quote\": \"Everybody, bar two hundred, fur mata on the last beat.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 200,
+    "bar_to": 200,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "marking",
+    "text": "Fermata on last beat at bar 200",
+    "quote": "Everybody, bar two hundred, fur mata on the last beat.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.058578915981343,
+  "usd": 0.00124925,
+  "output_tokens": 172,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Fermata at 200",
+    "Fermata on last beat at bar 200",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Fermata on last beat at bar 200",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t19",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "A",
+  "text": "Fiddles, bar nine, up bar, both of you.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "unlisted",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 9, \"bar_to\": 9, \"audience\": [\"part:Violin I\", \"part:Violin II\"], \"kind\": \"bowing\", \"text\": \"Up bow at bar 9\", \"quote\": \"Fiddles, bar nine, up bar, both of you.\", \"confidence\": 0.9}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 9,
+    "bar_to": 9,
+    "audience": [
+     "part:Violin I",
+     "part:Violin II"
+    ],
+    "kind": "bowing",
+    "text": "Up bow at bar 9",
+    "quote": "Fiddles, bar nine, up bar, both of you.",
+    "confidence": 0.9
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.3683252909977455,
+  "usd": 0.001659,
+  "output_tokens": 269,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Up bow at 9",
+    "Up bow at bar 9",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.9,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Up bow at bar 9",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t20",
+  "cat": "terms",
+  "diff": 3,
+  "fix": "A",
+  "text": "Second violence, bar one-fifty, ritter dando, poco a poco.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "unlisted",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 150, \"bar_to\": 150, \"audience\": [\"part:Violin II\"], \"kind\": \"text\", \"text\": \"rit. poco a poco at bar 150\", \"quote\": \"Second violence, bar one-fifty, ritter dando, poco a poco.\", \"confidence\": 0.85}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 150,
+    "bar_to": 150,
+    "audience": [
+     "part:Violin II"
+    ],
+    "kind": "text",
+    "text": "rit. poco a poco at bar 150",
+    "quote": "Second violence, bar one-fifty, ritter dando, poco a poco.",
+    "confidence": 0.85
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.6812122500268742,
+  "usd": 0.001851,
+  "output_tokens": 313,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "poco a poco rit. at 150",
+    "rit. poco a poco at bar 150",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.85,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "rit. poco a poco at bar 150",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t21",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "A",
+  "text": "Cellos, bar eighty, at the heel, down bough.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "unlisted",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 80, \"bar_to\": 80, \"audience\": [\"part:Cello\"], \"kind\": \"bowing\", \"text\": \"Down bow at heel, bar 80\", \"quote\": \"Cellos, bar eighty, at the heel, down bough.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 80,
+    "bar_to": 80,
+    "audience": [
+     "part:Cello"
+    ],
+    "kind": "bowing",
+    "text": "Down bow at heel, bar 80",
+    "quote": "Cellos, bar eighty, at the heel, down bough.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.9038279579835944,
+  "usd": 0.0025116500000000003,
+  "output_tokens": 204,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Down bow at 80",
+    "Down bow at heel, bar 80",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Down bow at heel, bar 80",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t22",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "A",
+  "text": "In-ezz, bar fifty-seven, that's pizza cutter, not arco.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "listed",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 57, \"bar_to\": 57, \"audience\": [\"member:In\\u00e8s\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 57, not arco\", \"quote\": \"In-ezz, bar fifty-seven, that's pizza cutter, not arco.\", \"confidence\": 0.85}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 57,
+    "bar_to": 57,
+    "audience": [
+     "member:Inès"
+    ],
+    "kind": "marking",
+    "text": "pizz. at bar 57, not arco",
+    "quote": "In-ezz, bar fifty-seven, that's pizza cutter, not arco.",
+    "confidence": 0.85
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.3297654580092058,
+  "usd": 0.00384625,
+  "output_tokens": 290,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "pizz. at 57",
+    "pizz. at bar 57, not arco",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.85,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "pizz. at bar 57, not arco",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t23",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "B",
+  "text": "Clarinets, bar ninety, stuck auto.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "listed",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 90, \"bar_to\": 90, \"audience\": [\"part:Clarinet\"], \"kind\": \"marking\", \"text\": \"stacc. at bar 90\", \"quote\": \"Clarinets, bar ninety, stuck auto.\", \"confidence\": 0.85}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 90,
+    "bar_to": 90,
+    "audience": [
+     "part:Clarinet"
+    ],
+    "kind": "marking",
+    "text": "stacc. at bar 90",
+    "quote": "Clarinets, bar ninety, stuck auto.",
+    "confidence": 0.85
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.442545166995842,
+  "usd": 0.00397175,
+  "output_tokens": 296,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "stacc. at 90",
+    "stacc. at bar 90",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.85,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "stacc. at bar 90",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t24",
+  "cat": "terms",
+  "diff": 2,
+  "fix": "B",
+  "text": "Horns, bar forty-one, spores and oh on the entry, and the timp knee too.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "listed",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 41, \"bar_to\": 41, \"audience\": [\"part:Horn\"], \"kind\": \"dynamic\", \"text\": \"sfz at bar 41\", \"quote\": \"Horns, bar forty-one, spores and oh on the entry, and the timp knee too.\", \"confidence\": 0.8}, {\"position\": \"bar\", \"bar_from\": 41, \"bar_to\": 41, \"audience\": [\"part:Timpani\"], \"kind\": \"dynamic\", \"text\": \"sfz at bar 41\", \"quote\": \"Horns, bar forty-one, spores and oh on the entry, and the timp knee too.\", \"confidence\": 0.75}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 41,
+    "bar_to": 41,
+    "audience": [
+     "part:Horn"
+    ],
+    "kind": "dynamic",
+    "text": "sfz at bar 41",
+    "quote": "Horns, bar forty-one, spores and oh on the entry, and the timp knee too.",
+    "confidence": 0.8
+   },
+   {
+    "position": "bar",
+    "bar_from": 41,
+    "bar_to": 41,
+    "audience": [
+     "part:Timpani"
+    ],
+    "kind": "dynamic",
+    "text": "sfz at bar 41",
+    "quote": "Horns, bar forty-one, spores and oh on the entry, and the timp knee too.",
+    "confidence": 0.75
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.5265165000164416,
+  "usd": 0.00481175,
+  "output_tokens": 491,
+  "produced": true,
+  "answer_index": 1,
+  "n_produced": 2,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   },
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "sfz at 41",
+    "sfz at bar 41",
+    true
+   ],
+   [
+    "sfz at 41",
+    "sfz at bar 41",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.8,
+    true
+   ],
+   [
+    0.75,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "sfz at bar 41",
+    true,
+    []
+   ],
+   [
+    "sfz at bar 41",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "t25",
+  "cat": "terms",
+  "diff": 3,
+  "fix": "B",
+  "text": "Double basses, bar two-twenty, arc oh after the pizza cutter bit.",
+  "instruction": true,
+  "none_ok": false,
+  "term": "listed",
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 220, \"bar_to\": 220, \"audience\": [\"part:Double Bass\"], \"kind\": \"marking\", \"text\": \"arco at bar 220\", \"quote\": \"Double basses, bar two-twenty, arc oh after the pizza cutter bit.\", \"confidence\": 0.9}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 220,
+    "bar_to": 220,
+    "audience": [
+     "part:Double Bass"
+    ],
+    "kind": "marking",
+    "text": "arco at bar 220",
+    "quote": "Double basses, bar two-twenty, arc oh after the pizza cutter bit.",
+    "confidence": 0.9
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.0405812499811873,
+  "usd": 0.003598,
+  "output_tokens": 206,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "arco at 220",
+    "arco at bar 220",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.9,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "arco at bar 220",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm01",
+  "cat": "landmark",
+  "diff": 1,
+  "fix": "A",
+  "text": "Everyone, two after the key change, forte.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 99, \"bar_to\": 99, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"f at bar 99\", \"quote\": \"Everyone, two after the key change, forte.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 99,
+    "bar_to": 99,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "dynamic",
+    "text": "f at bar 99",
+    "quote": "Everyone, two after the key change, forte.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.0124578749819193,
+  "usd": 0.00329725,
+  "output_tokens": 162,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "f at 99",
+    "f at bar 99",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "f at bar 99",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm02",
+  "cat": "landmark",
+  "diff": 2,
+  "fix": "A",
+  "text": "Cellos, the bar before the double bar, ritard.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 64, \"bar_to\": 64, \"audience\": [\"part:Cello\"], \"kind\": \"text\", \"text\": \"rit. at 64\", \"quote\": \"Cellos, the bar before the double bar, ritard.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 64,
+    "bar_to": 64,
+    "audience": [
+     "part:Cello"
+    ],
+    "kind": "text",
+    "text": "rit. at 64",
+    "quote": "Cellos, the bar before the double bar, ritard.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.7162983750167768,
+  "usd": 0.0023191500000000003,
+  "output_tokens": 159,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "rit. at 64",
+    "rit. at 64",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "rit. at 64",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm03",
+  "cat": "landmark",
+  "diff": 1,
+  "fix": "A",
+  "text": "From the coda, everybody pianissimo.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"range\", \"bar_from\": 221, \"bar_to\": null, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"pp from coda (221)\", \"quote\": \"From the coda, everybody pianissimo.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 221,
+    "bar_to": null,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "dynamic",
+    "text": "pp from coda (221)",
+    "quote": "From the coda, everybody pianissimo.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.4428569999872707,
+  "usd": 0.00197825,
+  "output_tokens": 345,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "pp from the coda",
+    "pp from coda (221)",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "pp from coda (221)",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm04",
+  "cat": "landmark",
+  "diff": 2,
+  "fix": "A",
+  "text": "Violas, in the slow section, play it with a mute.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"range\", \"bar_from\": 121, \"bar_to\": 160, \"audience\": [\"part:Viola\"], \"kind\": \"marking\", \"text\": \"con sord. 121\\u2013160\", \"quote\": \"Violas, in the slow section, play it with a mute.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 121,
+    "bar_to": 160,
+    "audience": [
+     "part:Viola"
+    ],
+    "kind": "marking",
+    "text": "con sord. 121–160",
+    "quote": "Violas, in the slow section, play it with a mute.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.3045632089779247,
+  "usd": 0.0018995,
+  "output_tokens": 325,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Mute 121–160",
+    "con sord. 121–160",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "con sord. 121–160",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm05",
+  "cat": "landmark",
+  "diff": 2,
+  "fix": "A",
+  "text": "Sopranos, first bar of the Adagio, breathe before you come in.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 121, \"bar_to\": 121, \"audience\": [\"part:Soprano\"], \"kind\": \"breath\", \"text\": \"Breath at 121\", \"quote\": \"Sopranos, first bar of the Adagio, breathe before you come in.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 121,
+    "bar_to": 121,
+    "audience": [
+     "part:Soprano"
+    ],
+    "kind": "breath",
+    "text": "Breath at 121",
+    "quote": "Sopranos, first bar of the Adagio, breathe before you come in.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.3521750420040917,
+  "usd": 0.001899,
+  "output_tokens": 324,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Breath before 121",
+    "Breath at 121",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Breath at 121",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm06",
+  "cat": "landmark",
+  "diff": 2,
+  "fix": "A",
+  "text": "At the segno, everybody, mezzo piano.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 17, \"bar_to\": 17, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"mp at bar 17\", \"quote\": \"At the segno, everybody, mezzo piano.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 17,
+    "bar_to": 17,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "dynamic",
+    "text": "mp at bar 17",
+    "quote": "At the segno, everybody, mezzo piano.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.0433725420152768,
+  "usd": 0.0024756500000000002,
+  "output_tokens": 197,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "mp at 17",
+    "mp at bar 17",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "mp at bar 17",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm07",
+  "cat": "landmark",
+  "diff": 3,
+  "fix": "A",
+  "text": "Seconds, three bars before the coda, that's where you come in, mark it.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 218, \"bar_to\": 218, \"audience\": [\"part:Violin II\"], \"kind\": \"text\", \"text\": \"Entry at 218\", \"quote\": \"Seconds, three bars before the coda, that's where you come in, mark it.\", \"confidence\": 0.9}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 218,
+    "bar_to": 218,
+    "audience": [
+     "part:Violin II"
+    ],
+    "kind": "text",
+    "text": "Entry at 218",
+    "quote": "Seconds, three bars before the coda, that's where you come in, mark it.",
+    "confidence": 0.9
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.328710708010476,
+  "usd": 0.003694,
+  "output_tokens": 253,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Entry at 218",
+    "Entry at 218",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.9,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Entry at 218",
+    false,
+    [
+     "entry"
+    ]
+   ]
+  ]
+ },
+ {
+  "id": "lm08",
+  "cat": "landmark",
+  "diff": 2,
+  "fix": "A",
+  "text": "Everyone, the last two bars before the key change, crescendo.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"range\", \"bar_from\": 95, \"bar_to\": 96, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"cresc. 95\\u201396\", \"quote\": \"Everyone, the last two bars before the key change, crescendo.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 95,
+    "bar_to": 96,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "dynamic",
+    "text": "cresc. 95–96",
+    "quote": "Everyone, the last two bars before the key change, crescendo.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.8184188749874011,
+  "usd": 0.00228215,
+  "output_tokens": 150,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "cresc. 95–96",
+    "cresc. 95–96",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "cresc. 95–96",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm09",
+  "cat": "landmark",
+  "diff": 2,
+  "fix": "A",
+  "text": "Basses, at Tempo primo, back in tempo, don't drag.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 161, \"bar_to\": 161, \"audience\": [\"part:Bass\"], \"kind\": \"text\", \"text\": \"In tempo at 161 (Tempo primo), don't drag\", \"quote\": \"Basses, at Tempo primo, back in tempo, don't drag.\", \"confidence\": 0.9}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 161,
+    "bar_to": 161,
+    "audience": [
+     "part:Bass"
+    ],
+    "kind": "text",
+    "text": "In tempo at 161 (Tempo primo), don't drag",
+    "quote": "Basses, at Tempo primo, back in tempo, don't drag.",
+    "confidence": 0.9
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.2136657499941066,
+  "usd": 0.001707,
+  "output_tokens": 280,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Tempo I at 161, don't drag",
+    "In tempo at 161 (Tempo primo), don't drag",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.9,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "In tempo at 161 (Tempo primo), don't drag",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm10",
+  "cat": "landmark",
+  "diff": 3,
+  "fix": "A",
+  "text": "Tenors, from the double bar to the key change, it's all mezzo forte.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"range\", \"bar_from\": 65, \"bar_to\": 97, \"audience\": [\"part:Tenor\"], \"kind\": \"dynamic\", \"text\": \"mf 65-97\", \"quote\": \"Tenors, from the double bar to the key change, it's all mezzo forte.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 65,
+    "bar_to": 97,
+    "audience": [
+     "part:Tenor"
+    ],
+    "kind": "dynamic",
+    "text": "mf 65-97",
+    "quote": "Tenors, from the double bar to the key change, it's all mezzo forte.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.5419744579994585,
+  "usd": 0.0019415,
+  "output_tokens": 334,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "mf 65–96",
+    "mf 65-97",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "mf 65-97",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm11",
+  "cat": "landmark",
+  "diff": 3,
+  "fix": "A",
+  "text": "From the To Coda sign we jump straight to the coda, everybody.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"range\", \"bar_from\": 200, \"bar_to\": 221, \"audience\": [\"ensemble\"], \"kind\": \"cut\", \"text\": \"At 200 jump to coda (221)\", \"quote\": \"From the To Coda sign we jump straight to the coda, everybody.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 200,
+    "bar_to": 221,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "cut",
+    "text": "At 200 jump to coda (221)",
+    "quote": "From the To Coda sign we jump straight to the coda, everybody.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 3.1056340409850236,
+  "usd": 0.0042949,
+  "output_tokens": 623,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Cut 201–220, to coda",
+    "At 200 jump to coda (221)",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "At 200 jump to coda (221)",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm12",
+  "cat": "landmark",
+  "diff": 2,
+  "fix": "A",
+  "text": "Firsts, the bar after the double bar, up bow.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 65, \"bar_to\": 65, \"audience\": [\"part:Violin I\"], \"kind\": \"bowing\", \"text\": \"Up bow at bar 65\", \"quote\": \"Firsts, the bar after the double bar, up bow.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 65,
+    "bar_to": 65,
+    "audience": [
+     "part:Violin I"
+    ],
+    "kind": "bowing",
+    "text": "Up bow at bar 65",
+    "quote": "Firsts, the bar after the double bar, up bow.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.741038167005172,
+  "usd": 0.0022809,
+  "output_tokens": 150,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Up bow at 65",
+    "Up bow at bar 65",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Up bow at bar 65",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm13",
+  "cat": "landmark",
+  "diff": 1,
+  "fix": "A",
+  "text": "Everyone, last bar of the slow section, fermata.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 160, \"bar_to\": 160, \"audience\": [\"ensemble\"], \"kind\": \"marking\", \"text\": \"fermata at bar 160\", \"quote\": \"Everyone, last bar of the slow section, fermata.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 160,
+    "bar_to": 160,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "marking",
+    "text": "fermata at bar 160",
+    "quote": "Everyone, last bar of the slow section, fermata.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.7571230830217246,
+  "usd": 0.00121275,
+  "output_tokens": 164,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Fermata at 160",
+    "fermata at bar 160",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "fermata at bar 160",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm14",
+  "cat": "landmark",
+  "diff": 3,
+  "fix": "A",
+  "text": "Altos, one before the segno, that's your pickup, mark it.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 16, \"bar_to\": 16, \"audience\": [\"part:Alto\"], \"kind\": \"text\", \"text\": \"Entry at bar 16\", \"quote\": \"Altos, one before the segno, that's your pickup, mark it.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 16,
+    "bar_to": 16,
+    "audience": [
+     "part:Alto"
+    ],
+    "kind": "text",
+    "text": "Entry at bar 16",
+    "quote": "Altos, one before the segno, that's your pickup, mark it.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.8218835830048192,
+  "usd": 0.0014035,
+  "output_tokens": 208,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Pickup at 16",
+    "Entry at bar 16",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Entry at bar 16",
+    false,
+    [
+     "entry"
+    ]
+   ]
+  ]
+ },
+ {
+  "id": "lm15",
+  "cat": "landmark",
+  "diff": 2,
+  "fix": "B",
+  "text": "Piano, the bar before the double bar, ritardando, take your time.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 150, \"bar_to\": 150, \"audience\": [\"part:Piano\"], \"kind\": \"text\", \"text\": \"rit. at bar 150\", \"quote\": \"Piano, the bar before the double bar, ritardando, take your time.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 150,
+    "bar_to": 150,
+    "audience": [
+     "part:Piano"
+    ],
+    "kind": "text",
+    "text": "rit. at bar 150",
+    "quote": "Piano, the bar before the double bar, ritardando, take your time.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.9742312909802422,
+  "usd": 0.00362775,
+  "output_tokens": 213,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "rit. at 150",
+    "rit. at bar 150",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "rit. at bar 150",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm16",
+  "cat": "landmark",
+  "diff": 2,
+  "fix": "B",
+  "text": "Strings, two after the key change, pizz.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 77, \"bar_to\": 77, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\", \"part:Double Bass\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 77\", \"quote\": \"Strings, two after the key change, pizz.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 77,
+    "bar_to": 77,
+    "audience": [
+     "part:Violin I",
+     "part:Violin II",
+     "part:Viola",
+     "part:Cello",
+     "part:Double Bass"
+    ],
+    "kind": "marking",
+    "text": "pizz. at bar 77",
+    "quote": "Strings, two after the key change, pizz.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.3609323340060655,
+  "usd": 0.004095,
+  "output_tokens": 325,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "pizz. at 77",
+    "pizz. at bar 77",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "pizz. at bar 77",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm17",
+  "cat": "landmark",
+  "diff": 2,
+  "fix": "B",
+  "text": "Oboe, in the slow section, you lead, a bit louder.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"range\", \"bar_from\": 151, \"bar_to\": 210, \"audience\": [\"part:Oboe\"], \"kind\": \"dynamic\", \"text\": \"Lead, louder in slow section 151-210\", \"quote\": \"Oboe, in the slow section, you lead, a bit louder.\", \"confidence\": 0.85}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 151,
+    "bar_to": 210,
+    "audience": [
+     "part:Oboe"
+    ],
+    "kind": "dynamic",
+    "text": "Lead, louder in slow section 151-210",
+    "quote": "Oboe, in the slow section, you lead, a bit louder.",
+    "confidence": 0.85
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.1505795829871204,
+  "usd": 0.003692,
+  "output_tokens": 229,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Lead, louder 151–210",
+    "Lead, louder in slow section 151-210",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.85,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Lead, louder in slow section 151-210",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm18",
+  "cat": "landmark",
+  "diff": 2,
+  "fix": "B",
+  "text": "Mei, at the cadenza, take all the time you want.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 268, \"bar_to\": 268, \"audience\": [\"member:Mei\"], \"kind\": \"text\", \"text\": \"Take time at cadenza, bar 268\", \"quote\": \"Mei, at the cadenza, take all the time you want.\", \"confidence\": 0.9}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 268,
+    "bar_to": 268,
+    "audience": [
+     "member:Mei"
+    ],
+    "kind": "text",
+    "text": "Take time at cadenza, bar 268",
+    "quote": "Mei, at the cadenza, take all the time you want.",
+    "confidence": 0.9
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.0060734579747077,
+  "usd": 0.003672,
+  "output_tokens": 224,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Cadenza: take time",
+    "Take time at cadenza, bar 268",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.9,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Take time at cadenza, bar 268",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm19",
+  "cat": "landmark",
+  "diff": 1,
+  "fix": "B",
+  "text": "Everyone, from the coda, fortissimo.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"range\", \"bar_from\": 281, \"bar_to\": 312, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"ff from coda (281)\", \"quote\": \"Everyone, from the coda, fortissimo.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 281,
+    "bar_to": 312,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "dynamic",
+    "text": "ff from coda (281)",
+    "quote": "Everyone, from the coda, fortissimo.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.5770192080235574,
+  "usd": 0.00318115,
+  "output_tokens": 338,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "ff from the coda",
+    "ff from coda (281)",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "ff from coda (281)",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "lm20",
+  "cat": "landmark",
+  "diff": 3,
+  "fix": "B",
+  "text": "Horns, at the Allegro after the slow section, you're back to forte, and timpani with them.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 211, \"bar_to\": 211, \"audience\": [\"part:Horn\"], \"kind\": \"dynamic\", \"text\": \"f at 211 (Allegro)\", \"quote\": \"Horns, at the Allegro after the slow section, you're back to forte, and timpani with them.\", \"confidence\": 0.9}, {\"position\": \"bar\", \"bar_from\": 211, \"bar_to\": 211, \"audience\": [\"part:Timpani\"], \"kind\": \"dynamic\", \"text\": \"f at 211 (Allegro)\", \"quote\": \"Horns, at the Allegro after the slow section, you're back to forte, and timpani with them.\", \"confidence\": 0.9}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 211,
+    "bar_to": 211,
+    "audience": [
+     "part:Horn"
+    ],
+    "kind": "dynamic",
+    "text": "f at 211 (Allegro)",
+    "quote": "Horns, at the Allegro after the slow section, you're back to forte, and timpani with them.",
+    "confidence": 0.9
+   },
+   {
+    "position": "bar",
+    "bar_from": 211,
+    "bar_to": 211,
+    "audience": [
+     "part:Timpani"
+    ],
+    "kind": "dynamic",
+    "text": "f at 211 (Allegro)",
+    "quote": "Horns, at the Allegro after the slow section, you're back to forte, and timpani with them.",
+    "confidence": 0.9
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.8954319579934236,
+  "usd": 0.00498125,
+  "output_tokens": 530,
+  "produced": true,
+  "answer_index": 1,
+  "n_produced": 2,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   },
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "f at 211",
+    "f at 211 (Allegro)",
+    true
+   ],
+   [
+    "f at 211",
+    "f at 211 (Allegro)",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.9,
+    true
+   ],
+   [
+    0.9,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "f at 211 (Allegro)",
+    true,
+    []
+   ],
+   [
+    "f at 211 (Allegro)",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "g01",
+  "cat": "group",
+  "diff": 1,
+  "fix": "A",
+  "text": "Everyone except the violas, bar thirty, piano.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 30, \"bar_to\": 30, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Cello\"], \"kind\": \"dynamic\", \"text\": \"p at bar 30\", \"quote\": \"Everyone except the violas, bar thirty, piano.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 30,
+    "bar_to": 30,
+    "audience": [
+     "part:Violin I",
+     "part:Violin II",
+     "part:Cello"
+    ],
+    "kind": "dynamic",
+    "text": "p at bar 30",
+    "quote": "Everyone except the violas, bar thirty, piano.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.587868458009325,
+  "usd": 0.004259,
+  "output_tokens": 388,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "p at 30",
+    "p at bar 30",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "p at bar 30",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "g02",
+  "cat": "group",
+  "diff": 2,
+  "fix": "A",
+  "text": "Strings, bar seventy, pizz.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 70, \"bar_to\": 70, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\"], \"kind\": \"marking\", \"text\": \"pizz. at bar 70\", \"quote\": \"Strings, bar seventy, pizz.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 70,
+    "bar_to": 70,
+    "audience": [
+     "part:Violin I",
+     "part:Violin II",
+     "part:Viola",
+     "part:Cello"
+    ],
+    "kind": "marking",
+    "text": "pizz. at bar 70",
+    "quote": "Strings, bar seventy, pizz.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.8802108750096522,
+  "usd": 0.00346775,
+  "output_tokens": 203,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "pizz. at 70",
+    "pizz. at bar 70",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "pizz. at bar 70",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "g03",
+  "cat": "group",
+  "diff": 2,
+  "fix": "A",
+  "text": "The choir, bar one-oh-five, everyone but the basses, crescendo.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 105, \"bar_to\": 105, \"audience\": [\"part:Soprano\", \"part:Alto\", \"part:Tenor\"], \"kind\": \"dynamic\", \"text\": \"cresc. at 105\", \"quote\": \"The choir, bar one-oh-five, everyone but the basses, crescendo.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 105,
+    "bar_to": 105,
+    "audience": [
+     "part:Soprano",
+     "part:Alto",
+     "part:Tenor"
+    ],
+    "kind": "dynamic",
+    "text": "cresc. at 105",
+    "quote": "The choir, bar one-oh-five, everyone but the basses, crescendo.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.363935166009469,
+  "usd": 0.00189775,
+  "output_tokens": 324,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "cresc. at 105",
+    "cresc. at 105",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "cresc. at 105",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "g04",
+  "cat": "group",
+  "diff": 2,
+  "fix": "A",
+  "text": "Sopranos, bring it out at fifty, everyone else back off.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Soprano\"], \"kind\": \"dynamic\", \"text\": \"Bring out at 50\", \"quote\": \"Sopranos, bring it out at fifty, everyone else back off.\", \"confidence\": 0.9}, {\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Alto\", \"part:Tenor\", \"part:Bass\"], \"kind\": \"dynamic\", \"text\": \"Back off at 50\", \"quote\": \"Sopranos, bring it out at fifty, everyone else back off.\", \"confidence\": 0.9}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 50,
+    "bar_to": 50,
+    "audience": [
+     "part:Soprano"
+    ],
+    "kind": "dynamic",
+    "text": "Bring out at 50",
+    "quote": "Sopranos, bring it out at fifty, everyone else back off.",
+    "confidence": 0.9
+   },
+   {
+    "position": "bar",
+    "bar_from": 50,
+    "bar_to": 50,
+    "audience": [
+     "part:Alto",
+     "part:Tenor",
+     "part:Bass"
+    ],
+    "kind": "dynamic",
+    "text": "Back off at 50",
+    "quote": "Sopranos, bring it out at fifty, everyone else back off.",
+    "confidence": 0.9
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.8511911669920664,
+  "usd": 0.00245325,
+  "output_tokens": 455,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 2,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   },
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Bring out at 50",
+    "Bring out at 50",
+    true
+   ],
+   [
+    "Back off at 50",
+    "Back off at 50",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.9,
+    true
+   ],
+   [
+    0.9,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Bring out at 50",
+    true,
+    []
+   ],
+   [
+    "Back off at 50",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "g05",
+  "cat": "group",
+  "diff": 3,
+  "fix": "A",
+  "text": "Voices, bar one-thirty, all of you except tenors, staccato.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 130, \"bar_to\": 130, \"audience\": [\"part:Soprano\", \"part:Alto\", \"part:Bass\"], \"kind\": \"marking\", \"text\": \"staccato at bar 130\", \"quote\": \"Voices, bar one-thirty, all of you except tenors, staccato.\", \"confidence\": 0.98}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 130,
+    "bar_to": 130,
+    "audience": [
+     "part:Soprano",
+     "part:Alto",
+     "part:Bass"
+    ],
+    "kind": "marking",
+    "text": "staccato at bar 130",
+    "quote": "Voices, bar one-thirty, all of you except tenors, staccato.",
+    "confidence": 0.98
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.0917529170110356,
+  "usd": 0.003776,
+  "output_tokens": 272,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "stacc. at 130",
+    "staccato at bar 130",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.98,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "staccato at bar 130",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "g06",
+  "cat": "group",
+  "diff": 2,
+  "fix": "A",
+  "text": "All the strings except the cellos, from one-eighty, mute.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"range\", \"bar_from\": 180, \"bar_to\": null, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\"], \"kind\": \"marking\", \"text\": \"mute from 180\", \"quote\": \"All the strings except the cellos, from one-eighty, mute.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 180,
+    "bar_to": null,
+    "audience": [
+     "part:Violin I",
+     "part:Violin II",
+     "part:Viola"
+    ],
+    "kind": "marking",
+    "text": "mute from 180",
+    "quote": "All the strings except the cellos, from one-eighty, mute.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.295464875001926,
+  "usd": 0.004145,
+  "output_tokens": 360,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Mute from 180",
+    "mute from 180",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "mute from 180",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "g07",
+  "cat": "group",
+  "diff": 1,
+  "fix": "B",
+  "text": "Everyone except the piano, bar twenty, softer.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 20, \"bar_to\": 20, \"audience\": [\"part:Flute\", \"part:Oboe\", \"part:Clarinet\", \"part:Bassoon\", \"part:Horn\", \"part:Trumpet\", \"part:Timpani\", \"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\", \"part:Double Bass\"], \"kind\": \"dynamic\", \"text\": \"softer at bar 20\", \"quote\": \"Everyone except the piano, bar twenty, softer.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 20,
+    "bar_to": 20,
+    "audience": [
+     "part:Flute",
+     "part:Oboe",
+     "part:Clarinet",
+     "part:Bassoon",
+     "part:Horn",
+     "part:Trumpet",
+     "part:Timpani",
+     "part:Violin I",
+     "part:Violin II",
+     "part:Viola",
+     "part:Cello",
+     "part:Double Bass"
+    ],
+    "kind": "dynamic",
+    "text": "softer at bar 20",
+    "quote": "Everyone except the piano, bar twenty, softer.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.8756017920095474,
+  "usd": 0.00494925,
+  "output_tokens": 526,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Softer at 20",
+    "softer at bar 20",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "softer at bar 20",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "g08",
+  "cat": "group",
+  "diff": 3,
+  "fix": "B",
+  "text": "Orchestra, bar fifty, mezzo forte, piano stays forte.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Flute\", \"part:Oboe\", \"part:Clarinet\", \"part:Bassoon\", \"part:Horn\", \"part:Trumpet\", \"part:Timpani\", \"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\", \"part:Double Bass\"], \"kind\": \"dynamic\", \"text\": \"mf at bar 50\", \"quote\": \"Orchestra, bar fifty, mezzo forte,\", \"confidence\": 0.95}, {\"position\": \"bar\", \"bar_from\": 50, \"bar_to\": 50, \"audience\": [\"part:Piano\"], \"kind\": \"dynamic\", \"text\": \"stays f at bar 50\", \"quote\": \"piano stays forte.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 50,
+    "bar_to": 50,
+    "audience": [
+     "part:Flute",
+     "part:Oboe",
+     "part:Clarinet",
+     "part:Bassoon",
+     "part:Horn",
+     "part:Trumpet",
+     "part:Timpani",
+     "part:Violin I",
+     "part:Violin II",
+     "part:Viola",
+     "part:Cello",
+     "part:Double Bass"
+    ],
+    "kind": "dynamic",
+    "text": "mf at bar 50",
+    "quote": "Orchestra, bar fifty, mezzo forte,",
+    "confidence": 0.95
+   },
+   {
+    "position": "bar",
+    "bar_from": 50,
+    "bar_to": 50,
+    "audience": [
+     "part:Piano"
+    ],
+    "kind": "dynamic",
+    "text": "stays f at bar 50",
+    "quote": "piano stays forte.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.951978874974884,
+  "usd": 0.00488075,
+  "output_tokens": 509,
+  "produced": true,
+  "answer_index": 1,
+  "n_produced": 2,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   },
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "mf at 50",
+    "mf at bar 50",
+    true
+   ],
+   [
+    "f at 50",
+    "stays f at bar 50",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ],
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "mf at bar 50",
+    true,
+    []
+   ],
+   [
+    "stays f at bar 50",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "g09",
+  "cat": "group",
+  "diff": 2,
+  "fix": "B",
+  "text": "Woodwinds, bar ninety-two, breath before the phrase.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 92, \"bar_to\": 92, \"audience\": [\"part:Flute\", \"part:Oboe\", \"part:Clarinet\", \"part:Bassoon\"], \"kind\": \"breath\", \"text\": \"Breath at bar 92\", \"quote\": \"Woodwinds, bar ninety-two, breath before the phrase.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 92,
+    "bar_to": 92,
+    "audience": [
+     "part:Flute",
+     "part:Oboe",
+     "part:Clarinet",
+     "part:Bassoon"
+    ],
+    "kind": "breath",
+    "text": "Breath at bar 92",
+    "quote": "Woodwinds, bar ninety-two, breath before the phrase.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.6973287090077065,
+  "usd": 0.00352075,
+  "output_tokens": 189,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Breath at 92",
+    "Breath at bar 92",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Breath at bar 92",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "g10",
+  "cat": "group",
+  "diff": 2,
+  "fix": "B",
+  "text": "Strings except the basses, bar one-forty, down bow.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 140, \"bar_to\": 140, \"audience\": [\"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\"], \"kind\": \"bowing\", \"text\": \"Down bow at bar 140\", \"quote\": \"Strings except the basses, bar one-forty, down bow.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 140,
+    "bar_to": 140,
+    "audience": [
+     "part:Violin I",
+     "part:Violin II",
+     "part:Viola",
+     "part:Cello"
+    ],
+    "kind": "bowing",
+    "text": "Down bow at bar 140",
+    "quote": "Strings except the basses, bar one-forty, down bow.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.8864544999960344,
+  "usd": 0.00392575,
+  "output_tokens": 284,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Down bow at 140",
+    "Down bow at bar 140",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Down bow at bar 140",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "g11",
+  "cat": "group",
+  "diff": 2,
+  "fix": "B",
+  "text": "Everybody but the soloist, from one-sixty to one-seventy, diminuendo.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"range\", \"bar_from\": 160, \"bar_to\": 170, \"audience\": [\"part:Flute\", \"part:Oboe\", \"part:Clarinet\", \"part:Bassoon\", \"part:Horn\", \"part:Trumpet\", \"part:Timpani\", \"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\", \"part:Double Bass\"], \"kind\": \"dynamic\", \"text\": \"dim. 160-170\", \"quote\": \"Everybody but the soloist, from one-sixty to one-seventy, diminuendo.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 160,
+    "bar_to": 170,
+    "audience": [
+     "part:Flute",
+     "part:Oboe",
+     "part:Clarinet",
+     "part:Bassoon",
+     "part:Horn",
+     "part:Trumpet",
+     "part:Timpani",
+     "part:Violin I",
+     "part:Violin II",
+     "part:Viola",
+     "part:Cello",
+     "part:Double Bass"
+    ],
+    "kind": "dynamic",
+    "text": "dim. 160-170",
+    "quote": "Everybody but the soloist, from one-sixty to one-seventy, diminuendo.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 2.1820459160080645,
+  "usd": 0.0052495,
+  "output_tokens": 594,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "dim. 160–170",
+    "dim. 160-170",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "dim. 160-170",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "g12",
+  "cat": "group",
+  "diff": 3,
+  "fix": "B",
+  "text": "Brass and timpani, bar two-thirty, accent, the rest of the orchestra no accent.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 230, \"bar_to\": 230, \"audience\": [\"part:Horn\", \"part:Trumpet\", \"part:Timpani\"], \"kind\": \"marking\", \"text\": \"Accent at bar 230\", \"quote\": \"Brass and timpani, bar two-thirty, accent, the rest of the orchestra no accent.\", \"confidence\": 0.95}, {\"position\": \"bar\", \"bar_from\": 230, \"bar_to\": 230, \"audience\": [\"part:Flute\", \"part:Oboe\", \"part:Clarinet\", \"part:Bassoon\", \"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\", \"part:Double Bass\"], \"kind\": \"marking\", \"text\": \"No accent at bar 230\", \"quote\": \"Brass and timpani, bar two-thirty, accent, the rest of the orchestra no accent.\", \"confidence\": 0.9}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 230,
+    "bar_to": 230,
+    "audience": [
+     "part:Horn",
+     "part:Trumpet",
+     "part:Timpani"
+    ],
+    "kind": "marking",
+    "text": "Accent at bar 230",
+    "quote": "Brass and timpani, bar two-thirty, accent, the rest of the orchestra no accent.",
+    "confidence": 0.95
+   },
+   {
+    "position": "bar",
+    "bar_from": 230,
+    "bar_to": 230,
+    "audience": [
+     "part:Flute",
+     "part:Oboe",
+     "part:Clarinet",
+     "part:Bassoon",
+     "part:Violin I",
+     "part:Violin II",
+     "part:Viola",
+     "part:Cello",
+     "part:Double Bass"
+    ],
+    "kind": "marking",
+    "text": "No accent at bar 230",
+    "quote": "Brass and timpani, bar two-thirty, accent, the rest of the orchestra no accent.",
+    "confidence": 0.9
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.7715989999996964,
+  "usd": 0.0048865,
+  "output_tokens": 508,
+  "produced": true,
+  "answer_index": 1,
+  "n_produced": 2,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   },
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Accent at 230",
+    "Accent at bar 230",
+    true
+   ],
+   [
+    "No accent at 230",
+    "No accent at bar 230",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ],
+   [
+    0.9,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Accent at bar 230",
+    true,
+    []
+   ],
+   [
+    "No accent at bar 230",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "g13",
+  "cat": "group",
+  "diff": 2,
+  "fix": "B",
+  "text": "Everyone except the oboe, bar sixty, piano.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 60, \"bar_to\": 60, \"audience\": [\"part:Flute\", \"part:Clarinet\", \"part:Bassoon\", \"part:Horn\", \"part:Trumpet\", \"part:Timpani\", \"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\", \"part:Double Bass\"], \"kind\": \"dynamic\", \"text\": \"p at bar 60\", \"quote\": \"Everyone except the oboe, bar sixty, piano.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 60,
+    "bar_to": 60,
+    "audience": [
+     "part:Flute",
+     "part:Clarinet",
+     "part:Bassoon",
+     "part:Horn",
+     "part:Trumpet",
+     "part:Timpani",
+     "part:Violin I",
+     "part:Violin II",
+     "part:Viola",
+     "part:Cello",
+     "part:Double Bass"
+    ],
+    "kind": "dynamic",
+    "text": "p at bar 60",
+    "quote": "Everyone except the oboe, bar sixty, piano.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.9895565419865306,
+  "usd": 0.00486125,
+  "output_tokens": 505,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "p at 60",
+    "p at bar 60",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "p at bar 60",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "g14",
+  "cat": "group",
+  "diff": 2,
+  "fix": "B",
+  "text": "Cellos and basses, bar one-twelve, the low line, louder.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 112, \"bar_to\": 112, \"audience\": [\"part:Cello\", \"part:Double Bass\"], \"kind\": \"dynamic\", \"text\": \"Louder at bar 112\", \"quote\": \"Cellos and basses, bar one-twelve, the low line, louder.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 112,
+    "bar_to": 112,
+    "audience": [
+     "part:Cello",
+     "part:Double Bass"
+    ],
+    "kind": "dynamic",
+    "text": "Louder at bar 112",
+    "quote": "Cellos and basses, bar one-twelve, the low line, louder.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.1631146670260932,
+  "usd": 0.00365325,
+  "output_tokens": 219,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Louder at 112",
+    "Louder at bar 112",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Louder at bar 112",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "g15",
+  "cat": "group",
+  "diff": 3,
+  "fix": "B",
+  "text": "Violins only, everyone else in the strings rest, bar two-forty, tremolo.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 240, \"bar_to\": 240, \"audience\": [\"part:Violin I\", \"part:Violin II\"], \"kind\": \"marking\", \"text\": \"trem. at bar 240\", \"quote\": \"Violins only, everyone else in the strings rest, bar two-forty, tremolo.\", \"confidence\": 0.92}, {\"position\": \"bar\", \"bar_from\": 240, \"bar_to\": 240, \"audience\": [\"part:Viola\", \"part:Cello\", \"part:Double Bass\"], \"kind\": \"text\", \"text\": \"Rest at bar 240\", \"quote\": \"Violins only, everyone else in the strings rest, bar two-forty, tremolo.\", \"confidence\": 0.85}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 240,
+    "bar_to": 240,
+    "audience": [
+     "part:Violin I",
+     "part:Violin II"
+    ],
+    "kind": "marking",
+    "text": "trem. at bar 240",
+    "quote": "Violins only, everyone else in the strings rest, bar two-forty, tremolo.",
+    "confidence": 0.92
+   },
+   {
+    "position": "bar",
+    "bar_from": 240,
+    "bar_to": 240,
+    "audience": [
+     "part:Viola",
+     "part:Cello",
+     "part:Double Bass"
+    ],
+    "kind": "text",
+    "text": "Rest at bar 240",
+    "quote": "Violins only, everyone else in the strings rest, bar two-forty, tremolo.",
+    "confidence": 0.85
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.9491108339861967,
+  "usd": 0.004986,
+  "output_tokens": 532,
+  "produced": true,
+  "answer_index": 1,
+  "n_produced": 2,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   },
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "trem. at 240",
+    "trem. at bar 240",
+    true
+   ],
+   [
+    "Rest at 240",
+    "Rest at bar 240",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.92,
+    true
+   ],
+   [
+    0.85,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "trem. at bar 240",
+    true,
+    []
+   ],
+   [
+    "Rest at bar 240",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r01",
+  "cat": "ramble",
+  "diff": 2,
+  "fix": "A",
+  "text": "So, um, what I'd like, and this is really important, is the cellos at bar forty-six, can we, yeah, just a bit softer there.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 46, \"bar_to\": 46, \"audience\": [\"part:Cello\"], \"kind\": \"dynamic\", \"text\": \"softer at bar 46\", \"quote\": \"the cellos at bar forty-six, can we, yeah, just a bit softer there.\", \"confidence\": 0.85}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 46,
+    "bar_to": 46,
+    "audience": [
+     "part:Cello"
+    ],
+    "kind": "dynamic",
+    "text": "softer at bar 46",
+    "quote": "the cellos at bar forty-six, can we, yeah, just a bit softer there.",
+    "confidence": 0.85
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.7116491250053514,
+  "usd": 0.00117225,
+  "output_tokens": 148,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Softer at 46",
+    "softer at bar 46",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.85,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "softer at bar 46",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r02",
+  "cat": "ramble",
+  "diff": 2,
+  "fix": "A",
+  "text": "Violas, bar seventy, no, seventy-one, no, seventy is right, crescendo.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 70, \"bar_to\": 70, \"audience\": [\"part:Viola\"], \"kind\": \"dynamic\", \"text\": \"cresc. at bar 70\", \"quote\": \"Violas, bar seventy, no, seventy-one, no, seventy is right, crescendo.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 70,
+    "bar_to": 70,
+    "audience": [
+     "part:Viola"
+    ],
+    "kind": "dynamic",
+    "text": "cresc. at bar 70",
+    "quote": "Violas, bar seventy, no, seventy-one, no, seventy is right, crescendo.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.046861208975315,
+  "usd": 0.00153725,
+  "output_tokens": 238,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "cresc. at 70",
+    "cresc. at bar 70",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "cresc. at bar 70",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r03",
+  "cat": "ramble",
+  "diff": 3,
+  "fix": "A",
+  "text": "Okay, I know we've been at this for a while, and the tenors were lovely by the way, but sopranos, at eighty-four, I need a breath, after the word light, you know the spot.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 84, \"bar_to\": 84, \"audience\": [\"part:Soprano\"], \"kind\": \"breath\", \"text\": \"Breath at 84 after 'light'\", \"quote\": \"sopranos, at eighty-four, I need a breath, after the word light, you know the spot.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 84,
+    "bar_to": 84,
+    "audience": [
+     "part:Soprano"
+    ],
+    "kind": "breath",
+    "text": "Breath at 84 after 'light'",
+    "quote": "sopranos, at eighty-four, I need a breath, after the word light, you know the spot.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.0376376670028549,
+  "usd": 0.00154425,
+  "output_tokens": 232,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Breath after 'light', 84",
+    "Breath at 84 after 'light'",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Breath at 84 after 'light'",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r04",
+  "cat": "ramble",
+  "diff": 2,
+  "fix": "A",
+  "text": "Seconds, from twenty, sorry, firsts, from twenty to twenty-four, staccato.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"range\", \"bar_from\": 20, \"bar_to\": 24, \"audience\": [\"part:Violin I\"], \"kind\": \"marking\", \"text\": \"staccato 20-24\", \"quote\": \"Seconds, from twenty, sorry, firsts, from twenty to twenty-four, staccato.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 20,
+    "bar_to": 24,
+    "audience": [
+     "part:Violin I"
+    ],
+    "kind": "marking",
+    "text": "staccato 20-24",
+    "quote": "Seconds, from twenty, sorry, firsts, from twenty to twenty-four, staccato.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.11060429198551,
+  "usd": 0.00139275,
+  "output_tokens": 204,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "stacc. 20–24",
+    "staccato 20-24",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "staccato 20-24",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r05",
+  "cat": "ramble",
+  "diff": 2,
+  "fix": "A",
+  "text": "Everyone, bar one-oh-two, that's, um, that's a forte, not a fortissimo, just forte.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 102, \"bar_to\": 102, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"f at bar 102\", \"quote\": \"Everyone, bar one-oh-two, that's, um, that's a forte, not a fortissimo, just forte.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 102,
+    "bar_to": 102,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "dynamic",
+    "text": "f at bar 102",
+    "quote": "Everyone, bar one-oh-two, that's, um, that's a forte, not a fortissimo, just forte.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.843308707990218,
+  "usd": 0.00138375,
+  "output_tokens": 201,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "f at 102",
+    "f at bar 102",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "f at bar 102",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r06",
+  "cat": "ramble",
+  "diff": 3,
+  "fix": "A",
+  "text": "Right, so we're cutting, let me just check, yes, we're cutting one-thirty to one-thirty-seven, everybody, sorry, one-thirty to one-thirty-six.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"range\", \"bar_from\": 130, \"bar_to\": 136, \"audience\": [\"ensemble\"], \"kind\": \"cut\", \"text\": \"Cut 130\\u2013136\", \"quote\": \"Right, so we're cutting, let me just check, yes, we're cutting one-thirty to one-thirty-seven, everybody, sorry, one-thirty to one-thirty-six.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 130,
+    "bar_to": 136,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "cut",
+    "text": "Cut 130–136",
+    "quote": "Right, so we're cutting, let me just check, yes, we're cutting one-thirty to one-thirty-seven, everybody, sorry, one-thirty to one-thirty-six.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.3960594999953173,
+  "usd": 0.0027444,
+  "output_tokens": 252,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Cut 130–136",
+    "Cut 130–136",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Cut 130–136",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r07",
+  "cat": "ramble",
+  "diff": 2,
+  "fix": "A",
+  "text": "Basses, I keep saying this, and I'm not cross, but bar ninety, it's piano, please write it in.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 90, \"bar_to\": 90, \"audience\": [\"part:Bass\"], \"kind\": \"dynamic\", \"text\": \"p at bar 90\", \"quote\": \"Basses, I keep saying this, and I'm not cross, but bar ninety, it's piano, please write it in.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 90,
+    "bar_to": 90,
+    "audience": [
+     "part:Bass"
+    ],
+    "kind": "dynamic",
+    "text": "p at bar 90",
+    "quote": "Basses, I keep saying this, and I'm not cross, but bar ninety, it's piano, please write it in.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.7597585839976091,
+  "usd": 0.00134675,
+  "output_tokens": 192,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "p at 90",
+    "p at bar 90",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "p at bar 90",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r08",
+  "cat": "ramble",
+  "diff": 3,
+  "fix": "A",
+  "text": "Altos, bar fifty-six, could you, actually no, everyone, bar fifty-six, could you all take a breath there.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 56, \"bar_to\": 56, \"audience\": [\"ensemble\"], \"kind\": \"breath\", \"text\": \"Breath at 56\", \"quote\": \"Altos, bar fifty-six, could you, actually no, everyone, bar fifty-six, could you all take a breath there.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 56,
+    "bar_to": 56,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "breath",
+    "text": "Breath at 56",
+    "quote": "Altos, bar fifty-six, could you, actually no, everyone, bar fifty-six, could you all take a breath there.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.0459287919802591,
+  "usd": 0.0024726500000000003,
+  "output_tokens": 191,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Breath at 56",
+    "Breath at 56",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Breath at 56",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r09",
+  "cat": "ramble",
+  "diff": 2,
+  "fix": "A",
+  "text": "Lin, about bar twenty-two, I think it's twenty-two, yes, you're rushing, hold back.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 22, \"bar_to\": 22, \"audience\": [\"member:Lin\"], \"kind\": \"text\", \"text\": \"Hold back at bar 22\", \"quote\": \"Lin, about bar twenty-two, I think it's twenty-two, yes, you're rushing, hold back.\", \"confidence\": 0.85}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 22,
+    "bar_to": 22,
+    "audience": [
+     "member:Lin"
+    ],
+    "kind": "text",
+    "text": "Hold back at bar 22",
+    "quote": "Lin, about bar twenty-two, I think it's twenty-two, yes, you're rushing, hold back.",
+    "confidence": 0.85
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.7657208750024438,
+  "usd": 0.0020145,
+  "output_tokens": 350,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Don't rush, 22",
+    "Hold back at bar 22",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.85,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Hold back at bar 22",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r10",
+  "cat": "ramble",
+  "diff": 2,
+  "fix": "A",
+  "text": "Firsts, bar one-forty-four, down bow, wait, up bow, sorry, it starts up bow.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 144, \"bar_to\": 144, \"audience\": [\"part:Violin I\"], \"kind\": \"bowing\", \"text\": \"Up bow at bar 144\", \"quote\": \"Firsts, bar one-forty-four, down bow, wait, up bow, sorry, it starts up bow.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 144,
+    "bar_to": 144,
+    "audience": [
+     "part:Violin I"
+    ],
+    "kind": "bowing",
+    "text": "Up bow at bar 144",
+    "quote": "Firsts, bar one-forty-four, down bow, wait, up bow, sorry, it starts up bow.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.0022087919933256,
+  "usd": 0.001419,
+  "output_tokens": 209,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Up bow at 144",
+    "Up bow at bar 144",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Up bow at bar 144",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r11",
+  "cat": "ramble",
+  "diff": 3,
+  "fix": "A",
+  "text": "Cellos, bar thirty, pizz, and then, where does it go back, thirty-four, arco at thirty-four.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"range\", \"bar_from\": 30, \"bar_to\": 34, \"audience\": [\"part:Cello\"], \"kind\": \"marking\", \"text\": \"pizz. at 30, arco at 34\", \"quote\": \"Cellos, bar thirty, pizz, and then, where does it go back, thirty-four, arco at thirty-four.\", \"confidence\": 0.97}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 30,
+    "bar_to": 34,
+    "audience": [
+     "part:Cello"
+    ],
+    "kind": "marking",
+    "text": "pizz. at 30, arco at 34",
+    "quote": "Cellos, bar thirty, pizz, and then, where does it go back, thirty-four, arco at thirty-four.",
+    "confidence": 0.97
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.932883999979822,
+  "usd": 0.002249,
+  "output_tokens": 404,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "pizz. 30, arco 34",
+    "pizz. at 30, arco at 34",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.97,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "pizz. at 30, arco at 34",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r12",
+  "cat": "ramble",
+  "diff": 2,
+  "fix": "A",
+  "text": "Everyone, the crescendo, it starts at sixty, not sixty-two like in the old edition, sixty.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 60, \"bar_to\": 60, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"cresc. from bar 60\", \"quote\": \"Everyone, the crescendo, it starts at sixty, not sixty-two like in the old edition, sixty.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 60,
+    "bar_to": 60,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "dynamic",
+    "text": "cresc. from bar 60",
+    "quote": "Everyone, the crescendo, it starts at sixty, not sixty-two like in the old edition, sixty.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.3547612089896575,
+  "usd": 0.00161625,
+  "output_tokens": 256,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "cresc. from 60",
+    "cresc. from bar 60",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "cresc. from bar 60",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r13",
+  "cat": "ramble",
+  "diff": 3,
+  "fix": "A",
+  "text": "Hmm, okay, so the thing is, the rit, the rit at the end, I'd rather it started earlier, at two-thirty-two, everyone.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 232, \"bar_to\": 232, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"rit. at 232\", \"quote\": \"the rit, the rit at the end, I'd rather it started earlier, at two-thirty-two, everyone.\", \"confidence\": 0.9}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 232,
+    "bar_to": 232,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "text",
+    "text": "rit. at 232",
+    "quote": "the rit, the rit at the end, I'd rather it started earlier, at two-thirty-two, everyone.",
+    "confidence": 0.9
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.183644041972002,
+  "usd": 0.00130575,
+  "output_tokens": 180,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "rit. from 232",
+    "rit. at 232",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.9,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "rit. at 232",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r14",
+  "cat": "ramble",
+  "diff": 2,
+  "fix": "A",
+  "text": "Tenors, and basses too actually, bar forty-one, accent on the downbeat.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 41, \"bar_to\": 41, \"audience\": [\"part:Tenor\", \"part:Bass\"], \"kind\": \"marking\", \"text\": \"Accent on downbeat at bar 41\", \"quote\": \"Tenors, and basses too actually, bar forty-one, accent on the downbeat.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 41,
+    "bar_to": 41,
+    "audience": [
+     "part:Tenor",
+     "part:Bass"
+    ],
+    "kind": "marking",
+    "text": "Accent on downbeat at bar 41",
+    "quote": "Tenors, and basses too actually, bar forty-one, accent on the downbeat.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.4519144580117427,
+  "usd": 0.0020375,
+  "output_tokens": 356,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Accent at 41",
+    "Accent on downbeat at bar 41",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Accent on downbeat at bar 41",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r15",
+  "cat": "ramble",
+  "diff": 2,
+  "fix": "A",
+  "text": "Sopranos, from one-ninety, no, one-ninety-two, mezzo piano until two hundred.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"range\", \"bar_from\": 192, \"bar_to\": 200, \"audience\": [\"part:Soprano\"], \"kind\": \"dynamic\", \"text\": \"mp 192-200\", \"quote\": \"Sopranos, from one-ninety, no, one-ninety-two, mezzo piano until two hundred.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 192,
+    "bar_to": 200,
+    "audience": [
+     "part:Soprano"
+    ],
+    "kind": "dynamic",
+    "text": "mp 192-200",
+    "quote": "Sopranos, from one-ninety, no, one-ninety-two, mezzo piano until two hundred.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.8272428339987528,
+  "usd": 0.00257515,
+  "output_tokens": 216,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "mp 192–200",
+    "mp 192-200",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "mp 192-200",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r16",
+  "cat": "ramble",
+  "diff": 3,
+  "fix": "A",
+  "text": "Violas, it's, uh, it's bar eighty-eight, eighty-eight, no vibrato there, senza, and then vibrato back at ninety.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"range\", \"bar_from\": 88, \"bar_to\": 90, \"audience\": [\"part:Viola\"], \"kind\": \"marking\", \"text\": \"senza vibrato at 88, vib. at 90\", \"quote\": \"Violas, it's, uh, it's bar eighty-eight, eighty-eight, no vibrato there, senza, and then vibrato back at ninety.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 88,
+    "bar_to": 90,
+    "audience": [
+     "part:Viola"
+    ],
+    "kind": "marking",
+    "text": "senza vibrato at 88, vib. at 90",
+    "quote": "Violas, it's, uh, it's bar eighty-eight, eighty-eight, no vibrato there, senza, and then vibrato back at ninety.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.5082387090078555,
+  "usd": 0.001928,
+  "output_tokens": 327,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "senza vib. 88, vib. 90",
+    "senza vibrato at 88, vib. at 90",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "senza vibrato at 88, vib. at 90",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r17",
+  "cat": "ramble",
+  "diff": 2,
+  "fix": "B",
+  "text": "Mei, so at bar sixty, it's, you know, I want you to play out, it's your tune, forte.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 60, \"bar_to\": 60, \"audience\": [\"member:Mei\"], \"kind\": \"dynamic\", \"text\": \"f at bar 60\", \"quote\": \"Mei, so at bar sixty, it's, you know, I want you to play out, it's your tune, forte.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 60,
+    "bar_to": 60,
+    "audience": [
+     "member:Mei"
+    ],
+    "kind": "dynamic",
+    "text": "f at bar 60",
+    "quote": "Mei, so at bar sixty, it's, you know, I want you to play out, it's your tune, forte.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.1551552079909015,
+  "usd": 0.0035965,
+  "output_tokens": 203,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "f at 60",
+    "f at bar 60",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "f at bar 60",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r18",
+  "cat": "ramble",
+  "diff": 2,
+  "fix": "B",
+  "text": "Flute, bar one-twenty, uh, one-twenty-one, breath before the run.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 121, \"bar_to\": 121, \"audience\": [\"part:Flute\"], \"kind\": \"breath\", \"text\": \"Breath at 121\", \"quote\": \"Flute, bar one-twenty, uh, one-twenty-one, breath before the run.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 121,
+    "bar_to": 121,
+    "audience": [
+     "part:Flute"
+    ],
+    "kind": "breath",
+    "text": "Breath at 121",
+    "quote": "Flute, bar one-twenty, uh, one-twenty-one, breath before the run.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.115123333001975,
+  "usd": 0.0038185,
+  "output_tokens": 257,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Breath at 121",
+    "Breath at 121",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Breath at 121",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r19",
+  "cat": "ramble",
+  "diff": 3,
+  "fix": "B",
+  "text": "Okay, everybody, and I mean the whole orchestra, not you Mei, bar ninety-eight, subito piano.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 98, \"bar_to\": 98, \"audience\": [\"part:Flute\", \"part:Oboe\", \"part:Clarinet\", \"part:Bassoon\", \"part:Horn\", \"part:Trumpet\", \"part:Timpani\", \"part:Violin I\", \"part:Violin II\", \"part:Viola\", \"part:Cello\", \"part:Double Bass\"], \"kind\": \"dynamic\", \"text\": \"subito p at bar 98\", \"quote\": \"Okay, everybody, and I mean the whole orchestra, not you Mei, bar ninety-eight, subito piano.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 98,
+    "bar_to": 98,
+    "audience": [
+     "part:Flute",
+     "part:Oboe",
+     "part:Clarinet",
+     "part:Bassoon",
+     "part:Horn",
+     "part:Trumpet",
+     "part:Timpani",
+     "part:Violin I",
+     "part:Violin II",
+     "part:Viola",
+     "part:Cello",
+     "part:Double Bass"
+    ],
+    "kind": "dynamic",
+    "text": "subito p at bar 98",
+    "quote": "Okay, everybody, and I mean the whole orchestra, not you Mei, bar ninety-eight, subito piano.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 2.6940938329789788,
+  "usd": 0.0055125,
+  "output_tokens": 655,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "sub. p at 98",
+    "subito p at bar 98",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "subito p at bar 98",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "r20",
+  "cat": "ramble",
+  "diff": 2,
+  "fix": "A",
+  "text": "Everyone, bar twelve, twelve, wait, is it twelve, yes, twelve, mezzo forte.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 12, \"bar_to\": 12, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"mf at bar 12\", \"quote\": \"Everyone, bar twelve, twelve, wait, is it twelve, yes, twelve, mezzo forte.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 12,
+    "bar_to": 12,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "dynamic",
+    "text": "mf at bar 12",
+    "quote": "Everyone, bar twelve, twelve, wait, is it twelve, yes, twelve, mezzo forte.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.6097646250273101,
+  "usd": 0.00129075,
+  "output_tokens": 180,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "mf at 12",
+    "mf at bar 12",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "mf at bar 12",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "a01",
+  "cat": "addressee",
+  "diff": 2,
+  "fix": "A",
+  "text": "bar twelve, up bow on the first note.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 12, \"bar_to\": 12, \"audience\": [\"ensemble\"], \"kind\": \"bowing\", \"text\": \"Up bow at bar 12\", \"quote\": \"bar twelve, up bow on the first note.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 12,
+    "bar_to": 12,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "bowing",
+    "text": "Up bow at bar 12",
+    "quote": "bar twelve, up bow on the first note.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.4641117500141263,
+  "usd": 0.00148225,
+  "output_tokens": 228,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Up bow at 12",
+    "Up bow at bar 12",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Up bow at bar 12",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "a02",
+  "cat": "addressee",
+  "diff": 2,
+  "fix": "A",
+  "text": "from sixty, breathe after the comma.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 60, \"bar_to\": 60, \"audience\": [\"ensemble\"], \"kind\": \"breath\", \"text\": \"Breath after comma at 60\", \"quote\": \"from sixty, breathe after the comma.\", \"confidence\": 0.85}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 60,
+    "bar_to": 60,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "breath",
+    "text": "Breath after comma at 60",
+    "quote": "from sixty, breathe after the comma.",
+    "confidence": 0.85
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.6025835839973297,
+  "usd": 0.00378775,
+  "output_tokens": 278,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Breath at 60",
+    "Breath after comma at 60",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.85,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Breath after comma at 60",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "a03",
+  "cat": "addressee",
+  "diff": 2,
+  "fix": "A",
+  "text": "Violas, bar thirty, which thirty, the first time? Yes, the first time, mute on.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 30, \"bar_to\": 30, \"audience\": [\"part:Viola\"], \"kind\": \"marking\", \"text\": \"Mute on at bar 30 (1st time)\", \"quote\": \"Violas, bar thirty, which thirty, the first time? Yes, the first time, mute on.\", \"confidence\": 0.9}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 30,
+    "bar_to": 30,
+    "audience": [
+     "part:Viola"
+    ],
+    "kind": "marking",
+    "text": "Mute on at bar 30 (1st time)",
+    "quote": "Violas, bar thirty, which thirty, the first time? Yes, the first time, mute on.",
+    "confidence": 0.9
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.328957999998238,
+  "usd": 0.00192225,
+  "output_tokens": 328,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Mute at 30",
+    "Mute on at bar 30 (1st time)",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.9,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Mute on at bar 30 (1st time)",
+    false,
+    [
+     "1st"
+    ]
+   ]
+  ]
+ },
+ {
+  "id": "a04",
+  "cat": "addressee",
+  "diff": 3,
+  "fix": "A",
+  "text": "Cellos, from seventy, us too? No, just cellos, pizz.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"range\", \"bar_from\": 70, \"bar_to\": null, \"audience\": [\"part:Cello\"], \"kind\": \"marking\", \"text\": \"pizz. from 70\", \"quote\": \"Cellos, from seventy, us too? No, just cellos, pizz.\", \"confidence\": 0.9}]",
+  "marks": [
+   {
+    "position": "range",
+    "bar_from": 70,
+    "bar_to": null,
+    "audience": [
+     "part:Cello"
+    ],
+    "kind": "marking",
+    "text": "pizz. from 70",
+    "quote": "Cellos, from seventy, us too? No, just cellos, pizz.",
+    "confidence": 0.9
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.3435987909906544,
+  "usd": 0.00223475,
+  "output_tokens": 403,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "pizz. from 70",
+    "pizz. from 70",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.9,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "pizz. from 70",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "a05",
+  "cat": "addressee",
+  "diff": 2,
+  "fix": "A",
+  "text": "Sopranos, bar forty-four, breathe, after light? Yes, after the word light.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 44, \"bar_to\": 44, \"audience\": [\"part:Soprano\"], \"kind\": \"breath\", \"text\": \"Breath after 'light' at 44\", \"quote\": \"Sopranos, bar forty-four, breathe, after light? Yes, after the word light.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 44,
+    "bar_to": 44,
+    "audience": [
+     "part:Soprano"
+    ],
+    "kind": "breath",
+    "text": "Breath after 'light' at 44",
+    "quote": "Sopranos, bar forty-four, breathe, after light? Yes, after the word light.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.7884379580209497,
+  "usd": 0.0012865,
+  "output_tokens": 179,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Breath at 44",
+    "Breath after 'light' at 44",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Breath after 'light' at 44",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "a06",
+  "cat": "addressee",
+  "diff": 3,
+  "fix": "A",
+  "text": "Seconds, bar eighteen, is that the down bow? Yes, down bow, all of you.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 18, \"bar_to\": 18, \"audience\": [\"part:Violin II\"], \"kind\": \"bowing\", \"text\": \"Down bow at bar 18\", \"quote\": \"Seconds, bar eighteen, is that the down bow? Yes, down bow, all of you.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 18,
+    "bar_to": 18,
+    "audience": [
+     "part:Violin II"
+    ],
+    "kind": "bowing",
+    "text": "Down bow at bar 18",
+    "quote": "Seconds, bar eighteen, is that the down bow? Yes, down bow, all of you.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.7565644580172375,
+  "usd": 0.00125675,
+  "output_tokens": 172,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Down bow at 18",
+    "Down bow at bar 18",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Down bow at bar 18",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "a07",
+  "cat": "addressee",
+  "diff": 2,
+  "fix": "A",
+  "text": "you're late at seventy-one, the entry's on the end of two.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 71, \"bar_to\": 71, \"audience\": [\"ensemble\"], \"kind\": \"text\", \"text\": \"Entry on end of 2 at 71\", \"quote\": \"you're late at seventy-one, the entry's on the end of two.\", \"confidence\": 0.85}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 71,
+    "bar_to": 71,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "text",
+    "text": "Entry on end of 2 at 71",
+    "quote": "you're late at seventy-one, the entry's on the end of two.",
+    "confidence": 0.85
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.0464810830017086,
+  "usd": 0.003666,
+  "output_tokens": 247,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Entry on the and of 2, 71",
+    "Entry on end of 2 at 71",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.85,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Entry on end of 2 at 71",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "a08",
+  "cat": "addressee",
+  "diff": 2,
+  "fix": "B",
+  "text": "bar sixty, play out, it's your tune.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 60, \"bar_to\": 60, \"audience\": [\"ensemble\"], \"kind\": \"dynamic\", \"text\": \"Play out at bar 60, your tune\", \"quote\": \"bar sixty, play out, it's your tune.\", \"confidence\": 0.7}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 60,
+    "bar_to": 60,
+    "audience": [
+     "ensemble"
+    ],
+    "kind": "dynamic",
+    "text": "Play out at bar 60, your tune",
+    "quote": "bar sixty, play out, it's your tune.",
+    "confidence": 0.7
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.8153835409902968,
+  "usd": 0.00358925,
+  "output_tokens": 206,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Play out at 60",
+    "Play out at bar 60, your tune",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.7,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Play out at bar 60, your tune",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "a09",
+  "cat": "addressee",
+  "diff": 3,
+  "fix": "A",
+  "text": "Tenors, bar ninety-nine, sorry, what's the dynamic? Mezzo piano, tenors, mezzo piano.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 99, \"bar_to\": 99, \"audience\": [\"part:Tenor\"], \"kind\": \"dynamic\", \"text\": \"mp at bar 99\", \"quote\": \"Tenors, bar ninety-nine, sorry, what's the dynamic? Mezzo piano, tenors, mezzo piano.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 99,
+    "bar_to": 99,
+    "audience": [
+     "part:Tenor"
+    ],
+    "kind": "dynamic",
+    "text": "mp at bar 99",
+    "quote": "Tenors, bar ninety-nine, sorry, what's the dynamic? Mezzo piano, tenors, mezzo piano.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.9046426249842625,
+  "usd": 0.0024209,
+  "output_tokens": 180,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "mp at 99",
+    "mp at bar 99",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "mp at bar 99",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "a10",
+  "cat": "addressee",
+  "diff": 3,
+  "fix": "B",
+  "text": "Oboe, bar forty, me? Yes you, oboe, forty, play it staccato.",
+  "instruction": true,
+  "none_ok": false,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 40, \"bar_to\": 40, \"audience\": [\"part:Oboe\"], \"kind\": \"marking\", \"text\": \"staccato at bar 40\", \"quote\": \"Oboe, bar forty, me? Yes you, oboe, forty, play it staccato.\", \"confidence\": 0.95}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 40,
+    "bar_to": 40,
+    "audience": [
+     "part:Oboe"
+    ],
+    "kind": "marking",
+    "text": "staccato at bar 40",
+    "quote": "Oboe, bar forty, me? Yes you, oboe, forty, play it staccato.",
+    "confidence": 0.95
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 0.8935010420100298,
+  "usd": 0.00362,
+  "output_tokens": 210,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "stacc. at 40",
+    "staccato at bar 40",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.95,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "staccato at bar 40",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "u01",
+  "cat": "unrecoverable",
+  "diff": 2,
+  "fix": "A",
+  "text": "uh the the thing at the um you know there softer",
+  "instruction": true,
+  "none_ok": true,
+  "term": null,
+  "reply": "{\"none\": true, \"confidence\": 0.85}",
+  "marks": [],
+  "refused": [],
+  "none_conf": 0.85,
+  "seconds": 1.0887267500220332,
+  "usd": 0.00113625,
+  "output_tokens": 146,
+  "produced": false,
+  "ok": true,
+  "text_all": true,
+  "mark_conf": [],
+  "field_hits": [],
+  "answer_index": null,
+  "unplaced_ok": false,
+  "kept": []
+ },
+ {
+  "id": "u02",
+  "cat": "unrecoverable",
+  "diff": 2,
+  "fix": "A",
+  "text": "Violas bar forty or fourteen whatever, piano",
+  "instruction": true,
+  "none_ok": true,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 14, \"bar_to\": 14, \"audience\": [\"part:Viola\"], \"kind\": \"dynamic\", \"text\": \"p at bar 14\", \"quote\": \"Violas bar forty or fourteen whatever, piano\", \"confidence\": 0.5}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 14,
+    "bar_to": 14,
+    "audience": [
+     "part:Viola"
+    ],
+    "kind": "dynamic",
+    "text": "p at bar 14",
+    "quote": "Violas bar forty or fourteen whatever, piano",
+    "confidence": 0.5
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.2561711249873042,
+  "usd": 0.001767,
+  "output_tokens": 295,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "p at 40",
+    "p at bar 14",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.5,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "p at bar 14",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "u03",
+  "cat": "unrecoverable",
+  "diff": 1,
+  "fix": "A",
+  "text": "and, bar, the, and",
+  "instruction": false,
+  "none_ok": true,
+  "term": null,
+  "reply": "{\"none\": true, \"confidence\": 0.95}",
+  "marks": [],
+  "refused": [],
+  "none_conf": 0.95,
+  "seconds": 0.7652174580143765,
+  "usd": 0.0008805,
+  "output_tokens": 87,
+  "produced": false,
+  "ok": true,
+  "text_all": true,
+  "mark_conf": [],
+  "field_hits": [],
+  "unplaced_ok": false,
+  "kept": []
+ },
+ {
+  "id": "u04",
+  "cat": "unrecoverable",
+  "diff": 2,
+  "fix": "A",
+  "text": "Cellos, at bar, um.",
+  "instruction": false,
+  "none_ok": true,
+  "term": null,
+  "reply": "{\"none\": true, \"confidence\": 0.9}",
+  "marks": [],
+  "refused": [],
+  "none_conf": 0.9,
+  "seconds": 0.8157717499998398,
+  "usd": 0.003027,
+  "output_tokens": 99,
+  "produced": false,
+  "ok": true,
+  "text_all": true,
+  "mark_conf": [],
+  "field_hits": [],
+  "unplaced_ok": false,
+  "kept": []
+ },
+ {
+  "id": "u05",
+  "cat": "unrecoverable",
+  "diff": 3,
+  "fix": "A",
+  "text": "Everyone, the bar before the double bar, no wait, there are two double bars in my score, never mind.",
+  "instruction": false,
+  "none_ok": true,
+  "term": null,
+  "reply": "{\"none\": true, \"confidence\": 0.95}",
+  "marks": [],
+  "refused": [],
+  "none_conf": 0.95,
+  "seconds": 0.6347508330072742,
+  "usd": 0.00100675,
+  "output_tokens": 112,
+  "produced": false,
+  "ok": true,
+  "text_all": true,
+  "mark_conf": [],
+  "field_hits": [],
+  "unplaced_ok": false,
+  "kept": []
+ },
+ {
+  "id": "u06",
+  "cat": "unrecoverable",
+  "diff": 2,
+  "fix": "A",
+  "text": "Sopranos, can you, no, forget it, let's just sing.",
+  "instruction": false,
+  "none_ok": true,
+  "term": null,
+  "reply": "{\"none\": true, \"confidence\": 0.95}",
+  "marks": [],
+  "refused": [],
+  "none_conf": 0.95,
+  "seconds": 1.0575763749948237,
+  "usd": 0.001188,
+  "output_tokens": 157,
+  "produced": false,
+  "ok": true,
+  "text_all": true,
+  "mark_conf": [],
+  "field_hits": [],
+  "unplaced_ok": false,
+  "kept": []
+ },
+ {
+  "id": "u07",
+  "cat": "unrecoverable",
+  "diff": 3,
+  "fix": "A",
+  "text": "Bar eighty, the, the, the firsts, lighter, the other one.",
+  "instruction": true,
+  "none_ok": true,
+  "term": null,
+  "reply": "[{\"position\": \"bar\", \"bar_from\": 80, \"bar_to\": 80, \"audience\": [\"part:Violin I\"], \"kind\": \"text\", \"text\": \"Lighter at bar 80\", \"quote\": \"Bar eighty, the, the, the firsts, lighter, the other one.\", \"confidence\": 0.75}]",
+  "marks": [
+   {
+    "position": "bar",
+    "bar_from": 80,
+    "bar_to": 80,
+    "audience": [
+     "part:Violin I"
+    ],
+    "kind": "text",
+    "text": "Lighter at bar 80",
+    "quote": "Bar eighty, the, the, the firsts, lighter, the other one.",
+    "confidence": 0.75
+   }
+  ],
+  "refused": [],
+  "none_conf": null,
+  "seconds": 1.4984610000101384,
+  "usd": 0.00316565,
+  "output_tokens": 357,
+  "produced": true,
+  "answer_index": 0,
+  "n_produced": 1,
+  "extras": 0,
+  "ok": true,
+  "text_all": true,
+  "field_hits": [
+   {
+    "position": true,
+    "bars": true,
+    "audience": true,
+    "kind": true,
+    "text": true,
+    "core": true
+   }
+  ],
+  "pair_text": [
+   [
+    "Lighter at 80",
+    "Lighter at bar 80",
+    true
+   ]
+  ],
+  "mark_conf": [
+   [
+    0.75,
+    true
+   ]
+  ],
+  "unplaced_ok": false,
+  "kept": [
+   [
+    "Lighter at bar 80",
+    true,
+    []
+   ]
+  ]
+ },
+ {
+  "id": "u08",
+  "cat": "unrecoverable",
+  "diff": 2,
+  "fix": "B",
+  "text": "Somebody's flat at bar fifty, I don't know who.",
+  "instruction": true,
+  "none_ok": true,
+  "term": null,
+  "reply": "{\"none\": true, \"confidence\": 0.85}",
+  "marks": [],
+  "refused": [],
+  "none_conf": 0.85,
+  "seconds": 1.7219604999991134,
+  "usd": 0.00408175,
+  "output_tokens": 321,
+  "produced": false,
+  "ok": true,
+  "text_all": true,
+  "mark_conf": [],
+  "field_hits": [],
+  "answer_index": null,
+  "unplaced_ok": false,
+  "kept": []
+ },
+ {
+  "id": "u09",
+  "cat": "unrecoverable",
+  "diff": 3,
+  "fix": "B",
+  "text": "Piano, the, the cadenza thing, we'll talk about it later.",
+  "instruction": false,
+  "none_ok": true,
+  "term": null,
+  "reply": "{\"none\": true, \"confidence\": 0.9}",
+  "marks": [],
+  "refused": [],
+  "none_conf": 0.9,
+  "seconds": 1.1083517920051236,
+  "usd": 0.00329375,
+  "output_tokens": 135,
+  "produced": false,
+  "ok": true,
+  "text_all": true,
+  "mark_conf": [],
+  "field_hits": [],
+  "unplaced_ok": false,
+  "kept": []
+ },
+ {
+  "id": "u10",
+  "cat": "unrecoverable",
+  "diff": 2,
+  "fix": "A",
+  "text": "Violins, there, the bit, you know the bit, do the thing we said.",
+  "instruction": false,
+  "none_ok": true,
+  "term": null,
+  "reply": "{\"none\": true, \"confidence\": 0.9}",
+  "marks": [],
+  "refused": [],
+  "none_conf": 0.9,
+  "seconds": 0.49085674999514595,
+  "usd": 0.0009835,
+  "output_tokens": 108,
+  "produced": false,
+  "ok": true,
+  "text_all": true,
+  "mark_conf": [],
+  "field_hits": [],
+  "unplaced_ok": false,
+  "kept": []
+ }
+]

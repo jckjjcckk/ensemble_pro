@@ -128,3 +128,12 @@ def test_prompt_v4e_lists_the_groups_and_the_exclusion_rule_refers_to_them():
 def test_the_eval_rules_are_the_app_rules():
     from experiments.voice import prompts as P                                       # asserts at import
     assert P.RULES_V4E != P.RULES_V4D and "widest group" in P.RULES_V4E
+    assert P.RULES_V4F != P.RULES_V4E and P.TEXT_V4F_NEW in P.RULES_V4F
+
+
+def test_prompt_v4f_stand_text_keeps_the_conductors_words():
+    """v4f (CK, 2026-10-31): the stand text is what was said, never the remedy or a category word."""
+    _, user = build_prompt("Lin, bar 64, you're sharp on the F.", FACTS)
+    assert "- text: the conductor's own words with the place, the way a player pencils what was said" in user
+    assert '"You\'re too sharp on the F, bar 30" (not "Lower the F", not "Intonation: F")' in user
+    assert "what a player would pencil on the part, short" not in user               # the v4e rule is gone

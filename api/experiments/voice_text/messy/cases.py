@@ -116,7 +116,8 @@ C("pc15", "comm", "dyn_unnamed", 2, "Violas, I can't hear you at all at 20, that
   M("bar", 20, 20, "Va", DYN_TXT, "More at 20, melody", ["more|out|louder|f|melody|tune"]),
   note="Va, 'bring out, melody' at 20.")
 C("pc16", "comm", "dyn_unnamed", 2, "At 120 the sopranos are just drowning everyone, it's a wall of sound.",
-  M("bar", 120, 120, "S", DYN_TXT, "Less at 120", ["less|soft|back|down|p|light"]), note="S, 'less' at 120.")
+  M("bar", 120, 120, "S", DYN_TXT, "Less at 120", ["less|soft|back|down|p|light|drown|wall"]),
+  note="S, 'less' at 120. 'drown'/'wall' added 2026-10-31: v4f keeps the conductor's words on the stand.")
 C("pc17", "comm", "rambling", 3,
   "right, so, okay, the thing about bar one-seventy, and this is everyone, is that it's not a ritardando, I know "
   "it looks like one, it's in tempo, keep going.",
