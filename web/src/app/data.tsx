@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { deliverFile } from '../lib/native'
+import { newId } from './presence'
 import type { DigitalLayout, Engraving, Ensemble, FlaggedBar, Member, Membership, Part, Score } from '../mock'
 
 export interface Account { id: string; name: string; email: string; memberships: Membership[] }
@@ -425,17 +426,19 @@ export function useWorld(session: Session | null): World {
   useEffect(() => {
     if (!session) { setWorld(empty()); return }
     load(session).then(setWorld).catch(e => console.warn('world', e))
-    const ch = supabase.channel('world')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, reload)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'parts' }, reload)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'members' }, reload)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'jobs' }, reload)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'interpretations' }, reload)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'sources' }, reload)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'ensembles' }, reload)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'score_shares' }, reload)
+    // Two channels, each on a topic of its own (supabase-js hands back the channel already registered under a topic, so a
+    // re-subscription under one fixed name, React's second effect run or the new session a token refresh brings, got
+    // the old channel while it was being removed). Realtime delivers nothing at all on a channel that binds a table
+    // outside its publication, so the tables every stack has published since its first migration listen on one
+    // channel, and parts, sources and ensembles (published by 20261031121000) on another: a stack without that
+    // migration still hears jobs, scores and readings. Before, the shelf heard no row change at all and showed a job's
+    // progress, an answered question resuming or a finished split only after the next manual reload.
+    const tag = newId().slice(0, 8)
+    const listen = (name: string, tables: string[]) => tables
+      .reduce((ch, table) => ch.on('postgres_changes', { event: '*', schema: 'public', table }, reload), supabase.channel(`world-${name}:${tag}`))
       .subscribe()
-    return () => { supabase.removeChannel(ch) }
+    const chs = [listen('core', ['scores', 'jobs', 'interpretations', 'members', 'score_shares']), listen('more', ['parts', 'sources', 'ensembles'])]
+    return () => { for (const ch of chs) void supabase.removeChannel(ch) }
   }, [session, reload])
 
   return { ...world, reload }

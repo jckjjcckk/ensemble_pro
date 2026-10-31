@@ -8,6 +8,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { useNavigate, useParams } from 'react-router'
 import type { FlaggedBar, Score } from '../mock'
 import { supabase } from '../lib/supabase'
+import { newId } from './presence'
 import type { Geo } from './geometry'
 import { useStore } from './store'
 
@@ -27,7 +28,7 @@ export function useBarDecisions(scoreId: string | undefined): { decisions: Map<n
       setLoaded(true)
     })
     void load()
-    const ch = supabase.channel(`bar_decisions:${scoreId}`)
+    const ch = supabase.channel(`bar_decisions:${scoreId}:${newId().slice(0, 8)}`)   // own topic: see useWorld
       .on('postgres_changes', { event: '*', schema: 'public', table: 'bar_decisions', filter: `score_id=eq.${scoreId}` }, () => void load())
       .subscribe()
     return () => { live = false; void supabase.removeChannel(ch) }
