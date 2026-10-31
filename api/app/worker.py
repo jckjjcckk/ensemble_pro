@@ -1,7 +1,8 @@
 """The durable job loop. Runs inside the API process; the database is the queue.
 
-Polls `claim_job()` (SKIP LOCKED, so a second API process is safe), runs the handler registered for the
-job's kind, and writes the outcome. A handler that raises is retried with backoff until max_attempts, then
+Polls `claim_job()` (SKIP LOCKED, so a second API process, or a second claim in this one, is safe), runs the handler
+registered for the job's kind, up to `WORKER_CONCURRENCY` jobs at once (default 2), and writes the outcome. A
+handler that raises is retried with backoff until max_attempts, then
 the job fails with the error text and the score, if any, is marked failed. Survives a restart: a job that
 was `running` when the process died is re-queued after a stale timeout.
 """
@@ -13,6 +14,7 @@ import traceback
 from datetime import datetime, timedelta, timezone
 
 from .db import db
+from .settings import settings
 from .librarian import HANDLERS, Job, JobContext, ScoreFailure, load_handlers
 
 log = logging.getLogger("folio.worker")
@@ -68,22 +70,30 @@ def requeue_stale() -> None:
     db().table("jobs").update({"status": "queued", "error": "worker died; requeued"}).eq("status", "running").lt("locked_at", cutoff).execute()
 
 
-async def loop(stop: asyncio.Event) -> None:
+async def loop(stop: asyncio.Event, concurrency: int | None = None) -> None:
+    """Claim and run jobs, at most `concurrency` at once (`WORKER_CONCURRENCY`, default 2). A free slot claims again at
+    once; with every slot busy or the queue empty the loop waits POLL_S or until a job finishes. On stop, the jobs in
+    hand run to the end."""
     load_handlers()
-    log.info("worker up, handlers: %s", sorted(HANDLERS))
+    n = max(1, concurrency if concurrency is not None else settings.worker_concurrency)
+    log.info("worker up, %d at once, handlers: %s", n, sorted(HANDLERS))
     try:
         requeue_stale()
     except Exception as e:  # noqa: BLE001
         log.warning("requeue_stale: %s", e)
+    running: set[asyncio.Task] = set()
     while not stop.is_set():
-        try:
-            row = db().rpc("claim_job", {}).execute().data
-            if row and row.get("id"):
-                await run_one(row)
-                continue
-        except Exception as e:  # noqa: BLE001
-            log.warning("worker poll: %s", e)
-        try:
-            await asyncio.wait_for(stop.wait(), POLL_S)
-        except asyncio.TimeoutError:
-            pass
+        if len(running) < n:
+            try:
+                row = db().rpc("claim_job", {}).execute().data
+                if row and row.get("id"):
+                    running.add(asyncio.create_task(run_one(row)))
+                    continue
+            except Exception as e:  # noqa: BLE001
+                log.warning("worker poll: %s", e)
+        stopping = asyncio.create_task(stop.wait())
+        done, _ = await asyncio.wait({stopping, *running}, timeout=POLL_S, return_when=asyncio.FIRST_COMPLETED)
+        stopping.cancel()
+        running -= done
+    if running:
+        await asyncio.gather(*running, return_exceptions=True)

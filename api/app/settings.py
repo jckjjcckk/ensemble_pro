@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     # of reading per page, so 40 pages is about $0.40 and five minutes. Raise it in api/.env when CK says.
     pdf_max_pages: int = 40
 
+    # Jobs the worker runs at once (speed pass 2026-10-30). `claim_job` takes a row with SKIP LOCKED, so concurrent claims
+    # never get the same job; 2 lets a voice take or an import go ahead while a convert or a part cut runs.
+    worker_concurrency: int = 2
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
