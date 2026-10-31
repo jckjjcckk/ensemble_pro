@@ -6,6 +6,7 @@ park on a question). Results per chain in results/runs/<variant>-r<run>-<book>.j
   B  chat completions, reasoning_effort minimal, full answer
   C  Messages, effort low, trimmed answer (book-level fields only on the book's first page)
   D  chat completions, minimal, trimmed
+  E  the app after the speed pass (2026-10-30): B, and a page `process_pages.page_doubts` questions read again as A
 
     cd api && uv run python -m experiments.pageread_speed.run [--runs 2] [--only A,B] [--books goldberg] [--conc 4]
 """
@@ -17,14 +18,15 @@ import json
 import random
 
 from app.librarian.labels import PageLabels, _int, canon_part, extract_json, page_landmarks
-from app.librarian.process_pages import assign_parts
+from app.librarian.process_pages import assign_parts, page_doubts
 
 from . import prompt as P
 from .common import BOOKS, RESULTS, call_chat, call_messages, spent
 
 PREP = RESULTS / "prep"
 RUNS = RESULTS / "runs"
-VARIANTS = {"A": ("messages", "low", False), "B": ("chat", "minimal", False), "C": ("messages", "low", True), "D": ("chat", "minimal", True)}
+VARIANTS = {"A": ("messages", "low", False), "B": ("chat", "minimal", False), "C": ("messages", "low", True), "D": ("chat", "minimal", True),
+            "E": ("chat", "minimal", False)}
 
 
 def parse(data: dict, n_boxes: int) -> PageLabels:
@@ -79,7 +81,18 @@ async def chain(variant: str, run: int, book: str) -> None:
                 break
             except Exception as e:  # noqa: BLE001
                 err = f"{type(e).__name__}: {e}"
-        rec = {"page": pid, "kind": kind, "variant": variant, "run": run, "trimmed": trimmed, "first_page": first_page,
+        fallback = None
+        if variant == "E" and labels and (why := page_doubts(labels, geo["systems"], known, header)):
+            fallback, labels = why, None
+            for _ in range(2):
+                c = await call_messages(prompt, img, effort="low", tag=f"{tag}-fallback", uid=pid)
+                attempts.append({k: c[k] for k in c if k != "text"} | {"text": c["text"], "fallback": True})
+                try:
+                    labels = parse(extract_json(c["text"]), len(geo["measures"]))
+                    break
+                except Exception as e:  # noqa: BLE001
+                    err = f"{type(e).__name__}: {e}"
+        rec = {"page": pid, "kind": kind, "variant": variant, "run": run, "trimmed": trimmed, "first_page": first_page, "fallback": fallback,
                "known_in": list(known), "attempts": attempts, "parse_error": None if labels else err,
                "seconds": sum(a["seconds"] for a in attempts), "usd": sum(a["usd"] for a in attempts),
                "output_tokens": sum(a["output_tokens"] for a in attempts), "input_tokens": sum(a["input_tokens"] for a in attempts),

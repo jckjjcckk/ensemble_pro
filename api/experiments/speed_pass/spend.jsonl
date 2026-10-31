@@ -705,3 +705,55 @@
 {"ts": "2026-10-31T00:12:25", "source": "v2_run charges", "tag": "step3 convert after C (all adopted, clean rerun)", "run": "convert_after_c", "model": "muse-spark-1.3", "input_tokens": 1437, "output_tokens": 335, "usd": 0.00322}
 {"ts": "2026-10-31T00:12:25", "source": "v2_run charges", "tag": "step3 convert after C (all adopted, clean rerun)", "run": "convert_after_c", "model": "muse-spark-1.3", "input_tokens": 1458, "output_tokens": 352, "usd": 0.0033185}
 {"ts": "2026-10-31T00:12:25", "source": "v2_run charges", "tag": "step3 convert after C (all adopted, clean rerun)", "run": "convert_after_c", "model": "muse-spark-1.3", "input_tokens": 2154, "output_tokens": 2071, "usd": 0.01149425}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1", "id": "beethoven9-p172", "api": "chat", "usd": 0.0142225, "secs": 11.2, "output_tokens": 1865}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1", "id": "beethoven9-p173", "api": "chat", "usd": 0.01205175, "secs": 6.98, "output_tokens": 1316}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1 fallback", "id": "beethoven9-p173", "api": "messages", "usd": 0.0209555, "secs": 18.35, "output_tokens": 3411}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1", "id": "beethoven9-p174", "api": "chat", "usd": 0.01425325, "secs": 9.7, "output_tokens": 1834}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1 fallback", "id": "beethoven9-p174", "api": "messages", "usd": 0.0181165, "secs": 13.92, "output_tokens": 2743}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1", "id": "beethoven9-p175", "api": "chat", "usd": 0.01636975, "secs": 12.58, "output_tokens": 2332}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1 fallback", "id": "beethoven9-p175", "api": "messages", "usd": 0.0219075, "secs": 15.58, "output_tokens": 3635}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1", "id": "chopin-p14", "api": "chat", "usd": 0.01025625, "secs": 8.44, "output_tokens": 1265}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1", "id": "chopin-p15", "api": "chat", "usd": 0.01035825, "secs": 6.51, "output_tokens": 1289}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1", "id": "chopin-p16", "api": "chat", "usd": 0.0089855, "secs": 4.9, "output_tokens": 966}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1", "id": "goldberg-bga-p01", "api": "chat", "usd": 0.01008975, "secs": 9.02, "output_tokens": 1282}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1", "id": "goldberg-bga-p02", "api": "chat", "usd": 0.010628, "secs": 7.72, "output_tokens": 1386}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1", "id": "goldberg-bga-p03", "api": "chat", "usd": 0.00930625, "secs": 6.55, "output_tokens": 1075}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1", "id": "rach1-gutheil-p01", "api": "chat", "usd": 0.01260625, "secs": 10.48, "output_tokens": 1850}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1 fallback", "id": "rach1-gutheil-p01", "api": "messages", "usd": 0.015135, "secs": 11.31, "output_tokens": 2445}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1", "id": "rach1-gutheil-p02", "api": "chat", "usd": 0.01540175, "secs": 13.04, "output_tokens": 2456}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1 fallback", "id": "rach1-gutheil-p02", "api": "messages", "usd": 0.0187295, "secs": 15.44, "output_tokens": 3239}
+{"ts": "2026-10-31T00:17:41", "source": "pageread_speed E", "tag": "step5 pageread E r1", "id": "rach1-gutheil-p03", "api": "chat", "usd": 0.0166725, "secs": 11.8, "output_tokens": 2755}
+{"ts": "2026-10-31T00:19:43", "source": "pageread_speed E", "tag": "step5 pageread E r2", "id": "beethoven9-p172", "api": "chat", "usd": 0.013806, "secs": 8.82, "output_tokens": 1767}
+{"ts": "2026-10-31T00:19:43", "source": "pageread_speed E", "tag": "step5 pageread E r2", "id": "beethoven9-p173", "api": "chat", "usd": 0.01449775, "secs": 9.67, "output_tokens": 1893}
+{"ts": "2026-10-31T00:19:43", "source": "pageread_speed E", "tag": "step5 pageread E r2", "id": "beethoven9-p174", "api": "chat", "usd": 0.015981, "secs": 10.05, "output_tokens": 2242}
+{"ts": "2026-10-31T00:19:43", "source": "pageread_speed E", "tag": "step5 pageread E r2", "id": "beethoven9-p175", "api": "chat", "usd": 0.0145785, "secs": 9.13, "output_tokens": 1912}
+{"ts": "2026-10-31T00:19:43", "source": "pageread_speed E", "tag": "step5 pageread E r2", "id": "chopin-p14", "api": "chat", "usd": 0.009232, "secs": 6.16, "output_tokens": 1024}
+{"ts": "2026-10-31T00:19:43", "source": "pageread_speed E", "tag": "step5 pageread E r2", "id": "chopin-p15", "api": "chat", "usd": 0.01012025, "secs": 5.1, "output_tokens": 1233}
+{"ts": "2026-10-31T00:19:43", "source": "pageread_speed E", "tag": "step5 pageread E r2", "id": "chopin-p16", "api": "chat", "usd": 0.0092915, "secs": 4.77, "output_tokens": 1038}
+{"ts": "2026-10-31T00:19:43", "source": "pageread_speed E", "tag": "step5 pageread E r2", "id": "goldberg-bga-p01", "api": "chat", "usd": 0.009125, "secs": 5.75, "output_tokens": 1055}
+{"ts": "2026-10-31T00:19:43", "source": "pageread_speed E", "tag": "step5 pageread E r2", "id": "goldberg-bga-p02", "api": "chat", "usd": 0.01145675, "secs": 7.35, "output_tokens": 1581}
+{"ts": "2026-10-31T00:19:43", "source": "pageread_speed E", "tag": "step5 pageread E r2", "id": "goldberg-bga-p03", "api": "chat", "usd": 0.0108235, "secs": 6.89, "output_tokens": 1432}
+{"ts": "2026-10-31T00:19:43", "source": "pageread_speed E", "tag": "step5 pageread E r2", "id": "rach1-gutheil-p01", "api": "chat", "usd": 0.0122365, "secs": 6.59, "output_tokens": 1763}
+{"ts": "2026-10-31T00:19:43", "source": "pageread_speed E", "tag": "step5 pageread E r2", "id": "rach1-gutheil-p02", "api": "chat", "usd": 0.0165315, "secs": 10.53, "output_tokens": 2723}
+{"ts": "2026-10-31T00:19:43", "source": "pageread_speed E", "tag": "step5 pageread E r2", "id": "rach1-gutheil-p03", "api": "chat", "usd": 0.017628, "secs": 12.98, "output_tokens": 2981}
+{"ts": "2026-10-31T00:20:25", "source": "script", "tag": "import goldberg-before-r1", "model": "muse-spark-1.3", "input_tokens": 866, "output_tokens": 752, "usd": 0.0042785}
+{"ts": "2026-10-31T00:20:31", "source": "script", "tag": "import goldberg-before-r1", "model": "muse-spark-1.3", "input_tokens": 3126, "output_tokens": 2066, "usd": 0.012688}
+{"ts": "2026-10-31T00:20:40", "source": "script", "tag": "import goldberg-before-r1", "model": "muse-spark-1.3", "input_tokens": 3713, "output_tokens": 1881, "usd": 0.0126355}
+{"ts": "2026-10-31T00:20:51", "source": "script", "tag": "import goldberg-before-r1", "model": "muse-spark-1.3", "input_tokens": 3790, "output_tokens": 1854, "usd": 0.012617}
+{"ts": "2026-10-31T00:20:52", "source": "script", "tag": "import goldberg-before-r1", "model": "muse-spark-1.3", "input_tokens": 3790, "output_tokens": 2429, "usd": 0.01506075}
+{"ts": "2026-10-31T00:20:54", "source": "script", "tag": "import goldberg-before-r1", "model": "muse-spark-1.3", "input_tokens": 3790, "output_tokens": 2668, "usd": 0.0160765}
+{"ts": "2026-10-31T00:20:56", "source": "script", "tag": "import goldberg-before-r1", "model": "muse-spark-1.3", "input_tokens": 3790, "output_tokens": 3003, "usd": 0.01750025}
+{"ts": "2026-10-31T00:21:01", "source": "script", "tag": "import goldberg-after-r1", "model": "muse-spark-1.3", "input_tokens": 866, "output_tokens": 620, "usd": 0.0037175}
+{"ts": "2026-10-31T00:21:05", "source": "script", "tag": "import goldberg-after-r1", "model": "muse-spark-1.3", "input_tokens": 69, "output_tokens": 1412, "usd": 0.00608725}
+{"ts": "2026-10-31T00:21:11", "source": "script", "tag": "import goldberg-after-r1", "model": "muse-spark-1.3", "input_tokens": 3713, "output_tokens": 1210, "usd": 0.00978375}
+{"ts": "2026-10-31T00:21:17", "source": "script", "tag": "import goldberg-after-r1", "model": "muse-spark-1.3", "input_tokens": 3790, "output_tokens": 1244, "usd": 0.0100245}
+{"ts": "2026-10-31T00:21:18", "source": "script", "tag": "import goldberg-after-r1", "model": "muse-spark-1.3", "input_tokens": 3790, "output_tokens": 1102, "usd": 0.009421}
+{"ts": "2026-10-31T00:21:20", "source": "script", "tag": "import goldberg-after-r1", "model": "muse-spark-1.3", "input_tokens": 3790, "output_tokens": 1437, "usd": 0.01084475}
+{"ts": "2026-10-31T00:21:21", "source": "script", "tag": "import goldberg-after-r1", "model": "muse-spark-1.3", "input_tokens": 3790, "output_tokens": 1746, "usd": 0.012158}
+{"ts": "2026-10-31T00:21:26", "source": "script", "tag": "import goldberg-after-r2", "model": "muse-spark-1.3", "input_tokens": 113, "output_tokens": 671, "usd": 0.002993}
+{"ts": "2026-10-31T00:21:31", "source": "script", "tag": "import goldberg-after-r2", "model": "muse-spark-1.3", "input_tokens": 69, "output_tokens": 1818, "usd": 0.00781275}
+{"ts": "2026-10-31T00:21:36", "source": "script", "tag": "import goldberg-after-r2", "model": "muse-spark-1.3", "input_tokens": 3713, "output_tokens": 1005, "usd": 0.0089125}
+{"ts": "2026-10-31T00:21:41", "source": "script", "tag": "import goldberg-after-r2", "model": "muse-spark-1.3", "input_tokens": 3790, "output_tokens": 802, "usd": 0.008146}
+{"ts": "2026-10-31T00:21:43", "source": "script", "tag": "import goldberg-after-r2", "model": "muse-spark-1.3", "input_tokens": 3790, "output_tokens": 1136, "usd": 0.0095655}
+{"ts": "2026-10-31T00:21:43", "source": "script", "tag": "import goldberg-after-r2", "model": "muse-spark-1.3", "input_tokens": 3790, "output_tokens": 1372, "usd": 0.0105685}
+{"ts": "2026-10-31T00:21:45", "source": "script", "tag": "import goldberg-after-r2", "model": "muse-spark-1.3", "input_tokens": 3790, "output_tokens": 1618, "usd": 0.011614}

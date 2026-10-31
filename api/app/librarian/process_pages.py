@@ -47,13 +47,18 @@ from ..llm import _client as default_client, model_name as default_model
 from . import Job, JobContext, ScoreFailure, handler
 from . import label_memory, landmarks
 from .cut import page_measures
-from .labels import PageLabels, canon_part, label_page, match_part, read_header
+from .labels import PageLabels, canon_part, doubtful_names, label_page, match_part, read_header
 from .signature import read_signature
 
 ENGINE = "opencv-staff-geometry+spark-labels"
 LEVELS = ["high", "medium", "low"]
 SIGNATURE_PAGES = 4   # how far into the book the signature read looks for the first system (title and blank pages first)
 CONCURRENCY = 4       # label calls in flight in the second wave (Meta allows 150 a minute; 3 at once drew no 429)
+# The page's label call at effort minimal (chat completions), with a guard: a page whose names `page_doubts` questions is
+# read again at low. Speed pass 2026-10-30 (004-speed-eval, benchmark 1.8): about half the time a page. Landmarks from a
+# minimal read carry trust "low"; the voice facts leave out their double bars (004-speed-eval: minimal invented 3-4).
+PAGE_EFFORT = "minimal"
+FALLBACK_EFFORT = "low"
 log = logging.getLogger("folio.process_pages")
 
 
@@ -94,6 +99,17 @@ def split_staves(staves: int, parts: list[str]) -> list[int]:
 
 def header_names(header: dict[str, Any] | None) -> list[str]:
     return [canon_part(i.get("label") or i.get("name") or "") for i in (header or {}).get("instruments") or [] if (i.get("label") or i.get("name"))]
+
+
+def page_doubts(labels: PageLabels, geo_systems: list[dict[str, Any]], known: list[str], header: dict[str, Any] | None) -> list[str]:
+    """Why a page's labels read at effort minimal are not kept: a part name given twice in a system or a bare family
+    name the book has several of (`labels.doubtful_names`), or an assignment that would park on a question
+    (`assign_parts`: names missing, not adding up to the staves, a part neither the earlier pages nor the header have).
+    The 004 speed eval's guard: such a page is read again at low before anyone is asked."""
+    systems = [(s["index"], labels.parts_for_system(s["index"])[0]) for s in geo_systems]
+    why = doubtful_names(systems, list(known) + header_names(header))
+    _, park = assign_parts(geo_systems, labels, list(known), 2 if known else 1, header)
+    return why + ([park] if park else [])
 
 
 def assign_parts(geo_systems: list[dict[str, Any]], labels: PageLabels, known: list[str], page_no: int,
@@ -198,7 +214,7 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
         state = {"pages": {}, "known_parts": [], "log": [], "cost_usd": 0.0, "latency_ms": 0, "question": None}
         interp = ctx.db.table("interpretations").insert({
             "score_id": score_id, "source_id": source_id, "version": version, "engine": ENGINE, "status": "running",
-            "params": {"engine": ENGINE, "geometry": "cut.page_measures", "header_spaces": 12, "spark_effort": "low", "job_id": job.id, "state": state},
+            "params": {"engine": ENGINE, "geometry": "cut.page_measures", "header_spaces": 12, "spark_effort": PAGE_EFFORT, "job_id": job.id, "state": state},
         }).execute().data[0]
     interp_id = interp["id"]
     version = interp["version"]
@@ -292,7 +308,14 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
         else:
             labels = await label_page(ctx, png, geo_d, effort=effort, known=known)
             state["cost_usd"] = float(Decimal(str(state["cost_usd"])) + labels.cost_usd)
-            state["pages"][str(i)] = {"unreadable": False, "geometry": geo_d, "labels": labels.as_dict(), "parts": None, "ambiguous": None, "pending": True}
+            read_at, why = effort, []
+            if effort != FALLBACK_EFFORT and (why := page_doubts(labels, geo_d["systems"], known, header)):
+                state["log"].append(f"Page {i}: the parts read at {effort} are doubted ({'; '.join(why)}); read again at {FALLBACK_EFFORT}")
+                labels = await label_page(ctx, png, geo_d, effort=FALLBACK_EFFORT, known=known)
+                state["cost_usd"] = float(Decimal(str(state["cost_usd"])) + labels.cost_usd)
+                read_at = FALLBACK_EFFORT
+            state["pages"][str(i)] = {"unreadable": False, "geometry": geo_d, "labels": labels.as_dict(), "parts": None, "ambiguous": None, "pending": True,
+                                      "effort": read_at, **({"fallback": why} if why else {})}
         save_state()
         done = sum(1 for p in state["pages"].values() if not p.get("ambiguous"))
         await ctx.progress(0.05 + 0.75 * done / n_pages, f"Read {done} of {n_pages} pages")
@@ -417,7 +440,7 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
                                "rehearsal_mark": labels.rehearsal_marks.get(m["provisional"])})
             number_of[m["provisional"]] = n
             n += 1
-        page_marks += landmarks_at_bars(labels, number_of, pno, state["log"])
+        page_marks += landmarks_at_bars(labels, number_of, pno, state["log"], trust="low" if page.get("effort") == "minimal" else None)
 
     numbers = [p["number"] for p in placements]
     rows = [{"score_id": score_id, "number": num, "part": None} for num in numbers]
@@ -511,7 +534,7 @@ async def _nothing() -> None:
     return None
 
 
-def landmarks_at_bars(labels: PageLabels, number_of: dict[int, int], page_no: int, log: list[str]) -> list[dict[str, Any]]:
+def landmarks_at_bars(labels: PageLabels, number_of: dict[int, int], page_no: int, log: list[str], trust: str | None = None) -> list[dict[str, Any]]:
     """The page's printed landmarks at the bar numbers the geometry count gave their boxes (Spark only pointed at a
     box). A double bar or an end repeat is the boundary after its box (bar, bar + 1). Dropped, and logged, rather than
     guessed: a landmark whose box Spark did not give or that is not on the page, and one over a box Spark itself
@@ -527,7 +550,8 @@ def landmarks_at_bars(labels: PageLabels, number_of: dict[int, int], page_no: in
             log.append(f"Page {page_no}: landmark {text or d['kind']!r} left out ({why})")
             continue
         boundary = d["kind"] == "double_bar" or (d["kind"] == "repeat" and re.search(r"\bend\b", text, re.I))
-        out.append({"kind": d["kind"], "label": text, "bar": bar, "bar_after": bar + 1 if boundary else None, "source": "page"})
+        out.append({"kind": d["kind"], "label": text, "bar": bar, "bar_after": bar + 1 if boundary else None, "source": "page",
+                    **({"trust": trust} if trust else {})})
     return out
 
 

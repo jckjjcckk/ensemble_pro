@@ -278,10 +278,17 @@ def _plain(name: str) -> tuple[str, ...]:
 
 
 def generic_name(name: str, pool: list[str]) -> bool:
-    """A bare family name ("Horn", "Clarinets": no numeral) where the book has two or more parts of that family, so it
-    names no one part (004 speed eval: effort minimal named Rach 1's horns "Horn", "Horn" in 1 of 4 chains)."""
+    """A bare family name ("Horn", "Clarinets": the family's word and nothing else, no numeral) that is not itself one of
+    the book's parts, where the book has two or more parts of that family, so it names no one part (004 speed eval:
+    effort minimal named Rach 1's horns "Horn", "Horn" in 1 of 4 chains). "Bass Trombone" or "Horns in D" say more than
+    the family; "Flutes" when the earlier pages read "Flutes" is that part."""
     fam = hdr.family(name)
     if fam is None or hdr.numerals(name):
+        return False
+    words = [t for t in hdr.tokens(name) if t not in hdr.IGNORE and t not in hdr.ROMAN]
+    if not words or any(t not in hdr.SYNONYMS.get(fam, []) for t in words):
+        return False
+    if any(canon_part(k).lower() == canon_part(name).lower() or _plain(k) == _plain(name) for k in pool):
         return False
     return len({canon_part(k).lower() for k in pool if hdr.family(k) == fam}) >= 2
 

@@ -24,6 +24,14 @@ from app.llm import Completion
 from app.spend import Charge
 from tests.test_part_cut import HEADER, Ctx, FakeDB, synth_page
 
+
+@pytest.fixture(autouse=True)
+def _pages_read_at_low(monkeypatch):
+    """These tests script one label answer per page; the minimal read and its fallback to low are tested in
+    test_process_pages_guard.py."""
+    import app.librarian.process_pages as pp
+    monkeypatch.setattr(pp, "PAGE_EFFORT", "low")
+
 SCORE = "11111111-1111-1111-1111-111111111111"
 FIXTURES = Path(__file__).resolve().parents[2] / "web" / "public" / "fixtures"
 

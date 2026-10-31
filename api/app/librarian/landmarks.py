@@ -3,7 +3,8 @@
 `scores.landmarks` (migration 20261030160000) is one list per book:
 
     {"kind": "key_change|meter_change|tempo|double_bar|repeat|coda|segno|fine|section|rehearsal",
-     "label": "<printed text>", "bar": 97, "bar_after": 98 | None, "source": "musicxml" | "page"}
+     "label": "<printed text>", "bar": 97, "bar_after": 98 | None, "source": "musicxml" | "page", "trust"?: "low"}
+`trust: "low"` marks a landmark from a page read at effort minimal (process_pages); `for_facts` drops its double bars.
 
 `bar_after` is set for a boundary between two bars (a double bar, an end repeat), so the facts say "double bar
 between bars 150 and 151": the v4e eval's one miss (lm15) read "double bar after bar 150" as "the bar before the double
@@ -50,15 +51,27 @@ def clean(raw: Any, source: str | None = None) -> list[dict[str, Any]]:
         if not label:
             continue
         key = (d["kind"], bar, label.casefold())
-        out.setdefault(key, {"kind": d["kind"], "label": label, "bar": bar, "bar_after": after, "source": src})
+        rec = {"kind": d["kind"], "label": label, "bar": bar, "bar_after": after, "source": src}
+        if d.get("trust") == "low":
+            rec["trust"] = "low"
+        if key in out and out[key].get("trust") == "low" and "trust" not in rec:
+            out[key] = rec                          # the same landmark read at low too: the trusted copy wins
+        out.setdefault(key, rec)
     return sorted(out.values(), key=lambda d: (d["bar"], KINDS.index(d["kind"])))
 
 
 def for_facts(landmarks: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """What the voice prompt lists: MusicXML entries when the book has any (a converted book), else the page ones."""
+    """What the voice prompt lists: MusicXML entries when the book has any (a converted book), else the page ones. A
+    double bar from a page read at effort minimal (`trust: "low"`) is left out unless a trusted read has a double bar at
+    the same bar: minimal invented 3-4 double bars in 20 page reads where low invented none (004-speed-eval), and a
+    conductor's "after the double bar" placed on an invented one is a wrong mark."""
     lm = clean(landmarks)
     xml = [d for d in lm if d["source"] == "musicxml"]
-    return xml or [d for d in lm if d["source"] == "page"]
+    if xml:
+        return xml
+    page = [d for d in lm if d["source"] == "page"]
+    trusted = {d["bar"] for d in page if d["kind"] == "double_bar" and d.get("trust") != "low"}
+    return [d for d in page if not (d["kind"] == "double_bar" and d.get("trust") == "low" and d["bar"] not in trusted)]
 
 
 def load(db: Any, score_id: str) -> list[dict[str, Any]]:
