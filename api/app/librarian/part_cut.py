@@ -324,6 +324,7 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
     sc.setdefault("seen_labels", {})   # "page:system" -> [{block, label}]: the label the recheck saw on a refused block
     sc.setdefault("prereads", {})      # str(page) -> the label call's answer, read ahead of the agent (kept for a resume)
     sc.setdefault("label_fallbacks", [])   # [{page, why}]: a minimal label read the guard sent back to low
+    sc.setdefault("staves_answered", {})   # instrument -> staves per system the admin's answer named, over the header's
     cache: dict[int, tuple[Any, Any, Any]] = {}   # page -> (geom, bw, page image), not persisted
 
     # The book's label memory (006 agentic memory rule): what earlier reads and the admin's answers say each printed label
@@ -461,6 +462,11 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         return hdr.match_instrument((sc["header"] or {}).get("instruments") or [], instrument)
 
     def header_staves(instrument: str) -> int:
+        """The staves per system the cut expects: the admin's answer for this instrument when it named a count, else the
+        header's, else two for a keyboard. (E2E night 2026-10-31: the Goldberg header read the title "Aria" as a
+        one-staff instrument; the admin answered both staves of line 1 and was asked again on every line.)"""
+        if instrument in sc["staves_answered"]:
+            return sc["staves_answered"][instrument]
         inst = header_entry(instrument)
         if inst is not None:
             return max(1, int(inst.get("staves") or 1))
@@ -696,6 +702,11 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
         by_memory = [r for r in rechecks if r["verdict"] in ("remembered", "label", "brace")]
         sc["log"].append(f"Page {page} system {system}: staves {staves} cut ({how}), {sysd['n_measures']} bars"
                          + (f"; settled by the book's labels ({', '.join(r['verdict'] for r in by_memory)})" if by_memory else ""))
+        # Only upwards: an answer with fewer staves is a partial system (the Cappi p. 12 grand staff the geometry took for
+        # two systems of one staff each), not a smaller instrument.
+        if not recheck and len(instruments) == 1 and len(staves) > header_staves(instruments[0]):
+            sc["staves_answered"][instruments[0]] = len(staves)
+            sc["log"].append(f"Page {page} system {system}: the admin's answer gives {label} {len(staves)} staves per system")
         learned = learn_from(page, system, staves, "human" if not recheck else "model") if (not recheck or all(r["verdict"] in ("yes", "brace") for r in rechecks)) else []
         out = {"committed": key, "staves": staves, "blocks": blocks, "storage_key": storage_key, "bars": sysd["n_measures"]}
         if by_memory:

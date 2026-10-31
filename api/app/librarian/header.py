@@ -159,15 +159,23 @@ def same_instrument(a: str, b: str) -> bool:
     return len(x) >= 3 and len(y) >= 3 and (x.startswith(y) or y.startswith(x))
 
 
+def _plain_label(s: str) -> str:
+    return " ".join(re.sub(r"[.:;,]", " ", s).split()).lower()
+
+
 def match_instrument(instruments: list[dict], wanted: str) -> dict | None:
     """The header entry for the wanted instrument ("Violin I", "Flute 1", "Soprano", "Piano (solo)"): the family is
     matched through the synonym table against the label and abbreviations, a numeral in the wanted name must
     appear in the entry when the entry has numerals ("Violini I." has it, "Violini II." does not, "Flauti I. II."
     has both: a shared staff). A voice name prefers a voice-family entry. Without a numeral the first entry of the
-    family wins."""
+    family wins. A name the synonym table does not know is its own entry by the label as printed (the picker offers
+    the header's labels without their full stop: the Goldberg header read the title "Aria." as the instrument, the
+    cut asked for "Aria", found no entry and expected one staff of the grand staff's two; E2E night 2026-10-31)."""
     want = family(wanted.split(" (")[0]) or family(wanted)
     if want is None:
-        return None
+        plain = _plain_label(wanted.split(" (")[0])
+        return next((inst for inst in instruments
+                     if any(_plain_label(n) == plain for n in [inst.get("label") or inst.get("name") or "", *(inst.get("abbreviations") or [])] if n)), None)
     wnums = numerals(wanted.split(" (")[0])
     voice = want in VOICES
     best: tuple[int, int, dict] | None = None

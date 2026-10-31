@@ -848,3 +848,51 @@ async def test_a_split_of_two_learns_the_label_the_admin_confirmed_on_the_propos
 def test_breitkopf_cello_abbreviations_are_the_cello():
     from app.librarian import header as hdr
     assert hdr.family("Vcllo. e C.-B.") == "cello" and hdr.family("Vcello e C-B") == "cello" and hdr.family("C-B.") == "double bass"
+
+
+@pytest.mark.asyncio
+async def test_the_admins_staff_count_holds_for_the_rest_of_the_cut():
+    """E2E night (Goldberg): the header read the title "Aria" as a one-staff instrument. The admin answers both staves of
+    the grand staff on page 1; page 2's two staves are then the count, not a refusal and a question on every line."""
+    aria = text(json.dumps({"instruments": [{"label": "Aria", "staves": 1}], "key": "G major", "time": "3/4"}))
+    script = [tool("read_header", {}), aria, tool("read_page", {"page": 1}), label_margin([("Aria.", [4, 5])]),
+              commit(1, [4, 5]), commit(1, [4, 5]), commit(1, [4, 5])]
+    client, t = fake_client(script)
+    job, ctx, db = world(2, {"instruments": ["Aria"]})
+    out = await part_cut(job, ctx, client=client)
+    assert out["question_payload"]["kind"] == "choose_staves" and "1 staves per system" in json.dumps(out)
+    db.rows["jobs"][-1]["result"] = out
+    client2, t2 = fake_client([tool("read_page", {"page": 2}), label_margin([("Aria.", [4, 5])]), commit(2, [4, 5]), tool("finish", {})])
+    job2, ctx2, _ = world(2, {"instruments": ["Aria"], "answer": {"staves": [4, 5]}, "resume_from": job.id}, db=db)
+    out2 = await part_cut(job2, ctx2, client=client2)
+    sc = ctx2.result["agent"]["scratch"]
+    assert sc["staves_answered"] == {"Aria": 2}
+    assert out2["systems_cut"] == 2 and out2["questions"] == 1
+    assert sc["commits"]["2:1"]["staves"] == [4, 5]
+
+
+def test_a_name_the_synonyms_do_not_know_finds_its_own_header_entry():
+    """Goldberg (E2E night): the header read the title "Aria." as a two-staff instrument; the picker offered "Aria"."""
+    header = [{"label": "Aria.", "staves": 2, "clefs": ["treble", "bass"]}]
+    assert match_instrument(header, "Aria") == header[0]
+    assert match_instrument(header, "Aria (solo)") == header[0]
+    assert match_instrument(header, "Arietta") is None
+
+
+@pytest.mark.asyncio
+async def test_an_answer_with_fewer_staves_does_not_lower_the_count():
+    """Cappi 1802 p. 12 (E2E night): the geometry took one grand staff for two one-staff systems; the admin answers the
+    treble alone. The piano still has two staves on the next page."""
+    script = [tool("read_header", {}), KLAV_HEADER, tool("read_page", {"page": 1}), label_margin([("Klavier", [4, 5])]),
+              commit(1, [4]), commit(1, [4]), commit(1, [4])]
+    client, t = fake_client(script)
+    job, ctx, db = world(2)
+    out = await part_cut(job, ctx, client=client)
+    db.rows["jobs"][-1]["result"] = out
+    client2, t2 = fake_client([tool("read_page", {"page": 2}), label_margin([("Klavier", [4, 5])]), commit(2, [4]), commit(2, [4, 5]), tool("finish", {})])
+    job2, ctx2, _ = world(2, {"answer": {"staves": [4]}, "resume_from": job.id}, db=db)
+    out2 = await part_cut(job2, ctx2, client=client2)
+    sc = ctx2.result["agent"]["scratch"]
+    assert sc["staves_answered"] == {}
+    assert sc["commits"]["1:1"]["staves"] == [4] and sc["commits"]["2:1"]["staves"] == [4, 5]
+    assert "you named 1" in json.dumps(ctx2.result["agent"]["log"])               # page 2's [4] still refused by the count
