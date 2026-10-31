@@ -7,7 +7,6 @@ import Shelf from './Shelf'
 import Scan from './Scan'
 import ScoreDoc from './ScoreDoc'
 import { CheckBars } from './CheckBars'
-import Practice from './Practice'
 import { syncStatusBar } from '../lib/native'
 import './styles.css'
 import './r3.css'
@@ -59,7 +58,6 @@ function Shell() {
         <Route path="score/:scoreId" element={<ScoreDoc />} />
         <Route path="score/:scoreId/pages" element={<ScoreDoc pages />} />
         <Route path="score/:scoreId/check" element={<CheckBars />} />
-        <Route path="practice" element={<Practice />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>

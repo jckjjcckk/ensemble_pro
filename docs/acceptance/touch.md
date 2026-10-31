@@ -14,8 +14,8 @@ Open `http://<mac-ip>:5173` on the same wifi (or the tunnel URL). Fixture: the B
 | 6 | Score | Landscape: look for the words beside the page. Portrait: open Markings. | In landscape a voice note or text note sits in the outer margin level with its bar, with a tick at the bar's height; in portrait the Markings panel lists the same notes. |
 | 7 | Score | Drag the bracket on the ruler with a finger. | The pages follow the bracket; the dock and the ruler stay put. |
 | 8 | Score | Tap a presence face in the header. | The spread jumps to that member's bar. The face is at least 44 pt. |
-| 9 | Practice | With one hand, change tempo with minus and plus, toggle Metronome, press Play. | Every control hits on the first try; held minus/plus repeats. |
-| 10 | Practice | Drag the loop bracket on the ruler, then tap a heat band. | The loop updates live; the trouble-spot card appears with Loop these bars. |
+| 9 | Stand, Play the parts | Open "…" > Play the parts. With one hand, change pace with minus and plus, toggle Loop and Count-in, press Play. | Every control hits on the first try; held minus/plus repeats. |
+| 10 | Stand, Play the parts | Tap a bar, choose Loop from here, then drag the passage bracket's ends on the player's ruler. | The player opens on that passage, looping; the passage updates live and is drawn on the pages. |
 | 11 | Scan | Drag a page to a new position with a finger. | A floating copy follows the finger and the bracket shows where it lands; the order changes on release. |
 | 12 | All | Rotate the iPad. | Landscape shows two facing pages, portrait one; nothing is cropped; the dock remains fully visible. |
 

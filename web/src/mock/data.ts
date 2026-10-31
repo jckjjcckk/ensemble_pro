@@ -166,33 +166,6 @@ export interface TroubleSpot {
   note: string
 }
 
-export interface PracticeSession {
-  id: string
-  scoreId: string
-  partId: string
-  date: string
-  durationMin: number
-  targetBpm: number
-  reachedBpm: number
-  accuracy: number
-  loops: { barFrom: number; barTo: number; reps: number }[]
-}
-
-export interface PracticeState {
-  scoreId: string
-  partId: string
-  bar: number
-  beat: number
-  tempoBpm: number
-  tempoPct: number
-  metronome: boolean
-  loop: { barFrom: number; barTo: number } | null
-  otherParts: 'off' | 'orchestra' | 'all'
-  listening: 'off' | 'following' | 'lost'
-  troubleSpots: TroubleSpot[]
-  history: PracticeSession[]
-}
-
 export interface ScanPage {
   id: string
   index: number
@@ -295,25 +268,6 @@ export const annotations: Annotation[] = [
   { id: 'a6', scoreId: 's-beethoven', partId: 'p-bq-vn1', authorId: 'm-lin', kind: 'marking', barFrom: 178, barTo: 182, text: 'Pencil: circled rest', createdAt: '2026-10-25T20:04:00Z' },
   { id: 'a7', scoreId: 's-beethoven', partId: null, authorId: 'm-ada', kind: 'voice', barFrom: 178, barTo: 190, durationSec: 22, transcript: 'From 178 we are rushing. Cello, you lead the tempo here, violins sit on top of it. Let’s take it at 120 next time and bring it up.', createdAt: '2026-10-26T14:25:00Z' },
 ]
-
-// ---------------------------------------------------------------- practice
-
-export const practice: PracticeState = {
-  scoreId: 's-beethoven', partId: 'p-bq-vn1',
-  bar: 178, beat: 2, tempoBpm: 120, tempoPct: 91, metronome: true,
-  loop: { barFrom: 178, barTo: 190 }, otherParts: 'all', listening: 'following',
-  troubleSpots: [
-    { barFrom: 57, barTo: 60, severity: 0.4, note: 'Hooked bowing uneven' },
-    { barFrom: 121, barTo: 128, severity: 0.7, note: 'Intonation on the F# minor passage' },
-    { barFrom: 178, barTo: 190, severity: 0.9, note: 'Rushing; 8 of 12 runs ahead of the click' },
-  ],
-  history: [
-    { id: 'ps1', scoreId: 's-beethoven', partId: 'p-bq-vn1', date: '2026-10-22', durationMin: 25, targetBpm: 132, reachedBpm: 104, accuracy: 0.81, loops: [{ barFrom: 121, barTo: 128, reps: 9 }] },
-    { id: 'ps2', scoreId: 's-beethoven', partId: 'p-bq-vn1', date: '2026-10-23', durationMin: 40, targetBpm: 132, reachedBpm: 112, accuracy: 0.86, loops: [{ barFrom: 121, barTo: 128, reps: 6 }, { barFrom: 178, barTo: 190, reps: 10 }] },
-    { id: 'ps3', scoreId: 's-beethoven', partId: 'p-bq-vn1', date: '2026-10-25', durationMin: 30, targetBpm: 132, reachedBpm: 116, accuracy: 0.88, loops: [{ barFrom: 178, barTo: 190, reps: 12 }] },
-    { id: 'ps4', scoreId: 's-beethoven', partId: 'p-bq-vn1', date: '2026-10-26', durationMin: 18, targetBpm: 132, reachedBpm: 120, accuracy: 0.84, loops: [{ barFrom: 178, barTo: 190, reps: 8 }] },
-  ],
-}
 
 // ---------------------------------------------------------------- scan intake (Fauré, 8 pages being ordered)
 

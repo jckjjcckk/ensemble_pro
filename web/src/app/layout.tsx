@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router'
+import { Link, useLocation } from 'react-router'
 import { BASE, WORDMARK, useStore } from './store'
 import { IChevronLeft } from './icons'
 
@@ -67,19 +67,20 @@ export function useReducedMotion(): boolean {
   return reduced
 }
 
-/** Two places (R3, CK 2026-10-28): the Shelf (My Library and Groups) and the Stand (the book being read, where Read
- *  and Practise are a toggle in its header). The Stand returns to the last book opened. */
+/** Two places (R3, CK 2026-10-28): the Shelf (My Library and Groups) and the Stand (the book being read; its player
+ *  opens from the book's "…" menu, 014). The Stand returns to the last book opened. */
 type Area = 'shelf' | 'stand'
 
 const BOOK_KEY = 'folio.book'
 const PLACE_KEY = 'folio.place'
 
-/** Where the reader last was: a score, its pages, or practice on it. Kept for the Stand. */
+/** Where the reader last was: a score or its pages. Kept for the Stand. */
 export function rememberBook(where: string) {
   try { window.localStorage.setItem(BOOK_KEY, where) } catch { /* private mode: the Stand falls back to the first book */ }
 }
 export function lastBook(): string | null {
-  try { return window.localStorage.getItem(BOOK_KEY) } catch { return null }
+  // A `/practice` entry is from the retired practice screen (014): the Stand falls back as if nothing were kept.
+  try { const w = window.localStorage.getItem(BOOK_KEY); return w && !w.startsWith(`${BASE}/practice`) ? w : null } catch { return null }
 }
 
 /** The bar and page a book was last left at, for "Continues at bar N, page P" (per device). */
@@ -99,8 +100,8 @@ export function rememberPlace(scoreId: string, place: Place) {
   } catch { /* private mode: the book opens at its start */ }
 }
 
-/** `/score/{id}`, `/score/{id}/pages` (a PDF book's pages) or `/practice`: the stand. */
-const isBookPath = (path: string) => path.startsWith(`${BASE}/score/`) || path.startsWith(`${BASE}/practice`)
+/** `/score/{id}` or `/score/{id}/pages` (a PDF book's pages): the stand. */
+const isBookPath = (path: string) => path.startsWith(`${BASE}/score/`)
 
 const currentArea = (path: string): Area => (isBookPath(path) ? 'stand' : 'shelf')
 
@@ -146,28 +147,6 @@ export function Places({ compact = false }: { compact?: boolean }) {
   )
 }
 
-/** Read and Practise are two ways of being in one book: a segmented toggle in the book's header, not two places.
- *  Practise carries the book as `?score=` (the practice screen reads its own state; the id is there for it). */
-export function BookModes({ scoreId }: { scoreId?: string | null }) {
-  const { pathname, search } = useLocation()
-  const navigate = useNavigate()
-  const { scoresById } = useStore()
-  const practising = pathname.startsWith(`${BASE}/practice`)
-  const remembered = lastBook()
-  const id = scoreId ?? bookIdOf(pathname, search)
-    ?? (remembered && !remembered.startsWith(`${BASE}/practice`) ? bookIdOf(remembered.split('?')[0]) : null)
-  const score = id ? scoresById[id] : undefined
-  const back = score?.engravings?.length || !score?.pageSource ? `${BASE}/score/${id}` : `${BASE}/score/${id}/pages`
-  return (
-    <div className="r3-seg book-modes" role="radiogroup" aria-label="Mode">
-      <button type="button" role="radio" aria-checked={!practising} disabled={practising && !score}
-        onClick={() => { if (practising && id) navigate(back, { replace: true }) }}>Read</button>
-      <button type="button" role="radio" aria-checked={practising}
-        onClick={() => { if (!practising) navigate(`${BASE}/practice${id ? `?score=${encodeURIComponent(id)}` : ''}`, { replace: true }) }}>Practise</button>
-    </div>
-  )
-}
-
 /** The app icon's forte f (Bravura, OFL), cropped to the glyph. */
 export function FolioMark({ size = 18 }: { size?: number }) {
   return (
@@ -193,8 +172,6 @@ interface ScreenProps {
   ruler?: ReactNode
   /** Screen-specific controls; the area nav is always at the dock's left. */
   dock: ReactNode
-  /** Practice grows the dock into a tall control surface on wide landscape screens. */
-  tall?: boolean
   className?: string
 }
 
@@ -203,12 +180,10 @@ function isPushed(path: string): boolean {
   return path.startsWith(`${BASE}/scan`) || path.startsWith(`${BASE}/score`)
 }
 
-export function Screen({ header, children, ruler, dock, tall = false, className = '' }: ScreenProps) {
+export function Screen({ header, children, ruler, dock, className = '' }: ScreenProps) {
   const standalone = useStandalone()
   const { pathname, search } = useLocation()
   const back = standalone && isPushed(pathname)
-  // Practice carries the Read / Practise toggle (the stand draws its own header); strips do not.
-  const modes = pathname.startsWith(`${BASE}/practice`)
   useEffect(() => { if (isBookPath(pathname)) rememberBook(pathname + search) }, [pathname, search])
   return (
     <div className={`scr ${className}`}>
@@ -220,10 +195,9 @@ export function Screen({ header, children, ruler, dock, tall = false, className 
         )}
         <Wordmark />
         <div className="hdr-body">{header}</div>
-        {modes && <BookModes />}
       </header>
       <main className="main">{children}</main>
-      <section className={`dock ${tall ? 'is-tall' : ''}`} aria-label="Controls">
+      <section className="dock" aria-label="Controls">
         {ruler && <div className="dock-ruler">{ruler}</div>}
         <div className="dock-row">
           <Places compact />

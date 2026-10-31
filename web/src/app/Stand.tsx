@@ -1,5 +1,5 @@
 /** The Stand (R3, replaces the reader; docs/design/r3 R2_Stand*, R3_StandPortrait, R3_StandZoom). One header (Shelf,
- *  the book's title and where you are in it, Read | Practise, the Mine | Group layer, who else is on the stand, and the
+ *  the book's title and where you are in it, the Mine | Group layer, who else is on the stand, and the
  *  "…" menu), then the pages: two facing in landscape, one in portrait, a pinch into one page. A tap on a bar opens the
  *  vertical quick menu (Highlight, Note, Scribble, Loop from here); notes stand above their bar with their author's face;
  *  the others' faces wait at the page edge level with their bar; "Following Anna's page turns" sits at the foot. PDF
@@ -25,7 +25,7 @@ import { isSyncedScore, useBarMarks, useScribbles, type BarMark, type Me, type P
 import { usePresence } from './presence'
 import { BarSelection, HighlightLayer, MarkMenu, useBarMenu } from './MarkMenu'
 import { InkBar, InkLayer, type InkTool } from './InkLayer'
-import { BookModes, placeOf, rememberBook, rememberPlace, useReducedMotion, useViewport } from './layout'
+import { placeOf, rememberBook, rememberPlace, useReducedMotion, useViewport } from './layout'
 import { bookShare, bookState } from './book'
 import { faceColor } from './GroupsDialog'
 import { StaffQuestion } from './StaffQuestion'
@@ -441,7 +441,6 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
           <span className="stand-where">{[composerLast, whereLine].filter(Boolean).join(' · ')}</span>
         </div>
       </div>
-      <BookModes scoreId={score.id} />
       <div className="stand-right">
         {showLayer && (
           <div className="r3-seg is-outline stand-layer" role="radiogroup" aria-label="Whose marks">

@@ -1,6 +1,6 @@
 # 010 Distribution: parts to players, iPad reading view
 
-Status: prototype (a digital book's full score reads from the pages MuseScore engraved on the box, in the book's chosen layout, 2026-10-28; a single part still renders on the device with OSMD; parts match players by seat name; distributing cut images or highlighted page bands is not built) | Meta model: none (the parts come from 002, 004 and 008).
+Status: prototype (the Read / Practise toggle is gone, 2026-10-30: the player opens from the Stand's "…" menu, 014; a digital book's full score reads from the pages MuseScore engraved on the box, in the book's chosen layout, 2026-10-28; a single part still renders on the device with OSMD; parts match players by seat name; distributing cut images or highlighted page bands is not built) | Meta model: none (the parts come from 002, 004 and 008).
 
 ## Purpose
 
@@ -68,13 +68,14 @@ window.
   page, snapping spread by spread, dark themes invert the paper like the strips. The dock offers the PDF file
   itself (signed, the iPad's own viewer) and Open Digital when there is one. Verified on three repo page images
   through the temporary harness at 1024x768; not seen with a real import's pages.
-- The reader is reached through the dock's Stand place, and Read / Practise is a toggle in its header (001).
+- The reader is reached through the dock's Stand place. The Read / Practise toggle in its header is retired (2026-10-30);
+  Play the parts opens from the "…" menu (014).
 - **The Stand (R3, 2026-10-28; design in `docs/design/r3/`).** `Stand.tsx` replaces the reader and the page reader:
   one stage, `EngravedStage.tsx`, serves engraved Digital pages (`/score/{id}`) and PDF page images
   (`/score/{id}/pages`). For a PDF the bar boxes come from `measure_placements` of the latest done interpretation
   and are turned into the same `bars` shape as the `.mpos` boxes, so tapping a bar, highlights, notes, scribbles,
   faces and Follow work on scanned pages too. Header: Shelf back, serif title with the part (the part never
-  truncates away), "Beethoven · bars 49–80 of 236" (says "p. 1, upper half" when zoomed), Read / Practise,
+  truncates away), "Beethoven · bars 49–80 of 236" (says "p. 1, upper half" when zoomed),
   Mine / Group (the reader's own marks only, or the layer of the group the book is read in), presence faces and
   "…". Landscape shows two facing pages (the first spread is pages 1–2), portrait one page; swipe, the turn
   buttons and arrow keys turn with a directional spring. Pinch (or ctrl+wheel, or + / − / 0) zooms into one page

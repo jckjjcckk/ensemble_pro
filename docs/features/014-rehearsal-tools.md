@@ -1,6 +1,6 @@
 # 014 Rehearsal tools: play the parts
 
-Status: working on the local stack (2026-10-30), digital books only; not yet on an iPad | Meta model: none (music21
+Status: working on the local stack (2026-10-30), digital books only; the practice mock is retired (2026-10-30); not yet on an iPad | Meta model: none (music21
 writes the MIDI, the browser synthesises; Spark may later rate trouble spots; MIDI listening is a stretch).
 
 ## Purpose
@@ -92,8 +92,9 @@ Web:
 
 - Digital books only; the PDF stays the truth for reading, the transcription is what plays.
 - Same score object as rehearsal: loop, pace and mix are per-device practice state, not marks (012).
-- The Read | Practise toggle still opens the older practice mock (`Practice.tsx`, mock data); the player lives on the
-  Stand. Retiring or repointing that toggle is CK's call.
+- The practice mock (`Practice.tsx`, its styles and mock state) is retired (2026-10-30) and the Read | Practise
+  toggle with it: the player is a panel on the Stand, not a second mode, so it has one door, the "…" menu (plus Loop
+  from here on a bar). An old `/practice` link falls to the Shelf.
 
 ## Next steps
 

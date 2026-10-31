@@ -1,7 +1,7 @@
 /* Folio. Every token and rule is scoped under .fo (the app root).
    One look since R3 (CK, 2026-10-28; docs/design/r3/README.md): paper, ink and rule, light and dark. The legacy token
    names (--ground, --sheet, --ink-2, the dock's --dk*) are kept and mapped onto the R3 palette, so the screens R3 does
-   not redraw (scan, practice, the librarian sheets) follow the same paper. */
+   not redraw (scan, the librarian sheets) follow the same paper. */
 
 .fo {
   /* type: EB Garamond for display, titles and numbers; Inter for the interface; Noto Music for clefs and accidentals */
@@ -67,7 +67,7 @@
   --fail: #B5392E;         /* the status dot: the run failed */
   --shadow: 0 1px 2px rgba(28, 26, 22, 0.08), 0 10px 28px -8px rgba(28, 26, 22, 0.18);
 
-  /* the practice dock keeps a dark control surface in both themes */
+  /* the dock keeps a dark control surface in both themes */
   --dk: #1E1C18;
   --dk-2: #26241F;
   --dk-3: #3F3B33;
@@ -143,7 +143,7 @@
 .fo a { color: inherit; text-decoration: none; touch-action: manipulation; }
 /* Controls and chrome are not text: no link-preview sheet on a long press, no selection loupe.
    What the reader may want to copy (note bodies, briefs, inputs) stays selectable. */
-.fo button, .fo a, .fo label, .fo .hdr, .fo .dock, .fo .side-head, .fo .seg, .fo .cover, .fo .pin, .fo .badge, .fo .state, .fo .page-foot, .fo .disp, .fo .spot-card {
+.fo button, .fo a, .fo label, .fo .hdr, .fo .dock, .fo .side-head, .fo .seg, .fo .cover, .fo .pin, .fo .badge, .fo .state, .fo .page-foot, .fo .disp {
   -webkit-touch-callout: none; user-select: none; -webkit-user-select: none;
 }
 .fo input, .fo textarea, .fo .note-text, .fo .note-quote, .fo .info-brief, .fo .info-log { user-select: text; -webkit-user-select: text; }
@@ -179,7 +179,6 @@
 .fo .ph-title { min-width: 0; }
 .fo .ph-title h1 { font-family: var(--font-title); font-size: calc(17px * var(--title-scale)); font-weight: var(--title-weight); letter-spacing: var(--title-track); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fo .ph-title p { font-size: 13.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.fo .part-tag { flex: none; padding: 4px 10px; border: 1px solid var(--rule-2); border-radius: 6px; font-size: 14px; font-weight: 600; }
 
 .fo .main { position: relative; min-height: 0; overflow: hidden; }
 .fo .work { position: relative; height: 100%; display: grid; grid-template-columns: minmax(0, 1fr); }
@@ -227,7 +226,6 @@
 }
 .fo .dock-ruler { position: relative; padding: 2px 12px 0; border-bottom: 1px solid var(--dk-rule); }
 .fo .dock-row { display: flex; align-items: stretch; gap: 12px; min-height: 76px; padding: 6px 12px; }
-.fo .dock.is-tall .dock-row { min-height: 164px; padding: 12px 16px 14px; gap: 16px; }
 .fo .dock-body { flex: 1; min-width: 0; display: flex; align-items: stretch; }
 .fo .dock-spacer { flex: 1; }
 
@@ -300,17 +298,6 @@
 .fo .r-handle.is-wide { width: auto; }
 .fo .r-handle:focus-visible { outline: 2px solid var(--r-ink); outline-offset: -2px; }
 
-.fo .ruler-wrap { position: relative; }
-.fo .spot-card {
-  position: absolute; left: 12px; bottom: calc(100% + 10px); z-index: 6;
-  display: flex; align-items: center; gap: 14px; max-width: min(560px, calc(100% - 24px));
-  padding: 10px 10px 10px 16px; border-radius: 12px; background: var(--dk-2); color: var(--dk-ink);
-  box-shadow: 0 12px 32px -8px oklch(0 0 0 / 0.5);
-}
-.fo .spot-card .spot-heat { background: var(--dk-amber); }
-.fo .spot-bars { font-size: 13px; color: var(--dk-ink-2); }
-.fo .spot-note { font-size: 15px; font-weight: 600; }
-
 /* ---------------------------------------------------------------- score stage */
 
 .fo .stage { position: relative; height: 100%; min-height: 0; overflow: hidden; outline: none; }
@@ -350,9 +337,8 @@
 .fo .turn-next { right: 0; }
 .fo .stage-foot { position: absolute; left: 0; right: 0; bottom: 6px; z-index: 4; display: flex; justify-content: center; gap: 14px; font-size: 13px; color: var(--ink-3); pointer-events: none; }
 
-/* loop tint, heat, cut, cursor */
+/* loop tint, cut */
 .fo .u-loop { position: absolute; background: var(--wash); border-radius: 4px; }
-.fo .u-heat { position: absolute; height: 5px; border-radius: 3px; background: var(--heat); }
 .fo .u-cut {
   position: absolute; border-radius: 3px;
   background: repeating-linear-gradient(135deg, var(--wash-2) 0 1.5px, transparent 1.5px 7px);
@@ -361,13 +347,6 @@
 .fo .u-cut.is-draft { background: repeating-linear-gradient(135deg, var(--wash-2) 0 2px, transparent 2px 6px); border-color: var(--ink); }
 .fo .u-cut-label { position: absolute; left: 6px; top: -20px; font-size: 12.5px; font-weight: 650; color: var(--ink-2); white-space: nowrap; background: var(--sheet); padding: 0 4px; border-radius: 3px; }
 
-.fo .o-bracket { position: absolute; width: 7px; border: 2px solid var(--ink); pointer-events: none; }
-.fo .o-bracket.is-start { border-right: 0; border-radius: 3px 0 0 3px; }
-.fo .o-bracket.is-end { border-left: 0; border-radius: 0 3px 3px 0; }
-.fo .o-cursor { position: absolute; border-radius: 3px; background: var(--wash-2); border-left: 2px solid var(--ink); pointer-events: none; }
-.fo .o-cursor.is-following { border-left-color: var(--green); background: color-mix(in oklch, var(--green) 14%, transparent); }
-.fo .o-cursor.is-lost { border-left-color: var(--amber); background: color-mix(in oklch, var(--amber) 16%, transparent); }
-.fo .o-heat-note { position: absolute; font-size: 12.5px; font-weight: 600; color: var(--amber); white-space: nowrap; pointer-events: none; background: var(--sheet); padding: 0 4px 0 0; }
 
 .fo .pins { position: absolute; display: flex; gap: 6px; pointer-events: none; }
 .fo .pin {
@@ -420,34 +399,6 @@
 .fo .side-head h2 { font-family: var(--font-title); font-size: calc(16px * var(--title-scale)); font-weight: var(--title-weight); display: flex; align-items: center; gap: 8px; }
 .fo .side-scroll { flex: 1; overflow-y: auto; padding: 16px 20px 28px; overscroll-behavior: contain; }
 .fo .side-sub { font-size: 14px; color: var(--ink-3); margin-bottom: 14px; }
-.fo .side-h { font-size: 13px; font-weight: 650; color: var(--ink-2); margin: 26px 0 10px; }
-.fo .side-foot { margin-top: 26px; font-size: 12.5px; color: var(--ink-3); }
-
-.fo .tempo-chart figcaption { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
-.fo .tempo-chart svg { display: block; overflow: visible; }
-.fo .c-target { stroke: var(--ink-3); stroke-dasharray: 3 4; }
-.fo .c-grid { stroke: var(--rule); }
-.fo .c-line { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
-.fo .c-dot { fill: var(--raised); stroke: var(--ink); stroke-width: 2; }
-.fo .c-dot.is-last { fill: var(--ink); }
-.fo .c-val, .fo .c-label { font-family: var(--font-num); font-size: 11px; fill: var(--ink);  }
-.fo .c-label { fill: var(--ink-3); }
-.fo .c-day { font-size: 11.5px; fill: var(--ink-3); }
-
-.fo .sessions { display: flex; flex-direction: column; }
-.fo .session { padding: 12px 0; border-top: 1px solid var(--rule); display: flex; flex-direction: column; gap: 6px; }
-.fo .session-top { display: flex; justify-content: space-between; font-size: 15px; }
-.fo .session-top span { color: var(--ink-3); }
-.fo .session-facts { display: flex; gap: 22px; }
-.fo .session-facts div { display: flex; gap: 6px; font-size: 14px; }
-.fo .session-facts dt { color: var(--ink-3); }
-.fo .session-loops { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13.5px; color: var(--ink-2); }
-
-.fo .spots { display: flex; flex-direction: column; }
-.fo .spot { display: grid; grid-template-columns: 6px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--rule); }
-.fo .spot-heat { display: block; width: 6px; align-self: stretch; min-height: 34px; border-radius: 3px; background: var(--heat); }
-.fo .spot-text p:first-child { font-size: 13px; color: var(--ink-3); }
-.fo .spot-text p:last-child { font-size: 15px; font-weight: 550; }
 
 .fo .notes { display: flex; flex-direction: column; }
 .fo .note { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; padding: 14px 0; border-top: 1px solid var(--rule); }
@@ -465,84 +416,6 @@
 .fo .face.is-off .face-i { border-style: dashed; color: var(--ink-3); border-color: var(--ink-3); }
 .fo .face.is-off .face-bar { font-family: var(--font-ui); color: var(--ink-3); }
 .fo .presence-sum { font-size: 13.5px; color: var(--ink-3); white-space: nowrap; }
-
-/* ---------------------------------------------------------------- practice dock (control surface) */
-
-.fo .pd { flex: 1; display: flex; align-items: stretch; gap: 12px; min-width: 0; }
-.fo .pd-pos { display: flex; flex-direction: column; justify-content: center; gap: 6px; min-width: 0; flex: 1 1 auto; padding-left: 6px; }
-.fo .pd-k { font-size: 13px; font-weight: 600; color: var(--dk-ink-3); }
-.fo .pd-bar-line { display: flex; align-items: baseline; gap: 14px; min-width: 0; }
-.fo .pd-bar { font-family: var(--font-num); font-size: 56px; font-weight: 400; font-variant-numeric: tabular-nums; line-height: 0.95; letter-spacing: -0.04em;  }
-.fo .pd-sub { display: flex; align-items: center; gap: 16px; }
-.fo .pd-loop { font-size: 13px; color: var(--dk-ink-2); }
-
-.fo .listen { display: inline-flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 650; white-space: nowrap; }
-.fo .listen i { width: 9px; height: 9px; border-radius: 50%; background: currentColor; flex: none; }
-.fo .listen.is-following { color: var(--dk-green); }
-.fo .listen.is-lost { color: var(--dk-amber); }
-.fo .listen.is-off { color: var(--dk-ink-3); }
-.fo .listen.is-off i { background: transparent; border: 1.5px solid currentColor; }
-
-.fo .beats { display: inline-flex; gap: 8px; }
-.fo .beat { position: relative; width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--dk-ink-3); }
-.fo .beat.is-on { background: var(--dk-ink); border-color: var(--dk-ink); }
-.fo .beat-pulse, .fo .tog-pulse { position: absolute; inset: -1.5px; border-radius: 50%; background: var(--dk-green); animation: fo-pulse 320ms var(--ease) forwards; }
-.fo .tog-pulse { inset: auto; top: 0; right: 0; width: 10px; height: 10px; }
-@keyframes fo-pulse { from { opacity: 1; transform: scale(1.25); } to { opacity: 0; transform: scale(1); } }
-
-.fo .pd-tempo { display: flex; align-items: center; gap: 10px; flex: none; }
-.fo .step {
-  display: grid; place-items: center; width: 72px; height: 72px; border: 0; border-radius: 14px;
-  background: var(--dk-2); color: var(--dk-ink);
-  transition: background-color 120ms var(--ease);
-}
-.fo .pd-tempo-read { display: flex; flex-direction: column; align-items: center; min-width: 172px; }
-.fo .pd-tempo-line { display: flex; align-items: baseline; gap: 6px; }
-.fo .pd-tempo-num { font-family: var(--font-num); font-size: 116px; font-weight: 300; font-variant-numeric: tabular-nums; line-height: 0.88; letter-spacing: -0.05em;  }
-.fo .pd-tempo-unit { font-size: 14px; color: var(--dk-ink-3); font-weight: 600; }
-.fo .pd-tempo-of { margin-top: 6px; font-size: 15px; color: var(--dk-ink-2); }
-.fo .pd-tempo-of b { color: var(--dk-ink); font-weight: 650; }
-
-.fo .pd-toggles { display: flex; gap: 8px; flex: none; }
-.fo .tog {
-  display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 6px;
-  width: 98px; padding: 14px 12px 12px; border: 0; border-radius: 14px; text-align: left;
-  background: var(--dk-2); color: var(--dk-ink-3);
-  transition: background-color 160ms var(--ease), color 160ms var(--ease);
-}
-.fo .tog.is-on { color: var(--dk-ink); background: var(--dk-3); }
-.fo .tog-icon { position: relative; display: inline-flex; }
-.fo .tog-label { font-size: 13.5px; font-weight: 600; line-height: 1.2; color: var(--dk-ink-2); }
-.fo .tog-value { font-size: 15px; font-weight: 650; }
-.fo .tog.is-on .tog-value { color: var(--dk-ink); }
-.fo .tog:not(.is-on) .tog-value { color: var(--dk-ink-3); }
-
-.fo .pd-play {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-  flex: none; width: 124px; border: 0; border-radius: 16px; background: var(--dk-ink); color: var(--dk);
-  font-size: 15px; font-weight: 700;
-  transition: background-color 160ms var(--ease);
-}
-
-/* one-row control surface: portrait iPad and narrow windows */
-.fo .pd.is-row { align-items: center; gap: 8px; }
-.fo .pd.is-row .pd-pos { gap: 2px; padding-left: 2px; flex: 1 1 auto; }
-.fo .pd.is-row .pd-k, .fo .pd.is-row .pd-sub .beats { display: none; }
-.fo .pd.is-row .pd-bar-line { flex-direction: column; align-items: flex-start; gap: 4px; }
-.fo .pd.is-row .pd-bar { font-size: 34px; }
-.fo .pd.is-row .listen { font-size: 14px; gap: 6px; }
-.fo .pd.is-row .listen i { width: 7px; height: 7px; }
-.fo .pd.is-row .pd-tempo { gap: 6px; }
-.fo .pd.is-row .step { width: 54px; height: 60px; border-radius: 12px; }
-.fo .pd.is-row .pd-tempo-read { min-width: 96px; }
-.fo .pd.is-row .pd-tempo-num { font-size: 52px; }
-.fo .pd.is-row .pd-tempo-unit { display: none; }
-.fo .pd.is-row .pd-tempo-of { margin-top: 2px; font-size: 13px; }
-.fo .pd.is-row .pd-toggles { gap: 6px; }
-.fo .pd.is-row .tog { width: 60px; height: 60px; padding: 8px; align-items: center; justify-content: center; gap: 2px; }
-.fo .pd.is-row .tog-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-.fo .pd.is-row .tog-value { font-size: 12px; }
-.fo .pd.is-row .pd-play { width: 76px; height: 60px; border-radius: 14px; }
 
 /* ---------------------------------------------------------------- document dock */
 
@@ -732,13 +605,13 @@
    over 120 ms. Hover lives only where a pointer can hover (the Mac); on the iPad a hover rule would stick to
    the last tapped element and read as a wrong selected state. */
 
-.fo .btn, .fo .btn-icon, .fo .btn-round, .fo .seg button, .fo .dbtn, .fo .area, .fo .tog, .fo .pd-play, .fo .step,
+.fo .btn, .fo .btn-icon, .fo .btn-round, .fo .seg button, .fo .dbtn, .fo .area,
 .fo .cover, .fo .pin, .fo .m-body, .fo .face, .fo .pop-close, .fo .wordmark, .fo .back, .fo .ctx-select, .fo .check {
   transition: background-color 160ms var(--ease), border-color 160ms var(--ease), color 160ms var(--ease),
     opacity 160ms var(--ease), box-shadow 160ms var(--ease), transform 120ms var(--ease);
 }
 .fo .btn:active:not(:disabled), .fo .btn-icon:active:not(:disabled), .fo .btn-round:active:not(:disabled), .fo .seg button:active:not(:disabled),
-.fo .dbtn:active:not(:disabled), .fo .area:active, .fo .tog:active:not(:disabled), .fo .pd-play:active:not(:disabled), .fo .step:active:not(:disabled),
+.fo .dbtn:active:not(:disabled), .fo .area:active,
 .fo .cover:active, .fo .pin:active, .fo .m-body:active, .fo .face:active:not(:disabled), .fo .pop-close:active, .fo .wordmark:active, .fo .back:active,
 .fo .ctx-select:active {
   transition-duration: 40ms;
@@ -755,9 +628,9 @@
 .fo .turn:active:not(:disabled) { opacity: 1; background: var(--wash-2); color: var(--ink); transform: translateY(-50%) scale(0.96); transition-duration: 40ms; }
 .fo .check:active { color: var(--dk-ink); transition-duration: 40ms; }
 /* the dock: one step lighter */
-.fo .dbtn:active:not(:disabled), .fo .area:active, .fo .tog:active:not(:disabled), .fo .step:active:not(:disabled) { background: var(--dk-3); }
-.fo .area[aria-current='page']:active, .fo .tog.is-on:active:not(:disabled) { background: color-mix(in oklch, var(--dk-3), var(--dk-ink) 10%); }
-.fo .dbtn.is-primary:active:not(:disabled), .fo .pd-play:active:not(:disabled) { background: var(--dk-ink-2); }
+.fo .dbtn:active:not(:disabled), .fo .area:active { background: var(--dk-3); }
+.fo .area[aria-current='page']:active { background: color-mix(in oklch, var(--dk-3), var(--dk-ink) 10%); }
+.fo .dbtn.is-primary:active:not(:disabled) { background: var(--dk-ink-2); }
 .fo .dseg button:active:not(:disabled) { background: var(--dk-3); color: var(--dk-ink); }
 /* the ruler's knobs show their grab while dragging */
 .fo .ruler.is-dragging .r-knob { stroke: var(--r-wash); stroke-width: 8px; paint-order: stroke; }
@@ -777,8 +650,6 @@
   .fo .pin:hover { border-color: var(--ink); }
   .fo .pop-close:hover, .fo .back:hover, .fo .wordmark:hover { background: var(--wash); color: var(--ink); }
   .fo .face:hover:not(:disabled) { background: var(--wash); }
-  .fo .step:hover:not(:disabled), .fo .tog:hover:not(:disabled) { background: var(--dk-3); }
-  .fo .pd-play:hover:not(:disabled) { background: var(--dk-ink-2); }
   .fo .m-body:hover { background: var(--wash); }
 }
 
@@ -786,7 +657,6 @@
 
 @media (max-width: 999px), (orientation: portrait) {
   .fo .area { width: 60px; font-size: 11.5px; }
-  .fo .pd-play { width: 76px; }
   /* one page: the document tools become icons so the part switcher keeps its words */
   .fo .doc-tools .dbtn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .fo .doc-tools .dbtn { width: 52px; padding: 0; position: relative; }
@@ -816,12 +686,6 @@
   .fo .doc-tools .dbtn span, .fo .lib-dock .dbtn span { display: none; }
   .fo .doc-tools .dbtn, .fo .lib-dock .dbtn { width: 52px; padding: 0; }
   .fo .dseg button { padding: 0 10px; }
-  .fo .pd.is-row .step { width: 46px; }
-  .fo .pd.is-row .pd-tempo-num { font-size: 44px; }
-  .fo .pd.is-row .pd-tempo-read { min-width: 78px; }
-  .fo .pd.is-row .tog { width: 50px; }
-  .fo .pd.is-row .pd-play { width: 60px; }
-  .fo .pd.is-row .pd-bar { font-size: 28px; }
   .fo .dbtn.is-big { padding: 0 16px; font-size: 15px; }
   .fo .side { width: 100%; }
 }

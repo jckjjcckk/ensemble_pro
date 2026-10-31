@@ -228,7 +228,6 @@
 /* ---------------------------------------------------------------- the dock's places and the reader's mode toggle */
 
 .fo .area.is-off { opacity: 0.4; cursor: default; }
-.fo .book-modes { flex: none; }
 
 /* ---------------------------------------------------------------- Open PDF: the pages as printed */
 

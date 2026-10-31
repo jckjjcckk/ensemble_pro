@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
 import {
-  annotations as seedAnnotations, practice, scanDraft,
+  annotations as seedAnnotations, scanDraft,
   type Annotation, type Ensemble, type Member, type Membership, type Part, type ScanPage, type Score,
 } from '../mock'
 import { MY_LIBRARY, type PartJob, type PartStrip, type ScoreShare, type World } from './data'
@@ -9,17 +9,6 @@ export const BASE = ''
 export const WORDMARK = 'Folio'
 
 export interface Span { from: number; to: number }
-
-export interface PracticeUI {
-  loop: Span | null
-  tempo: number
-  metronome: boolean
-  others: 'off' | 'orchestra' | 'all'
-  listenOn: boolean
-  bar: number
-  beat: number
-  playing: boolean
-}
 
 export interface ScanUI {
   pages: ScanPage[]
@@ -95,8 +84,6 @@ interface Store {
   markGroupFor: (score: Score) => string | null
   display: Display
   setDisplay: Dispatch<SetStateAction<Display>>
-  practiceUI: PracticeUI
-  setPracticeUI: Dispatch<SetStateAction<PracticeUI>>
   annotations: Annotation[]
   addAnnotation: (a: Annotation) => void
   scan: ScanUI
@@ -109,16 +96,6 @@ export function StoreProvider({ world, children }: { world: World; children: Rea
   const contexts = useMemo(() => contextsOf(world), [world])
   const [contextId, setContextId] = useState(contexts[0].ensemble.id)
   const [display, setDisplay] = useState<Display>(readDisplay)
-  const [practiceUI, setPracticeUI] = useState<PracticeUI>({
-    loop: practice.loop ? { from: practice.loop.barFrom, to: practice.loop.barTo } : null,
-    tempo: practice.tempoBpm,
-    metronome: practice.metronome,
-    others: practice.otherParts,
-    listenOn: practice.listening !== 'off',
-    bar: practice.bar,
-    beat: practice.beat,
-    playing: false,
-  })
   const [annotations, setAnnotations] = useState<Annotation[]>(seedAnnotations)
   const [scan, setScan] = useState<ScanUI>({ pages: scanDraft.pages, retaking: [], committed: false })
 
@@ -154,10 +131,9 @@ export function StoreProvider({ world, children }: { world: World; children: Rea
     world, contexts, scoresById, partsById, membersById,
     context: contextFor(contextId) ?? contexts[0], setContext, contextFor, jobsFor, stripsFor, sharesFor, canEditBook, markGroupFor,
     display, setDisplay,
-    practiceUI, setPracticeUI,
     annotations, addAnnotation: a => setAnnotations(xs => [...xs, a]),
     scan, setScan,
-  }), [world, contexts, scoresById, partsById, membersById, contextId, contextFor, setContext, jobsFor, stripsFor, sharesFor, canEditBook, markGroupFor, display, practiceUI, annotations, scan])
+  }), [world, contexts, scoresById, partsById, membersById, contextId, contextFor, setContext, jobsFor, stripsFor, sharesFor, canEditBook, markGroupFor, display, annotations, scan])
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }

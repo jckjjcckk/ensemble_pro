@@ -177,7 +177,7 @@
 .fo .place[aria-current='page'] { background: var(--solid); color: var(--on-solid); }
 .fo .place.is-off { color: var(--text-4); }
 .fo .place:active { transform: scale(0.97); transition-duration: 40ms; }
-/* In the older screens' dark control row (scan, practice, strips) the places sit at the left, smaller. */
+/* In the older screens' dark control row (scan, strips) the places sit at the left, smaller. */
 .fo .places.is-compact { gap: 4px; padding-right: 12px; border-right: 1px solid var(--dk-rule); }
 .fo .places.is-compact .place { height: 52px; padding: 0 18px; color: var(--dk-ink-3); font-size: 15px; }
 .fo .places.is-compact .place[aria-current='page'] { background: var(--dk-ink); color: var(--dk); }
@@ -328,7 +328,6 @@
 .fo .stand-name-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .fo .stand-name-p { flex: none; white-space: pre; }
 .fo .stand-where { font-size: 11px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.fo .book-modes > button { height: 34px; padding: 0 18px; font-size: 14px; }
 .fo .stand-right { flex: 0 0 auto; display: flex; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
 .fo .stand-layer-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fo .stand-faces { display: flex; align-items: center; }
@@ -476,7 +475,6 @@
 
 @media (max-width: 900px) {
   .fo .stand-name { font-size: 16px; }
-  .fo .book-modes > button { padding: 0 16px; }
   .fo .stand-layer > button { padding: 0 10px; }
   .fo .stand-layer-name { max-width: 64px; }
   .fo .stand-right { gap: 8px; flex: 0 1 auto; }
