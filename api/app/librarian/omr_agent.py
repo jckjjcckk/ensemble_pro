@@ -273,7 +273,11 @@ def normalize_kind(data: dict | None) -> tuple[str | None, str | None]:
 async def page_kinds(ctx, client, model: str, pages: PdfPages, wanted: list[int] | None, budget: Budget,
                      max_asked: int = MAX_KIND_QUESTIONS) -> list[dict]:
     """One record per page of the set, in order: {pdf_page, staves, kind, asked, confidence}. Pages after the first
-    page of music are music, unasked."""
+    page of music are music, unasked, except the pages at the very end where the geometry finds no staff: a publisher's
+    catalogue or a blank page at the back ("back"), which Audiveris refuses and which failed the whole conversion (E2E
+    night 2026-10-31: the Moscheles edition's last three pages, an advertisement, ended a clean 14-page sonata in
+    EngineFailed). Only that trailing run is looked at, from the last page back: a page inside the music whose staves the
+    geometry misses (a poor scan) still goes to Audiveris, and no other page is rendered for it."""
     order = wanted or list(range(1, pages.count + 1))
     out: list[dict] = []
     asked, music = 0, False
@@ -293,7 +297,15 @@ async def page_kinds(ctx, client, model: str, pages: PdfPages, wanted: list[int]
             if rec["kind"] == "music":
                 music = True
         out.append(rec)
-        log.info("page %s: %s%s", pg, rec["kind"], " (asked)" if rec["asked"] else "")
+    for rec in reversed(out):        # the back of the book: trailing pages with no staff are not music
+        if rec["kind"] != "music" or rec["staves"] is not None:
+            break
+        rec["staves"] = await asyncio.to_thread(pages.has_staves, rec["pdf_page"])
+        if rec["staves"]:
+            break
+        rec["kind"] = "back"
+    for rec in out:
+        log.info("page %s: %s%s", rec["pdf_page"], rec["kind"], " (asked)" if rec["asked"] else "")
     return out
 
 

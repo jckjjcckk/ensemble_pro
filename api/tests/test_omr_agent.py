@@ -105,6 +105,19 @@ async def test_page_kinds_asks_until_the_first_page_of_music():
     assert budget.summary()["per_step"] == {"page_kind": pytest.approx(0.00285, abs=1e-4)}
 
 
+async def test_pages_without_staves_after_the_music_are_back_matter():
+    """The Moscheles edition (E2E night 2026-10-31): a title page, fourteen pages of music, then three pages of the
+    publisher's catalogue. They are "back", not music, so Audiveris never sees them; no model call is spent on them. A
+    page inside the music whose staves the geometry misses (p. 4 here) is still music, and is never rendered."""
+    model = KindModel(["music"])
+    pdf = Pdf([False, True, True, False, True, False, False])
+    out = await page_kinds(ctx(), SimpleNamespace(messages=model), "muse-spark-1.3", pdf, None, Budget(1.0))
+    assert [(r["pdf_page"], r["kind"], r["asked"]) for r in out] == [(1, "cover", False), (2, "music", True), (3, "music", False),
+                                                                      (4, "music", False), (5, "music", False), (6, "back", False), (7, "back", False)]
+    assert len(model.calls) == 1
+    assert [r["staves"] for r in out] == [False, True, None, None, True, False, False]     # 3 and 4 never looked at
+
+
 async def test_page_kinds_gives_up_asking_after_the_cap_and_without_budget():
     model = KindModel(["preface"] * 2)
     out = await page_kinds(ctx(), SimpleNamespace(messages=model), "muse-spark-1.3", Pdf([True] * 4), None, Budget(1.0), max_asked=2)

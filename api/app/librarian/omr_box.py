@@ -105,11 +105,28 @@ def cut_pdf(pdf: Path, pages: list[int], dest: Path) -> None:
             subprocess.run(["pdfunite", *singles, str(dest)], check=True)
 
 
+# Java's TimSort refuses a comparator that is not a total order; Audiveris has one, and a page that trips it fails whole
+# ("Comparison method violates its general contract!", the Moscheles edition's p. 13, E2E night 2026-10-31). The legacy
+# merge sort accepts it. Only a run that failed that way is read again with it, so every page that passes stays exactly
+# as the benchmark read it.
+TIMSORT_REFUSAL = "Comparison method violates its general contract"
+LEGACY_SORT = "-Djava.util.Arrays.useLegacyMergeSort=true"
+
+
 def run_audiveris(book_pdf: Path, out: Path) -> tuple[int, float]:
     cmd = [AUDIVERIS, "-batch", "-transcribe", "-export", "-output", str(out), str(book_pdf)]  # never -sheets
+    env = dict(os.environ, TESSDATA_PREFIX=TESSDATA)
     t1 = time.perf_counter()
     with open(out / "audiveris.log", "w") as fh:
-        rc = subprocess.run(cmd, stdout=fh, stderr=subprocess.STDOUT, env=dict(os.environ, TESSDATA_PREFIX=TESSDATA)).returncode
+        rc = subprocess.run(cmd, stdout=fh, stderr=subprocess.STDOUT, env=env).returncode
+    if rc != 0 and TIMSORT_REFUSAL in (out / "audiveris.log").read_text(errors="replace"):
+        for left in [*out.glob(f"{book_pdf.stem}*.omr"), *out.glob(f"{book_pdf.stem}*.mxl")]:
+            left.unlink()
+        env["JAVA_TOOL_OPTIONS"] = (env.get("JAVA_TOOL_OPTIONS", "") + " " + LEGACY_SORT).strip()
+        with open(out / "audiveris.log", "a") as fh:
+            fh.write(f"=== again with {LEGACY_SORT} (rc {rc}: {TIMSORT_REFUSAL})\n")
+            fh.flush()
+            rc = subprocess.run(cmd, stdout=fh, stderr=subprocess.STDOUT, env=env).returncode
     return rc, round(time.perf_counter() - t1, 1)
 
 

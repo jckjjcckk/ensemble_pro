@@ -64,3 +64,37 @@ def test_a_page_audiveris_fails_on_stops_the_run(tmp_path, monkeypatch):
     monkeypatch.setattr(omr_box, "run_audiveris", fake_audiveris)
     rc, _, movements, tail = omr_box.parallel_pages(tmp_path / "book.pdf", 2, tmp_path, "book", [1, 2], workers=2)
     assert rc != 0 and movements == [] and tail[-1] == "last line"   # page 1 left no .omr, page 2 exited 1
+
+
+def test_a_page_java_refuses_to_sort_is_read_again_with_the_legacy_sort(tmp_path, monkeypatch):
+    # Moscheles p. 13 (E2E night): Audiveris exits 1 on TimSort's contract check; the legacy merge sort reads the page.
+    (tmp_path / "book.omr").write_text("half a book")
+    runs = []
+
+    def fake_run(cmd, stdout=None, stderr=None, env=None):
+        runs.append(env.get("JAVA_TOOL_OPTIONS"))
+        if len(runs) == 1:
+            stdout.write("java.lang.IllegalArgumentException: Comparison method violates its general contract!\n")
+            return type("P", (), {"returncode": 1})()
+        assert not (tmp_path / "book.omr").exists()      # the failed run's book is not read again
+        (tmp_path / "book.omr").write_text("whole")
+        return type("P", (), {"returncode": 0})()
+
+    monkeypatch.setattr(omr_box.subprocess, "run", fake_run)
+    monkeypatch.delenv("JAVA_TOOL_OPTIONS", raising=False)
+    rc, _ = omr_box.run_audiveris(tmp_path / "input" / "book.pdf", tmp_path)
+    assert rc == 0 and runs == [None, omr_box.LEGACY_SORT]
+    assert "again with" in (tmp_path / "audiveris.log").read_text()
+
+
+def test_any_other_failure_is_not_retried(tmp_path, monkeypatch):
+    runs = []
+
+    def fake_run(cmd, stdout=None, stderr=None, env=None):
+        runs.append(1)
+        stdout.write("StepException: No regularly spaced lines found\n")
+        return type("P", (), {"returncode": 1})()
+
+    monkeypatch.setattr(omr_box.subprocess, "run", fake_run)
+    rc, _ = omr_box.run_audiveris(tmp_path / "book.pdf", tmp_path)
+    assert rc == 1 and runs == [1]
