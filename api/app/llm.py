@@ -46,6 +46,9 @@ class Completion:
 
 
 CHAT_EFFORT = "minimal"
+# One model call's ceiling, both APIs (the SDK's default is 600 s). The longest Spark call measured is a 45 s page read;
+# a Messages call that hung for 10 minutes stalled a convert in the speed pass (2026-10-30), so a stuck call is retried.
+CALL_TIMEOUT_S = 180.0
 CHAT_RETRY_S = 1.0
 # Tests hand the chat branch a fake transport here (httpx.MockTransport); None is the network.
 _chat_transport: httpx.AsyncBaseTransport | None = None
@@ -76,7 +79,7 @@ def chat_content(text: str, image_png_b64: str | None = None) -> str | list[dict
 
 
 async def chat(messages: list[dict], *, effort: str = CHAT_EFFORT, max_tokens: int = 4096, model: str | None = None,
-               stream: bool = False, timeout: float = 180.0) -> ChatReply:
+               stream: bool = False, timeout: float = CALL_TIMEOUT_S) -> ChatReply:
     """One call on Meta's /v1/chat/completions, the request shape of the voice and page-read evals
     (`experiments/voice_stream/common.py`, `experiments/pageread_speed/common.py`): `reasoning_effort`,
     `max_completion_tokens` (Spark's reasoning counts against it, so at least 1024), usage as prompt/completion
@@ -153,8 +156,8 @@ def _client(provider: str | None = None) -> AsyncAnthropic:
         # The SDK appends /v1/messages itself; META_API_BASE_URL is written with its /v1 (as Meta documents it).
         base = settings.meta_api_base_url.rstrip("/")
         base = base[:-3] if base.endswith("/v1") else base
-        return AsyncAnthropic(api_key=settings.meta_api_key, base_url=base, max_retries=1)
-    return AsyncAnthropic(api_key=settings.anthropic_api_key, max_retries=1)
+        return AsyncAnthropic(api_key=settings.meta_api_key, base_url=base, max_retries=1, timeout=CALL_TIMEOUT_S)
+    return AsyncAnthropic(api_key=settings.anthropic_api_key, max_retries=1, timeout=CALL_TIMEOUT_S)
 
 
 def model_name(provider: str | None = None) -> str:

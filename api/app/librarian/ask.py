@@ -39,7 +39,9 @@ async def ask_model(ctx: JobContext, client: AsyncAnthropic, model: str, prompt:
     content = [{"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": ctx.png_b64(png)}}, {"type": "text", "text": prompt}]
     is_meta = settings.llm_provider == "meta" or model.startswith("muse")
     total, why, data, err = 0.0, [], None, None
-    use_chat = effort == llm.CHAT_EFFORT and is_meta
+    # A real client goes to chat completions; an injected stand-in (the tests' fakes) keeps answering on .messages and
+    # sees effort "minimal" in output_config, so a test can tell which effort was asked for.
+    use_chat = effort == llm.CHAT_EFFORT and is_meta and (client is None or isinstance(client, AsyncAnthropic))
     if effort == llm.CHAT_EFFORT and not is_meta:
         effort = "low"
     for _ in range(retries + 1):

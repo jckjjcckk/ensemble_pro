@@ -12,7 +12,15 @@ This is `api/experiments/omr/book_box.py` made a product step:
   - `pdftoppm -r 300 -gray` renders every page of the set to `scan/p{i}.png` (i = position in the set, 1-based):
     the same 300 dpi frame Audiveris works in (within 1 px), which the crops need.
 
-Usage (box):  python3 -I omr_box.py BOOK.pdf OUT_DIR [--pages 1,2,3 | --pages 1-5] [--max-pages 40]
+  - `--parallel N` (off unless `omr_convert` passes `OMR_PARALLEL_PAGES`): every page of the set is its own
+    one-page book, N Audiveris processes at once (about 1 GB each), stitched into the same layout as a whole-book run:
+    `book/sheet#i` is page i's sheet, `book.xml` lists them in order, and every page starts a "movement" of its own
+    (`movements.json`, exports renamed `<stem>.mvtK.mxl` in page order), so `omr_book.load_run` and `omr_score.merge`
+    read it unchanged and number the bars +1 per stack exactly as before. What it loses: a movement that crosses a
+    page is two export files (a tie or slur over the page turn is cut), each page's export restates its clef, key
+    and time, and a page Audiveris reads alone has no time signature unless it prints one.
+
+Usage (box):  python3 -I omr_box.py BOOK.pdf OUT_DIR [--pages 1,2,3 | --pages 1-5] [--max-pages 40] [--parallel 5]
 Writes OUT_DIR/{book/ (book.xml, sheet#N/sheet#N.xml), <stem>.mvtK.mxl or <stem>.mxl, movements.json,
 book_run.json, audiveris.log, scan/p{i}.png} and prints book_run.json's summary as one JSON line.
 Exit codes: 0 ok, 2 bad arguments or unreadable PDF, 3 Audiveris failed, 4 exports missing, 5 over --max-pages.
@@ -97,6 +105,81 @@ def cut_pdf(pdf: Path, pages: list[int], dest: Path) -> None:
             subprocess.run(["pdfunite", *singles, str(dest)], check=True)
 
 
+def run_audiveris(book_pdf: Path, out: Path) -> tuple[int, float]:
+    cmd = [AUDIVERIS, "-batch", "-transcribe", "-export", "-output", str(out), str(book_pdf)]  # never -sheets
+    t1 = time.perf_counter()
+    with open(out / "audiveris.log", "w") as fh:
+        rc = subprocess.run(cmd, stdout=fh, stderr=subprocess.STDOUT, env=dict(os.environ, TESSDATA_PREFIX=TESSDATA)).returncode
+    return rc, round(time.perf_counter() - t1, 1)
+
+
+def parallel_pages(book_pdf: Path, n: int, out: Path, stem: str, pages: list[int], workers: int) -> tuple[int, float, list[dict], list[str]]:
+    """Audiveris on each page alone, `workers` at once, stitched into out/book, out/<stem>.mvtK.mxl (see the module
+    docstring). Returns (rc, seconds, movements, error tail)."""
+    from concurrent.futures import ThreadPoolExecutor
+    pp = out / "pp"
+    jobs = []
+    for i in range(1, n + 1):
+        d = pp / str(i)
+        (d / "input").mkdir(parents=True)
+        one = d / "input" / f"{stem}.pdf"
+        subprocess.run(["pdfseparate", "-f", str(i), "-l", str(i), str(book_pdf), str(one)], check=True)
+        jobs.append((one, d))
+    t1 = time.perf_counter()
+    with ThreadPoolExecutor(max_workers=max(1, workers)) as ex:
+        results = list(ex.map(lambda j: run_audiveris(*j), jobs))
+    seconds = round(time.perf_counter() - t1, 1)
+    with open(out / "audiveris.log", "w") as fh:
+        for i, (rc, secs) in enumerate(results, start=1):
+            fh.write(f"=== page {i}: rc {rc}, {secs} s\n" + (pp / str(i) / "audiveris.log").read_text(errors="replace"))
+    for i, (rc, _) in enumerate(results, start=1):
+        if rc != 0 or not (pp / str(i) / f"{stem}.omr").exists():
+            return rc or 3, seconds, [], (pp / str(i) / "audiveris.log").read_text(errors="replace").splitlines()[-5:]
+    book = ET.Element("book")
+    movements: list[dict] = []
+    k = 0
+    for i in range(1, n + 1):
+        d = pp / str(i)
+        with zipfile.ZipFile(d / f"{stem}.omr") as z:
+            sub = ET.fromstring(z.read("book.xml"))
+            z.extractall(d / "book")
+        local = detected_movements(ET.tostring(sub), [pages[i - 1]])
+        src = d / "book" / "sheet#1"
+        if src.exists():
+            dst = out / "book" / f"sheet#{i}"
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(src), str(dst))
+            if (dst / "sheet#1.xml").exists():
+                (dst / "sheet#1.xml").rename(dst / f"sheet#{i}.xml")
+            for binary in dst.glob("BINARY.png"):
+                binary.unlink()
+        for sh in sub.findall("sheet"):
+            sh.set("number", str(i))
+            first = True
+            for pg in sh.findall("page"):
+                if first:
+                    pg.set("movement-start", "true")      # each page is a movement of its own: its own export file
+                    first = False
+            book.append(sh)
+        for sc in sub.findall("score"):
+            for ref in sc.findall("page"):
+                ref.set("sheet-number", str(i))
+            book.append(sc)
+        mk = max((m["movement"] for m in local), default=0)
+        exports = [d / f"{stem}.mxl"] if mk == 1 else [d / f"{stem}.mvt{j}.mxl" for j in range(1, mk + 1)]
+        for j, f in enumerate(exports, start=1):
+            if not f.exists():
+                return 4, seconds, [], [f"page {i}: export {f.name} missing"]
+            shutil.move(str(f), str(out / f"{stem}.mvt{k + j}.mxl"))
+        k += mk
+    (out / "book").mkdir(exist_ok=True)
+    data = ET.tostring(book)
+    (out / "book" / "book.xml").write_bytes(data)
+    movements = detected_movements(data, pages)
+    shutil.rmtree(pp, ignore_errors=True)
+    return 0, seconds, movements, []
+
+
 def render_scans(book_pdf: Path, n: int, scan_dir: Path) -> None:
     scan_dir.mkdir(parents=True, exist_ok=True)
     for i in range(1, n + 1):
@@ -110,6 +193,7 @@ def main() -> None:
     ap.add_argument("out")
     ap.add_argument("--pages", help="PDF pages, e.g. 1-5 or 1,2,7; every page when omitted")
     ap.add_argument("--max-pages", type=int, default=0, help="refuse a page set longer than this (exit 5), before Audiveris")
+    ap.add_argument("--parallel", type=int, default=0, help="Audiveris on each page alone, this many at once, stitched")
     a = ap.parse_args()
     pdf = Path(a.pdf).expanduser().resolve()
     out = Path(a.out).expanduser().resolve()
@@ -138,26 +222,29 @@ def main() -> None:
     render_s = round(time.perf_counter() - t0, 1)
 
     cmd = [AUDIVERIS, "-batch", "-transcribe", "-export", "-output", str(out), str(book_pdf)]  # never -sheets
-    t1 = time.perf_counter()
-    with open(out / "audiveris.log", "w") as fh:
-        rc = subprocess.run(cmd, stdout=fh, stderr=subprocess.STDOUT, env=dict(os.environ, TESSDATA_PREFIX=TESSDATA)).returncode
-    seconds = round(time.perf_counter() - t1, 1)
-    omr = out / f"{stem}.omr"
-    if rc != 0 or not omr.exists():
-        tail = (out / "audiveris.log").read_text(errors="replace").splitlines()[-5:]
-        print(json.dumps({"error": f"audiveris exited {rc}", "log_tail": tail, "audiveris_s": seconds}))
-        sys.exit(3)
-
-    with zipfile.ZipFile(omr) as z:
-        movements = detected_movements(z.read("book.xml"), pages)
-        z.extractall(out / "book")
+    parallel = a.parallel if a.parallel > 1 and len(pages) > 1 else 0
+    if parallel:
+        rc, seconds, movements, tail = parallel_pages(book_pdf, len(pages), out, stem, pages, parallel)
+        if rc != 0:
+            print(json.dumps({"error": f"audiveris exited {rc} (per page)", "log_tail": tail, "audiveris_s": seconds}))
+            sys.exit(3 if rc != 4 else 4)
+    else:
+        rc, seconds = run_audiveris(book_pdf, out)
+        omr = out / f"{stem}.omr"
+        if rc != 0 or not omr.exists():
+            tail = (out / "audiveris.log").read_text(errors="replace").splitlines()[-5:]
+            print(json.dumps({"error": f"audiveris exited {rc}", "log_tail": tail, "audiveris_s": seconds}))
+            sys.exit(3)
+        with zipfile.ZipFile(omr) as z:
+            movements = detected_movements(z.read("book.xml"), pages)
+            z.extractall(out / "book")
     for binary in (out / "book").glob("sheet#*/BINARY.png"):   # the scans are rendered above; keep the pull small
         binary.unlink()
     (out / "movements.json").write_text(json.dumps(movements, indent=1))
     k = max((m["movement"] for m in movements), default=0)
     expected = [f"{stem}.mxl"] if k == 1 else [f"{stem}.mvt{i}.mxl" for i in range(1, k + 1)]
     exports = sorted((p.name for p in out.glob(f"{stem}*.mxl")), key=lambda n: (len(n), n))
-    rec = {"pdf_pages": pages, "pdf_page_count": count, "cmd": cmd, "audiveris_s": seconds, "render_s": render_s,
+    rec = {"pdf_pages": pages, "pdf_page_count": count, "cmd": cmd, "audiveris_s": seconds, "render_s": render_s, "parallel": parallel,
            "tessdata": TESSDATA, "movements": k, "exports": exports, "measures": sum(m["measures"] for m in movements)}
     (out / "book_run.json").write_text(json.dumps(rec, indent=1))
     if not k or exports != expected:

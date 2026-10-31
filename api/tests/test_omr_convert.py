@@ -198,7 +198,9 @@ class FakeMessages:
         else:
             assert kw["system"] == VERIFY_SYSTEM
             ans = {"verdict": "natural", "value": ""} if "SHARP" in prompt else {"verdict": "nothing_else", "value": ""}
-        assert kw["max_tokens"] >= 8000 and kw["output_config"] == {"effort": "low"}
+        # the reread and the render check ask at effort minimal (chat completions with a real client), the rest at low
+        want = "minimal" if kw["system"] in (REREAD_SYSTEM, VERIFY_RENDER_SYSTEM) else "low"
+        assert kw["max_tokens"] >= 8000 and kw["output_config"] == {"effort": want}
         return SimpleNamespace(content=[SimpleNamespace(type="text", text=json.dumps(ans))], stop_reason="end_turn",
                                model="muse-spark-1.3", usage=SimpleNamespace(input_tokens=1000, output_tokens=500))
 
@@ -517,3 +519,75 @@ def test_a_bar_the_export_left_out_becomes_a_flagged_rest(tmp_path):
 def test_ocr_part_names_are_tidied():
     assert [clean_name(n) for n in ("Piano I.", "Piano 11.", "Violoncello", "Viola:", "Flute 1")] == [
         "Piano I", "Piano II", "Violoncello", "Viola", "Flute I"]
+
+
+class UploadingBox(FakeBox):
+    """A box with the upload step split out, as `SshBox` has: the upload starts before the page kinds are back."""
+
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        self.events: list[str] = []
+
+    async def upload(self, run_id: str, pdf: bytes) -> float:
+        self.events.append("upload")
+        return 1.5
+
+    async def cleanup(self, run_id: str) -> None:
+        self.events.append("cleanup")
+
+    async def transcribe(self, run_id: str, pdf: bytes, pages, dest: Path, uploaded: float | None = None) -> dict:
+        self.events.append(f"transcribe uploaded={uploaded}")
+        return await super().transcribe(run_id, pdf, pages, dest)
+
+
+async def test_the_upload_runs_beside_the_page_kinds_and_is_not_repeated():
+    db, box = pdf_book(), UploadingBox()
+    out, _ = await run(db, box)
+    assert box.events == ["upload", "transcribe uploaded=1.5"] and out["bars"] == 2
+
+
+async def test_a_book_with_no_music_cleans_up_the_early_upload():
+    db, box = pdf_book(), UploadingBox()
+    with pytest.raises(RuntimeError, match="No page of music"):
+        await run(db, box, pdf=FakePdf(count=2, staves={1: False, 2: False}))
+    assert box.events == ["upload", "cleanup"] and box.runs == []
+
+
+def test_drop_heading_leaves_out_the_tempo_heading_after_the_reread():
+    from app.librarian.omr_agent import drop_heading
+    texts = [{"placed": [{"text": "Aria.", "spark_bar": 1}, {"text": "p", "spark_bar": 1}], "dropped": []}]
+    out = drop_heading(texts, ("Aria",))
+    assert [i["text"] for i in out[0]["placed"]] == ["p"] and out[0]["dropped"][0]["why"].startswith("the tempo heading")
+    assert drop_heading([{"placed": [{"text": "p"}], "dropped": []}], (None,))[0]["placed"] == [{"text": "p"}]
+
+
+def test_parallel_pages_setting_defaults_to_five(monkeypatch):
+    from app.librarian.omr_convert import parallel_pages
+    monkeypatch.delenv("OMR_PARALLEL_PAGES", raising=False)
+    assert parallel_pages() == 5
+    monkeypatch.setenv("OMR_PARALLEL_PAGES", "0")
+    assert parallel_pages() == 0
+    monkeypatch.setenv("OMR_PARALLEL_PAGES", "lots")
+    assert parallel_pages() == 0
+
+
+class StitchingBox(UploadingBox):
+    """The first run comes back stitched page by page (`parallel` set) with one export file too many, so its movements
+    do not line up; the book is then read again as one run."""
+
+    async def transcribe(self, run_id: str, pdf: bytes, pages, dest: Path, uploaded: float | None = None, parallel: int | None = None) -> dict:
+        self.events.append(f"transcribe {run_id} parallel={parallel}")
+        run = await FakeBox.transcribe(self, run_id, pdf, pages, dest)
+        if parallel is None:
+            (dest / "book.mvt2.mxl").write_bytes(mxl(MUSICXML))
+            (dest / "book.mxl").rename(dest / "book.mvt1.mxl")
+            run["parallel"] = 5
+            (dest / "book_run.json").write_text(json.dumps(run))
+        return run
+
+
+async def test_a_stitched_book_that_does_not_line_up_is_read_again_whole():
+    db, box = pdf_book(), StitchingBox()
+    out, ctx = await run(db, box)
+    assert out["bars"] == 2 and "parallel_fallback" in ctx.result
+    assert box.events[1:] == ["transcribe job-1 parallel=None", "transcribe job-1-whole parallel=0"]

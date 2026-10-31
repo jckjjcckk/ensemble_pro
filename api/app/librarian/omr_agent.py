@@ -33,8 +33,8 @@ The four steps, each a prompt here and a writer in `omr_enrich`:
                 rests, dots, wedges, fermatas and dynamics are gone: the first four could change a note's duration
                 (decision 2026-10-28: Spark never changes a note), the last two are covered by the enrichment.
 
-Every call: effort low, an 8k output budget, a JSON-only system prompt, one retry on a truncated or unparseable
-reply, charged through `ctx.charge` (`ask.ask_model`), and recorded against the PDF page it concerns (`Budget`),
+Every call: effort low (the reread: minimal, on chat completions, `REREAD_EFFORT`), an 8k output budget, a JSON-only
+system prompt, one retry on a truncated or unparseable reply, charged through `ctx.charge` (`ask.ask_model`), and recorded against the PDF page it concerns (`Budget`),
 within `max_cost_usd` (default $1.00 a page). Past the cap the rest keep Audiveris's reading.
 """
 
@@ -53,7 +53,10 @@ from .ask import NoJSON, ask_model
 log = logging.getLogger("folio.omr")
 
 MAX_TOKENS = 8000
-WORKERS = 6
+# 12 calls in flight (was 6) and the reread at effort minimal: speed pass 2026-10-30, Goldberg p1-5, 30 systems,
+# 29 s -> 9 s for the reread with text precision/recall 0.898/0.779 against 0.889/0.706 at low (benchmark 2.10).
+WORKERS = 12
+REREAD_EFFORT = "minimal"
 USD_PER_PAGE = 1.00            # the default allowance per PDF page (v1 measured $0.078 a page; v2 asks more per system)
 MAX_KIND_QUESTIONS = 6         # front matter longer than this is assumed to have ended: the rest is music
 PAGE_KINDS = ("cover", "preface", "contents", "music")
@@ -134,9 +137,10 @@ class Budget:
                 "per_step": {k: round(v, 4) for k, v in self.per_step.items()}}
 
 
-async def _ask(ctx, client, model: str, prompt: str, png: bytes, system: str, budget: Budget, step: str, page: int | None) -> dict | None:
+async def _ask(ctx, client, model: str, prompt: str, png: bytes, system: str, budget: Budget, step: str, page: int | None,
+               effort: str = "low") -> dict | None:
     try:
-        data = await ask_model(ctx, client, model, prompt, png, max_tokens=MAX_TOKENS, effort="low", retries=1, system=system)
+        data = await ask_model(ctx, client, model, prompt, png, max_tokens=MAX_TOKENS, effort=effort, retries=1, system=system)
     except NoJSON as e:
         budget.add(step, page, None, e.cost_usd)
         log.warning("spark %s page %s: %s", step, page, e)
@@ -520,13 +524,31 @@ async def reread(ctx, client, model: str, doc: dict, scans: dict[int, Image.Imag
             n = len(s["staves"])
             staves = "treble + bass staff" if n == 2 else f"{n} staves" if n != 1 else "one staff"
             ans = await _ask(ctx, client, model, REREAD_PROMPT.format(staves=staves, first=s["numbers"][0], last=s["numbers"][-1]),
-                             png_bytes(im), REREAD_SYSTEM, budget, "reread", pdf_page[s["page"]])
+                             png_bytes(im), REREAD_SYSTEM, budget, "reread", pdf_page[s["page"]], effort=REREAD_EFFORT)
         if ans is None:
             return rec
         placed, dropped = place_system(doc, s, ans, crop, exclude)
         return rec | {"ok": True, "placed": placed, "dropped": dropped, "crop": crop}
 
     return list(await asyncio.gather(*(one(s) for s in doc["systems"])))
+
+
+def drop_heading(texts: list[dict], exclude: tuple[str, ...]) -> list[dict]:
+    """`reread`'s records with the tempo heading taken out afterwards, as `place(exclude=)` would have done: the reread
+    runs beside the front-matter read (which finds the heading), so the exclusion is applied once both are back."""
+    ex = {e.strip().rstrip(".").lower() for e in exclude if e}
+    if not ex:
+        return texts
+    for rec in texts:
+        keep = []
+        for it in rec.get("placed") or []:
+            if it["text"].rstrip(".").lower() in ex:
+                rec["dropped"].append({"item": {"text": it["text"], "bar": it.get("spark_bar")},
+                                       "why": "the tempo heading (written by the front-matter read)"})
+            else:
+                keep.append(it)
+        rec["placed"] = keep
+    return texts
 
 
 # ---------------------------------------------------------------------------------------------------- closed questions

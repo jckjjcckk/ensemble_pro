@@ -50,7 +50,7 @@ def pages_arg(spec: str | None) -> list[int] | None:
 def meta_client() -> AsyncAnthropic:
     base = settings.meta_api_base_url.rstrip("/")
     base = base[:-3] if base.endswith("/v1") else base
-    return AsyncAnthropic(api_key=settings.meta_api_key, base_url=base, max_retries=1)
+    return AsyncAnthropic(api_key=settings.meta_api_key, base_url=base, max_retries=1, timeout=180.0)
 
 
 def capture(run: Path, store: dict):

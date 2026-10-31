@@ -13,6 +13,7 @@ question image is the scan's system (no labels) above the engraved system, both 
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import os
 import re
@@ -31,6 +32,10 @@ log = logging.getLogger("folio.omr")
 MPOS_PER_PX_300 = 12.0                               # .mpos units per pixel of a 300 dpi PNG (measured on Chopin p25: 32054 / 2670 px)
 PAD_PX = 60                                          # around the engraved system, so text above and below is in frame
 MAX_WIDTH = 1600
+# Effort of the render proofreading question (speed pass 2026-10-30, benchmark 2.10): minimal and low asked twice each on
+# the same 29 Goldberg pair images gave the same yes/no and the same measures on 28; on the 29th low said "no" for the
+# tempo heading the file never writes (and so would revert correct dynamics), minimal "yes". Median 3.9 -> 2.1 s a call.
+VERIFY_RENDER_EFFORT = "minimal"
 
 VERIFY_RENDER_SYSTEM = "You are a music engraver proofreading a transcription against its scanned original. Answer with strict JSON only."
 VERIFY_RENDER_PROMPT = """Two images of the same system, measures {first}..{last} of a piece of piano or chamber music. TOP: the scanned original (300 dpi). BOTTOM: our engraving of the transcription (a different engraver: spacing, line breaks, note layout, stems, beams, slurs and hairpin shapes differ; ignore all of that).
@@ -137,11 +142,14 @@ async def verify_edits(ctx, client, model: str, engraver: Any, run_id: str, data
         if dump:
             Path(dump).mkdir(parents=True, exist_ok=True)
             (Path(dump) / f"p{s['page']}-sys{s['system']}.png").write_bytes(pair)
+            (Path(dump) / f"p{s['page']}-sys{s['system']}.json").write_text(json.dumps(
+                {"first": s["numbers"][0], "last": s["numbers"][-1], "numbers": s["numbers"], "bars": bars, "pdf_page": pdf_page[s["page"]]}))
         async with budget.sem:
             if not budget.ok():
                 return None
             prompt = VERIFY_RENDER_PROMPT.format(first=s["numbers"][0], last=s["numbers"][-1])
-            ans = await _ask(ctx, client, model, prompt, pair, VERIFY_RENDER_SYSTEM, budget, "verify_render", pdf_page[s["page"]])
+            ans = await _ask(ctx, client, model, prompt, pair, VERIFY_RENDER_SYSTEM, budget, "verify_render", pdf_page[s["page"]],
+                             effort=VERIFY_RENDER_EFFORT)
         same, reason, named = _same(ans, s["numbers"])
         return {"system": s["system"], "page": s["page"], "bars": bars, "same": same, "reason": reason, "named": named, "asked": True}
 

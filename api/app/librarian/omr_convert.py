@@ -62,6 +62,7 @@ import json
 import os
 import re
 import shlex
+import shutil
 import tarfile
 import tempfile
 import time
@@ -77,7 +78,7 @@ from . import Job, JobContext, handler, landmarks, playback
 from .engrave import SshEngraver, engrave_step
 from .import_musicxml import book_facts, part_groups, write_measures, write_parts
 from .musicxml_fix import PageLayout, fix_musicxml
-from .omr_agent import USD_PER_PAGE, Budget, PdfPages, front_matter, page_kinds, reread, verify
+from .omr_agent import USD_PER_PAGE, Budget, PdfPages, drop_heading, front_matter, page_kinds, reread, verify
 from .omr_book import load_run
 from .omr_enrich import Undos, apply_front, apply_text, apply_verify, false_tuplets, fix_hairpins
 from .omr_verify import verify_edits
@@ -137,17 +138,40 @@ class SshBox:
             return False
         return rc == 0
 
-    async def transcribe(self, run_id: str, pdf: bytes, pages: list[int] | None, dest: Path, max_pages: int = MAX_PAGES) -> dict:
+    def _dir(self, run_id: str) -> str:
         if not re.fullmatch(r"[A-Za-z0-9-]+", run_id):
             raise ValueError("run id must be alphanumeric")
-        d = f"{self.root}/{run_id}"
-        q = shlex.quote
+        return f"{self.root}/{run_id}"
+
+    async def upload(self, run_id: str, pdf: bytes) -> float:
+        """The PDF and the box script into the run's folder; returns the seconds it took. `omr_convert` starts this while
+        Spark sorts the pages (speed pass: the upload no longer waits for the page kinds)."""
+        d, q = self._dir(run_id), shlex.quote
         t0 = time.perf_counter()
         await self.ssh(f"mkdir -p {q(d)} && cat > {q(d + '/book.pdf')}", stdin=pdf, timeout=120)
         await self.ssh(f"cat > {q(d + '/omr_box.py')}", stdin=BOX_SCRIPT.read_bytes())
-        upload_s = time.perf_counter() - t0
+        return time.perf_counter() - t0
+
+    async def cleanup(self, run_id: str) -> None:
+        if os.environ.get("OMR_KEEP"):
+            return
+        try:
+            await self.ssh(f"rm -rf {shlex.quote(self._dir(run_id))}", timeout=60)
+        except (EngineOffline, EngineFailed):
+            pass
+
+    async def transcribe(self, run_id: str, pdf: bytes, pages: list[int] | None, dest: Path, max_pages: int = MAX_PAGES,
+                         uploaded: float | None = None, parallel: int | None = None) -> dict:
+        """`uploaded`: the seconds `upload` took when it ran already for this run id; else the upload happens here.
+        `parallel`: Audiveris per page, this many at once (None: `OMR_PARALLEL_PAGES`; 0: the whole book in one run)."""
+        d = self._dir(run_id)
+        q = shlex.quote
+        t0 = time.perf_counter()
+        upload_s = uploaded if uploaded is not None else await self.upload(run_id, pdf)
         args = f"--pages {q(','.join(map(str, pages)))}" if pages else ""
         n = len(pages) if pages else max_pages
+        if (par := parallel_pages() if parallel is None else parallel) > 1 and n > 1:
+            args += f" --parallel {par}"
         try:
             rc, out, err = await self.ssh(f"python3 -I {q(d + '/omr_box.py')} {q(d + '/book.pdf')} {q(d + '/out')} --max-pages {max_pages} {args}",
                                           timeout=180 + 90 * n)
@@ -166,15 +190,23 @@ class SshBox:
                 tf.extractall(dest, filter="data")
             pull_s = time.perf_counter() - t1
         finally:
-            if not os.environ.get("OMR_KEEP"):
-                try:
-                    await self.ssh(f"rm -rf {q(d)}", timeout=60)
-                except (EngineOffline, EngineFailed):
-                    pass
+            await self.cleanup(run_id)
         run = json.loads((dest / "book_run.json").read_text())
         run["upload_s"], run["pull_s"] = round(upload_s, 1), round(pull_s, 1)
         run["box_s"] = round(time.perf_counter() - t0, 1)
         return run
+
+
+def parallel_pages() -> int:
+    """`OMR_PARALLEL_PAGES` (default 5; 0 turns it off): Audiveris on each page as its own book, this many at once on the
+    box (about 1 GB each), stitched back into one book (`omr_box.py --parallel`). Speed pass 2026-10-30 (005, benchmark
+    2.11): Goldberg p1-5 and Chopin op. 26 pp. 4-7 (one movement over four pages) give the same bar count and numbering
+    as the whole-book run, Audiveris 89 -> 44 s and 67 -> 36 s. A stitched book whose movements do not line up
+    (`BarsDoNotLineUp`, e.g. a page that prints fewer staves) is read again as one book."""
+    try:
+        return max(0, int(os.environ.get("OMR_PARALLEL_PAGES", "5") or 0))
+    except ValueError:
+        return 0
 
 
 def _box_error(rc: int, info: dict) -> str:
@@ -299,12 +331,29 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
     if n_pages > MAX_PAGES:
         await _fail(ctx, RuntimeError(f"This PDF has {n_pages} pages; Convert to Digital takes at most {MAX_PAGES} for now"))
     budget = Budget(float(p.get("max_cost_usd") or USD_PER_PAGE * n_pages))
+    # The PDF goes to the box while Spark sorts the pages (neither needs the other); Audiveris waits for both.
+    upload = asyncio.create_task(box.upload(job.id, pdf)) if hasattr(box, "upload") else None
     t_kinds = time.time()
-    kinds = await page_kinds(ctx, client, model, book_pages, pages, budget)
+    try:
+        kinds = await page_kinds(ctx, client, model, book_pages, pages, budget)
+    except BaseException:
+        if upload is not None:
+            upload.cancel()
+            await box.cleanup(job.id)
+        raise
     kinds_s = time.time() - t_kinds
     music = [k["pdf_page"] for k in kinds if k["kind"] == "music"]
     front = [k for k in kinds if k["kind"] != "music"]
+    uploaded: float | None = None
+    if upload is not None:
+        try:
+            uploaded = await upload
+        except (EngineOffline, EngineFailed) as e:
+            await box.cleanup(job.id)
+            await _fail(ctx, e)
     if not music:
+        if upload is not None:
+            await box.cleanup(job.id)
         await _fail(ctx, EngineFailed("No page of music was found in this PDF (only " + ", ".join(k["kind"] for k in front) + ")"))
     cover_key = None
     cover = next((k for k in kinds if k["kind"] == "cover"), None)
@@ -317,16 +366,35 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
         run = Path(tmp)
         await ctx.progress(0.08, f"Reading {len(music)} page{'s' if len(music) != 1 else ''} of music")
         try:
-            book_run = await box.transcribe(job.id, pdf, music, run)
+            book_run = await (box.transcribe(job.id, pdf, music, run, uploaded=uploaded) if uploaded is not None
+                              else box.transcribe(job.id, pdf, music, run))
         except (EngineOffline, EngineFailed) as e:
             await _fail(ctx, e)
         doc = await asyncio.to_thread(load_run, run)
-        if not doc["measures"]:
-            await _fail(ctx, EngineFailed("The transcription engine found no bars in this PDF"))
         try:
+            if not doc["measures"]:
+                raise BarsDoNotLineUp("no bars")
             sc, filled = await asyncio.to_thread(merge, doc, movement_files(run))
         except BarsDoNotLineUp as e:
-            await _fail(ctx, EngineFailed(f"The transcription's bars do not line up with its pages ({e})"))
+            if not book_run.get("parallel"):
+                await _fail(ctx, EngineFailed("The transcription engine found no bars in this PDF" if not doc["measures"] else
+                                              f"The transcription's bars do not line up with its pages ({e})"))
+            # The pages read one by one do not stitch (a page with fewer staves, a page Audiveris gave up on): the book
+            # again in one run, the way it was read before the speed pass.
+            ctx.result["parallel_fallback"] = str(e)[:200]
+            shutil.rmtree(run)
+            run.mkdir()
+            try:
+                book_run = await box.transcribe(f"{job.id}-whole", pdf, music, run, parallel=0)
+            except (EngineOffline, EngineFailed) as e2:
+                await _fail(ctx, e2)
+            doc = await asyncio.to_thread(load_run, run)
+            if not doc["measures"]:
+                await _fail(ctx, EngineFailed("The transcription engine found no bars in this PDF"))
+            try:
+                sc, filled = await asyncio.to_thread(merge, doc, movement_files(run))
+            except BarsDoNotLineUp as e2:
+                await _fail(ctx, EngineFailed(f"The transcription's bars do not line up with its pages ({e2})"))
         page = PageLayout.read(movement_files(run)[0])
         geometry_log = await asyncio.to_thread(lambda: fix_hairpins(sc, doc) + false_tuplets(sc))   # Audiveris's own geometry, no model
 
@@ -334,10 +402,12 @@ async def _convert(job: Job, ctx: JobContext, box: Any, client: AsyncAnthropic |
         index = {pg: i for i, pg in enumerate(book_run["pdf_pages"], start=1)}
         scans = {pg["page"]: Image.open(run / "scan" / f"p{index[pg['pdf_page']]}.png") for pg in doc["pages"]}
         t_spark = time.time()
-        form = await front_matter(ctx, client, model, doc, scans, budget)
-        heading = (form.get("tempo_heading"),)
-        texts, answers = await asyncio.gather(reread(ctx, client, model, doc, scans, budget, exclude=heading),
-                                              verify(ctx, client, model, doc, scans, budget))
+        # The front matter, the reread and the closed questions at once (12 calls in flight): the reread does not need
+        # the heading to ask, only to leave it out of what it writes, which `drop_heading` does once both are back.
+        form, texts, answers = await asyncio.gather(front_matter(ctx, client, model, doc, scans, budget),
+                                                    reread(ctx, client, model, doc, scans, budget),
+                                                    verify(ctx, client, model, doc, scans, budget))
+        texts = drop_heading(texts, (form.get("tempo_heading"),))
         spark_s = time.time() - t_spark
 
         await ctx.progress(0.8, "Writing the digital version")
