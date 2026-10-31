@@ -247,3 +247,35 @@ def test_text_lines_ignore_hairpins_and_lone_words():
     lines = cut.text_lines(comps, sp)
     assert len(lines) == 1
     assert sorted(c["label"] for c in lines[0]) == [1, 2, 3]
+
+
+# ---------------------------------------------------------------- the crop check on a bowed scan
+
+def bowed_crop(drift: int, sp: int = 7, missing: int | None = None) -> tuple[Image.Image, dict, dict, dict]:
+    """One staff sagging `drift` px from left to right, barlines drawn where the staff really is, measured where the row
+    profile puts it (its left end), as `page_geometry` measures a bowed Breitkopf page (E2E night, PC3 p2: 8 px)."""
+    page = blank(800, 200)
+    x0, x1, top = 100, 700, 60
+    draw_bowed_staff(page, top, sp, x0, x1, drift=drift)
+    bars = [(x, x + 2) for x in (100, 250, 400, 550, 698)]
+    for k, (bx0, bx1) in enumerate(bars):
+        if k == missing:
+            continue
+        y = top + round(drift * (bx0 - x0) / (x1 - x0))
+        page[y: y + 4 * sp + 2, bx0: bx1 + 1] = INK
+    staff = {"index": 1, "y_top": top, "y_bottom": top + 4 * sp, "spacing": float(sp), "x0": x0, "x1": x1}
+    geom = {"staves": [staff]}
+    system = {"index": 1, "staff_indices": [1], "barlines": bars, "n_measures": 4}
+    box = {"x0": 0, "y0": 0, "x1": 799, "y1": 199}
+    return Image.fromarray(page).convert("RGB"), geom, system, box
+
+
+def test_barlines_on_a_bowed_staff_are_found_where_the_staff_has_sagged():
+    crop, geom, system, box = bowed_crop(drift=8)
+    assert cut.verify(crop, geom, system, [1], box)["barlines_present"]["pass"]
+
+
+def test_a_barline_missing_from_the_crop_still_fails_on_a_bowed_staff():
+    crop, geom, system, box = bowed_crop(drift=8, missing=2)
+    check = cut.verify(crop, geom, system, [1], box)["barlines_present"]
+    assert not check["pass"] and check["missing"] == [(400, 402)]

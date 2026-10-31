@@ -869,9 +869,14 @@ def verify(crop: Image.Image, geom: dict, system: dict, wanted: list[int], box: 
     brace = any(vertical_cover(cbw, x, ya, yb, tol=2) >= 0.9 for x in range(max(0, x_left - int(5 * sp)), max(0, x_left - 1)))
     present = []
     tol = max(1, int(round(sp / 8)))   # a barline drifts a px or two over a staff on a 150-dpi render of a scan (B9: 0.83 cover at 1 px, 1.0 at 2)
+    # A bowed scan's staff sags or rises across the page (PC3 p2: 8 px lower at the right end than the row profile puts
+    # it), so the staff's own height is looked for up to a staff space above or below its measured place at each
+    # barline. The band keeps the staff's height: a missing barline still fails, a stem never spans four spaces.
+    shifts = sorted(range(-int(round(sp)), int(round(sp)) + 1), key=abs)
     for bx0, bx1 in system["barlines"]:
         cols = range(max(0, bx0 - 4 - ox), min(cbw.shape[1], bx1 + 5 - ox))
-        present.append(any(vertical_cover(cbw, x, ya, yb, tol=tol) >= 0.9 for x in cols))
+        present.append(any(vertical_cover(cbw, x, ya + d, yb + d, tol=tol) >= 0.9
+                           for d in shifts if ya + d >= 0 and yb + d < cbw.shape[0] for x in cols))
     return {"staves_in_crop": {"value": inside, "expect": sorted(wanted), "pass": sorted(inside) == sorted(wanted)},
             "brace_or_bracket": {"value": brace, "pass": brace, "informational": True},
             "barlines_present": {"present": present, "missing": [bl for bl, ok in zip(system["barlines"], present) if not ok], "pass": all(present)},
