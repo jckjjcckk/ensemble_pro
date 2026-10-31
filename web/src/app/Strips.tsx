@@ -6,6 +6,7 @@ import type { Score } from '../mock'
 import { supabase } from '../lib/supabase'
 import { Screen, useViewport } from './layout'
 import { fmtDateTime, useStore } from './store'
+import type { PartStrip } from './data'
 import { AccountButton } from './Display'
 import { ILibrary } from './icons'
 import './parts.css'
@@ -34,7 +35,7 @@ export default function Strips({ score }: { score: Score }) {
   const systems = strip?.systems ?? []
   const capOf = (path: string) => {
     const s = systems.find(x => x.key === path)
-    return s ? { page: s.page, system: s.system, bars: s.bars } : null
+    return s ? { page: s.page, system: s.system, bars: s.bars, from: s.bar_from, to: s.bar_to } : null
   }
 
   const header = (
@@ -68,7 +69,15 @@ export default function Strips({ score }: { score: Score }) {
     <Screen header={header} dock={dock} className="is-doc">
       {strip ? (
         <div className="strips" role="list" aria-label={`${strip.label}, ${score.title}, ${strip.paths.length} systems`}>
-          {strip.paths.map((p, i) => {
+          {[...strip.paths.map((p, i) => ({ p: p as string | null, i, page: capOf(p)?.page ?? 0, t: undefined as PartStrip['tacet'][number] | undefined })), ...strip.tacet.map(t => ({ p: null as string | null, i: -1, page: t.page, t }))]
+            .sort((a, b) => a.page - b.page || a.i - b.i)
+            .map(({ p, i, t }) => {
+            if (!p) return (
+              <div key={`tacet-${t!.page}`} className="strip-tacet" role="listitem">
+                <b>Tacet</b><span>page <span className="num">{t!.page}</span></span>
+                {t!.bar_from != null && <span>{t!.bar_from === t!.bar_to ? 'bar' : 'bars'} <span className="num">{t!.bar_from === t!.bar_to ? t!.bar_from : `${t!.bar_from}–${t!.bar_to}`}</span></span>}
+              </div>
+            )
             const cap = capOf(p)
             return (
               <figure key={p} className="strip" role="listitem">
@@ -78,7 +87,8 @@ export default function Strips({ score }: { score: Score }) {
                 <figcaption className="strip-cap">
                   <span className="num">{i + 1} / {strip.paths.length}</span>
                   {cap && <span>Page <span className="num">{cap.page}</span>, system <span className="num">{cap.system}</span></span>}
-                  {cap?.bars != null && <span><span className="num">{cap.bars}</span> bars</span>}
+                  {cap?.from != null ? <span>{cap.from === cap.to ? 'bar' : 'bars'} <span className="num">{cap.from === cap.to ? cap.from : `${cap.from}–${cap.to}`}</span></span>
+                    : cap?.bars != null && <span><span className="num">{cap.bars}</span> {cap.bars === 1 ? 'bar' : 'bars'}</span>}
                 </figcaption>
               </figure>
             )

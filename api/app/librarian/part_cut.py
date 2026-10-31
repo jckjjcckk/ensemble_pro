@@ -141,6 +141,41 @@ def clefs_fit(seen: list[Any], expected: list[str], voice: bool) -> bool:
     return any(n in exp for n in names)
 
 
+def strip_bars(systems: list[dict], placements: list[dict], pages: list[int], crops: dict[str, tuple[float, float]]) -> tuple[list[dict], list[dict]]:
+    """Bar numbers for a split's strips, from the book's placements (004; stable measure numbers), and its tacet pages.
+
+    `systems`: the derived source's per-system rows ({page, system, key, ...}); `placements`: {page, system, number, box}
+    with boxes as fractions of the working page; `crops`: "page:system" -> the strip's x range as fractions of that
+    page. Each cut system gains `bar_from`, `bar_to` and `bars_at` ([number, x0, x1] as fractions of the strip's width,
+    for the bar hit targets on the stand); a page of `pages` where nothing of the part was cut is a tacet row
+    {page, bar_from, bar_to} (the bars printed there, None when the page placed none)."""
+    by_sys: dict[tuple[int, int], list[dict]] = {}
+    by_page: dict[int, list[int]] = {}
+    for r in placements:
+        n = r.get("number")
+        if n is None or r.get("page") is None:
+            continue
+        by_page.setdefault(int(r["page"]), []).append(int(n))
+        if r.get("system") is not None:
+            by_sys.setdefault((int(r["page"]), int(r["system"])), []).append(r)
+    out = []
+    for s in systems:
+        s = dict(s)
+        rows = sorted(by_sys.get((int(s["page"]), int(s["system"])), []), key=lambda r: (r["box"] or {}).get("x0", 0))
+        if s.get("key") and rows:
+            nums = [int(r["number"]) for r in rows]
+            s["bar_from"], s["bar_to"] = min(nums), max(nums)
+            x0, x1 = crops.get(f"{s['page']}:{s['system']}", (0.0, 1.0))
+            span = max(1e-6, x1 - x0)
+            s["bars_at"] = [[int(r["number"]), round(max(0.0, ((r["box"] or {}).get("x0", 0) - x0) / span), 4),
+                             round(min(1.0, ((r["box"] or {}).get("x1", 0) - x0) / span), 4)] for r in rows if r.get("box")]
+        out.append(s)
+    cut_pages = {int(s["page"]) for s in systems if s.get("key")}
+    tacet = [{"page": n, "bar_from": min(by_page[n]) if by_page.get(n) else None, "bar_to": max(by_page[n]) if by_page.get(n) else None}
+             for n in pages if n not in cut_pages]
+    return out, tacet
+
+
 def slug(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or "part"
 
@@ -975,12 +1010,27 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
     # done: the derived source and the stable placements
     commits = sorted(sc["commits"].items(), key=lambda kv: tuple(int(x) for x in kv[0].split(":")))
     keys = [v["key"] for _, v in commits if v["key"]]
+    systems = [{"page": int(k.split(":")[0]), "system": int(k.split(":")[1]), "staves": v["staves"], "blocks": v.get("blocks") or [],
+                "key": v["key"], "bars": v.get("bars")} for k, v in commits]
+    # Running bar numbers and tacet pages (010, CK 2026-10-31): the book's placements, which this run copied under its own
+    # interpretation, with each strip's x range on its page so a bar on the strip can be tapped like a bar on the page.
+    crops: dict[str, tuple[float, float]] = {}
+    for k, v in commits:
+        w = ((sc["pages"].get(k.split(":")[0]) or {}).get("geometry") or {}).get("image_px", [0])[0]
+        b = (v.get("boxes") or [None])[0]
+        if w and b:
+            crops[k] = (b["x0"] / w, (b["x1"] + 1) / w)
+    try:
+        placed = ctx.db.table("measure_placements").select("page,system,box,measures(number)").eq("interpretation_id", interp["id"]).execute().data or []
+    except Exception:  # noqa: BLE001  (the strips stand without numbers rather than the cut failing)
+        placed = []
+    placed = [{**r, "number": r.get("number", (r.get("measures") or {}).get("number"))} for r in placed]
+    systems, tacet = strip_bars(systems, placed, pages, crops)
     derived = ctx.db.table("sources").insert({
         "score_id": score_id, "kind": "part_images", "storage_paths": keys, "page_order": list(range(1, len(keys) + 1)), "page_count": len(keys),
         "created_by": job.created_by or src["created_by"],
         "meta": {"instrument": label, "instruments": instruments, "slug": part_slug, "derived_from_source_id": src["id"], "interpretation_id": interp["id"],
-                 "systems": [{"page": int(k.split(":")[0]), "system": int(k.split(":")[1]), "staves": v["staves"], "blocks": v.get("blocks") or [],
-                              "key": v["key"], "bars": v.get("bars")} for k, v in commits]},
+                 "systems": systems, "tacet": tacet, "pages": pages},
     }).execute().data[0]
     ctx.db.table("interpretations").update({"status": "done", "finished_at": ctx.now(), "params": {"instrument": label, "instruments": instruments, "source_id": derived["id"], "state": sc}}).eq("id", interp["id"]).execute()
     ctx.db.table("parts").upsert({"score_id": score_id, "name": label, "position": 0, "storage_path": keys[0] if keys else None}, on_conflict="score_id,name").execute()

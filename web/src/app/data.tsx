@@ -128,7 +128,11 @@ export interface PartStrip {
   paths: string[]
   /** The split's own MusicXML file (digital splits only). */
   path?: string
-  systems: { page: number; system: number; staves: number[] | 'absent'; key: string | null; bars: number | null }[]
+  /** Per cut system: where it is, its strip, and (splits since 2026-10-31) its running bar numbers from the book's
+   *  placements, with each bar's x range as fractions of the strip's width (`bars_at`: [number, x0, x1]). */
+  systems: { page: number; system: number; staves: number[] | 'absent'; key: string | null; bars: number | null; bar_from?: number; bar_to?: number; bars_at?: [number, number, number][] }[]
+  /** Pages the split read where the part has nothing: "tacet, page 4" rows, with the bars printed there. */
+  tacet: { page: number; bar_from: number | null; bar_to: number | null }[]
   createdAt: string
 }
 
@@ -385,7 +389,7 @@ function partStrips(rows: Row[]): PartStrip[] {
       id: r.id, scoreId: r.score_id, kind: digital ? 'musicxml' as const : 'images' as const, instruments,
       label: partLabel(instruments.length ? instruments : ['Part']),
       paths: digital ? [] : keys, path: digital ? keys[0] : undefined,
-      systems: (r.meta?.systems as PartStrip['systems']) ?? [], createdAt: r.created_at,
+      systems: (r.meta?.systems as PartStrip['systems']) ?? [], tacet: Array.isArray(r.meta?.tacet) ? r.meta.tacet : [], createdAt: r.created_at,
     }
   }).reverse()
 }

@@ -767,3 +767,46 @@ async def test_brace_rule_a_keyboard_pair_is_the_keyboard_whatever_its_clefs():
     assert not pc.keyboard_brace({"label_seen": "Vl. I", "staves_seen": 2}, 2) and not pc.keyboard_brace({"label_seen": "Pfte.", "staves_seen": 3}, 2)
     assert not pc.keyboard_brace({"label_seen": "", "staves_seen": 2}, 2)
     assert pc.is_keyboard("Pfte.") and pc.is_keyboard("Organo") and pc.is_keyboard("Harfe") and not pc.is_keyboard("Violoncello")
+
+
+def test_strip_bars_number_the_strips_and_name_the_tacet_pages():
+    """PC5 p1-4 as the pianist saw it: the piano plays on pages 1-3 and rests through page 4. Each strip carries its
+    running bar numbers from the book's placements (not "2 bars") and where each bar sits across the strip; page 4,
+    where nothing of the part was cut, is a tacet row with the bars printed there."""
+    import app.librarian.part_cut as pc
+    def bar(n, page, system, x0, x1): return {"number": n, "page": page, "system": system, "box": {"x0": x0, "y0": 0.1, "x1": x1, "y1": 0.9}}
+    placements = [bar(1, 1, 1, 0.25, 0.4), bar(2, 1, 1, 0.4, 0.9),
+                  bar(3, 2, 1, 0.2, 0.9), bar(4, 2, 2, 0.2, 0.5), bar(5, 2, 2, 0.5, 0.9),
+                  bar(6, 3, 1, 0.2, 0.9), *[bar(n, 4, 1, 0.2 + (n - 7) * 0.1, 0.3 + (n - 7) * 0.1) for n in range(7, 12)],
+                  {"number": 12, "page": 4, "system": None, "box": {"x0": 0, "y0": 0, "x1": 0, "y1": 0}}]
+    systems = [{"page": 1, "system": 1, "key": "p1", "bars": 2}, {"page": 2, "system": 1, "key": "p2a", "bars": 1},
+               {"page": 2, "system": 2, "key": "p2b", "bars": 2}, {"page": 3, "system": 1, "key": None, "bars": 1},
+               {"page": 3, "system": 2, "key": "p3", "bars": 0}, {"page": 4, "system": 1, "key": None, "bars": 5}]
+    crops = {"1:1": (0.0, 0.95), "2:2": (0.0, 1.0)}
+    out, tacet = pc.strip_bars(systems, placements, [1, 2, 3, 4], crops)
+    assert [(s.get("bar_from"), s.get("bar_to")) for s in out] == [(1, 2), (3, 3), (4, 5), (None, None), (None, None), (None, None)]
+    assert out[0]["bars_at"] == [[1, 0.2632, 0.4211], [2, 0.4211, 0.9474]]          # fractions of the strip, the crop's own width
+    assert out[2]["bars_at"] == [[4, 0.2, 0.5], [5, 0.5, 0.9]]
+    assert tacet == [{"page": 4, "bar_from": 7, "bar_to": 12}]                         # page 4: the part rests, bars 7-12
+    _, none = pc.strip_bars(systems[:3], [], [1, 2, 5], {})
+    assert none == [{"page": 5, "bar_from": None, "bar_to": None}]                    # a page with no bars placed still says so
+
+
+@pytest.mark.asyncio
+async def test_the_split_source_carries_bar_numbers_and_tacet_pages():
+    """End to end on the scripted run: page 1 holds the piano, page 2 does not; the derived source's meta numbers the
+    strip from the placements the run copied and names page 2 as tacet."""
+    script = [tool("read_header", {}), HEADER, tool("read_page", {"page": 1}), LABEL, commit(1, [4, 5]), RECHECK_PIANO,
+              tool("read_page", {"page": 2}), LABEL_ABSENT, commit(2, "absent"), tool("finish", {})]
+    client, t = fake_client(script)
+    job, ctx, db = world(2)
+    db.rows["measure_placements"] = [{"interpretation_id": "intake1", "measure_id": f"m{i}", "page": 1 if i < 4 else 2, "system": 1,
+                                      "box": {"x0": 0.1 + 0.2 * (i % 4), "y0": 0.1, "x1": 0.3 + 0.2 * (i % 4), "y1": 0.4}, "measures": {"number": i + 1},
+                                      "confidence": "high", "flag": None, "rehearsal_mark": None} for i in range(6)]
+    out = await part_cut(job, ctx, client=client)
+    assert out["systems_cut"] == 1
+    meta = [r for r in db.rows["sources"] if r["kind"] == "part_images"][0]["meta"]
+    s1 = next(s for s in meta["systems"] if s["key"])
+    assert (s1["bar_from"], s1["bar_to"]) == (1, 4) and [b[0] for b in s1["bars_at"]] == [1, 2, 3, 4]
+    assert all(0 <= b[1] < b[2] <= 1 for b in s1["bars_at"])
+    assert meta["tacet"] == [{"page": 2, "bar_from": 5, "bar_to": 6}] and meta["pages"] == [1, 2]
