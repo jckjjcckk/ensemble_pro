@@ -39,6 +39,18 @@ stack, two queued 3-second jobs of a test-only kind (`experiments/speed_pass/wor
 both in 3.1 s, started 2 ms apart, in 4 of 5 runs; the first run after a cold start ran them one after the other (6.2 s),
 not explained. Concurrency 1: 6.1-6.2 s. The handlers' own sync database calls still block the loop while they run.
 
+### One live job of a kind per book (CK, 2026-10-31: never submit a duplicate)
+
+A split by instrument (`part_cut`, per set of parts), a conversion (`omr_convert`) and a PDF's reading
+(`process_pages`) are live while queued, running, or parked on a question nobody answered. `POST /scores/{id}/parts`,
+`/convert` and `/import` refuse a second one with **409** `{message, job_id, kind, status}` (`status` queued, running or
+needs_review; `app/routes/live_jobs.py`); convert's duplicate was a 400 string before. A split's payload carries
+`parts_key` (its parts trimmed, case-folded, sorted, joined by `|`): other parts may split meanwhile. The partial unique
+index `jobs_one_live` on `(kind, coalesce(score_id, payload->>'score_id'), coalesce(payload->>'parts_key', ''))` where
+queued or running (migration `20261031120000_one_live_job.sql`, which first fails any rows that already break it) holds
+the rule when two requests race; a lost race comes back as the same 409. The iPad disables Split and Convert while
+such a job exists and shows the job in their place (010). Local stack only; hosted needs `supabase db push`.
+
 ## Spend
 
 - `spend` table: one row, `cap_usd` 60, service role only. `charge_usage()` runs in one transaction with one

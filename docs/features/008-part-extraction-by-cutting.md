@@ -511,6 +511,28 @@ job with `result {source_id, instruments, storage_path}` plus a new `sources` ro
 digital splits open in the reader with only their instruments (`/score/{id}?split={source_id}`, OSMD part
 visibility on the book's own file) and export their own file as MusicXML.
 
+## The brace rule, bar numbers and tacet pages (2026-10-31)
+
+- **Brace rule** (CK): a braced pair labelled for a keyboard instrument (piano, pianoforte, Pfte., Klav., organ, harp,
+  celesta) is that instrument whatever clefs its staves show. PC5 p. 2, line 3 prints "Pfte." over two treble staves;
+  the header says treble and bass, so the recheck said no three times on the clefs and the pianist got a question.
+  Now the recheck claims no clefs for a keyboard's pair ("2 staves joined by a brace") and carries the rule
+  (`BRACE_HINT`), a seen clef never refuses it, and a no whose own label is a keyboard's on as many staves as the part
+  has is accepted (verdict `brace`, which teaches the label memory like a yes). Live, Spark low on that crop: the old
+  prompt 3/3 no, the new 3/3 yes ($0.017). The PC5 p1-4 split on the local stack: 7 systems, 0 questions, 18.3 s,
+  $0.072 (every recheck there was settled by the header-seeded label memory, so the brace path itself ran only in
+  the targeted check and the unit test).
+- **Bar numbers**: the `part_images` meta carries per cut system `bar_from`, `bar_to` and `bars_at` ([number, x0, x1]
+  as fractions of the strip's width, from the book's placements and the crop's own x range on its page;
+  `strip_bars`), so the Stand can number the strips and tap their bars (010, 012).
+- **Tacet**: `meta.tacet` lists the pages the split read where nothing of the part was cut, with the bars printed
+  there ("Tacet · page 4 · bars 17-28" for PC5); `meta.pages` the pages read. No backfill for older splits.
+- **Progress**: every turn writes `result.phase` {page, pages, systems_cut} and `jobs.progress`; a resumed run writes
+  it before its first turn. The question's text is "Which staves are the X's on page N, line K?" and the payload adds
+  `page_key` and `image_px` so the iPad shows the plain page (011).
+- **The part row**: a split adds a `parts` row only when the book has no part of that instrument, never with a strip
+  image in `storage_path` (it made a scanned book look Digital, 010) and never moving a placed part.
+
 ## Open issues
 
 - Geometry on the Beethoven 9 choir pages: fixed 2026-10-28 night (recovery ported, the gutter `x0` fix,
@@ -520,13 +542,14 @@ visibility on the book's own file) and export their own file as MusicXML.
   when the system is full, or a glyph-level clef reader.
 - The grey gutter strip (cols 148 to 257 at 150 dpi) is still in every crop's left edge, faint; the bar-aware
   rest rule is still not ported to `cut.py`.
-- Cross-page continuity; bar numbers on the strip (barlines already found, 004); "absent" as a first-class
-  answer in the UI (011); orchestral cues for a concerto soloist (adjacent staves at reduced size).
+- Cross-page continuity; orchestral cues for a concerto soloist (adjacent staves at reduced size). Bar numbers on the
+  strip and tacet pages are in (2026-10-31).
 - Spark JSON: malformed on about half the page calls at low effort; stray-token repair (`}-math]`,
   `word=digits`) and one retry stay; a bracket-closing repair for truncation was planned before the 8k budget
   made it rare.
 - Apply the migrations to the hosted project when CK says (the routes are wired): `20261028090000_part_images_source`
-  and `20261030140000_label_memory` (without the latter the cut runs, but remembers nothing between jobs).
+  and `20261030140000_label_memory` (without the latter the cut runs, but remembers nothing between jobs); since
+  2026-10-31 also `20261031120000_one_live_job` and `20261031121000_realtime_shelf_tables` (007, 010).
 - Decision pending from CK: whether item 6 becomes "intake + part cut" with OMR only behind practice mode.
 
 ## Files and output dirs

@@ -71,6 +71,18 @@ lets a human answer outrank any model read. A genuinely new fact still asks. Fir
 (`scores.label_memory`, `app/librarian/label_memory.py`): a printed staff label ("Klav.") is the part the header or
 the admin said it is, on every later page and in every later cut of the book.
 
+## Park, answer, resume: what the iPad sees (2026-10-31)
+
+A parked run is a job `done` with `result.question`; the admin's answer queues the same kind with `resume_from`
+(011). Since the pianist's PC5 run (a question that still showed for 3.5 minutes after it was answered) three rules
+hold: the answer route puts a split's interpretation back to `running` in the same request (a reading's stays
+`needs_review` until the resumed `process_pages` picks it up by that status, and the iPad stops asking as soon as a
+job resumes it); a resumed `part_cut` writes `result.phase` before its first turn, so the iPad shows it working at
+once; and the shelf hears the job rows over Realtime again (010: its channel bound tables outside the publication and
+received nothing). Measured on the local stack: answer at t, the resume job claimed at t + 1.0 s, "Resuming" on the
+sheet within a second, the split done at t + 3 s. A parked job counts as live: no second job of its kind starts
+while it waits (007).
+
 ## Where it came from
 
 Meta's Agents 101 workshop (`meta-models/legal-agent-workshop`, read 2026-10-27, clone in the scratchpad

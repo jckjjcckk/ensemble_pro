@@ -130,6 +130,32 @@ window.
   "page", `storage_paths` in reading order; or the original page plus the staff boxes already in
   `measure_placements` for the highlighted band.
 
+### The pianist's pass (2026-10-31)
+
+- **The shelf hears Realtime again.** `useWorld`'s one channel bound `parts`, `sources` and `ensembles`, which were
+  never in the `supabase_realtime` publication; Realtime then delivers nothing on that channel, not even `scores` and
+  `jobs`, so the iPad updated only when it reloaded after the reader's own action. That, with the split's parked
+  interpretation counted as the book's question, is why an answered question showed "The librarian has a question ·
+  The admin answers it" for minutes. Migration `20261031121000_realtime_shelf_tables.sql` publishes the three tables
+  (local only; hosted needs `supabase db push`); the shelf listens on two channels (the always-published tables, then
+  the three), each on a topic of its own (supabase-js hands back a channel already registered under a name). A split's
+  interpretation (`part-cut-agent`) is never the book's question, and an editor is never told "the admin answers it".
+- **The live job in place of its action.** On the Book sheet a split or a conversion at work stands where Split by
+  instrument or Convert to Digital was: what ("Splitting out Pianoforte"), where it stands ("Page 2 of 4 · 3 systems
+  cut", from `result.phase`; the handler's note for a conversion) and a word: Working, Queued, Resuming ("Picking up
+  with your answer"), Waiting for you; a tap on a waiting one opens its question. The shelf card carries the same as one
+  line ("Splitting · page 2 of 4", "Splitting · needs you"). The Split panel's action is disabled while a split works;
+  a 409 shows the live job instead of an error (007).
+- **A split on the Stand.** `?view=strips` opens the Stand with `StripStage`: the strips full width, "Page 2 · bars
+  4-5" under each, a Tacet row where the part rests (008), the same tap menu on the strip's bars, notes above the
+  strip's bar (012). The "…" menu lists the splits under Part. The separate strips screen (`Strips.tsx`) is gone.
+- **A scanned book's Digital-only actions.** Only a .musicxml/.mxl/.xml path is a Digital form (a split's strip image
+  in `parts.storage_path` made a scanned book look Digital and "Show the digital pages" opened OSMD on a PNG). On a
+  book that is only its scan, "Show the digital pages" and "Play the parts" say "Convert to Digital first" and open a
+  panel with the Convert action; the digital route says the same and links the PDF pages.
+- Seen on the local stack in the in-app browser at 834 × 1194 (screenshots in the session scratchpad,
+  `fixes/shots/`); not seen on an iPad.
+
 ## Rules and decisions
 
 - Choir feedback (2026-10-27): SATB singers keep the grand sheet; distribution for small scores = the

@@ -67,6 +67,17 @@ Two kinds of doubt that are not job questions use the same voice:
   rewrites music and never marks a merely flagged bar on the stand (CK): doubt shows only on this screen and as the
   Book sheet's count.
 
+### In a musician's words (2026-10-31)
+
+The staves question reads "Which staves are the Pianoforte's on this line? Tap them." with the librarian's guess
+already chosen, on the plain page (`page_key`, boxes scaled by `image_px`; older questions keep the numbered overlay),
+no staff numbers on the staves, "The Pianoforte isn't on this line" for absent, and nothing about blocks, the model or
+a final answer. What refused the cut (`feedback`: staff numbers, blocks, the recheck's words) sits behind a small
+"Why am I asked?" for the admin who wants it. The job's question text is "Which staves are the X's on page N, line K?";
+the Book sheet shows a question's first sentence only. The parts-on-a-page question speaks of the librarian, not "the
+reader". An answered question resumes visibly within a second (006, 010), and a parked question counts as a live job:
+no duplicate split while it waits (007).
+
 ## Rules and decisions
 
 - Admin only. Players never see questions.
