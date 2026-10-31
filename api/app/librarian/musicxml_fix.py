@@ -40,18 +40,24 @@ FALLBACK_PAGE = (1400.0, 1800.0)          # tenths, when no <page-layout> is kno
 _PLACEHOLDER = {"music21", "music21 fragment"}
 
 
+def unzip_mxl(data: bytes) -> bytes:
+    """The score inside a compressed MusicXML file (`.mxl`: a zip whose META-INF/container.xml names the root file); plain
+    MusicXML comes back as it is."""
+    if data[:2] != b"PK":
+        return data
+    z = zipfile.ZipFile(io.BytesIO(data))
+    name = None
+    if "META-INF/container.xml" in z.namelist():
+        rf = ET.fromstring(z.read("META-INF/container.xml")).find(".//{*}rootfile")
+        name = rf.get("full-path") if rf is not None else None
+    name = name or next(n for n in z.namelist() if not n.startswith("META-INF") and n.endswith((".xml", ".musicxml")))
+    return z.read(name)
+
+
 def _root_of(src: bytes | str | Path) -> ET.Element:
     """A MusicXML root from bytes or a path, `.mxl` (zipped) or plain."""
     data = Path(src).read_bytes() if isinstance(src, (str, Path)) else src
-    if data[:2] == b"PK":
-        z = zipfile.ZipFile(io.BytesIO(data))
-        name = None
-        if "META-INF/container.xml" in z.namelist():
-            rf = ET.fromstring(z.read("META-INF/container.xml")).find(".//{*}rootfile")
-            name = rf.get("full-path") if rf is not None else None
-        name = name or next(n for n in z.namelist() if not n.startswith("META-INF") and n.endswith((".xml", ".musicxml")))
-        data = z.read(name)
-    return ET.fromstring(data)
+    return ET.fromstring(unzip_mxl(data))
 
 
 def _text(c: ET.Element) -> str:

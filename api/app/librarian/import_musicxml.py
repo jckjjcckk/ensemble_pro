@@ -22,6 +22,7 @@ from music21 import converter, key as m21key, meter as m21meter, stream, tempo a
 from . import Job, JobContext, handler
 from . import landmarks, playback
 from .engrave import engrave_step
+from .musicxml_fix import unzip_mxl
 from .signature import canonical_key, canonical_meter
 
 CANON = {"Violoncello": "Cello", "Contrabass": "Double bass", "Pianoforte": "Piano"}
@@ -133,6 +134,19 @@ async def import_musicxml(job: Job, ctx: JobContext, *, engraver: Any = None) ->
     path = src["storage_paths"][0]
     await ctx.progress(0.05, "Reading the file")
     data = ctx.storage_download(path)
+    if data[:2] == b"PK":
+        # A compressed .mxl: the iPad stores any notation file at {score}/source.musicxml (data.tsx importMusicXml), and
+        # music21 read the zip as text ("utf-8 codec can't decode byte 0x91"; E2E night 2026-10-31, a Lieder .mxl
+        # failed three times). The score inside goes back under the same key as plain MusicXML, so the engraving, the
+        # split, the export and the reader on the device all read one plain file; the name the export gives it follows.
+        data = unzip_mxl(data)
+        ctx.storage_upload(path, data, "application/vnd.recordare.musicxml+xml")
+        meta = src.get("meta") or {}
+        name = str(meta.get("filename") or "")
+        if name.lower().endswith(".mxl"):
+            meta = {**meta, "filename": name[:-4] + ".musicxml", "unzipped_from": name}
+            ctx.db.table("sources").update({"meta": meta}).eq("id", source_id).execute()
+            src["meta"] = meta
     s = converter.parse(io.BytesIO(data).read(), format="musicxml")
 
     await ctx.progress(0.3, "Finding parts and measures")
