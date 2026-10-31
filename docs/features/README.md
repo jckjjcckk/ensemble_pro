@@ -29,3 +29,4 @@ only the roadmap, status per feature, the decisions log, CK's to-do and the setu
 | 015 | [iOS wrapper](015-ios-wrapper.md) | idea | none |
 | 016 | [Benchmark tool](016-benchmark-tool.md) | to design | Spark, SAM optional |
 | 017 | [Demo and submission](017-demo-and-submission.md) | designed | all three |
+| 018 | [E2E night: every book through the real chain](018-e2e-night.md) | run 2026-10-31, six fixes on main (yoga to move) | Spark, Voice Transcribe |

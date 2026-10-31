@@ -1,0 +1,763 @@
+{
+ "slug": "pc5",
+ "fixture": "fixtures/pdf/beethoven-pc5-test-p1-4.pdf",
+ "score_id": "27d4969d-2014-4b06-aba2-88611d38d2e4",
+ "group": true,
+ "started_utc": "2026-10-31T09:36:28.670460+00:00",
+ "steps": [
+  {
+   "step": "import-request",
+   "at": "2026-10-31T02:36:30",
+   "seconds": 2.4,
+   "upload_s": 1.2,
+   "status": 200
+  },
+  {
+   "step": "question",
+   "at": "2026-10-31T02:38:56",
+   "seconds": 147.7,
+   "job": "553dd3dd-4677-49bd-b10a-c2212aba013e",
+   "kind": "process_pages"
+  },
+  {
+   "step": "answer",
+   "at": "2026-10-31T02:39:46",
+   "seconds": 1.3,
+   "job": "553dd3dd-4677-49bd-b10a-c2212aba013e",
+   "status": 200,
+   "human_wait_s": 48.6
+  },
+  {
+   "step": "reading",
+   "at": "2026-10-31T02:39:50",
+   "seconds": 4.3,
+   "status": "ready",
+   "failure": null,
+   "pages": 4,
+   "title": "beethoven-pc5-test-p1-4",
+   "key": "E- major",
+   "meter": "4/4",
+   "questions": 1,
+   "cost": 0.2015,
+   "job_errors": [
+    "JSONDecodeError: Expecting ',' delimiter: line 1 column 609 (char 608)"
+   ],
+   "yoga": [
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!",
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!",
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!",
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!",
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!",
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!",
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!",
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!"
+   ]
+  },
+  {
+   "step": "check",
+   "at": "2026-10-31T02:40:19",
+   "seconds": 0.9,
+   "measures": 28,
+   "parts": [
+    "Flauti I II",
+    "Oboi I II",
+    "Clarinetti in B I II",
+    "Fagotti I II",
+    "Corni in Es I II",
+    "Trombe in Es I II",
+    "Timpani in Es, B",
+    "Piano",
+    "Violino I",
+    "Violino II",
+    "Viola",
+    "Cello",
+    "Contrabasso",
+    "Timpani in Es",
+    "B",
+    "Vcllo. e C-B"
+   ],
+   "pages": 4,
+   "landmarks": 6,
+   "label_memory": 2,
+   "midi_part_tracks": null,
+   "bar_map_missing": null
+  },
+  {
+   "step": "cut:Pianoforte:request",
+   "at": "2026-10-31T02:43:24",
+   "seconds": 2.3,
+   "job": "c6968693-ee44-4e2d-98cc-aa8e56501685",
+   "kind": "part_cut",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This split is already under way.",
+     "job_id": "c6968693-ee44-4e2d-98cc-aa8e56501685",
+     "kind": "part_cut",
+     "status": "queued"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "cut:Pianoforte",
+   "at": "2026-10-31T02:44:02",
+   "seconds": 41.0,
+   "job": "c6968693-ee44-4e2d-98cc-aa8e56501685",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T09:43:24.732503+00:00",
+   "finished_at": "2026-10-31T09:44:00.809936+00:00",
+   "cost": 0.0583,
+   "chain_cost": 0.0583,
+   "result": {
+    "note": "Pianoforte: 7 systems cut",
+    "phase": {
+     "page": 4,
+     "pages": 4,
+     "systems_cut": 7
+    },
+    "absent": 2,
+    "seconds": 36.0,
+    "cost_usd": 0.05832675,
+    "questions": 0,
+    "source_id": "d5f0571d-c6c8-4004-9753-7ff21e0694dd",
+    "systems_cut": 7,
+    "interpretation_id": "e7d41e34-fd83-46c8-b3a7-90cd5c8a3c21"
+   },
+   "yoga": []
+  },
+  {
+   "step": "cut:Violino I+Violoncello:request",
+   "at": "2026-10-31T02:44:10",
+   "seconds": 1.8,
+   "job": "aca5dfaa-fe12-458e-bfa0-5fe75df5044d",
+   "kind": "part_cut",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This split is already under way.",
+     "job_id": "aca5dfaa-fe12-458e-bfa0-5fe75df5044d",
+     "kind": "part_cut",
+     "status": "queued"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "cut:Violino I+Violoncello:question",
+   "at": "2026-10-31T02:44:53",
+   "seconds": 44.0,
+   "job": "aca5dfaa-fe12-458e-bfa0-5fe75df5044d"
+  },
+  {
+   "step": "answer",
+   "at": "2026-10-31T02:45:02",
+   "seconds": 1.2,
+   "job": "aca5dfaa-fe12-458e-bfa0-5fe75df5044d",
+   "status": 200,
+   "human_wait_s": 9.0
+  },
+  {
+   "step": "cut:Violino I+Violoncello:question",
+   "at": "2026-10-31T02:45:31",
+   "seconds": 29.1,
+   "job": "70f73d51-1317-4041-8a40-106bdc80e9d1"
+  },
+  {
+   "step": "answer",
+   "at": "2026-10-31T02:48:04",
+   "seconds": 1.3,
+   "job": "70f73d51-1317-4041-8a40-106bdc80e9d1",
+   "status": 200,
+   "human_wait_s": 153.0
+  },
+  {
+   "step": "cut:Violino I+Violoncello:question",
+   "at": "2026-10-31T02:48:28",
+   "seconds": 24.4,
+   "job": "2ce3adc3-0d5f-41bc-b196-da62b98cc893"
+  },
+  {
+   "step": "answer",
+   "at": "2026-10-31T02:48:35",
+   "seconds": 1.4,
+   "job": "2ce3adc3-0d5f-41bc-b196-da62b98cc893",
+   "status": 200,
+   "human_wait_s": 7.1
+  },
+  {
+   "step": "cut:Violino I+Violoncello:question",
+   "at": "2026-10-31T02:48:58",
+   "seconds": 22.9,
+   "job": "e0ccf3fe-8015-49e6-811d-39156f0f23d9"
+  },
+  {
+   "step": "answer",
+   "at": "2026-10-31T02:49:07",
+   "seconds": 1.3,
+   "job": "e0ccf3fe-8015-49e6-811d-39156f0f23d9",
+   "status": 200,
+   "human_wait_s": 8.4
+  },
+  {
+   "step": "cut:Violino I+Violoncello:question",
+   "at": "2026-10-31T02:49:14",
+   "seconds": 7.0,
+   "job": "d53e9d1f-a837-4b80-93fe-c124e6360399"
+  },
+  {
+   "step": "answer",
+   "at": "2026-10-31T02:49:22",
+   "seconds": 1.3,
+   "job": "d53e9d1f-a837-4b80-93fe-c124e6360399",
+   "status": 200,
+   "human_wait_s": 7.7
+  },
+  {
+   "step": "cut:Violino I+Violoncello",
+   "at": "2026-10-31T02:49:28",
+   "seconds": 6.0,
+   "job": "2a99ddad-cc0d-458a-84ae-29c1f44db873",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T09:49:23.624676+00:00",
+   "finished_at": "2026-10-31T09:49:26.474546+00:00",
+   "cost": 0.001,
+   "chain_cost": 0.2012,
+   "result": {
+    "note": "Violino I + Violoncello: 6 systems cut",
+    "phase": {
+     "page": 4,
+     "pages": 4,
+     "systems_cut": 6
+    },
+    "absent": 3,
+    "seconds": 2.8,
+    "cost_usd": 0.14286225,
+    "questions": 5,
+    "source_id": "fab833ff-00ff-43d1-8cba-80ed14a34c45",
+    "systems_cut": 6,
+    "interpretation_id": "8c216336-c9ef-4d76-b9f4-0c57bd8648eb"
+   },
+   "yoga": []
+  },
+  {
+   "step": "convert:request",
+   "at": "2026-10-31T02:49:42",
+   "seconds": 1.8,
+   "job": "0e30fba2-b2a4-4531-890b-fd5be63dd543",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This book is already being converted to Digital.",
+     "job_id": "0e30fba2-b2a4-4531-890b-fd5be63dd543",
+     "kind": "omr_convert",
+     "status": "queued"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "convert",
+   "at": "2026-10-31T02:50:43",
+   "seconds": 62.8,
+   "job": "0e30fba2-b2a4-4531-890b-fd5be63dd543",
+   "final": "failed",
+   "error": "EngineFailed: The transcription engine could not read this PDF",
+   "attempts": 1,
+   "started_at": "2026-10-31T09:49:43.132135+00:00",
+   "finished_at": "2026-10-31T09:50:41.520375+00:00",
+   "cost": 0.0009,
+   "chain_cost": 0.0009,
+   "result": {
+    "note": "The transcription engine could not read this PDF",
+    "reason": "The transcription engine could not read this PDF"
+   },
+   "yoga": [
+    "WARNING:folio.worker:job 0e30fba2-b2a4-4531-890b-fd5be63dd543 (omr_convert) attempt 1 failed: EngineFailed: The transcription engine could not read this PDF",
+    "Traceback (most recent call last):"
+   ]
+  },
+  {
+   "step": "voice:v18",
+   "at": "2026-10-31T02:51:04",
+   "seconds": 6.98,
+   "status": "done",
+   "handler_s": 5.12,
+   "cost": 0.0039,
+   "proposed": 1,
+   "cards": [
+    [
+     "bowing",
+     "Down bow at bar 7",
+     [
+      7,
+      7
+     ],
+     [
+      [
+       "part",
+       "Violino I"
+      ]
+     ]
+    ]
+   ],
+   "unplaced": 0
+  },
+  {
+   "step": "voice:v26",
+   "at": "2026-10-31T02:51:13",
+   "seconds": 8.53,
+   "status": "done",
+   "handler_s": 6.7,
+   "cost": 0.0051,
+   "proposed": 0,
+   "cards": [],
+   "unplaced": 0
+  },
+  {
+   "step": "local:cut:Violino I+Violoncello:question",
+   "at": "2026-10-31T03:42:45",
+   "seconds": 79.7,
+   "job": "19b2caee-75c7-4021-918d-6d16ff4fd6a7"
+  },
+  {
+   "step": "local:cut:Violino I+Violoncello",
+   "at": "2026-10-31T03:44:16",
+   "seconds": 7.5,
+   "job": "d8a107d2-1bb2-48b4-8cee-275f298032f7",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T10:44:08.405088+00:00",
+   "finished_at": "2026-10-31T10:44:13.994582+00:00",
+   "cost": 0.0057,
+   "chain_cost": 0.3079,
+   "result": {
+    "note": "Violino I + Violoncello: 6 systems cut",
+    "phase": {
+     "page": 4,
+     "pages": 4,
+     "systems_cut": 6
+    },
+    "absent": 3,
+    "seconds": 5.2,
+    "cost_usd": 0.10667525,
+    "questions": 1,
+    "source_id": "bae50652-64e7-4e2b-b3a2-8f11ffcb460e",
+    "systems_cut": 6,
+    "interpretation_id": "00f7eaed-790e-4ad7-b933-7c785053a49d"
+   },
+   "yoga": []
+  }
+ ],
+ "questions": [
+  {
+   "job": "553dd3dd-4677-49bd-b10a-c2212aba013e",
+   "kind": "process_pages",
+   "question": "Which parts are on page 4, top to bottom? Page 4 has 8/10 staves per system and Spark reads Vcllo. e C-B there, which earlier pages did not have (they had Flauti I II, Oboi I II, Clarinetti in B I II, Fagotti I II, Corni in Es I II, Trombe in Es I II, Timpani in Es, B, Piano, Violino I, Violino II, Viola, Cello, Contrabasso).",
+   "asked_at": "2026-10-31T02:38:56",
+   "page": 4,
+   "answer": {
+    "answer": "Oboi I II, Clarinetti in B I II, Fagotti I II, Corni in Es I II, Trombe in Es I II, Timpani in Es, B, Violino I, Violino II, Viola, Vcllo. e C-B"
+   },
+   "answered_at": "2026-10-31T02:39:46",
+   "status": 200,
+   "follow_up": "648a98cf-5856-489c-83d0-3d8e1f42fe69"
+  },
+  {
+   "job": "aca5dfaa-fe12-458e-bfa0-5fe75df5044d",
+   "kind": "part_cut",
+   "question": "Which staves are the Violino I + Violoncello's on page 2, line 2?",
+   "asked_at": "2026-10-31T02:44:53",
+   "page": 2,
+   "label": "cut:Violino I+Violoncello",
+   "answer": {
+    "staves": [
+     12,
+     15
+    ]
+   },
+   "answered_at": "2026-10-31T02:45:02",
+   "status": 200,
+   "follow_up": "70f73d51-1317-4041-8a40-106bdc80e9d1"
+  },
+  {
+   "job": "70f73d51-1317-4041-8a40-106bdc80e9d1",
+   "kind": "part_cut",
+   "question": "Which staves are the Violino I + Violoncello's on page 3, line 1?",
+   "asked_at": "2026-10-31T02:45:31",
+   "page": 3,
+   "label": "cut:Violino I+Violoncello",
+   "answer": {
+    "staves": [
+     10,
+     13
+    ]
+   },
+   "answered_at": "2026-10-31T02:48:04",
+   "status": 200,
+   "follow_up": "2ce3adc3-0d5f-41bc-b196-da62b98cc893"
+  },
+  {
+   "job": "2ce3adc3-0d5f-41bc-b196-da62b98cc893",
+   "kind": "part_cut",
+   "question": "Which staves are the Violino I + Violoncello's on page 3, line 3?",
+   "asked_at": "2026-10-31T02:48:28",
+   "page": 3,
+   "label": "cut:Violino I+Violoncello",
+   "answer": {
+    "staves": [
+     19,
+     22
+    ]
+   },
+   "answered_at": "2026-10-31T02:48:35",
+   "status": 200,
+   "follow_up": "e0ccf3fe-8015-49e6-811d-39156f0f23d9"
+  },
+  {
+   "job": "e0ccf3fe-8015-49e6-811d-39156f0f23d9",
+   "kind": "part_cut",
+   "question": "Which staves are the Violino I + Violoncello's on page 4, line 1?",
+   "asked_at": "2026-10-31T02:48:58",
+   "page": 4,
+   "label": "cut:Violino I+Violoncello",
+   "answer": {
+    "staves": [
+     7,
+     10
+    ]
+   },
+   "answered_at": "2026-10-31T02:49:07",
+   "status": 200,
+   "follow_up": "d53e9d1f-a837-4b80-93fe-c124e6360399"
+  },
+  {
+   "job": "d53e9d1f-a837-4b80-93fe-c124e6360399",
+   "kind": "part_cut",
+   "question": "Which staves are the Violino I + Violoncello's on page 4, line 2?",
+   "asked_at": "2026-10-31T02:49:14",
+   "page": 4,
+   "label": "cut:Violino I+Violoncello",
+   "answer": {
+    "staves": [
+     18
+    ]
+   },
+   "answered_at": "2026-10-31T02:49:22",
+   "status": 200,
+   "follow_up": "2a99ddad-cc0d-458a-84ae-29c1f44db873"
+  },
+  {
+   "job": "19b2caee-75c7-4021-918d-6d16ff4fd6a7",
+   "kind": "part_cut",
+   "question": "Which staves are the Violino I + Violoncello's on page 4, line 2?",
+   "asked_at": "2026-10-31T03:42:45",
+   "page": 4,
+   "label": "local:cut:Violino I+Violoncello",
+   "answer": {
+    "staves": [
+     18
+    ]
+   },
+   "answered_at": "2026-10-31T03:44:08",
+   "follow_up": "d8a107d2-1bb2-48b4-8cee-275f298032f7",
+   "local": true
+  }
+ ],
+ "jobs": {
+  "f62f1bea-3134-442a-96bb-fbfda1d84758": {
+   "kind": "import_pdf",
+   "created_at": "2026-10-31T09:36:30.688031+00:00",
+   "status": "done"
+  },
+  "553dd3dd-4677-49bd-b10a-c2212aba013e": {
+   "kind": "process_pages",
+   "created_at": "2026-10-31T09:36:35.814474+00:00",
+   "status": "done"
+  },
+  "648a98cf-5856-489c-83d0-3d8e1f42fe69": {
+   "kind": "process_pages",
+   "created_at": "2026-10-31T09:39:45.960452+00:00",
+   "status": "done"
+  },
+  "c6968693-ee44-4e2d-98cc-aa8e56501685": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T09:43:23.244048+00:00"
+  },
+  "aca5dfaa-fe12-458e-bfa0-5fe75df5044d": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T09:44:10.170051+00:00"
+  },
+  "70f73d51-1317-4041-8a40-106bdc80e9d1": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T09:45:01.77523+00:00"
+  },
+  "2ce3adc3-0d5f-41bc-b196-da62b98cc893": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T09:48:03.970466+00:00"
+  },
+  "e0ccf3fe-8015-49e6-811d-39156f0f23d9": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T09:48:35.701244+00:00"
+  },
+  "d53e9d1f-a837-4b80-93fe-c124e6360399": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T09:49:07.153499+00:00"
+  },
+  "2a99ddad-cc0d-458a-84ae-29c1f44db873": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T09:49:22.054602+00:00"
+  },
+  "0e30fba2-b2a4-4531-890b-fd5be63dd543": {
+   "kind": "omr_convert",
+   "created_at": "2026-10-31T09:49:41.479044+00:00"
+  },
+  "19b2caee-75c7-4021-918d-6d16ff4fd6a7": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:41:25.64629+00:00",
+   "local": true
+  },
+  "d8a107d2-1bb2-48b4-8cee-275f298032f7": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:44:08.464447+00:00",
+   "local": true
+  }
+ },
+ "import": {
+  "source_id": "adceb2b1-a50b-4e58-a5b2-1b9886921d42",
+  "job_id": "f62f1bea-3134-442a-96bb-fbfda1d84758",
+  "kind": "import_pdf"
+ },
+ "t_import": 1793439388.465409,
+ "page_paths": [
+  "27d4969d-2014-4b06-aba2-88611d38d2e4/pages/1.png",
+  "27d4969d-2014-4b06-aba2-88611d38d2e4/pages/2.png",
+  "27d4969d-2014-4b06-aba2-88611d38d2e4/pages/3.png",
+  "27d4969d-2014-4b06-aba2-88611d38d2e4/pages/4.png"
+ ],
+ "human_wait_s": 233.8,
+ "score": {
+  "id": "27d4969d-2014-4b06-aba2-88611d38d2e4",
+  "status": "ready",
+  "progress": 1,
+  "failure_reason": null,
+  "title": "beethoven-pc5-test-p1-4",
+  "composer": "L. van Beethoven",
+  "pages": 4,
+  "key_sig": "E- major",
+  "meter": "4/4"
+ },
+ "check": {
+  "title": "beethoven-pc5-test-p1-4",
+  "composer": "L. van Beethoven",
+  "key": "E- major",
+  "meter": "4/4",
+  "pages": 4,
+  "parts": [
+   "Flauti I II",
+   "Oboi I II",
+   "Clarinetti in B I II",
+   "Fagotti I II",
+   "Corni in Es I II",
+   "Trombe in Es I II",
+   "Timpani in Es, B",
+   "Piano",
+   "Violino I",
+   "Violino II",
+   "Viola",
+   "Cello",
+   "Contrabasso",
+   "Timpani in Es",
+   "B",
+   "Vcllo. e C-B"
+  ],
+  "measures": 28,
+  "bar_first": 1,
+  "bar_last": 28,
+  "landmarks": {
+   "n": 6,
+   "sample": [
+    {
+     "bar": 1,
+     "kind": "tempo",
+     "label": "Allegro",
+     "trust": "low",
+     "source": "page",
+     "bar_after": null
+    },
+    {
+     "bar": 4,
+     "kind": "double_bar",
+     "label": "double bar",
+     "source": "page",
+     "bar_after": 5
+    },
+    {
+     "bar": 5,
+     "kind": "double_bar",
+     "label": "double bar",
+     "source": "page",
+     "bar_after": 6
+    },
+    {
+     "bar": 6,
+     "kind": "double_bar",
+     "label": "double bar",
+     "source": "page",
+     "bar_after": 7
+    },
+    {
+     "bar": 10,
+     "kind": "tempo",
+     "label": "a tempo",
+     "trust": "low",
+     "source": "page",
+     "bar_after": null
+    },
+    {
+     "bar": 20,
+     "kind": "double_bar",
+     "label": "double bar",
+     "source": "page",
+     "bar_after": 21
+    }
+   ],
+   "sources": [
+    "page"
+   ]
+  },
+  "label_memory": {
+   "n": 2,
+   "raw": "{\"entries\": {\"cb\": {\"at\": \"2026-10-31T09:39:47.049182+00:00\", \"page\": 1, \"part\": \"Contrabasso\", \"label\": \"Cb.\", \"job_id\": null, \"origin\": \"header-abbreviation\", \"source\": \"model\", \"staves\": null}, \"cl\": {\"at\": \"2026-10-31T09:39:47.048095+00:00\", \"page\": 1, \"part\": \"Clarinetti in B I II\", \"label\": \"Cl.\", \"job_id\": null, \"origin\": \"header-abbreviation\", \"source\": \"model\", \"staves\": null}, \"fl\": {\"at\": \"2026-10-31T09:39:47.047969+00:00\", \"page\": 1, \"part\": \"Flauti I II\", \"label\": \"Fl.\", \"job_id\": null, \"origin\": \"header-abbreviation\", \"source\": \"model\", \"staves\": null}, \"ob\": {\"at\": \"2026-10-31T0"
+  },
+  "bars_per_page": {
+   "1": {
+    "n": 2,
+    "first": 1,
+    "last": 2
+   },
+   "2": {
+    "n": 4,
+    "first": 3,
+    "last": 6
+   },
+   "3": {
+    "n": 10,
+    "first": 7,
+    "last": 16
+   },
+   "4": {
+    "n": 12,
+    "first": 17,
+    "last": 28
+   }
+  },
+  "playback_row": null,
+  "sources": [
+   [
+    "pdf",
+    false,
+    false
+   ]
+  ]
+ },
+ "cut_label": "cut:Violino I+Violoncello",
+ "voice": [
+  {
+   "line": "v18",
+   "said": "Fiddles, bar seven, down bow, both of you.",
+   "expect": {
+    "bar_from": "7",
+    "bar_to": "7",
+    "audience": "part:Violin I;part:Violin II",
+    "kind": "bowing",
+    "expect": "Down bow at bar 7"
+   },
+   "status": "done",
+   "error": null,
+   "post_s": 1.29,
+   "seconds": 6.98,
+   "handler_s": 5.12,
+   "cost": 0.0039,
+   "transcript": "firsts, bar seven, down bow, both of you.",
+   "proposed": 1,
+   "unplaced": [],
+   "refused": [],
+   "cards": [
+    {
+     "kind": "bowing",
+     "body": "Down bow at bar 7",
+     "bars": [
+      7,
+      7
+     ],
+     "payload_bars": [
+      7,
+      7
+     ],
+     "who": [
+      [
+       "part",
+       "Violino I"
+      ]
+     ],
+     "layer": null,
+     "confidence": null,
+     "ids": [
+      "587b7d88-c08e-4468-814b-b89414991f8e"
+     ]
+    }
+   ],
+   "accept": {
+    "status": 200,
+    "rows": [
+     [
+      "live",
+      "part",
+      "Violino I",
+      7
+     ]
+    ]
+   },
+   "dismiss": "nothing else proposed",
+   "players_see": {
+    "test1@muse.test": [],
+    "test2@muse.test": []
+   },
+   "dismissed_left": 0
+  },
+  {
+   "line": "v26",
+   "said": "Seconds, mark it: bar fifty-five is forte, fifty-six is piano, subito.",
+   "expect": {
+    "bar_from": "55",
+    "bar_to": "56",
+    "audience": "part:Violin II",
+    "kind": "dynamic",
+    "expect": "f at 55, subito p at 56"
+   },
+   "status": "done",
+   "error": null,
+   "post_s": 1.14,
+   "seconds": 8.53,
+   "handler_s": 6.7,
+   "cost": 0.0051,
+   "transcript": "seconds mark it bar 55 is forte 56 is piano subito",
+   "proposed": 0,
+   "unplaced": [],
+   "refused": [
+    "bar 55 is not in this book (bars 1\u201328)"
+   ],
+   "cards": []
+  }
+ ],
+ "t_waiting_since": 1793443365.462585
+}

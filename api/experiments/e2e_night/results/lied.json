@@ -1,0 +1,272 @@
+{
+ "slug": "lied",
+ "fixture": "../web/public/fixtures/schumann-clara-lieder-op12-no4-liebst-du-um-schonheit.mxl",
+ "score_id": "7a17a01f-0f8c-438c-b81a-bea92bc8204d",
+ "group": false,
+ "started_utc": "2026-10-31T10:11:33.486627+00:00",
+ "steps": [
+  {
+   "step": "import-request",
+   "at": "2026-10-31T03:11:34",
+   "seconds": 1.2,
+   "upload_s": 0.4,
+   "status": 200
+  },
+  {
+   "step": "reading",
+   "at": "2026-10-31T03:12:35",
+   "seconds": 62.4,
+   "status": "failed",
+   "failure": "Folio could not read this MusicXML file. Export it again and import the new copy.",
+   "pages": null,
+   "title": "",
+   "key": null,
+   "meter": null,
+   "questions": 0,
+   "cost": 0,
+   "job_errors": [
+    "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte"
+   ],
+   "yoga": [
+    "Traceback (most recent call last):",
+    "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte",
+    "WARNING:folio.worker:job e6efc4ee-0219-4233-8e2f-065c3eade262 (import_musicxml) attempt 2 failed: UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte",
+    "Traceback (most recent call last):",
+    "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte",
+    "WARNING:folio.worker:job e6efc4ee-0219-4233-8e2f-065c3eade262 (import_musicxml) attempt 3 failed: UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte",
+    "Traceback (most recent call last):",
+    "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte"
+   ]
+  },
+  {
+   "step": "local:import_musicxml",
+   "at": "2026-10-31T03:30:02",
+   "seconds": 13.3,
+   "job": "089b1510-7a93-4e2c-8fa5-c127c914179d",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T10:29:48.761074+00:00",
+   "finished_at": "2026-10-31T10:30:00.410435+00:00",
+   "cost": 0,
+   "chain_cost": 0,
+   "result": {
+    "note": "Ready",
+    "parts": [
+     "Voice",
+     "Piano"
+    ],
+    "seconds": 11.4,
+    "measures": 41,
+    "playback": {
+     "ok": true,
+     "bars": 41,
+     "tracks": 2,
+     "seconds": 1.0,
+     "midi_bytes": 8040
+    },
+    "engraving": {
+     "ok": false,
+     "reason": "The engraving engine is offline",
+     "seconds": 5.7
+    },
+    "interpretation_id": "da42bbca-4425-4261-a2db-17753382bfa2"
+   },
+   "yoga": []
+  },
+  {
+   "step": "check",
+   "at": "2026-10-31T03:30:09",
+   "seconds": 1.8,
+   "measures": 41,
+   "parts": [
+    "Voice",
+    "Piano"
+   ],
+   "pages": 2,
+   "landmarks": 9,
+   "label_memory": 0,
+   "midi_part_tracks": 2,
+   "bar_map_missing": 0
+  }
+ ],
+ "questions": [],
+ "jobs": {
+  "e6efc4ee-0219-4233-8e2f-065c3eade262": {
+   "kind": "import_musicxml",
+   "created_at": "2026-10-31T10:11:34.440953+00:00",
+   "status": "failed"
+  },
+  "089b1510-7a93-4e2c-8fa5-c127c914179d": {
+   "kind": "import_musicxml",
+   "created_at": "2026-10-31T10:29:48.817747+00:00",
+   "local": true,
+   "again": "e6efc4ee-0219-4233-8e2f-065c3eade262"
+  }
+ },
+ "import": {
+  "source_id": "75d498bd-c3cd-4191-a0c7-95d75e2b8204",
+  "job_id": "e6efc4ee-0219-4233-8e2f-065c3eade262",
+  "kind": "import_musicxml"
+ },
+ "t_import": 1793441493.360517,
+ "score": {
+  "id": "7a17a01f-0f8c-438c-b81a-bea92bc8204d",
+  "status": "failed",
+  "progress": 0.05,
+  "failure_reason": "Folio could not read this MusicXML file. Export it again and import the new copy.",
+  "title": "",
+  "composer": null,
+  "pages": null,
+  "key_sig": null,
+  "meter": null
+ },
+ "check": {
+  "title": "Lieder, Op.12",
+  "composer": "Clara Schumann",
+  "key": "D- major",
+  "meter": "4/4",
+  "pages": 2,
+  "parts": [
+   "Voice",
+   "Piano"
+  ],
+  "measures": 41,
+  "bar_first": 1,
+  "bar_last": 41,
+  "landmarks": {
+   "n": 9,
+   "sample": [
+    {
+     "bar": 1,
+     "kind": "tempo",
+     "label": "Nicht zu langsam",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 10,
+     "kind": "tempo",
+     "label": "ritard.",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 11,
+     "kind": "tempo",
+     "label": "quarter = 80",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 26,
+     "kind": "tempo",
+     "label": "rit.",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 34,
+     "kind": "tempo",
+     "label": "ritard.",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 35,
+     "kind": "tempo",
+     "label": "quarter = 72",
+     "source": "musicxml",
+     "bar_after": null
+    }
+   ],
+   "sources": [
+    "musicxml"
+   ]
+  },
+  "label_memory": {
+   "n": 0,
+   "raw": null
+  },
+  "bars_per_page": {},
+  "playback_row": {
+   "bars": 41,
+   "midi": "7a17a01f-0f8c-438c-b81a-bea92bc8204d/playback/score.mid",
+   "parts": [
+    "Voice",
+    "Piano"
+   ],
+   "bar_map": "7a17a01f-0f8c-438c-b81a-bea92bc8204d/playback/bars.json",
+   "made_at": "2026-10-31T10:29:54.001122+00:00",
+   "source_id": "75d498bd-c3cd-4191-a0c7-95d75e2b8204"
+  },
+  "midi_status": 200,
+  "bars_status": 200,
+  "midi_format": 1,
+  "midi_tracks": [
+   [
+    null,
+    0
+   ],
+   [
+    "Voice",
+    99
+   ],
+   [
+    "Piano",
+    745
+   ]
+  ],
+  "midi_part_tracks": 2,
+  "bars_json": {
+   "parts": [
+    "Voice",
+    "Piano"
+   ],
+   "n": 41,
+   "first": 1,
+   "last": 41,
+   "tempos": [
+    {
+     "bar": 1,
+     "at": 0.0,
+     "qpm": 74.0,
+     "bpm": 74.0,
+     "beat": "quarter",
+     "text": null,
+     "marked": false
+    },
+    {
+     "bar": 10,
+     "at": 38.0,
+     "qpm": 74.0,
+     "bpm": 74.0,
+     "beat": "quarter",
+     "text": null,
+     "marked": true
+    },
+    {
+     "bar": 11,
+     "at": 41.0,
+     "qpm": 80.0,
+     "bpm": 80.0,
+     "beat": "quarter",
+     "text": null,
+     "marked": true
+    }
+   ],
+   "meters": 1
+  },
+  "bar_map_missing": [],
+  "bar_map_missing_n": 0,
+  "bar_map_extra_n": 0,
+  "bar_map_extra": [],
+  "sources": [
+   [
+    "musicxml",
+    false,
+    false
+   ]
+  ]
+ }
+}

@@ -1,0 +1,63 @@
+{
+ "slug": "op18b",
+ "fixture": "../web/public/fixtures/beethoven-op18no1-mv1.musicxml",
+ "score_id": "98732848-702d-44dd-bd9c-7e7f155cdb4e",
+ "group": true,
+ "started_utc": "2026-10-31T10:11:56.353368+00:00",
+ "steps": [
+  {
+   "step": "import-request",
+   "at": "2026-10-31T03:11:58",
+   "seconds": 1.9,
+   "upload_s": 0.7,
+   "status": 200
+  },
+  {
+   "step": "reading",
+   "at": "2026-10-31T03:12:35",
+   "seconds": 39.4,
+   "status": "ready",
+   "failure": null,
+   "pages": 13,
+   "title": "String Quartet No. 1 in F Major, Op. 18, No. 1",
+   "key": "F major",
+   "meter": "3/4",
+   "questions": 0,
+   "cost": 0,
+   "job_errors": [],
+   "yoga": [
+    "WARNING:folio.worker:job e6efc4ee-0219-4233-8e2f-065c3eade262 (import_musicxml) attempt 2 failed: UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte",
+    "Traceback (most recent call last):",
+    "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte",
+    "WARNING:folio.worker:job e6efc4ee-0219-4233-8e2f-065c3eade262 (import_musicxml) attempt 3 failed: UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte",
+    "Traceback (most recent call last):",
+    "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte"
+   ]
+  }
+ ],
+ "questions": [],
+ "jobs": {
+  "94b2b87b-bcf6-4108-8282-4138b8b6c32e": {
+   "kind": "import_musicxml",
+   "created_at": "2026-10-31T10:11:57.788238+00:00",
+   "status": "done"
+  }
+ },
+ "import": {
+  "source_id": "48adf01e-05e3-4c83-9c8b-4acee7a16a60",
+  "job_id": "94b2b87b-bcf6-4108-8282-4138b8b6c32e",
+  "kind": "import_musicxml"
+ },
+ "t_import": 1793441516.088073,
+ "score": {
+  "id": "98732848-702d-44dd-bd9c-7e7f155cdb4e",
+  "status": "ready",
+  "progress": 1,
+  "failure_reason": null,
+  "title": "String Quartet No. 1 in F Major, Op. 18, No. 1",
+  "composer": "Beethoven, Ludwig van",
+  "pages": 13,
+  "key_sig": "F major",
+  "meter": "3/4"
+ }
+}

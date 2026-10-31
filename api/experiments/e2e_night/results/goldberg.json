@@ -1,0 +1,670 @@
+{
+ "slug": "goldberg",
+ "fixture": "fixtures/pdf/goldberg-bga-p1-5.pdf",
+ "score_id": "214eb2f5-7c6a-459b-a50f-a9010e105473",
+ "group": false,
+ "started_utc": "2026-10-31T10:15:48.254067+00:00",
+ "steps": [
+  {
+   "step": "import-request",
+   "at": "2026-10-31T03:15:51",
+   "seconds": 3.0,
+   "upload_s": 1.1,
+   "status": 200
+  },
+  {
+   "step": "check",
+   "at": "2026-10-31T03:16:13",
+   "seconds": 0.4,
+   "measures": 0,
+   "parts": [],
+   "pages": null,
+   "landmarks": 0,
+   "label_memory": 0,
+   "midi_part_tracks": null,
+   "bar_map_missing": null
+  },
+  {
+   "step": "reading",
+   "at": "2026-10-31T03:16:41",
+   "seconds": 53.8,
+   "status": "ready",
+   "failure": null,
+   "pages": 5,
+   "title": "goldberg-bga-p1-5",
+   "key": "G major",
+   "meter": "3/4",
+   "questions": 0,
+   "cost": 0.0666,
+   "job_errors": [],
+   "yoga": []
+  },
+  {
+   "step": "check",
+   "at": "2026-10-31T03:16:46",
+   "seconds": 0.7,
+   "measures": 119,
+   "parts": [
+    "Piano"
+   ],
+   "pages": 5,
+   "landmarks": 27,
+   "label_memory": 2,
+   "midi_part_tracks": null,
+   "bar_map_missing": null
+  },
+  {
+   "step": "cut:Aria:request",
+   "at": "2026-10-31T03:16:58",
+   "seconds": 1.5,
+   "job": "aa599856-16de-4f63-bb00-af3233c0a0d8",
+   "kind": "part_cut",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This split is already under way.",
+     "job_id": "aa599856-16de-4f63-bb00-af3233c0a0d8",
+     "kind": "part_cut",
+     "status": "running"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "cut:Aria:question",
+   "at": "2026-10-31T03:17:38",
+   "seconds": 40.9,
+   "job": "aa599856-16de-4f63-bb00-af3233c0a0d8"
+  },
+  {
+   "step": "convert:request",
+   "at": "2026-10-31T03:17:40",
+   "seconds": 1.4,
+   "job": "ce7a7702-bde2-4134-b581-3c313f99b77f",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This book is already being converted to Digital.",
+     "job_id": "ce7a7702-bde2-4134-b581-3c313f99b77f",
+     "kind": "omr_convert",
+     "status": "running"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "convert",
+   "at": "2026-10-31T03:20:20",
+   "seconds": 161.3,
+   "job": "ce7a7702-bde2-4134-b581-3c313f99b77f",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T10:17:40.818132+00:00",
+   "finished_at": "2026-10-31T10:20:19.384712+00:00",
+   "cost": 0.2311,
+   "chain_cost": 0.2311,
+   "result": {
+    "bars": 119,
+    "note": "Digital: 119 bars, 47 to check",
+    "cover": null,
+    "edits": {
+     "A": 0,
+     "dup": 1,
+     "flag": 1,
+     "front": 1,
+     "words": 27,
+     "tuplet": 1,
+     "dynamic": 29,
+     "hairpin": 27
+    },
+    "pages": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "verify": {
+     "asked": 29,
+     "missing": {
+      "15": "transcription adds a tr. in m.15 not in original",
+      "103": "dynamic in m103 missing in transcription"
+     },
+     "skipped": null,
+     "systems": 29,
+     "render_s": 8.1,
+     "reverted": {
+      "41": "forte dynamic in m.41 missing in rendering",
+      "53": "rf present in original m53 is missing in transcription",
+      "72": "cresc. misplaced from m.72",
+      "93": "f moved from m94 to m93",
+      "94": "f moved from m94 to m93",
+      "107": "Measure 107 text spelling differs: dimi. vs dim."
+     }
+    },
+    "seconds": 158.5,
+    "timings": {
+     "box_s": 87.5,
+     "pull_s": 0.7,
+     "kinds_s": 2.1,
+     "spark_s": 12.6,
+     "write_s": 37.8,
+     "render_s": 8.1,
+     "upload_s": 0.8,
+     "verify_s": 29.1,
+     "engrave_s": 14.7,
+     "audiveris_s": 75.6
+    },
+    "cost_usd": 0.2311,
+    "playback": {
+     "ok": true,
+     "bars": 119,
+     "tracks": 1,
+     "seconds": 3.78,
+     "midi_bytes": 14740
+    },
+    "engraving": {
+     "ok": true,
+     "layouts": {
+      "display": {
+       "bars": 119,
+       "pages": 6,
+       "seconds": 5.5,
+       "source_id": "da44549f-fdf1-4cac-a240-c3ba954a60d4"
+      },
+      "original": {
+       "bars": 119,
+       "pages": 6,
+       "seconds": 5.3,
+       "source_id": "5fb4b15a-dc6c-4705-8149-94654a6b83b7"
+      }
+     },
+     "seconds": 14.7
+    },
+    "source_id": "787a466a-724a-4573-9829-40edc6718050",
+    "page_kinds": [
+     [
+      1,
+      "music"
+     ],
+     [
+      2,
+      "music"
+     ],
+     [
+      3,
+      "music"
+     ],
+     [
+      4,
+      "music"
+     ],
+     [
+      5,
+      "music"
+     ]
+    ],
+    "instruments": [
+     "Piano"
+    ],
+    "spark_calls": 62,
+    "flagged_bars": [
+     2,
+     3,
+     7,
+     13,
+     14,
+     15,
+     16,
+     19,
+     23,
+     25,
+     33,
+     36,
+     37,
+     39,
+     40,
+     41,
+     45,
+     52,
+     53,
+     54,
+     56,
+     66,
+     70,
+     71,
+     72,
+     73,
+     74,
+     75,
+     76,
+     77,
+     78,
+     79,
+     80,
+     81,
+     82,
+     83,
+     84,
+     85,
+     92,
+     93,
+     94,
+     96,
+     98,
+     100,
+     103,
+     107,
+     109
+    ],
+    "front_matter": {
+     "opus": null,
+     "read": true,
+     "title": "Aria con Variazioni.",
+     "editor": null,
+     "composer": "J. S. Bach.",
+     "metronome": {
+      "bpm": 72,
+      "unit": "quarter"
+     },
+     "dedication": null,
+     "tempo_heading": "Andante espressivo.",
+     "movement_or_number": "Aria."
+    },
+    "cost_per_page": {
+     "1": 0.0477,
+     "2": 0.0475,
+     "3": 0.0424,
+     "4": 0.0434,
+     "5": 0.0501
+    },
+    "spark_skipped": 0,
+    "pages_unreadable": []
+   },
+   "yoga": []
+  },
+  {
+   "step": "answer",
+   "at": "2026-10-31T03:24:20",
+   "seconds": 1.5,
+   "job": "aa599856-16de-4f63-bb00-af3233c0a0d8",
+   "status": 200,
+   "human_wait_s": 402.1
+  },
+  {
+   "step": "cut:Aria:question",
+   "at": "2026-10-31T03:24:31",
+   "seconds": 11.1,
+   "job": "1bc33d6f-90bc-427d-a5ed-868be4766215"
+  },
+  {
+   "step": "local:cut:Aria:question",
+   "at": "2026-10-31T03:27:42",
+   "seconds": 26.2,
+   "job": "d0d05718-fd34-4f22-98f0-9add8d1874d6"
+  },
+  {
+   "step": "local:cut:Aria:timeout",
+   "at": "2026-10-31T03:31:18",
+   "seconds": 149.6,
+   "job": "33148583-42d6-44b0-8a2f-31229e5f5799"
+  },
+  {
+   "step": "local:cut:Aria",
+   "at": "2026-10-31T03:38:19",
+   "seconds": 176.6,
+   "job": "2b173d5e-b3a2-40a6-b063-9a659b58ca08",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T10:35:22.827223+00:00",
+   "finished_at": "2026-10-31T10:38:17.420158+00:00",
+   "cost": 1.435,
+   "chain_cost": 3.1995,
+   "result": {
+    "note": "Aria: 30 systems cut",
+    "phase": {
+     "page": 5,
+     "pages": 5,
+     "systems_cut": 30
+    },
+    "absent": 0,
+    "seconds": 174.2,
+    "cost_usd": 1.43498,
+    "questions": 0,
+    "source_id": "00878eab-0bf3-4383-97cd-ce8c42357a7d",
+    "systems_cut": 30,
+    "interpretation_id": "cd0b48ee-02f3-446c-af67-648b94302ff4"
+   },
+   "yoga": []
+  },
+  {
+   "step": "check",
+   "at": "2026-10-31T03:38:42",
+   "seconds": 1.8,
+   "measures": 119,
+   "parts": [
+    "Piano",
+    "Aria"
+   ],
+   "pages": 5,
+   "landmarks": 20,
+   "label_memory": 2,
+   "midi_part_tracks": 1,
+   "bar_map_missing": 0
+  },
+  {
+   "step": "local:cut:Aria",
+   "at": "2026-10-31T03:41:52",
+   "seconds": 133.2,
+   "job": "73b6ee1d-981a-4c7a-9525-e57d40932dab",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T10:39:39.04727+00:00",
+   "finished_at": "2026-10-31T10:41:47.100612+00:00",
+   "cost": 0.1652,
+   "chain_cost": 3.3647,
+   "result": {
+    "note": "Aria: 30 systems cut",
+    "phase": {
+     "page": 5,
+     "pages": 5,
+     "systems_cut": 30
+    },
+    "absent": 0,
+    "seconds": 127.8,
+    "cost_usd": 0.1652325,
+    "questions": 0,
+    "source_id": "ef2ad00d-b8f7-4f93-9456-8e2d22102d76",
+    "systems_cut": 30,
+    "interpretation_id": "5daf8bab-7e4f-4f17-89df-06e92373c8d5"
+   },
+   "yoga": [
+    "WARNING:folio.worker:job 051a2ed9-812e-4af4-abf2-4b11b57af71e (omr_convert) attempt 1 failed: EngineFailed: The transcription engine could not read this PDF",
+    "Traceback (most recent call last):"
+   ]
+  }
+ ],
+ "questions": [
+  {
+   "job": "aa599856-16de-4f63-bb00-af3233c0a0d8",
+   "kind": "part_cut",
+   "question": "Which staves are the Aria's on page 1, line 1?",
+   "asked_at": "2026-10-31T03:17:38",
+   "page": 1,
+   "label": "cut:Aria",
+   "answer": {
+    "staves": [
+     1,
+     2
+    ]
+   },
+   "answered_at": "2026-10-31T03:24:20",
+   "status": 200,
+   "follow_up": "1bc33d6f-90bc-427d-a5ed-868be4766215"
+  },
+  {
+   "job": "1bc33d6f-90bc-427d-a5ed-868be4766215",
+   "kind": "part_cut",
+   "question": "Which staves are the Aria's on page 1, line 2?",
+   "asked_at": "2026-10-31T03:24:31",
+   "page": 1,
+   "label": "cut:Aria",
+   "answer": {
+    "staves": [
+     3,
+     4
+    ]
+   },
+   "answered_at": "2026-10-31T03:27:16",
+   "follow_up": "d0d05718-fd34-4f22-98f0-9add8d1874d6",
+   "local": true
+  },
+  {
+   "job": "d0d05718-fd34-4f22-98f0-9add8d1874d6",
+   "kind": "part_cut",
+   "question": "Which staves are the Aria's on page 1, line 3?",
+   "asked_at": "2026-10-31T03:27:42",
+   "page": 1,
+   "label": "local:cut:Aria"
+  }
+ ],
+ "jobs": {
+  "2ecce612-5b3b-4014-92c0-64e3b282c540": {
+   "kind": "import_pdf",
+   "created_at": "2026-10-31T10:15:50.72798+00:00",
+   "status": "done"
+  },
+  "34a7efdc-8bb9-47ad-b530-0d17ae246293": {
+   "kind": "process_pages",
+   "created_at": "2026-10-31T10:15:53.821518+00:00",
+   "status": "done"
+  },
+  "aa599856-16de-4f63-bb00-af3233c0a0d8": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:16:58.135294+00:00"
+  },
+  "ce7a7702-bde2-4134-b581-3c313f99b77f": {
+   "kind": "omr_convert",
+   "created_at": "2026-10-31T10:17:40.314736+00:00"
+  },
+  "1bc33d6f-90bc-427d-a5ed-868be4766215": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:24:20.223672+00:00"
+  },
+  "d0d05718-fd34-4f22-98f0-9add8d1874d6": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:27:15.859994+00:00",
+   "local": true
+  },
+  "33148583-42d6-44b0-8a2f-31229e5f5799": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:28:48.800775+00:00",
+   "local": true
+  },
+  "2b173d5e-b3a2-40a6-b063-9a659b58ca08": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:35:22.879018+00:00",
+   "local": true
+  },
+  "73b6ee1d-981a-4c7a-9525-e57d40932dab": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:39:39.122195+00:00",
+   "local": true
+  }
+ },
+ "import": {
+  "source_id": "953271b6-afbc-4891-b148-26719782e21a",
+  "job_id": "2ecce612-5b3b-4014-92c0-64e3b282c540",
+  "kind": "import_pdf"
+ },
+ "t_import": 1793441748.043807,
+ "check": {
+  "title": "goldberg-bga-p1-5",
+  "composer": "J. S. Bach",
+  "key": "G major",
+  "meter": "3/4",
+  "pages": 5,
+  "parts": [
+   "Piano",
+   "Aria"
+  ],
+  "measures": 119,
+  "bar_first": 1,
+  "bar_last": 119,
+  "landmarks": {
+   "n": 20,
+   "sample": [
+    {
+     "bar": 1,
+     "kind": "tempo",
+     "label": "Andante espressivo.",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 16,
+     "kind": "repeat",
+     "label": "end repeat",
+     "source": "musicxml",
+     "bar_after": 17
+    },
+    {
+     "bar": 17,
+     "kind": "repeat",
+     "label": "start repeat",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 32,
+     "kind": "repeat",
+     "label": "end repeat",
+     "source": "musicxml",
+     "bar_after": 33
+    },
+    {
+     "bar": 48,
+     "kind": "repeat",
+     "label": "end repeat",
+     "source": "musicxml",
+     "bar_after": 49
+    },
+    {
+     "bar": 49,
+     "kind": "repeat",
+     "label": "start repeat",
+     "source": "musicxml",
+     "bar_after": null
+    }
+   ],
+   "sources": [
+    "musicxml"
+   ]
+  },
+  "label_memory": {
+   "n": 2,
+   "raw": "{\"entries\": {\"aria\": {\"at\": \"2026-10-31T10:24:23.271950+00:00\", \"page\": 1, \"part\": \"Aria\", \"label\": \"Aria.\", \"job_id\": \"1bc33d6f-90bc-427d-a5ed-868be4766215\", \"origin\": \"answer\", \"source\": \"human\", \"staves\": [1, 2]}, \"klav\": {\"at\": \"2026-10-31T10:16:27.038224+00:00\", \"page\": 1, \"part\": \"Aria\", \"label\": \"Klav.\", \"job_id\": null, \"origin\": \"header-abbreviation\", \"source\": \"model\", \"staves\": null}, \"var 1 a 1 clav\": {\"at\": \"2026-10-31T10:36:21.407288+00:00\", \"page\": 2, \"part\": \"Aria\", \"label\": \"Var. 1. (a 1 Clav.)\", \"job_id\": \"2b173d5e-b3a2-40a6-b063-9a659b58ca08\", \"origin\": \"page\", \"source\": \"mod"
+  },
+  "bars_per_page": {
+   "1": {
+    "n": 28,
+    "first": 1,
+    "last": 28
+   },
+   "2": {
+    "n": 20,
+    "first": 29,
+    "last": 48
+   },
+   "3": {
+    "n": 21,
+    "first": 49,
+    "last": 69
+   },
+   "4": {
+    "n": 21,
+    "first": 70,
+    "last": 90
+   },
+   "5": {
+    "n": 29,
+    "first": 91,
+    "last": 119
+   }
+  },
+  "playback_row": {
+   "bars": 119,
+   "midi": "214eb2f5-7c6a-459b-a50f-a9010e105473/playback/score.mid",
+   "parts": [
+    "Piano"
+   ],
+   "bar_map": "214eb2f5-7c6a-459b-a50f-a9010e105473/playback/bars.json",
+   "made_at": "2026-10-31T10:20:04.593104+00:00",
+   "source_id": "787a466a-724a-4573-9829-40edc6718050"
+  },
+  "midi_status": 200,
+  "bars_status": 200,
+  "midi_format": 1,
+  "midi_tracks": [
+   [
+    null,
+    0
+   ],
+   [
+    "Piano",
+    1688
+   ]
+  ],
+  "midi_part_tracks": 1,
+  "bars_json": {
+   "parts": [
+    "Piano"
+   ],
+   "n": 119,
+   "first": 1,
+   "last": 119,
+   "tempos": [
+    {
+     "bar": 1,
+     "at": 0.0,
+     "qpm": 72.0,
+     "bpm": 72.0,
+     "beat": "quarter",
+     "text": null,
+     "marked": true
+    }
+   ],
+   "meters": 2
+  },
+  "bar_map_missing": [],
+  "bar_map_missing_n": 0,
+  "bar_map_extra_n": 0,
+  "bar_map_extra": [],
+  "sources": [
+   [
+    "engraving",
+    false,
+    false
+   ],
+   [
+    "pdf",
+    false,
+    false
+   ],
+   [
+    "musicxml",
+    true,
+    false
+   ],
+   [
+    "engraving",
+    false,
+    false
+   ],
+   [
+    "part_images",
+    false,
+    true
+   ]
+  ]
+ },
+ "score": {
+  "id": "214eb2f5-7c6a-459b-a50f-a9010e105473",
+  "status": "ready",
+  "progress": 1,
+  "failure_reason": null,
+  "title": "goldberg-bga-p1-5",
+  "composer": "J. S. Bach",
+  "pages": 5,
+  "key_sig": "G major",
+  "meter": "3/4"
+ },
+ "cut_label": "cut:Aria",
+ "human_wait_s": 402.1,
+ "t_waiting_since": 1793442462.6642098
+}

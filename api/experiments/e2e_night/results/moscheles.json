@@ -1,0 +1,836 @@
+{
+ "slug": "moscheles",
+ "fixture": "fixtures/imslp/beethoven-op27-2-moscheles.pdf",
+ "score_id": "fb02789d-1e3e-4464-a075-0e288ad1b312",
+ "group": false,
+ "started_utc": "2026-10-31T09:59:04.165923+00:00",
+ "steps": [
+  {
+   "step": "import-request",
+   "at": "2026-10-31T02:59:06",
+   "seconds": 2.7,
+   "upload_s": 1.6,
+   "status": 200
+  },
+  {
+   "step": "reading",
+   "at": "2026-10-31T03:00:49",
+   "seconds": 105.7,
+   "status": "ready",
+   "failure": null,
+   "pages": 18,
+   "title": "beethoven-op27-2-moscheles",
+   "key": "C# minor",
+   "meter": "4/4",
+   "questions": 0,
+   "cost": 0.1498,
+   "job_errors": [],
+   "yoga": []
+  },
+  {
+   "step": "check",
+   "at": "2026-10-31T03:04:37",
+   "seconds": 0.8,
+   "measures": 328,
+   "parts": [
+    "Piano"
+   ],
+   "pages": 18,
+   "landmarks": 16,
+   "label_memory": 2,
+   "midi_part_tracks": null,
+   "bar_map_missing": null
+  },
+  {
+   "step": "convert:request",
+   "at": "2026-10-31T03:07:50",
+   "seconds": 1.9,
+   "job": "02f52749-28e9-44e2-83b6-d3a917fd526b",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This book is already being converted to Digital.",
+     "job_id": "02f52749-28e9-44e2-83b6-d3a917fd526b",
+     "kind": "omr_convert",
+     "status": "queued"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "convert",
+   "at": "2026-10-31T03:11:51",
+   "seconds": 242.8,
+   "job": "02f52749-28e9-44e2-83b6-d3a917fd526b",
+   "final": "failed",
+   "error": "EngineFailed: The transcription engine could not read this PDF",
+   "attempts": 1,
+   "started_at": "2026-10-31T10:07:50.568161+00:00",
+   "finished_at": "2026-10-31T10:11:48.469309+00:00",
+   "cost": 0.0041,
+   "chain_cost": 0.0041,
+   "result": {
+    "note": "The transcription engine could not read this PDF",
+    "reason": "The transcription engine could not read this PDF"
+   },
+   "yoga": [
+    "WARNING:folio.worker:job 02f52749-28e9-44e2-83b6-d3a917fd526b (omr_convert) attempt 1 failed: EngineFailed: The transcription engine could not read this PDF",
+    "Traceback (most recent call last):",
+    "WARNING:folio.worker:job e6efc4ee-0219-4233-8e2f-065c3eade262 (import_musicxml) attempt 1 failed: UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte",
+    "Traceback (most recent call last):",
+    "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte"
+   ]
+  },
+  {
+   "step": "cut:Pianoforte:request",
+   "at": "2026-10-31T03:18:38",
+   "seconds": 1.5,
+   "job": "05758915-a20e-41e4-850c-ed953659bf32",
+   "kind": "part_cut",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This split is already under way.",
+     "job_id": "05758915-a20e-41e4-850c-ed953659bf32",
+     "kind": "part_cut",
+     "status": "queued"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "cut:Pianoforte",
+   "at": "2026-10-31T03:28:28",
+   "seconds": 591.7,
+   "job": "05758915-a20e-41e4-850c-ed953659bf32",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T10:18:38.564151+00:00",
+   "finished_at": "2026-10-31T10:28:25.333839+00:00",
+   "cost": 0.4343,
+   "chain_cost": 0.4343,
+   "result": {
+    "note": "Pianoforte: 81 systems cut",
+    "phase": {
+     "page": 18,
+     "pages": 18,
+     "systems_cut": 81
+    },
+    "absent": 0,
+    "seconds": 586.7,
+    "cost_usd": 0.43428949999999983,
+    "questions": 0,
+    "source_id": "acfb04ad-7e8c-419a-8b4f-cfd4e49d3d3d",
+    "systems_cut": 81,
+    "interpretation_id": "45ae3526-dd8f-479c-8268-9f27d3ca6619"
+   },
+   "yoga": []
+  },
+  {
+   "step": "local:convert:timeout",
+   "at": "2026-10-31T03:33:34",
+   "seconds": 258.0,
+   "job": "609bb695-0456-4735-83a2-94a9d5390bbd"
+  },
+  {
+   "step": "check",
+   "at": "2026-10-31T03:35:44",
+   "seconds": 1.8,
+   "measures": 333,
+   "parts": [
+    "Piano"
+   ],
+   "pages": 18,
+   "landmarks": 49,
+   "label_memory": 2,
+   "midi_part_tracks": 1,
+   "bar_map_missing": 1
+  },
+  {
+   "step": "local:convert",
+   "at": "2026-10-31T03:45:13",
+   "seconds": 296.2,
+   "job": "6cf0a036-e31e-4b31-a0e5-a70988354b22",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T10:40:16.901183+00:00",
+   "finished_at": "2026-10-31T10:45:11.179424+00:00",
+   "cost": 0.6305,
+   "chain_cost": 1.5285,
+   "result": {
+    "bars": 332,
+    "note": "Digital: 332 bars, 234 to check. The engraving engine failed (pRun: Using fallback for library 'libjack.so.0' /lib/x86_64-linux-gnu/libnss3.so /lib/x86_64-linux-gnu/libOpenGL.so.0 /lib/x86_64-linux-gnu/libpipewire-0.3.so.0)",
+    "cover": "fb02789d-1e3e-4464-a075-0e288ad1b312/cover.png",
+    "edits": {
+     "A": 3,
+     "dup": 12,
+     "flag": 21,
+     "front": 1,
+     "words": 74,
+     "tuplet": 0,
+     "dynamic": 82,
+     "hairpin": 44
+    },
+    "pages": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "verify": {
+     "asked": 0,
+     "missing": {},
+     "skipped": "render failed (EngraverFailed: The engraving engine failed (pRun: Using fallback for library 'libjack.so.0' /lib/x86_64-linux-gnu/libnss3.so /lib/x86_64-linux-gnu/libOpenGL.so.0 /lib/x86_64-l)",
+     "systems": 68,
+     "reverted": {}
+    },
+    "seconds": 294.0,
+    "timings": {
+     "box_s": 191.0,
+     "pull_s": 2.1,
+     "kinds_s": 3.3,
+     "spark_s": 68.6,
+     "write_s": 16.3,
+     "render_s": 21.5,
+     "upload_s": 3.0,
+     "verify_s": 6.8,
+     "engrave_s": 9.8,
+     "audiveris_s": 164.6
+    },
+    "cost_usd": 0.6305,
+    "playback": {
+     "ok": true,
+     "bars": 332,
+     "tracks": 1,
+     "seconds": 4.09,
+     "midi_bytes": 51569
+    },
+    "engraving": {
+     "ok": false,
+     "reason": "The engraving engine failed (pRun: Using fallback for library 'libjack.so.0' /lib/x86_64-linux-gnu/libnss3.so /lib/x86_64-linux-gnu/libOpenGL.so.0 /lib/x86_64-linux-gnu/libpipewire-0.3.so.0)",
+     "seconds": 9.8
+    },
+    "source_id": "b1fa20b1-2ede-4199-8d0a-582afa88d4f4",
+    "page_kinds": [
+     [
+      1,
+      "cover"
+     ],
+     [
+      2,
+      "music"
+     ],
+     [
+      3,
+      "music"
+     ],
+     [
+      4,
+      "music"
+     ],
+     [
+      5,
+      "music"
+     ],
+     [
+      6,
+      "music"
+     ],
+     [
+      7,
+      "music"
+     ],
+     [
+      8,
+      "music"
+     ],
+     [
+      9,
+      "music"
+     ],
+     [
+      10,
+      "music"
+     ],
+     [
+      11,
+      "music"
+     ],
+     [
+      12,
+      "music"
+     ],
+     [
+      13,
+      "music"
+     ],
+     [
+      14,
+      "music"
+     ],
+     [
+      15,
+      "music"
+     ],
+     [
+      16,
+      "back"
+     ],
+     [
+      17,
+      "back"
+     ],
+     [
+      18,
+      "back"
+     ]
+    ],
+    "instruments": [
+     "Piano"
+    ],
+    "spark_calls": 128,
+    "flagged_bars": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49,
+     50,
+     51,
+     52,
+     53,
+     54,
+     55,
+     56,
+     57,
+     59,
+     60,
+     61,
+     62,
+     63,
+     64,
+     65,
+     66,
+     67,
+     69,
+     70,
+     72,
+     73,
+     74,
+     76,
+     77,
+     78,
+     80,
+     81,
+     82,
+     84,
+     85,
+     86,
+     87,
+     92,
+     93,
+     97,
+     98,
+     99,
+     101,
+     103,
+     105,
+     107,
+     108,
+     116,
+     117,
+     118,
+     119,
+     121,
+     122,
+     125,
+     126,
+     128,
+     129,
+     130,
+     132,
+     133,
+     134,
+     141,
+     144,
+     147,
+     150,
+     151,
+     152,
+     154,
+     155,
+     156,
+     157,
+     159,
+     162,
+     163,
+     164,
+     165,
+     166,
+     167,
+     168,
+     169,
+     170,
+     173,
+     177,
+     180,
+     181,
+     182,
+     183,
+     184,
+     186,
+     187,
+     188,
+     189,
+     190,
+     191,
+     192,
+     193,
+     194,
+     198,
+     199,
+     201,
+     202,
+     203,
+     204,
+     205,
+     206,
+     207,
+     208,
+     209,
+     210,
+     211,
+     212,
+     213,
+     214,
+     217,
+     218,
+     219,
+     220,
+     221,
+     222,
+     224,
+     225,
+     226,
+     228,
+     229,
+     230,
+     232,
+     239,
+     241,
+     242,
+     243,
+     248,
+     249,
+     250,
+     251,
+     252,
+     257,
+     258,
+     261,
+     262,
+     264,
+     265,
+     269,
+     270,
+     273,
+     274,
+     275,
+     277,
+     280,
+     281,
+     282,
+     283,
+     284,
+     286,
+     288,
+     289,
+     290,
+     291,
+     293,
+     295,
+     296,
+     297,
+     298,
+     299,
+     300,
+     301,
+     302,
+     304,
+     305,
+     306,
+     307,
+     308,
+     310,
+     311,
+     312,
+     313,
+     314,
+     315,
+     316,
+     317,
+     319,
+     323,
+     324,
+     325,
+     327,
+     328,
+     329,
+     330,
+     331,
+     332,
+     333
+    ],
+    "front_matter": {
+     "opus": null,
+     "read": true,
+     "title": null,
+     "editor": null,
+     "composer": null,
+     "metronome": {
+      "bpm": 60,
+      "unit": "quarter"
+     },
+     "dedication": null,
+     "tempo_heading": "Adagio. Si deve suonare tutto questo pezzo delicatissimamente e senza sordini.",
+     "movement_or_number": "SONATE N\u00b0. XIV."
+    },
+    "cost_per_page": {
+     "2": 0.0675,
+     "3": 0.035,
+     "4": 0.0322,
+     "5": 0.0314,
+     "6": 0.0371,
+     "7": 0.0709,
+     "8": 0.0912,
+     "9": 0.0484,
+     "10": 0.0367,
+     "11": 0.0247,
+     "12": 0.0393,
+     "13": 0.0416,
+     "14": 0.0356,
+     "15": 0.0389
+    },
+    "spark_skipped": 0,
+    "pages_unreadable": []
+   },
+   "yoga": [
+    "WARNING:folio.worker:job 051a2ed9-812e-4af4-abf2-4b11b57af71e (omr_convert) attempt 1 failed: EngineFailed: The transcription engine could not read this PDF",
+    "Traceback (most recent call last):"
+   ]
+  }
+ ],
+ "questions": [],
+ "jobs": {
+  "1a0b5d0f-a7b0-422f-a0a5-cc0955bf45ec": {
+   "kind": "import_pdf",
+   "created_at": "2026-10-31T09:59:06.422281+00:00",
+   "status": "done"
+  },
+  "d850a8d6-f7ad-4087-ad1e-753f113e6e56": {
+   "kind": "process_pages",
+   "created_at": "2026-10-31T09:59:44.286979+00:00",
+   "status": "done"
+  },
+  "02f52749-28e9-44e2-83b6-d3a917fd526b": {
+   "kind": "omr_convert",
+   "created_at": "2026-10-31T10:07:49.267797+00:00"
+  },
+  "05758915-a20e-41e4-850c-ed953659bf32": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:18:37.566301+00:00"
+  },
+  "609bb695-0456-4735-83a2-94a9d5390bbd": {
+   "kind": "omr_convert",
+   "created_at": "2026-10-31T10:29:15.88042+00:00",
+   "local": true
+  },
+  "6cf0a036-e31e-4b31-a0e5-a70988354b22": {
+   "kind": "omr_convert",
+   "created_at": "2026-10-31T10:40:16.959603+00:00",
+   "local": true
+  }
+ },
+ "import": {
+  "source_id": "730e9fa9-408e-4164-9faa-7f10a635f2c9",
+  "job_id": "1a0b5d0f-a7b0-422f-a0a5-cc0955bf45ec",
+  "kind": "import_pdf"
+ },
+ "t_import": 1793440743.867378,
+ "score": {
+  "id": "fb02789d-1e3e-4464-a075-0e288ad1b312",
+  "status": "ready",
+  "progress": 1,
+  "failure_reason": null,
+  "title": "beethoven-op27-2-moscheles",
+  "composer": null,
+  "pages": 18,
+  "key_sig": "C# minor",
+  "meter": "4/4"
+ },
+ "check": {
+  "title": "beethoven-op27-2-moscheles",
+  "composer": null,
+  "key": "C# minor",
+  "meter": "4/4",
+  "pages": 18,
+  "parts": [
+   "Piano"
+  ],
+  "measures": 333,
+  "bar_first": 1,
+  "bar_last": 333,
+  "landmarks": {
+   "n": 49,
+   "sample": [
+    {
+     "bar": 24,
+     "kind": "key_change",
+     "label": "2 sharps",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 28,
+     "kind": "key_change",
+     "label": "4 sharps",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 32,
+     "kind": "key_change",
+     "label": "1 sharp",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 36,
+     "kind": "key_change",
+     "label": "4 sharps",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 52,
+     "kind": "key_change",
+     "label": "1 sharp",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 56,
+     "kind": "key_change",
+     "label": "4 sharps",
+     "source": "musicxml",
+     "bar_after": null
+    }
+   ],
+   "sources": [
+    "musicxml"
+   ]
+  },
+  "label_memory": {
+   "n": 2,
+   "raw": "{\"entries\": {\"pno\": {\"at\": \"2026-10-31T10:00:45.752545+00:00\", \"page\": 2, \"part\": \"Piano\", \"label\": \"Pno.\", \"job_id\": null, \"origin\": \"header-abbreviation\", \"source\": \"model\", \"staves\": null}, \"pianoforte\": {\"at\": \"2026-10-31T10:00:45.752503+00:00\", \"page\": 2, \"part\": \"Piano\", \"label\": \"Pianoforte\", \"job_id\": null, \"origin\": \"header\", \"source\": \"model\", \"staves\": null}}, \"updated_at\": \"2026-10-31T10:00:45.798028+00:00\"}"
+  },
+  "bars_per_page": {
+   "2": {
+    "n": 19,
+    "first": 1,
+    "last": 19
+   },
+   "3": {
+    "n": 24,
+    "first": 20,
+    "last": 43
+   },
+   "4": {
+    "n": 23,
+    "first": 44,
+    "last": 66
+   },
+   "5": {
+    "n": 64,
+    "first": 67,
+    "last": 130
+   },
+   "6": {
+    "n": 21,
+    "first": 131,
+    "last": 151
+   },
+   "7": {
+    "n": 19,
+    "first": 152,
+    "last": 170
+   },
+   "8": {
+    "n": 26,
+    "first": 171,
+    "last": 196
+   },
+   "9": {
+    "n": 20,
+    "first": 197,
+    "last": 216
+   },
+   "10": {
+    "n": 17,
+    "first": 217,
+    "last": 233
+   },
+   "11": {
+    "n": 16,
+    "first": 234,
+    "last": 249
+   },
+   "12": {
+    "n": 24,
+    "first": 250,
+    "last": 273
+   },
+   "13": {
+    "n": 14,
+    "first": 274,
+    "last": 287
+   },
+   "14": {
+    "n": 19,
+    "first": 288,
+    "last": 306
+   },
+   "15": {
+    "n": 22,
+    "first": 307,
+    "last": 328
+   }
+  },
+  "playback_row": {
+   "bars": 332,
+   "midi": "fb02789d-1e3e-4464-a075-0e288ad1b312/playback/score.mid",
+   "parts": [
+    "Piano"
+   ],
+   "bar_map": "fb02789d-1e3e-4464-a075-0e288ad1b312/playback/bars.json",
+   "made_at": "2026-10-31T10:33:23.840381+00:00",
+   "source_id": "b1fa20b1-2ede-4199-8d0a-582afa88d4f4"
+  },
+  "midi_status": 200,
+  "bars_status": 200,
+  "midi_format": 1,
+  "midi_tracks": [
+   [
+    null,
+    0
+   ],
+   [
+    "Piano",
+    5976
+   ]
+  ],
+  "midi_part_tracks": 1,
+  "bars_json": {
+   "parts": [
+    "Piano"
+   ],
+   "n": 332,
+   "first": 1,
+   "last": 333,
+   "tempos": [
+    {
+     "bar": 1,
+     "at": 0.0,
+     "qpm": 120.0,
+     "bpm": 60.0,
+     "beat": "half",
+     "text": null,
+     "marked": true
+    }
+   ],
+   "meters": 3
+  },
+  "bar_map_missing": [
+   117
+  ],
+  "bar_map_missing_n": 1,
+  "bar_map_extra_n": 0,
+  "bar_map_extra": [],
+  "sources": [
+   [
+    "pdf",
+    false,
+    false
+   ],
+   [
+    "part_images",
+    false,
+    true
+   ],
+   [
+    "musicxml",
+    true,
+    false
+   ]
+  ]
+ },
+ "cut_label": "cut:Pianoforte"
+}

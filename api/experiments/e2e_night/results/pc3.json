@@ -1,0 +1,1244 @@
+{
+ "slug": "pc3",
+ "fixture": "fixtures/pdf/beethoven-pc3-test-p1-4.pdf",
+ "score_id": "103bb91f-9686-4a52-a0f7-2d99cd5595ea",
+ "group": true,
+ "started_utc": "2026-10-31T09:26:27.343076+00:00",
+ "steps": [
+  {
+   "step": "import-request",
+   "at": "2026-10-31T02:26:29",
+   "seconds": 2.1,
+   "upload_s": 1.0,
+   "status": 200
+  },
+  {
+   "step": "reading",
+   "at": "2026-10-31T02:28:05",
+   "seconds": 98.4,
+   "status": "ready",
+   "failure": null,
+   "pages": 4,
+   "title": "beethoven-pc3-test-p1-4",
+   "key": "C minor",
+   "meter": "2/2",
+   "questions": 0,
+   "cost": 0.1647,
+   "job_errors": [],
+   "yoga": []
+  },
+  {
+   "step": "cut:Violine I:request",
+   "at": "2026-10-31T02:29:17",
+   "seconds": 1.8,
+   "job": "48a662bd-e9be-4cea-9351-677065988139",
+   "kind": "part_cut",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This split is already under way.",
+     "job_id": "48a662bd-e9be-4cea-9351-677065988139",
+     "kind": "part_cut",
+     "status": "queued"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "cut:Violine I:question",
+   "at": "2026-10-31T02:29:56",
+   "seconds": 40.9,
+   "job": "48a662bd-e9be-4cea-9351-677065988139"
+  },
+  {
+   "step": "answer",
+   "at": "2026-10-31T02:30:32",
+   "seconds": 1.5,
+   "job": "48a662bd-e9be-4cea-9351-677065988139",
+   "status": 200,
+   "human_wait_s": 35.9
+  },
+  {
+   "step": "cut:Violine I:question",
+   "at": "2026-10-31T02:30:48",
+   "seconds": 15.6,
+   "job": "6c089f7b-dc6f-443f-a2ae-490eeac2b37c"
+  },
+  {
+   "step": "answer",
+   "at": "2026-10-31T02:32:06",
+   "seconds": 1.6,
+   "job": "6c089f7b-dc6f-443f-a2ae-490eeac2b37c",
+   "status": 200,
+   "human_wait_s": 77.8
+  },
+  {
+   "step": "cut:Violine I",
+   "at": "2026-10-31T02:32:14",
+   "seconds": 8.3,
+   "job": "f59c7fd5-fe67-44c6-a2ff-e1c53d0b7cd3",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T09:32:07.56185+00:00",
+   "finished_at": "2026-10-31T09:32:11.033068+00:00",
+   "cost": 0.001,
+   "chain_cost": 0.084,
+   "result": {
+    "note": "Violine I: 7 systems cut",
+    "phase": {
+     "page": 4,
+     "pages": 4,
+     "systems_cut": 7
+    },
+    "absent": 0,
+    "seconds": 3.4,
+    "cost_usd": 0.08398425,
+    "questions": 2,
+    "source_id": "d48e14fb-65bf-433e-ada4-68f62b4a9def",
+    "systems_cut": 7,
+    "interpretation_id": "9e0e8c99-4e91-453c-a78b-dc74f7c85dbb"
+   },
+   "yoga": []
+  },
+  {
+   "step": "cut:Klavier oben+Klavier unten:request",
+   "at": "2026-10-31T02:32:21",
+   "seconds": 1.8,
+   "job": "a1a88447-237c-4da9-9ec6-ae88ed9284cd",
+   "kind": "part_cut",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This split is already under way.",
+     "job_id": "a1a88447-237c-4da9-9ec6-ae88ed9284cd",
+     "kind": "part_cut",
+     "status": "running"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "cut:Klavier oben+Klavier unten",
+   "at": "2026-10-31T02:33:47",
+   "seconds": 87.5,
+   "job": "a1a88447-237c-4da9-9ec6-ae88ed9284cd",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T09:32:21.647376+00:00",
+   "finished_at": "2026-10-31T09:33:45.814155+00:00",
+   "cost": 0.1746,
+   "chain_cost": 0.2585,
+   "result": {
+    "note": "Klavier oben + Klavier unten: 7 systems cut",
+    "phase": {
+     "page": 4,
+     "pages": 4,
+     "systems_cut": 7
+    },
+    "absent": 0,
+    "seconds": 84.1,
+    "cost_usd": 0.17454725,
+    "questions": 0,
+    "source_id": "cd5dc0f8-e105-4ba6-aa51-49db8ee72fb2",
+    "systems_cut": 7,
+    "interpretation_id": "0eb1b753-0f7a-4b95-8c60-fdc311afac97"
+   },
+   "yoga": []
+  },
+  {
+   "step": "convert:request",
+   "at": "2026-10-31T02:33:58",
+   "seconds": 2.1,
+   "job": "5c91c0c5-0862-40f3-ba3e-1dbd315143e8",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This book is already being converted to Digital.",
+     "job_id": "5c91c0c5-0862-40f3-ba3e-1dbd315143e8",
+     "kind": "omr_convert",
+     "status": "queued"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "convert",
+   "at": "2026-10-31T02:38:41",
+   "seconds": 285.8,
+   "job": "5c91c0c5-0862-40f3-ba3e-1dbd315143e8",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T09:33:58.374342+00:00",
+   "finished_at": "2026-10-31T09:38:39.434548+00:00",
+   "cost": 0.3142,
+   "chain_cost": 0.3142,
+   "result": {
+    "bars": 70,
+    "note": "Digital: 70 bars, 14 to check",
+    "cover": null,
+    "edits": {
+     "A": 0,
+     "dup": 0,
+     "flag": 18,
+     "front": 1,
+     "words": 0,
+     "tuplet": 0,
+     "dynamic": 0,
+     "hairpin": 2
+    },
+    "pages": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "verify": {
+     "asked": 1,
+     "missing": {
+      "6": "Text dynamics mismatch in mm.6, 9 and 10",
+      "9": "Text dynamics mismatch in mm.6, 9 and 10",
+      "10": "Text dynamics mismatch in mm.6, 9 and 10"
+     },
+     "skipped": null,
+     "systems": 1,
+     "render_s": 5.5,
+     "reverted": {}
+    },
+    "seconds": 281.0,
+    "timings": {
+     "box_s": 131.8,
+     "pull_s": 0.7,
+     "kinds_s": 2.3,
+     "spark_s": 36.5,
+     "write_s": 23.9,
+     "render_s": 5.0,
+     "upload_s": 0.8,
+     "verify_s": 14.3,
+     "engrave_s": 12.0,
+     "audiveris_s": 124.4
+    },
+    "cost_usd": 0.3142,
+    "playback": {
+     "ok": true,
+     "bars": 70,
+     "tracks": 60,
+     "seconds": 2.59,
+     "midi_bytes": 18240
+    },
+    "engraving": {
+     "ok": true,
+     "layouts": {
+      "display": {
+       "bars": 70,
+       "pages": 9,
+       "seconds": 4.1,
+       "source_id": "0fafcdda-3cfb-4d79-8678-b4551ae608a6"
+      },
+      "original": {
+       "bars": 70,
+       "pages": 4,
+       "seconds": 3.7,
+       "source_id": "726e1462-ca1d-4dd8-9408-90b46a5f353c"
+      }
+     },
+     "seconds": 12.0
+    },
+    "source_id": "a808517b-47f5-486b-8daf-44390b7d4575",
+    "page_kinds": [
+     [
+      1,
+      "music"
+     ],
+     [
+      2,
+      "music"
+     ],
+     [
+      3,
+      "music"
+     ],
+     [
+      4,
+      "music"
+     ]
+    ],
+    "instruments": [
+     "Viol. I I",
+     "Viol. u",
+     "Hr. I",
+     "Voice I",
+     "Klav",
+     "f!!! II",
+     "F\" n",
+     "'11",
+     "In) II",
+     "Fag. II",
+     "Voice II",
+     "Voice III",
+     "(B) II I",
+     "Voice IV",
+     "(Es) II",
+     "Fl. 1!",
+     "0b.\"",
+     "(8) II",
+     "Fag. I I",
+     "(Es) [I",
+     "Voice V",
+     "Voice VI",
+     "(B) H",
+     "x",
+     "(Es) I!",
+     "F111",
+     "0b. II",
+     "(B) II II",
+     "Fag. 1}",
+     "(E5) II",
+     "(C' II",
+     "{c_ c)",
+     "Voice 7",
+     "Voice 8",
+     "Voice 9",
+     "Voice 10",
+     "H6rner in Es I",
+     "rompeten m CH",
+     "Pauken in C.G",
+     "Klavier",
+     "Violine I",
+     "Violine II",
+     "Viola I",
+     "KontrabaB",
+     "Viol. n",
+     "Viola II",
+     "Voice 11",
+     "Viol. I II",
+     "Viol. II I",
+     "Voice 12",
+     "Voice 13",
+     "Viol.I",
+     "View",
+     "Viola III",
+     "Vcll. u",
+     "K.-B",
+     "Viol. I III",
+     "Viol. II II",
+     "Viola IV",
+     "K.\u2014B"
+    ],
+    "spark_calls": 48,
+    "flagged_bars": [
+     6,
+     9,
+     10,
+     14,
+     19,
+     31,
+     35,
+     39,
+     41,
+     43,
+     46,
+     47,
+     69,
+     70
+    ],
+    "front_matter": {
+     "opus": "Op.37.",
+     "read": true,
+     "title": "DRITTES CONCERT f\u00fcr das Pianoforte",
+     "editor": null,
+     "composer": "L. VAN BEETHOVEN.",
+     "metronome": null,
+     "dedication": "Dem Prinzen Louis Ferdinand von Preussen gewidmet.",
+     "tempo_heading": "Allegro con brio",
+     "movement_or_number": null
+    },
+    "cost_per_page": {
+     "1": 0.0423,
+     "2": 0.0525,
+     "3": 0.0632,
+     "4": 0.1562
+    },
+    "spark_skipped": 0,
+    "pages_unreadable": [],
+    "parallel_fallback": "movement 2 has 22 staves, movement 1 had 13"
+   },
+   "yoga": [
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!",
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!",
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!",
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!",
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!",
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!",
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!",
+    "musicxml.m21ToXml: WARNING: we are out of midi channels! help!"
+   ]
+  },
+  {
+   "step": "check",
+   "at": "2026-10-31T02:49:42",
+   "seconds": 2.1,
+   "measures": 70,
+   "parts": [
+    "Flute I, II",
+    "Oboe I, II",
+    "Clarinet in B-flat I, II",
+    "Bassoon I, II",
+    "Horn in E-flat I, II",
+    "Trumpet in C I, II",
+    "Timpani in C, G",
+    "Piano",
+    "Violin I",
+    "Violin II",
+    "Viola",
+    "Violoncello and Double Bass",
+    "Klavier oben + Klavier unten"
+   ],
+   "pages": 4,
+   "landmarks": 4,
+   "label_memory": 2,
+   "midi_part_tracks": 58,
+   "bar_map_missing": 0
+  },
+  {
+   "step": "voice:v03",
+   "at": "2026-10-31T02:50:06",
+   "seconds": 7.4,
+   "status": "done",
+   "handler_s": 5.17,
+   "cost": 0.0037,
+   "proposed": 1,
+   "cards": [
+    [
+     "bowing",
+     "Up bow at bar 12",
+     [
+      12,
+      12
+     ],
+     [
+      [
+       "part",
+       "Violoncello and Double Bass"
+      ]
+     ]
+    ]
+   ],
+   "unplaced": 0
+  },
+  {
+   "step": "voice:v01",
+   "at": "2026-10-31T02:50:14",
+   "seconds": 7.31,
+   "status": "done",
+   "handler_s": 5.56,
+   "cost": 0.0038,
+   "proposed": 1,
+   "cards": [
+    [
+     "dynamic",
+     "p at bar 34",
+     [
+      34,
+      34
+     ],
+     [
+      [
+       "ensemble",
+       null
+      ]
+     ]
+    ]
+   ],
+   "unplaced": 0
+  },
+  {
+   "step": "local:cut:Violine I",
+   "at": "2026-10-31T03:41:24",
+   "seconds": 43.1,
+   "job": "aff69960-01af-4a98-8d00-e21ef6ee1ae0",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T10:40:40.731529+00:00",
+   "finished_at": "2026-10-31T10:41:21.927632+00:00",
+   "cost": 0.085,
+   "chain_cost": 0.3435,
+   "result": {
+    "note": "Violine I: 7 systems cut",
+    "phase": {
+     "page": 4,
+     "pages": 4,
+     "systems_cut": 7
+    },
+    "absent": 0,
+    "seconds": 40.8,
+    "cost_usd": 0.08499475,
+    "questions": 0,
+    "source_id": "5b56b796-5291-45ef-b32a-a41f85710a3f",
+    "systems_cut": 7,
+    "interpretation_id": "cb27b976-f7df-438c-935e-2e92b2b96731"
+   },
+   "yoga": [
+    "WARNING:folio.worker:job 051a2ed9-812e-4af4-abf2-4b11b57af71e (omr_convert) attempt 1 failed: EngineFailed: The transcription engine could not read this PDF",
+    "Traceback (most recent call last):"
+   ]
+  }
+ ],
+ "questions": [
+  {
+   "job": "48a662bd-e9be-4cea-9351-677065988139",
+   "kind": "part_cut",
+   "question": "Which staves are the Violine I's on page 2, line 2?",
+   "asked_at": "2026-10-31T02:29:56",
+   "page": 2,
+   "label": "cut:Violine I",
+   "answer": {
+    "staves": [
+     21
+    ]
+   },
+   "answered_at": "2026-10-31T02:30:32",
+   "status": 200,
+   "follow_up": "6c089f7b-dc6f-443f-a2ae-490eeac2b37c"
+  },
+  {
+   "job": "6c089f7b-dc6f-443f-a2ae-490eeac2b37c",
+   "kind": "part_cut",
+   "question": "Which staves are the Violine I's on page 4, line 2?",
+   "asked_at": "2026-10-31T02:30:48",
+   "page": 4,
+   "label": "cut:Violine I",
+   "answer": {
+    "staves": [
+     17
+    ]
+   },
+   "answered_at": "2026-10-31T02:32:06",
+   "status": 200,
+   "follow_up": "f59c7fd5-fe67-44c6-a2ff-e1c53d0b7cd3"
+  }
+ ],
+ "jobs": {
+  "87e401e7-4bbb-4bea-9a71-7c0b8ed8273d": {
+   "kind": "import_pdf",
+   "created_at": "2026-10-31T09:26:29.012004+00:00",
+   "status": "done"
+  },
+  "0c6ff3dc-51d5-455b-9d73-c5269e365c99": {
+   "kind": "process_pages",
+   "created_at": "2026-10-31T09:26:33.754873+00:00",
+   "status": "done"
+  },
+  "48a662bd-e9be-4cea-9351-677065988139": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T09:29:16.891546+00:00"
+  },
+  "6c089f7b-dc6f-443f-a2ae-490eeac2b37c": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T09:30:32.511241+00:00"
+  },
+  "f59c7fd5-fe67-44c6-a2ff-e1c53d0b7cd3": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T09:32:06.074032+00:00"
+  },
+  "a1a88447-237c-4da9-9ec6-ae88ed9284cd": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T09:32:20.931142+00:00"
+  },
+  "5c91c0c5-0862-40f3-ba3e-1dbd315143e8": {
+   "kind": "omr_convert",
+   "created_at": "2026-10-31T09:33:57.208002+00:00"
+  },
+  "aff69960-01af-4a98-8d00-e21ef6ee1ae0": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:40:40.784771+00:00",
+   "local": true
+  }
+ },
+ "import": {
+  "source_id": "2fb550c9-8a28-4cd0-9344-9ad90913df59",
+  "job_id": "87e401e7-4bbb-4bea-9a71-7c0b8ed8273d",
+  "kind": "import_pdf"
+ },
+ "t_import": 1793438787.11396,
+ "score": {
+  "id": "103bb91f-9686-4a52-a0f7-2d99cd5595ea",
+  "status": "ready",
+  "progress": 1,
+  "failure_reason": null,
+  "title": "beethoven-pc3-test-p1-4",
+  "composer": "L. van Beethoven",
+  "pages": 4,
+  "key_sig": "C minor",
+  "meter": "2/2"
+ },
+ "cut_label": "cut:Violine I",
+ "human_wait_s": 113.7,
+ "check": {
+  "title": "beethoven-pc3-test-p1-4",
+  "composer": "L. van Beethoven",
+  "key": "C minor",
+  "meter": "2/2",
+  "pages": 4,
+  "parts": [
+   "Flute I, II",
+   "Oboe I, II",
+   "Clarinet in B-flat I, II",
+   "Bassoon I, II",
+   "Horn in E-flat I, II",
+   "Trumpet in C I, II",
+   "Timpani in C, G",
+   "Piano",
+   "Violin I",
+   "Violin II",
+   "Viola",
+   "Violoncello and Double Bass",
+   "Klavier oben + Klavier unten"
+  ],
+  "measures": 70,
+  "bar_first": 1,
+  "bar_last": 70,
+  "landmarks": {
+   "n": 4,
+   "sample": [
+    {
+     "bar": 1,
+     "kind": "tempo",
+     "label": "Allegro con brio",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 50,
+     "kind": "key_change",
+     "label": "1 flat",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 57,
+     "kind": "key_change",
+     "label": "no sharps or flats",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 64,
+     "kind": "key_change",
+     "label": "3 flats",
+     "source": "musicxml",
+     "bar_after": null
+    }
+   ],
+   "sources": [
+    "musicxml"
+   ]
+  },
+  "label_memory": {
+   "n": 2,
+   "raw": "{\"entries\": {\"fl\": {\"at\": \"2026-10-31T09:28:01.807510+00:00\", \"page\": 1, \"part\": \"Flute I, II\", \"label\": \"Fl.\", \"job_id\": null, \"origin\": \"header-abbreviation\", \"source\": \"model\", \"staves\": null}, \"hr\": {\"at\": \"2026-10-31T09:28:01.814376+00:00\", \"page\": 1, \"part\": \"Horn in E-flat I, II\", \"label\": \"Hr.\", \"job_id\": null, \"origin\": \"header-abbreviation\", \"source\": \"model\", \"staves\": null}, \"ob\": {\"at\": \"2026-10-31T09:28:01.808976+00:00\", \"page\": 1, \"part\": \"Oboe I, II\", \"label\": \"Ob.\", \"job_id\": null, \"origin\": \"header-abbreviation\", \"source\": \"model\", \"staves\": null}, \"pk\": {\"at\": \"2026-10-31T09"
+  },
+  "bars_per_page": {
+   "1": {
+    "n": 10,
+    "first": 1,
+    "last": 10
+   },
+   "2": {
+    "n": 17,
+    "first": 11,
+    "last": 27
+   },
+   "3": {
+    "n": 14,
+    "first": 28,
+    "last": 41
+   },
+   "4": {
+    "n": 15,
+    "first": 42,
+    "last": 56
+   }
+  },
+  "playback_row": {
+   "bars": 70,
+   "midi": "103bb91f-9686-4a52-a0f7-2d99cd5595ea/playback/score.mid",
+   "parts": [
+    "Viol. I I",
+    "Viol. u",
+    "Hr. I",
+    "Voice I",
+    "Klav",
+    "f!!! II",
+    "F\" n",
+    "'11",
+    "In) II",
+    "Fag. II",
+    "Voice II",
+    "Voice III",
+    "(B) II I",
+    "Voice IV",
+    "(Es) II",
+    "Fl. 1!",
+    "0b.\"",
+    "(8) II",
+    "Fag. I I",
+    "(Es) [I",
+    "Voice V",
+    "Voice VI",
+    "(B) H",
+    "x",
+    "(Es) I!",
+    "F111",
+    "0b. II",
+    "(B) II II",
+    "Fag. 1}",
+    "(E5) II",
+    "(C' II",
+    "{c_ c)",
+    "Voice 7",
+    "Voice 8",
+    "Voice 9",
+    "Voice 10",
+    "H6rner in Es I",
+    "rompeten m CH",
+    "Pauken in C.G",
+    "Klavier",
+    "Violine I",
+    "Violine II",
+    "Viola I",
+    "KontrabaB",
+    "Viol. n",
+    "Viola II",
+    "Voice 11",
+    "Viol. I II",
+    "Viol. II I",
+    "Voice 12",
+    "Voice 13",
+    "Viol.I",
+    "View",
+    "Viola III",
+    "Vcll. u",
+    "K.-B",
+    "Viol. I III",
+    "Viol. II II",
+    "Viola IV",
+    "K.\u2014B"
+   ],
+   "bar_map": "103bb91f-9686-4a52-a0f7-2d99cd5595ea/playback/bars.json",
+   "made_at": "2026-10-31T09:38:27.377496+00:00",
+   "source_id": "a808517b-47f5-486b-8daf-44390b7d4575"
+  },
+  "midi_status": 200,
+  "bars_status": 200,
+  "midi_format": 1,
+  "midi_tracks": [
+   [
+    null,
+    0
+   ],
+   [
+    "Viol. I I",
+    27
+   ],
+   [
+    "Viol. u",
+    55
+   ],
+   [
+    "Hr. I",
+    45
+   ],
+   [
+    "Voice I",
+    0
+   ],
+   [
+    "Klav",
+    0
+   ],
+   [
+    "f!!! II",
+    50
+   ],
+   [
+    "F\" n",
+    16
+   ],
+   [
+    "'11",
+    19
+   ],
+   [
+    "In) II",
+    38
+   ],
+   [
+    "Fag. II",
+    51
+   ],
+   [
+    "Voice II",
+    6
+   ],
+   [
+    "Voice III",
+    8
+   ],
+   [
+    "(B) II I",
+    12
+   ],
+   [
+    "Voice IV",
+    31
+   ],
+   [
+    "(Es) II",
+    79
+   ],
+   [
+    "Fl. 1!",
+    52
+   ],
+   [
+    "0b.\"",
+    23
+   ],
+   [
+    "(8) II",
+    26
+   ],
+   [
+    "Fag. I I",
+    42
+   ],
+   [
+    "(Es) [I",
+    16
+   ],
+   [
+    "Voice V",
+    31
+   ],
+   [
+    "Voice VI",
+    6
+   ],
+   [
+    "(B) H",
+    16
+   ],
+   [
+    "x",
+    14
+   ],
+   [
+    "(Es) I!",
+    18
+   ],
+   [
+    "F111",
+    31
+   ],
+   [
+    "0b. II",
+    36
+   ],
+   [
+    "(B) II II",
+    25
+   ],
+   [
+    "Fag. 1}",
+    32
+   ],
+   [
+    "(E5) II",
+    35
+   ],
+   [
+    "(C' II",
+    26
+   ],
+   [
+    "{c_ c)",
+    13
+   ],
+   [
+    "Voice 7",
+    3
+   ],
+   [
+    "Voice 8",
+    28
+   ],
+   [
+    "Voice 9",
+    5
+   ],
+   [
+    "Voice 10",
+    30
+   ],
+   [
+    "H6rner in Es I",
+    20
+   ],
+   [
+    "rompeten m CH",
+    3
+   ],
+   [
+    "Pauken in C.G",
+    4
+   ],
+   [
+    "Klavier",
+    1
+   ],
+   [
+    "Violine I",
+    83
+   ],
+   [
+    "Violine II",
+    55
+   ],
+   [
+    "Viola I",
+    70
+   ],
+   [
+    "KontrabaB",
+    15
+   ],
+   [
+    "Viol. n",
+    31
+   ],
+   [
+    "Viola II",
+    19
+   ],
+   [
+    "Voice 11",
+    16
+   ],
+   [
+    "Viol. I II",
+    24
+   ],
+   [
+    "Viol. II I",
+    57
+   ],
+   [
+    "Voice 12",
+    29
+   ],
+   [
+    "Voice 13",
+    33
+   ],
+   [
+    "Viol.I",
+    29
+   ],
+   [
+    "View",
+    70
+   ],
+   [
+    "Viola III",
+    74
+   ],
+   [
+    "Vcll. u",
+    37
+   ],
+   [
+    "K.-B",
+    45
+   ],
+   [
+    "Viol. I III",
+    48
+   ],
+   [
+    "Viol. II II",
+    44
+   ],
+   [
+    "Viola IV",
+    32
+   ],
+   [
+    "K.\u2014B",
+    48
+   ]
+  ],
+  "midi_part_tracks": 58,
+  "bars_json": {
+   "parts": [
+    "Viol. I I",
+    "Viol. u",
+    "Hr. I",
+    "Voice I",
+    "Klav",
+    "f!!! II",
+    "F\" n",
+    "'11",
+    "In) II",
+    "Fag. II",
+    "Voice II",
+    "Voice III",
+    "(B) II I",
+    "Voice IV",
+    "(Es) II",
+    "Fl. 1!",
+    "0b.\"",
+    "(8) II",
+    "Fag. I I",
+    "(Es) [I",
+    "Voice V",
+    "Voice VI",
+    "(B) H",
+    "x",
+    "(Es) I!",
+    "F111",
+    "0b. II",
+    "(B) II II",
+    "Fag. 1}",
+    "(E5) II",
+    "(C' II",
+    "{c_ c)",
+    "Voice 7",
+    "Voice 8",
+    "Voice 9",
+    "Voice 10",
+    "H6rner in Es I",
+    "rompeten m CH",
+    "Pauken in C.G",
+    "Klavier",
+    "Violine I",
+    "Violine II",
+    "Viola I",
+    "KontrabaB",
+    "Viol. n",
+    "Viola II",
+    "Voice 11",
+    "Viol. I II",
+    "Viol. II I",
+    "Voice 12",
+    "Voice 13",
+    "Viol.I",
+    "View",
+    "Viola III",
+    "Vcll. u",
+    "K.-B",
+    "Viol. I III",
+    "Viol. II II",
+    "Viola IV",
+    "K.\u2014B"
+   ],
+   "n": 70,
+   "first": 1,
+   "last": 70,
+   "tempos": [
+    {
+     "bar": 1,
+     "at": 0.0,
+     "qpm": 120.0,
+     "bpm": 120.0,
+     "beat": "quarter",
+     "text": null,
+     "marked": false
+    }
+   ],
+   "meters": 1
+  },
+  "bar_map_missing": [],
+  "bar_map_missing_n": 0,
+  "bar_map_extra_n": 0,
+  "bar_map_extra": [],
+  "sources": [
+   [
+    "pdf",
+    false,
+    false
+   ],
+   [
+    "part_images",
+    false,
+    true
+   ],
+   [
+    "engraving",
+    false,
+    false
+   ],
+   [
+    "part_images",
+    false,
+    true
+   ],
+   [
+    "musicxml",
+    true,
+    false
+   ],
+   [
+    "engraving",
+    false,
+    false
+   ]
+  ]
+ },
+ "voice": [
+  {
+   "line": "v03",
+   "said": "Cellos, bar twelve, that's an up bow, up bow on the first note.",
+   "expect": {
+    "bar_from": "12",
+    "bar_to": "12",
+    "audience": "part:Cello",
+    "kind": "bowing",
+    "expect": "Up bow at bar 12"
+   },
+   "status": "done",
+   "error": null,
+   "post_s": 1.61,
+   "seconds": 7.4,
+   "handler_s": 5.17,
+   "cost": 0.0037,
+   "transcript": "cellos bar twelve that's an up bow up bow on the first note",
+   "proposed": 1,
+   "unplaced": [],
+   "refused": [],
+   "cards": [
+    {
+     "kind": "bowing",
+     "body": "Up bow at bar 12",
+     "bars": [
+      12,
+      12
+     ],
+     "payload_bars": [
+      12,
+      12
+     ],
+     "who": [
+      [
+       "part",
+       "Violoncello and Double Bass"
+      ]
+     ],
+     "layer": null,
+     "confidence": null,
+     "ids": [
+      "d204f4a3-8b55-43b3-b06a-3b8b42f8679c"
+     ]
+    }
+   ],
+   "accept": {
+    "status": 200,
+    "rows": [
+     [
+      "live",
+      "part",
+      "Violoncello and Double Bass",
+      12
+     ]
+    ]
+   },
+   "dismiss": "nothing else proposed",
+   "players_see": {
+    "test1@muse.test": [],
+    "test2@muse.test": []
+   },
+   "dismissed_left": 0
+  },
+  {
+   "line": "v01",
+   "said": "Everyone, bar thirty-four, piano please, really piano.",
+   "expect": {
+    "bar_from": "34",
+    "bar_to": "34",
+    "audience": "ensemble",
+    "kind": "dynamic",
+    "expect": "p at bar 34"
+   },
+   "status": "done",
+   "error": null,
+   "post_s": 1.15,
+   "seconds": 7.31,
+   "handler_s": 5.56,
+   "cost": 0.0038,
+   "transcript": "Everyone, bar bar 34, piano please. Really piano.",
+   "proposed": 1,
+   "unplaced": [],
+   "refused": [],
+   "cards": [
+    {
+     "kind": "dynamic",
+     "body": "p at bar 34",
+     "bars": [
+      34,
+      34
+     ],
+     "payload_bars": [
+      34,
+      34
+     ],
+     "who": [
+      [
+       "ensemble",
+       null
+      ]
+     ],
+     "layer": null,
+     "confidence": null,
+     "ids": [
+      "a2b3b342-966a-434b-863a-3109bcf1ae86"
+     ]
+    }
+   ],
+   "accept": {
+    "status": 200,
+    "rows": [
+     [
+      "live",
+      "ensemble",
+      null,
+      34
+     ]
+    ]
+   },
+   "dismiss": "nothing else proposed",
+   "players_see": {
+    "test1@muse.test": [
+     [
+      "live",
+      "ensemble",
+      null
+     ]
+    ],
+    "test2@muse.test": [
+     [
+      "live",
+      "ensemble",
+      null
+     ]
+    ]
+   },
+   "dismissed_left": 0
+  }
+ ]
+}

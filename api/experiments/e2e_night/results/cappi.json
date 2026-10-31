@@ -1,0 +1,594 @@
+{
+ "slug": "cappi",
+ "fixture": "fixtures/imslp/beethoven-op27-2-cappi-1802.pdf",
+ "score_id": "6408b99c-75cd-43b8-a1f8-c2527540b2eb",
+ "group": false,
+ "started_utc": "2026-10-31T10:05:19.294362+00:00",
+ "steps": [
+  {
+   "step": "import-request",
+   "at": "2026-10-31T03:05:21",
+   "seconds": 2.6,
+   "upload_s": 1.2,
+   "status": 200
+  },
+  {
+   "step": "reading",
+   "at": "2026-10-31T03:07:12",
+   "seconds": 113.2,
+   "status": "ready",
+   "failure": null,
+   "pages": 16,
+   "title": "beethoven-op27-2-cappi-1802",
+   "key": "C# minor",
+   "meter": "4/4",
+   "questions": 0,
+   "cost": 0.1721,
+   "job_errors": [],
+   "yoga": [
+    "WARNING:folio.worker:job e5db9a18-685b-40d0-8452-cd549b7c9558 (omr_convert) attempt 1 failed: EngineFailed: The transcription engine could not read this PDF",
+    "Traceback (most recent call last):"
+   ]
+  },
+  {
+   "step": "check",
+   "at": "2026-10-31T03:07:29",
+   "seconds": 0.7,
+   "measures": 107,
+   "parts": [
+    "Piano"
+   ],
+   "pages": 16,
+   "landmarks": 10,
+   "label_memory": 2,
+   "midi_part_tracks": null,
+   "bar_map_missing": null
+  },
+  {
+   "step": "voice:v24",
+   "at": "2026-10-31T03:18:03",
+   "seconds": 6.69,
+   "status": "done",
+   "handler_s": 4.98,
+   "cost": 0.004,
+   "proposed": 1,
+   "cards": [
+    [
+     "text",
+     "Don't rush from bar 22",
+     [
+      22,
+      22
+     ],
+     [
+      [
+       "ensemble",
+       null
+      ]
+     ]
+    ]
+   ],
+   "unplaced": 0
+  },
+  {
+   "step": "voice:v01",
+   "at": "2026-10-31T03:18:11",
+   "seconds": 7.23,
+   "status": "done",
+   "handler_s": 5.71,
+   "cost": 0.0037,
+   "proposed": 1,
+   "cards": [
+    [
+     "dynamic",
+     "p at bar 34",
+     [
+      34,
+      34
+     ],
+     [
+      [
+       "ensemble",
+       null
+      ]
+     ]
+    ]
+   ],
+   "unplaced": 0
+  },
+  {
+   "step": "cut:Pianoforte:request",
+   "at": "2026-10-31T03:28:30",
+   "seconds": 1.5,
+   "job": "0aff582d-fcb6-4fc9-832f-39ae95f81c92",
+   "kind": "part_cut",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This split is already under way.",
+     "job_id": "0aff582d-fcb6-4fc9-832f-39ae95f81c92",
+     "kind": "part_cut",
+     "status": "running"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "cut:Pianoforte:question",
+   "at": "2026-10-31T03:35:24",
+   "seconds": 415.3,
+   "job": "0aff582d-fcb6-4fc9-832f-39ae95f81c92"
+  },
+  {
+   "step": "convert:request",
+   "at": "2026-10-31T03:35:27",
+   "seconds": 1.9,
+   "job": "051a2ed9-812e-4af4-abf2-4b11b57af71e",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This book is already being converted to Digital.",
+     "job_id": "051a2ed9-812e-4af4-abf2-4b11b57af71e",
+     "kind": "omr_convert",
+     "status": "running"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "answer",
+   "at": "2026-10-31T03:38:07",
+   "seconds": 1.2,
+   "job": "0aff582d-fcb6-4fc9-832f-39ae95f81c92",
+   "status": 200,
+   "human_wait_s": 163.0
+  },
+  {
+   "step": "cut:Pianoforte:question",
+   "at": "2026-10-31T03:42:18",
+   "seconds": 251.1,
+   "job": "4fe4a7d1-3ab7-49fa-8734-96dfe80b7ef4"
+  },
+  {
+   "step": "answer",
+   "at": "2026-10-31T03:43:38",
+   "seconds": 1.4,
+   "job": "4fe4a7d1-3ab7-49fa-8734-96dfe80b7ef4",
+   "status": 200,
+   "human_wait_s": 80.2
+  },
+  {
+   "step": "cut:Pianoforte:question",
+   "at": "2026-10-31T03:43:50",
+   "seconds": 11.9,
+   "job": "7c9b81ec-6be8-43d4-a69d-c64950621501"
+  },
+  {
+   "step": "answer",
+   "at": "2026-10-31T03:44:27",
+   "seconds": 1.2,
+   "job": "7c9b81ec-6be8-43d4-a69d-c64950621501",
+   "status": 200,
+   "human_wait_s": 36.7
+  },
+  {
+   "step": "cut:Pianoforte",
+   "at": "2026-10-31T03:46:46",
+   "seconds": 138.6,
+   "job": "2e0719bf-e374-4054-af3d-df80862476e3",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T10:44:28.403599+00:00",
+   "finished_at": "2026-10-31T10:46:43.565607+00:00",
+   "cost": 0.0761,
+   "chain_cost": 0.5495,
+   "result": {
+    "note": "Pianoforte: 63 systems cut",
+    "phase": {
+     "page": 16,
+     "pages": 16,
+     "systems_cut": 63
+    },
+    "absent": 0,
+    "seconds": 135.1,
+    "cost_usd": 0.5494437500000001,
+    "questions": 3,
+    "source_id": "9a85b198-9519-4730-8283-fbd230198a91",
+    "systems_cut": 63,
+    "interpretation_id": "1a5f2090-1abc-4697-93c6-7490d28eae2c"
+   },
+   "yoga": []
+  },
+  {
+   "step": "local:convert",
+   "at": "2026-10-31T04:01:52",
+   "seconds": 976.1,
+   "job": "d3b0dbb5-e031-4e5c-af80-597be0c95feb",
+   "final": "failed",
+   "error": "EngineFailed: The transcription's bars do not line up with its pages (movement 2 has 3 staves, movement 1 had 4)",
+   "attempts": 1,
+   "started_at": "2026-10-31T10:45:35.762972+00:00",
+   "finished_at": "2026-10-31T11:01:50.172477+00:00",
+   "cost": 0.0054,
+   "chain_cost": 0.0052,
+   "result": {
+    "note": "The transcription's bars do not line up with its pages (movement 2 has 3 staves, movement 1 had 4)",
+    "reason": "The transcription's bars do not line up with its pages (movement 2 has 3 staves, movement 1 had 4)",
+    "parallel_fallback": "movement 4 has 3 staves, movement 1 had 2"
+   },
+   "yoga": []
+  }
+ ],
+ "questions": [
+  {
+   "job": "0aff582d-fcb6-4fc9-832f-39ae95f81c92",
+   "kind": "part_cut",
+   "question": "Which staves are the Pianoforte's on page 8, line 1?",
+   "asked_at": "2026-10-31T03:35:24",
+   "page": 8,
+   "label": "cut:Pianoforte",
+   "answer": {
+    "staves": [
+     1,
+     2
+    ]
+   },
+   "answered_at": "2026-10-31T03:38:07",
+   "status": 200,
+   "follow_up": "4fe4a7d1-3ab7-49fa-8734-96dfe80b7ef4"
+  },
+  {
+   "job": "4fe4a7d1-3ab7-49fa-8734-96dfe80b7ef4",
+   "kind": "part_cut",
+   "question": "Which staves are the Pianoforte's on page 12, line 4?",
+   "asked_at": "2026-10-31T03:42:18",
+   "page": 12,
+   "label": "cut:Pianoforte",
+   "answer": {
+    "staves": [
+     7
+    ]
+   },
+   "answered_at": "2026-10-31T03:43:38",
+   "status": 200,
+   "follow_up": "7c9b81ec-6be8-43d4-a69d-c64950621501"
+  },
+  {
+   "job": "7c9b81ec-6be8-43d4-a69d-c64950621501",
+   "kind": "part_cut",
+   "question": "Which staves are the Pianoforte's on page 12, line 5?",
+   "asked_at": "2026-10-31T03:43:50",
+   "page": 12,
+   "label": "cut:Pianoforte",
+   "answer": {
+    "staves": [
+     8
+    ]
+   },
+   "answered_at": "2026-10-31T03:44:27",
+   "status": 200,
+   "follow_up": "2e0719bf-e374-4054-af3d-df80862476e3"
+  }
+ ],
+ "jobs": {
+  "375c85ed-f8f1-4d77-a350-c96da21d40e7": {
+   "kind": "import_pdf",
+   "created_at": "2026-10-31T10:05:21.388337+00:00",
+   "status": "done"
+  },
+  "c1ac9c54-dff4-4264-908b-b0a9f4802d09": {
+   "kind": "process_pages",
+   "created_at": "2026-10-31T10:05:34.576301+00:00",
+   "status": "done"
+  },
+  "0aff582d-fcb6-4fc9-832f-39ae95f81c92": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:28:29.717754+00:00"
+  },
+  "051a2ed9-812e-4af4-abf2-4b11b57af71e": {
+   "kind": "omr_convert",
+   "created_at": "2026-10-31T10:35:26.810541+00:00"
+  },
+  "4fe4a7d1-3ab7-49fa-8734-96dfe80b7ef4": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:38:07.079066+00:00"
+  },
+  "7c9b81ec-6be8-43d4-a69d-c64950621501": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:43:38.431658+00:00"
+  },
+  "2e0719bf-e374-4054-af3d-df80862476e3": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:44:27.185212+00:00"
+  }
+ },
+ "import": {
+  "source_id": "b4d0c735-21b4-48af-8e84-9e7f26cd09c5",
+  "job_id": "375c85ed-f8f1-4d77-a350-c96da21d40e7",
+  "kind": "import_pdf"
+ },
+ "t_import": 1793441119.05003,
+ "score": {
+  "id": "6408b99c-75cd-43b8-a1f8-c2527540b2eb",
+  "status": "ready",
+  "progress": 1,
+  "failure_reason": null,
+  "title": "beethoven-op27-2-cappi-1802",
+  "composer": null,
+  "pages": 16,
+  "key_sig": "C# minor",
+  "meter": "4/4"
+ },
+ "check": {
+  "title": "beethoven-op27-2-cappi-1802",
+  "composer": null,
+  "key": "C# minor",
+  "meter": "4/4",
+  "pages": 16,
+  "parts": [
+   "Piano"
+  ],
+  "measures": 107,
+  "bar_first": 1,
+  "bar_last": 107,
+  "landmarks": {
+   "n": 10,
+   "sample": [
+    {
+     "bar": 15,
+     "kind": "tempo",
+     "label": "Allegretto.",
+     "trust": "low",
+     "source": "page",
+     "bar_after": null
+    },
+    {
+     "bar": 16,
+     "kind": "repeat",
+     "label": "end repeat",
+     "trust": "low",
+     "source": "page",
+     "bar_after": 17
+    },
+    {
+     "bar": 16,
+     "kind": "repeat",
+     "label": "start repeat",
+     "trust": "low",
+     "source": "page",
+     "bar_after": null
+    },
+    {
+     "bar": 17,
+     "kind": "double_bar",
+     "label": "double bar",
+     "trust": "low",
+     "source": "page",
+     "bar_after": 18
+    },
+    {
+     "bar": 17,
+     "kind": "repeat",
+     "label": "end repeat",
+     "trust": "low",
+     "source": "page",
+     "bar_after": 18
+    },
+    {
+     "bar": 21,
+     "kind": "repeat",
+     "label": "end repeat",
+     "trust": "low",
+     "source": "page",
+     "bar_after": 22
+    }
+   ],
+   "sources": [
+    "page"
+   ]
+  },
+  "label_memory": {
+   "n": 2,
+   "raw": "{\"entries\": {\"pno\": {\"at\": \"2026-10-31T10:07:08.130270+00:00\", \"page\": 2, \"part\": \"Piano\", \"label\": \"Pno.\", \"job_id\": null, \"origin\": \"header-abbreviation\", \"source\": \"model\", \"staves\": null}, \"pianoforte\": {\"at\": \"2026-10-31T10:07:08.130213+00:00\", \"page\": 2, \"part\": \"Piano\", \"label\": \"Pianoforte\", \"job_id\": null, \"origin\": \"header\", \"source\": \"model\", \"staves\": null}}, \"updated_at\": \"2026-10-31T10:07:08.201403+00:00\"}"
+  },
+  "bars_per_page": {
+   "2": {
+    "n": 5,
+    "first": 1,
+    "last": 5
+   },
+   "3": {
+    "n": 5,
+    "first": 6,
+    "last": 10
+   },
+   "4": {
+    "n": 4,
+    "first": 11,
+    "last": 14
+   },
+   "5": {
+    "n": 7,
+    "first": 15,
+    "last": 21
+   },
+   "6": {
+    "n": 5,
+    "first": 22,
+    "last": 26
+   },
+   "7": {
+    "n": 1,
+    "first": 27,
+    "last": 27
+   },
+   "8": {
+    "n": 7,
+    "first": 28,
+    "last": 34
+   },
+   "9": {
+    "n": 5,
+    "first": 35,
+    "last": 39
+   },
+   "10": {
+    "n": 6,
+    "first": 40,
+    "last": 45
+   },
+   "11": {
+    "n": 6,
+    "first": 46,
+    "last": 51
+   },
+   "12": {
+    "n": 44,
+    "first": 52,
+    "last": 95
+   },
+   "13": {
+    "n": 4,
+    "first": 96,
+    "last": 99
+   },
+   "14": {
+    "n": 4,
+    "first": 100,
+    "last": 103
+   },
+   "15": {
+    "n": 4,
+    "first": 104,
+    "last": 107
+   }
+  },
+  "playback_row": null,
+  "sources": [
+   [
+    "pdf",
+    false,
+    false
+   ]
+  ]
+ },
+ "voice": [
+  {
+   "line": "v24",
+   "said": "That was good, once more from twenty-two and this time don't rush.",
+   "expect": {
+    "bar_from": "22",
+    "bar_to": "22",
+    "audience": "ensemble",
+    "kind": "text",
+    "expect": "Don't rush, from bar 22"
+   },
+   "status": "done",
+   "error": null,
+   "post_s": 1.06,
+   "seconds": 6.69,
+   "handler_s": 4.98,
+   "cost": 0.004,
+   "transcript": "Once more from 22 and this time don't rush.",
+   "proposed": 1,
+   "unplaced": [],
+   "refused": [],
+   "cards": [
+    {
+     "kind": "text",
+     "body": "Don't rush from bar 22",
+     "bars": [
+      22,
+      22
+     ],
+     "payload_bars": [
+      22,
+      22
+     ],
+     "who": [
+      [
+       "ensemble",
+       null
+      ]
+     ],
+     "layer": null,
+     "confidence": null,
+     "ids": [
+      "4c40cdcb-7fde-4629-b994-e9f6b0e5d17d"
+     ]
+    }
+   ],
+   "accept": {
+    "status": 200,
+    "rows": [
+     [
+      "live",
+      "ensemble",
+      null,
+      22
+     ]
+    ]
+   },
+   "dismiss": "nothing else proposed"
+  },
+  {
+   "line": "v01",
+   "said": "Everyone, bar thirty-four, piano please, really piano.",
+   "expect": {
+    "bar_from": "34",
+    "bar_to": "34",
+    "audience": "ensemble",
+    "kind": "dynamic",
+    "expect": "p at bar 34"
+   },
+   "status": "done",
+   "error": null,
+   "post_s": 0.78,
+   "seconds": 7.23,
+   "handler_s": 5.71,
+   "cost": 0.0037,
+   "transcript": "everyone, bar 34, piano please. please. Really piano.",
+   "proposed": 1,
+   "unplaced": [],
+   "refused": [],
+   "cards": [
+    {
+     "kind": "dynamic",
+     "body": "p at bar 34",
+     "bars": [
+      34,
+      34
+     ],
+     "payload_bars": [
+      34,
+      34
+     ],
+     "who": [
+      [
+       "ensemble",
+       null
+      ]
+     ],
+     "layer": null,
+     "confidence": null,
+     "ids": [
+      "8e5bfef2-e665-4d84-919e-1e60b26b9b07"
+     ]
+    }
+   ],
+   "dismiss": [
+    {
+     "status": 200,
+     "n": 1,
+     "err": null
+    }
+   ],
+   "dismissed_left": 0
+  }
+ ],
+ "cut_label": "cut:Pianoforte",
+ "human_wait_s": 279.9
+}

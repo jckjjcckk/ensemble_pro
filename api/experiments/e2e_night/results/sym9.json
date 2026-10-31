@@ -1,0 +1,403 @@
+{
+ "slug": "sym9",
+ "fixture": "fixtures/pdf/beethoven-sym9-test-p3-6.pdf",
+ "score_id": "cdf30c53-4921-484a-a775-95d753de2009",
+ "group": true,
+ "started_utc": "2026-10-31T09:54:56.519956+00:00",
+ "steps": [
+  {
+   "step": "import-request",
+   "at": "2026-10-31T02:54:59",
+   "seconds": 3.0,
+   "upload_s": 1.4,
+   "status": 200
+  },
+  {
+   "step": "reading",
+   "at": "2026-10-31T02:56:57",
+   "seconds": 121.1,
+   "status": "ready",
+   "failure": null,
+   "pages": 4,
+   "title": "beethoven-sym9-test-p3-6",
+   "key": "D minor",
+   "meter": "2/4",
+   "questions": 0,
+   "cost": 0.0974,
+   "job_errors": [],
+   "yoga": []
+  },
+  {
+   "step": "check",
+   "at": "2026-10-31T02:57:44",
+   "seconds": 0.6,
+   "measures": 28,
+   "parts": [
+    "Flute",
+    "Oboe",
+    "Clarinet in B",
+    "Bassoon",
+    "Horn in D",
+    "Horn in B basso",
+    "Trumpet in D",
+    "Timpani",
+    "Violin",
+    "Viola",
+    "Cello",
+    "Bass"
+   ],
+   "pages": 4,
+   "landmarks": 1,
+   "label_memory": 2,
+   "midi_part_tracks": null,
+   "bar_map_missing": null
+  },
+  {
+   "step": "cut:Violoncello:request",
+   "at": "2026-10-31T02:58:14",
+   "seconds": 1.7,
+   "job": "ef7ade77-6a29-4b07-b11c-099832e8a749",
+   "kind": "part_cut",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This split is already under way.",
+     "job_id": "ef7ade77-6a29-4b07-b11c-099832e8a749",
+     "kind": "part_cut",
+     "status": "running"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "cut:Violoncello:question",
+   "at": "2026-10-31T02:59:34",
+   "seconds": 81.3,
+   "job": "ef7ade77-6a29-4b07-b11c-099832e8a749"
+  },
+  {
+   "step": "answer",
+   "at": "2026-10-31T03:01:23",
+   "seconds": 1.9,
+   "job": "ef7ade77-6a29-4b07-b11c-099832e8a749",
+   "status": 200,
+   "human_wait_s": 109.6
+  },
+  {
+   "step": "cut:Violoncello",
+   "at": "2026-10-31T03:01:30",
+   "seconds": 6.3,
+   "job": "8f8424cc-d8af-4081-acd6-e5c7e0497b66",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T10:01:23.489162+00:00",
+   "finished_at": "2026-10-31T10:01:27.799142+00:00",
+   "cost": 0.0014,
+   "chain_cost": 0.0833,
+   "result": {
+    "note": "Violoncello: 4 systems cut",
+    "phase": {
+     "page": 4,
+     "pages": 4,
+     "systems_cut": 4
+    },
+    "absent": 0,
+    "seconds": 4.2,
+    "cost_usd": 0.083327,
+    "questions": 1,
+    "source_id": "3b10d428-c233-49c6-b47b-7467909818b1",
+    "systems_cut": 4,
+    "interpretation_id": "ae544934-1010-46bd-9059-a1fe90b25f07"
+   },
+   "yoga": []
+  },
+  {
+   "step": "cut:Violoni+Violoncello:request",
+   "at": "2026-10-31T03:01:42",
+   "seconds": 2.2,
+   "job": "8d12baa2-f6a7-4b38-b438-3ac8819974b5",
+   "kind": "part_cut",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This split is already under way.",
+     "job_id": "8d12baa2-f6a7-4b38-b438-3ac8819974b5",
+     "kind": "part_cut",
+     "status": "running"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "cut:Violoni+Violoncello:question",
+   "at": "2026-10-31T03:03:08",
+   "seconds": 87.7,
+   "job": "8d12baa2-f6a7-4b38-b438-3ac8819974b5"
+  },
+  {
+   "step": "answer",
+   "at": "2026-10-31T03:03:29",
+   "seconds": 1.4,
+   "job": "8d12baa2-f6a7-4b38-b438-3ac8819974b5",
+   "status": 200,
+   "human_wait_s": 21.4
+  },
+  {
+   "step": "cut:Violoni+Violoncello:question",
+   "at": "2026-10-31T03:03:38",
+   "seconds": 9.2,
+   "job": "1266679f-7157-4f2a-a491-d0d33050a2ee"
+  },
+  {
+   "step": "answer",
+   "at": "2026-10-31T03:03:48",
+   "seconds": 1.4,
+   "job": "1266679f-7157-4f2a-a491-d0d33050a2ee",
+   "status": 200,
+   "human_wait_s": 9.6
+  },
+  {
+   "step": "cut:Violoni+Violoncello",
+   "at": "2026-10-31T03:03:56",
+   "seconds": 8.2,
+   "job": "859a5726-2758-4b95-9aa4-b8f9a7e02e47",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T10:03:49.997363+00:00",
+   "finished_at": "2026-10-31T10:03:55.071583+00:00",
+   "cost": 0.0015,
+   "chain_cost": 0.1787,
+   "result": {
+    "note": "Violoni + Violoncello: 4 systems cut",
+    "phase": {
+     "page": 4,
+     "pages": 4,
+     "systems_cut": 4
+    },
+    "absent": 0,
+    "seconds": 5.0,
+    "cost_usd": 0.09533549999999999,
+    "questions": 2,
+    "source_id": "ebfd3291-c043-4377-aa30-bd359d227e0c",
+    "systems_cut": 4,
+    "interpretation_id": "1d2aa84a-f1b7-4b1c-87d1-996ecf221730"
+   },
+   "yoga": []
+  },
+  {
+   "step": "convert:request",
+   "at": "2026-10-31T03:05:21",
+   "seconds": 2.2,
+   "job": "e5db9a18-685b-40d0-8452-cd549b7c9558",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This book is already being converted to Digital.",
+     "job_id": "e5db9a18-685b-40d0-8452-cd549b7c9558",
+     "kind": "omr_convert",
+     "status": "running"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "convert",
+   "at": "2026-10-31T03:06:14",
+   "seconds": 55.0,
+   "job": "e5db9a18-685b-40d0-8452-cd549b7c9558",
+   "final": "failed",
+   "error": "EngineFailed: The transcription engine could not read this PDF",
+   "attempts": 1,
+   "started_at": "2026-10-31T10:05:20.351824+00:00",
+   "finished_at": "2026-10-31T10:06:11.785768+00:00",
+   "cost": 0.0056,
+   "chain_cost": 0.0056,
+   "result": {
+    "note": "The transcription engine could not read this PDF",
+    "reason": "The transcription engine could not read this PDF"
+   },
+   "yoga": [
+    "WARNING:folio.worker:job e5db9a18-685b-40d0-8452-cd549b7c9558 (omr_convert) attempt 1 failed: EngineFailed: The transcription engine could not read this PDF",
+    "Traceback (most recent call last):"
+   ]
+  }
+ ],
+ "questions": [
+  {
+   "job": "ef7ade77-6a29-4b07-b11c-099832e8a749",
+   "kind": "part_cut",
+   "question": "Which staves are the Violoncello's on page 4, line 2?",
+   "asked_at": "2026-10-31T02:59:34",
+   "page": 4,
+   "label": "cut:Violoncello",
+   "answer": {
+    "staves": [
+     25
+    ]
+   },
+   "answered_at": "2026-10-31T03:01:23",
+   "status": 200,
+   "follow_up": "8f8424cc-d8af-4081-acd6-e5c7e0497b66"
+  },
+  {
+   "job": "8d12baa2-f6a7-4b38-b438-3ac8819974b5",
+   "kind": "part_cut",
+   "question": "Which staves are the Violoni + Violoncello's on page 4, line 2?",
+   "asked_at": "2026-10-31T03:03:08",
+   "page": 4,
+   "label": "cut:Violoni+Violoncello",
+   "answer": {
+    "staves": [
+     22,
+     23,
+     25
+    ]
+   },
+   "answered_at": "2026-10-31T03:03:29",
+   "status": 200,
+   "follow_up": "1266679f-7157-4f2a-a491-d0d33050a2ee"
+  },
+  {
+   "job": "1266679f-7157-4f2a-a491-d0d33050a2ee",
+   "kind": "part_cut",
+   "question": "Which staves are the Violoni + Violoncello's on page 4, line 1?",
+   "asked_at": "2026-10-31T03:03:38",
+   "page": 4,
+   "label": "cut:Violoni+Violoncello",
+   "answer": {
+    "staves": [
+     9,
+     10,
+     12
+    ]
+   },
+   "answered_at": "2026-10-31T03:03:48",
+   "status": 200,
+   "follow_up": "859a5726-2758-4b95-9aa4-b8f9a7e02e47"
+  }
+ ],
+ "jobs": {
+  "0d4a846f-2787-4665-a065-40679c9707e6": {
+   "kind": "import_pdf",
+   "created_at": "2026-10-31T09:54:58.935854+00:00",
+   "status": "done"
+  },
+  "ab15434c-a57c-4984-9e02-fb3a11e07730": {
+   "kind": "process_pages",
+   "created_at": "2026-10-31T09:55:05.802267+00:00",
+   "status": "done"
+  },
+  "ef7ade77-6a29-4b07-b11c-099832e8a749": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T09:58:13.665658+00:00"
+  },
+  "8f8424cc-d8af-4081-acd6-e5c7e0497b66": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:01:23.359101+00:00"
+  },
+  "8d12baa2-f6a7-4b38-b438-3ac8819974b5": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:01:41.744325+00:00"
+  },
+  "1266679f-7157-4f2a-a491-d0d33050a2ee": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:03:29.312805+00:00"
+  },
+  "859a5726-2758-4b95-9aa4-b8f9a7e02e47": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:03:48.21144+00:00"
+  },
+  "e5db9a18-685b-40d0-8452-cd549b7c9558": {
+   "kind": "omr_convert",
+   "created_at": "2026-10-31T10:05:20.155408+00:00"
+  }
+ },
+ "import": {
+  "source_id": "894efdfd-780e-4740-8758-ddfd53701c60",
+  "job_id": "0d4a846f-2787-4665-a065-40679c9707e6",
+  "kind": "import_pdf"
+ },
+ "t_import": 1793440496.257749,
+ "score": {
+  "id": "cdf30c53-4921-484a-a775-95d753de2009",
+  "status": "ready",
+  "progress": 1,
+  "failure_reason": null,
+  "title": "beethoven-sym9-test-p3-6",
+  "composer": "L. v. Beethoven",
+  "pages": 4,
+  "key_sig": "D minor",
+  "meter": "2/4"
+ },
+ "check": {
+  "title": "beethoven-sym9-test-p3-6",
+  "composer": "L. v. Beethoven",
+  "key": "D minor",
+  "meter": "2/4",
+  "pages": 4,
+  "parts": [
+   "Flute",
+   "Oboe",
+   "Clarinet in B",
+   "Bassoon",
+   "Horn in D",
+   "Horn in B basso",
+   "Trumpet in D",
+   "Timpani",
+   "Violin",
+   "Viola",
+   "Cello",
+   "Bass"
+  ],
+  "measures": 28,
+  "bar_first": 1,
+  "bar_last": 28,
+  "landmarks": {
+   "n": 1,
+   "sample": [
+    {
+     "bar": 1,
+     "kind": "tempo",
+     "label": "Allegro ma non troppo un poco maestoso.",
+     "trust": "low",
+     "source": "page",
+     "bar_after": null
+    }
+   ],
+   "sources": [
+    "page"
+   ]
+  },
+  "label_memory": {
+   "n": 2,
+   "raw": "{\"entries\": {\"b\": {\"at\": \"2026-10-31T09:56:54.717495+00:00\", \"page\": 3, \"part\": \"Basso\", \"label\": \"B.\", \"job_id\": null, \"origin\": \"header-abbreviation\", \"source\": \"model\", \"staves\": null}, \"fl\": {\"at\": \"2026-10-31T09:56:54.709596+00:00\", \"page\": 3, \"part\": \"Flute\", \"label\": \"Fl.\", \"job_id\": null, \"origin\": \"header-abbreviation\", \"source\": \"model\", \"staves\": null}, \"ob\": {\"at\": \"2026-10-31T09:56:54.710399+00:00\", \"page\": 3, \"part\": \"Oboe\", \"label\": \"Ob.\", \"job_id\": null, \"origin\": \"header-abbreviation\", \"source\": \"model\", \"staves\": null}, \"vc\": {\"at\": \"2026-10-31T09:56:54.716739+00:00\", \"page\":"
+  },
+  "bars_per_page": {
+   "3": {
+    "n": 14,
+    "first": 1,
+    "last": 14
+   },
+   "4": {
+    "n": 14,
+    "first": 15,
+    "last": 28
+   }
+  },
+  "playback_row": null,
+  "sources": [
+   [
+    "pdf",
+    false,
+    false
+   ]
+  ]
+ },
+ "cut_label": "cut:Violoni+Violoncello",
+ "human_wait_s": 140.6
+}

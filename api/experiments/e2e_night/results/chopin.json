@@ -1,0 +1,634 @@
+{
+ "slug": "chopin",
+ "fixture": "fixtures/pdf/chopin-polonaises-ekier-test-p4-7.pdf",
+ "score_id": "673b61bc-b0e7-40a0-80c4-fec4f9cf71d0",
+ "group": false,
+ "started_utc": "2026-10-31T10:07:48.605783+00:00",
+ "steps": [
+  {
+   "step": "import-request",
+   "at": "2026-10-31T03:07:50",
+   "seconds": 1.7,
+   "upload_s": 0.7,
+   "status": 200
+  },
+  {
+   "step": "reading",
+   "at": "2026-10-31T03:08:25",
+   "seconds": 36.9,
+   "status": "ready",
+   "failure": null,
+   "pages": 4,
+   "title": "chopin-polonaises-ekier-test-p4-7",
+   "key": "C# minor",
+   "meter": "3/4",
+   "questions": 0,
+   "cost": 0.0528,
+   "job_errors": [],
+   "yoga": []
+  },
+  {
+   "step": "check",
+   "at": "2026-10-31T03:08:30",
+   "seconds": 0.6,
+   "measures": 68,
+   "parts": [
+    "Piano"
+   ],
+   "pages": 4,
+   "landmarks": 15,
+   "label_memory": 2,
+   "midi_part_tracks": null,
+   "bar_map_missing": null
+  },
+  {
+   "step": "cut:Piano:request",
+   "at": "2026-10-31T03:08:39",
+   "seconds": 1.6,
+   "job": "a7ddf2f3-df95-4302-a16c-9ccc09515cd4",
+   "kind": "part_cut",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This split is already under way.",
+     "job_id": "a7ddf2f3-df95-4302-a16c-9ccc09515cd4",
+     "kind": "part_cut",
+     "status": "running"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "cut:Piano",
+   "at": "2026-10-31T03:10:22",
+   "seconds": 104.6,
+   "job": "a7ddf2f3-df95-4302-a16c-9ccc09515cd4",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T10:08:39.32917+00:00",
+   "finished_at": "2026-10-31T10:10:17.367457+00:00",
+   "cost": 0.1168,
+   "chain_cost": 0.1168,
+   "result": {
+    "note": "Piano: 20 systems cut",
+    "phase": {
+     "page": 4,
+     "pages": 4,
+     "systems_cut": 20
+    },
+    "absent": 0,
+    "seconds": 98.0,
+    "cost_usd": 0.11684049999999999,
+    "questions": 0,
+    "source_id": "e5a94e6b-cdae-4ae3-964a-0c3b290903a0",
+    "systems_cut": 20,
+    "interpretation_id": "ffa8bb33-164e-4cc0-a1b8-e6fc9eaa051d"
+   },
+   "yoga": []
+  },
+  {
+   "step": "convert:request",
+   "at": "2026-10-31T03:10:31",
+   "seconds": 1.7,
+   "job": "1b068314-13bb-4402-b3d8-6ebaef8d0304",
+   "status": "queued",
+   "duplicate": {
+    "status": 409,
+    "detail": {
+     "message": "This book is already being converted to Digital.",
+     "job_id": "1b068314-13bb-4402-b3d8-6ebaef8d0304",
+     "kind": "omr_convert",
+     "status": "running"
+    },
+    "names_live_job": true
+   }
+  },
+  {
+   "step": "convert",
+   "at": "2026-10-31T03:12:44",
+   "seconds": 134.5,
+   "job": "1b068314-13bb-4402-b3d8-6ebaef8d0304",
+   "final": "done",
+   "error": null,
+   "attempts": 1,
+   "started_at": "2026-10-31T10:10:30.956768+00:00",
+   "finished_at": "2026-10-31T10:12:41.369662+00:00",
+   "cost": 0.1809,
+   "chain_cost": 0.1809,
+   "result": {
+    "bars": 70,
+    "note": "Digital: 70 bars, 36 to check",
+    "cover": null,
+    "edits": {
+     "A": 0,
+     "dup": 1,
+     "flag": 0,
+     "front": 1,
+     "words": 15,
+     "tuplet": 0,
+     "dynamic": 7,
+     "hairpin": 28
+    },
+    "pages": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "verify": {
+     "asked": 15,
+     "missing": {
+      "13": "Bottom engraving omits sotto voce present in original.",
+      "33": "ten. marking missing in rendering",
+      "70": "cresc. is in 3rd system measure in original but in 4th in transcription"
+     },
+     "skipped": null,
+     "systems": 15,
+     "render_s": 10.5,
+     "reverted": {
+      "1": "Tempo text differs in m.1: extra Allegro.",
+      "6": "Pedal text present in scan missing in rendering",
+      "11": "pp dynamic in m.11 missing in transcription",
+      "20": "ff in m.20 missing in rendering",
+      "29": "cresc. and ffz missing, ritenuto misplaced/duplicated",
+      "30": "cresc. and ffz missing, ritenuto misplaced/duplicated",
+      "45": "Forte dynamic in right-hand measure present in scan is missing in engraving.",
+      "46": "Expression words dim. and dolciss. are missing in rendering",
+      "47": "Expression words dim. and dolciss. are missing in rendering",
+      "55": "Opening parenthesized piano dynamic is incomplete in rendering",
+      "69": "cresc. is in 3rd system measure in original but in 4th in transcription"
+     }
+    },
+    "seconds": 130.3,
+    "timings": {
+     "box_s": 68.7,
+     "pull_s": 0.6,
+     "kinds_s": 1.8,
+     "spark_s": 12.6,
+     "write_s": 29.7,
+     "render_s": 5.5,
+     "upload_s": 0.9,
+     "verify_s": 25.6,
+     "engrave_s": 13.8,
+     "audiveris_s": 60.3
+    },
+    "cost_usd": 0.1809,
+    "playback": {
+     "ok": true,
+     "bars": 70,
+     "tracks": 1,
+     "seconds": 1.39,
+     "midi_bytes": 10796
+    },
+    "engraving": {
+     "ok": true,
+     "layouts": {
+      "display": {
+       "bars": 70,
+       "pages": 4,
+       "seconds": 7.8,
+       "source_id": "e156864c-ed9b-40d2-8a67-29c91ddbae9a"
+      },
+      "original": {
+       "bars": 70,
+       "pages": 4,
+       "seconds": 2.9,
+       "source_id": "81f47aee-be7d-43db-a302-4b82df2ad7e9"
+      }
+     },
+     "seconds": 13.8
+    },
+    "source_id": "999e0c2a-de13-4dc4-b4e5-ef5a1140b8cf",
+    "page_kinds": [
+     [
+      1,
+      "music"
+     ],
+     [
+      2,
+      "music"
+     ],
+     [
+      3,
+      "music"
+     ],
+     [
+      4,
+      "music"
+     ]
+    ],
+    "instruments": [
+     "Piano"
+    ],
+    "spark_calls": 44,
+    "flagged_bars": [
+     1,
+     6,
+     8,
+     9,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     29,
+     30,
+     33,
+     34,
+     37,
+     38,
+     40,
+     41,
+     44,
+     45,
+     46,
+     47,
+     54,
+     55,
+     69,
+     70
+    ],
+    "front_matter": {
+     "opus": "op. 26 nr 1",
+     "read": true,
+     "title": "Deux polonaises",
+     "editor": null,
+     "composer": null,
+     "metronome": null,
+     "dedication": "A son ami J. Dessauer",
+     "tempo_heading": "Allegro appassionato",
+     "movement_or_number": null
+    },
+    "cost_per_page": {
+     "1": 0.0515,
+     "2": 0.0428,
+     "3": 0.0376,
+     "4": 0.0491
+    },
+    "spark_skipped": 0,
+    "pages_unreadable": []
+   },
+   "yoga": [
+    "Traceback (most recent call last):",
+    "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte",
+    "WARNING:folio.worker:job e6efc4ee-0219-4233-8e2f-065c3eade262 (import_musicxml) attempt 2 failed: UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte",
+    "Traceback (most recent call last):",
+    "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte",
+    "WARNING:folio.worker:job e6efc4ee-0219-4233-8e2f-065c3eade262 (import_musicxml) attempt 3 failed: UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte",
+    "Traceback (most recent call last):",
+    "UnicodeDecodeError: 'utf-8' codec can't decode byte 0x91 in position 11: invalid start byte"
+   ]
+  },
+  {
+   "step": "check",
+   "at": "2026-10-31T03:15:50",
+   "seconds": 2.1,
+   "measures": 70,
+   "parts": [
+    "Piano"
+   ],
+   "pages": 4,
+   "landmarks": 11,
+   "label_memory": 2,
+   "midi_part_tracks": 1,
+   "bar_map_missing": 0
+  },
+  {
+   "step": "voice:v24",
+   "at": "2026-10-31T03:15:58",
+   "seconds": 7.51,
+   "status": "done",
+   "handler_s": 5.64,
+   "cost": 0.0042,
+   "proposed": 1,
+   "cards": [
+    [
+     "text",
+     "Don't rush at bar 22",
+     [
+      22,
+      22
+     ],
+     [
+      [
+       "ensemble",
+       null
+      ]
+     ]
+    ]
+   ],
+   "unplaced": 0
+  },
+  {
+   "step": "voice:v08",
+   "at": "2026-10-31T03:16:05",
+   "seconds": 6.7,
+   "status": "done",
+   "handler_s": 5.13,
+   "cost": 0.0037,
+   "proposed": 0,
+   "cards": [],
+   "unplaced": 0
+  }
+ ],
+ "questions": [],
+ "jobs": {
+  "acfdb28f-3fbe-46ff-a624-544e66625f98": {
+   "kind": "import_pdf",
+   "created_at": "2026-10-31T10:07:49.966125+00:00",
+   "status": "done"
+  },
+  "ea250151-ef5c-4e57-9752-b2717474d55b": {
+   "kind": "process_pages",
+   "created_at": "2026-10-31T10:07:54.285957+00:00",
+   "status": "done"
+  },
+  "a7ddf2f3-df95-4302-a16c-9ccc09515cd4": {
+   "kind": "part_cut",
+   "created_at": "2026-10-31T10:08:38.634101+00:00"
+  },
+  "1b068314-13bb-4402-b3d8-6ebaef8d0304": {
+   "kind": "omr_convert",
+   "created_at": "2026-10-31T10:10:30.404251+00:00"
+  }
+ },
+ "import": {
+  "source_id": "8318f672-41f2-4be3-873f-2f06c6d3aea6",
+  "job_id": "acfdb28f-3fbe-46ff-a624-544e66625f98",
+  "kind": "import_pdf"
+ },
+ "t_import": 1793441268.470517,
+ "score": {
+  "id": "673b61bc-b0e7-40a0-80c4-fec4f9cf71d0",
+  "status": "ready",
+  "progress": 1,
+  "failure_reason": null,
+  "title": "chopin-polonaises-ekier-test-p4-7",
+  "composer": null,
+  "pages": 4,
+  "key_sig": "C# minor",
+  "meter": "3/4"
+ },
+ "check": {
+  "title": "chopin-polonaises-ekier-test-p4-7",
+  "composer": null,
+  "key": "C# minor",
+  "meter": "3/4",
+  "pages": 4,
+  "parts": [
+   "Piano"
+  ],
+  "measures": 70,
+  "bar_first": 1,
+  "bar_last": 70,
+  "landmarks": {
+   "n": 11,
+   "sample": [
+    {
+     "bar": 1,
+     "kind": "tempo",
+     "label": "Allegro",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 12,
+     "kind": "repeat",
+     "label": "end repeat",
+     "source": "musicxml",
+     "bar_after": 13
+    },
+    {
+     "bar": 13,
+     "kind": "repeat",
+     "label": "start repeat",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 37,
+     "kind": "repeat",
+     "label": "end repeat",
+     "source": "musicxml",
+     "bar_after": 38
+    },
+    {
+     "bar": 37,
+     "kind": "fine",
+     "label": "[Fine]",
+     "source": "musicxml",
+     "bar_after": null
+    },
+    {
+     "bar": 39,
+     "kind": "key_change",
+     "label": "5 flats",
+     "source": "musicxml",
+     "bar_after": null
+    }
+   ],
+   "sources": [
+    "musicxml"
+   ]
+  },
+  "label_memory": {
+   "n": 2,
+   "raw": "{\"entries\": {\"pno\": {\"at\": \"2026-10-31T10:08:21.998485+00:00\", \"page\": 1, \"part\": \"Piano\", \"label\": \"Pno.\", \"job_id\": null, \"origin\": \"header-abbreviation\", \"source\": \"model\", \"staves\": null}, \"piano\": {\"at\": \"2026-10-31T10:08:21.998438+00:00\", \"page\": 1, \"part\": \"Piano\", \"label\": \"Piano\", \"job_id\": null, \"origin\": \"header\", \"source\": \"model\", \"staves\": null}}, \"updated_at\": \"2026-10-31T10:08:22.067708+00:00\"}"
+  },
+  "bars_per_page": {
+   "1": {
+    "n": 19,
+    "first": 1,
+    "last": 19
+   },
+   "2": {
+    "n": 19,
+    "first": 20,
+    "last": 38
+   },
+   "3": {
+    "n": 14,
+    "first": 39,
+    "last": 52
+   },
+   "4": {
+    "n": 16,
+    "first": 53,
+    "last": 68
+   }
+  },
+  "playback_row": {
+   "bars": 70,
+   "midi": "673b61bc-b0e7-40a0-80c4-fec4f9cf71d0/playback/score.mid",
+   "parts": [
+    "Piano"
+   ],
+   "bar_map": "673b61bc-b0e7-40a0-80c4-fec4f9cf71d0/playback/bars.json",
+   "made_at": "2026-10-31T10:12:27.484381+00:00",
+   "source_id": "999e0c2a-de13-4dc4-b4e5-ef5a1140b8cf"
+  },
+  "midi_status": 200,
+  "bars_status": 200,
+  "midi_format": 1,
+  "midi_tracks": [
+   [
+    null,
+    0
+   ],
+   [
+    "Piano",
+    1272
+   ]
+  ],
+  "midi_part_tracks": 1,
+  "bars_json": {
+   "parts": [
+    "Piano"
+   ],
+   "n": 70,
+   "first": 1,
+   "last": 70,
+   "tempos": [
+    {
+     "bar": 1,
+     "at": 0.0,
+     "qpm": 120.0,
+     "bpm": 120.0,
+     "beat": "quarter",
+     "text": null,
+     "marked": false
+    }
+   ],
+   "meters": 1
+  },
+  "bar_map_missing": [],
+  "bar_map_missing_n": 0,
+  "bar_map_extra_n": 0,
+  "bar_map_extra": [],
+  "sources": [
+   [
+    "pdf",
+    false,
+    false
+   ],
+   [
+    "musicxml",
+    true,
+    false
+   ],
+   [
+    "part_images",
+    false,
+    true
+   ],
+   [
+    "engraving",
+    false,
+    false
+   ],
+   [
+    "engraving",
+    false,
+    false
+   ]
+  ]
+ },
+ "cut_label": "cut:Piano",
+ "voice": [
+  {
+   "line": "v24",
+   "said": "That was good, once more from twenty-two and this time don't rush.",
+   "expect": {
+    "bar_from": "22",
+    "bar_to": "22",
+    "audience": "ensemble",
+    "kind": "text",
+    "expect": "Don't rush, from bar 22"
+   },
+   "status": "done",
+   "error": null,
+   "post_s": 1.22,
+   "seconds": 7.51,
+   "handler_s": 5.64,
+   "cost": 0.0042,
+   "transcript": "once more from 22 and this time don't rush.",
+   "proposed": 1,
+   "unplaced": [],
+   "refused": [],
+   "cards": [
+    {
+     "kind": "text",
+     "body": "Don't rush at bar 22",
+     "bars": [
+      22,
+      22
+     ],
+     "payload_bars": [
+      22,
+      22
+     ],
+     "who": [
+      [
+       "ensemble",
+       null
+      ]
+     ],
+     "layer": null,
+     "confidence": null,
+     "ids": [
+      "90411ba1-c1f0-4a99-b062-8341b80e9684"
+     ]
+    }
+   ],
+   "accept": {
+    "status": 200,
+    "rows": [
+     [
+      "live",
+      "ensemble",
+      null,
+      22
+     ]
+    ]
+   },
+   "dismiss": "nothing else proposed"
+  },
+  {
+   "line": "v08",
+   "said": "Bar one-twelve, everyone, crescendo through to one-sixteen.",
+   "expect": {
+    "bar_from": "112",
+    "bar_to": "116",
+    "audience": "ensemble",
+    "kind": "dynamic",
+    "expect": "cresc. 112\u2013116"
+   },
+   "status": "done",
+   "error": null,
+   "post_s": 0.97,
+   "seconds": 6.7,
+   "handler_s": 5.13,
+   "cost": 0.0037,
+   "transcript": "bar 112 everyone crescendo crescendo through 116",
+   "proposed": 0,
+   "unplaced": [],
+   "refused": [
+    "bar 112 is not in this book (bars 1\u201370)"
+   ],
+   "cards": []
+  }
+ ]
+}

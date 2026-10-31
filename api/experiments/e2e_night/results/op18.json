@@ -1,0 +1,511 @@
+{
+ "slug": "op18",
+ "fixture": "../web/public/fixtures/beethoven-op18no1-mv1.musicxml",
+ "score_id": "45de34e0-5e81-4f4a-a041-6b2c4c8da548",
+ "group": true,
+ "started_utc": "2026-10-31T09:23:21.597737+00:00",
+ "steps": [
+  {
+   "step": "import-request",
+   "at": "2026-10-31T02:23:23",
+   "seconds": 2.1,
+   "upload_s": 0.9,
+   "status": 200
+  },
+  {
+   "step": "reading",
+   "at": "2026-10-31T02:23:56",
+   "seconds": 35.0,
+   "status": "ready",
+   "failure": null,
+   "pages": 13,
+   "title": "String Quartet No. 1 in F Major, Op. 18, No. 1",
+   "key": "F major",
+   "meter": "3/4",
+   "questions": 0,
+   "cost": 0,
+   "job_errors": [],
+   "yoga": []
+  },
+  {
+   "step": "check",
+   "at": "2026-10-31T02:24:08",
+   "seconds": 2.0,
+   "measures": 313,
+   "parts": [
+    "Violin I",
+    "Violin II",
+    "Viola",
+    "Cello"
+   ],
+   "pages": 13,
+   "landmarks": 1,
+   "label_memory": 0,
+   "midi_part_tracks": 4,
+   "bar_map_missing": null
+  },
+  {
+   "step": "check",
+   "at": "2026-10-31T02:24:18",
+   "seconds": 1.6,
+   "measures": 313,
+   "parts": [
+    "Violin I",
+    "Violin II",
+    "Viola",
+    "Cello"
+   ],
+   "pages": 13,
+   "landmarks": 1,
+   "label_memory": 0,
+   "midi_part_tracks": 4,
+   "bar_map_missing": 0
+  },
+  {
+   "step": "cut:Cello:request",
+   "at": "2026-10-31T02:24:29",
+   "seconds": 3.2,
+   "job": "7b4c13ce-d508-4085-a41f-2654685ce7ef",
+   "kind": "part_split",
+   "status": "done",
+   "duplicate": {
+    "skipped": "done"
+   }
+  },
+  {
+   "step": "cut:Cello",
+   "at": "2026-10-31T02:24:29",
+   "seconds": 3.2,
+   "job": "7b4c13ce-d508-4085-a41f-2654685ce7ef",
+   "final": "done",
+   "result_keys": [
+    "bytes",
+    "instruments",
+    "note",
+    "seconds",
+    "source_id",
+    "storage_path"
+   ],
+   "error": null
+  },
+  {
+   "step": "cut:Violin I+Cello:request",
+   "at": "2026-10-31T02:24:33",
+   "seconds": 3.0,
+   "job": "13ee4d72-1281-4dd2-9392-fb1620adb7af",
+   "kind": "part_split",
+   "status": "done",
+   "duplicate": {
+    "skipped": "done"
+   }
+  },
+  {
+   "step": "cut:Violin I+Cello",
+   "at": "2026-10-31T02:24:33",
+   "seconds": 3.0,
+   "job": "13ee4d72-1281-4dd2-9392-fb1620adb7af",
+   "final": "done",
+   "result_keys": [
+    "bytes",
+    "instruments",
+    "note",
+    "seconds",
+    "source_id",
+    "storage_path"
+   ],
+   "error": null
+  },
+  {
+   "step": "cut:Violin I+Cello:request",
+   "at": "2026-10-31T02:24:36",
+   "seconds": 3.3,
+   "job": "5b3aafe3-efe9-4a80-bffc-9b601e972921",
+   "kind": "part_split",
+   "status": "done",
+   "duplicate": {
+    "skipped": "done"
+   }
+  },
+  {
+   "step": "cut:Violin I+Cello",
+   "at": "2026-10-31T02:24:36",
+   "seconds": 3.3,
+   "job": "5b3aafe3-efe9-4a80-bffc-9b601e972921",
+   "final": "done",
+   "result_keys": [
+    "bytes",
+    "instruments",
+    "note",
+    "seconds",
+    "source_id",
+    "storage_path"
+   ],
+   "error": null
+  },
+  {
+   "step": "voice:v03",
+   "at": "2026-10-31T02:25:28",
+   "seconds": 7.03,
+   "status": "done",
+   "handler_s": 5.26,
+   "cost": 0.0034,
+   "proposed": 1,
+   "cards": [
+    [
+     "bowing",
+     "Up bow at bar 12",
+     [
+      12,
+      12
+     ],
+     [
+      [
+       "part",
+       "Cello"
+      ]
+     ]
+    ]
+   ],
+   "unplaced": 0
+  },
+  {
+   "step": "voice:v12",
+   "at": "2026-10-31T02:25:36",
+   "seconds": 7.64,
+   "status": "done",
+   "handler_s": 6.01,
+   "cost": 0.0043,
+   "proposed": 1,
+   "cards": [
+    [
+     "text",
+     "Entry pickup to 34",
+     [
+      33,
+      34
+     ],
+     [
+      [
+       "part",
+       "Violin I"
+      ]
+     ]
+    ]
+   ],
+   "unplaced": 0
+  },
+  {
+   "step": "delete",
+   "at": "2026-10-31T03:11:41",
+   "seconds": 0.9,
+   "status": 204,
+   "content_range": "*/1",
+   "children_left": {
+    "jobs": 0,
+    "sources": 0,
+    "parts": 0,
+    "measures": 0,
+    "annotations": 0,
+    "interpretations": 0
+   },
+   "ledger_added": 0.8673
+  }
+ ],
+ "questions": [],
+ "jobs": {
+  "a509047e-09a8-4ce1-b7d9-db75cfd1ca26": {
+   "kind": "import_musicxml",
+   "created_at": "2026-10-31T09:23:23.234268+00:00",
+   "status": "done"
+  },
+  "7b4c13ce-d508-4085-a41f-2654685ce7ef": {
+   "kind": "part_split",
+   "created_at": "2026-10-31T09:24:27.509362+00:00"
+  },
+  "13ee4d72-1281-4dd2-9392-fb1620adb7af": {
+   "kind": "part_split",
+   "created_at": "2026-10-31T09:24:30.87166+00:00"
+  },
+  "5b3aafe3-efe9-4a80-bffc-9b601e972921": {
+   "kind": "part_split",
+   "created_at": "2026-10-31T09:24:34.534199+00:00"
+  }
+ },
+ "import": {
+  "source_id": "136dbb8b-bfa3-4cdd-a6a1-cb464fdde9b5",
+  "job_id": "a509047e-09a8-4ce1-b7d9-db75cfd1ca26",
+  "kind": "import_musicxml"
+ },
+ "t_import": 1793438601.407079,
+ "score": {
+  "id": "45de34e0-5e81-4f4a-a041-6b2c4c8da548",
+  "status": "ready",
+  "progress": 1,
+  "failure_reason": null,
+  "title": "String Quartet No. 1 in F Major, Op. 18, No. 1",
+  "composer": "Beethoven, Ludwig van",
+  "pages": 13,
+  "key_sig": "F major",
+  "meter": "3/4"
+ },
+ "check": {
+  "title": "String Quartet No. 1 in F Major, Op. 18, No. 1",
+  "composer": "Beethoven, Ludwig van",
+  "key": "F major",
+  "meter": "3/4",
+  "pages": 13,
+  "parts": [
+   "Violin I",
+   "Violin II",
+   "Viola",
+   "Cello"
+  ],
+  "measures": 313,
+  "bar_first": 1,
+  "bar_last": 313,
+  "landmarks": {
+   "n": 1,
+   "sample": [
+    {
+     "bar": 114,
+     "kind": "repeat",
+     "label": "end repeat",
+     "source": "musicxml",
+     "bar_after": 115
+    }
+   ],
+   "sources": [
+    "musicxml"
+   ]
+  },
+  "label_memory": {
+   "n": 0,
+   "raw": null
+  },
+  "bars_per_page": {},
+  "playback_row": {
+   "bars": 313,
+   "midi": "45de34e0-5e81-4f4a-a041-6b2c4c8da548/playback/score.mid",
+   "parts": [
+    "Violin I",
+    "Violin II",
+    "Viola",
+    "Cello"
+   ],
+   "bar_map": "45de34e0-5e81-4f4a-a041-6b2c4c8da548/playback/bars.json",
+   "made_at": "2026-10-31T09:23:32.471424+00:00",
+   "source_id": "136dbb8b-bfa3-4cdd-a6a1-cb464fdde9b5"
+  },
+  "midi_status": 200,
+  "bars_status": 200,
+  "midi_format": 1,
+  "midi_tracks": [
+   [
+    null,
+    0
+   ],
+   [
+    "Violin I",
+    1302
+   ],
+   [
+    "Violin II",
+    1026
+   ],
+   [
+    "Viola",
+    903
+   ],
+   [
+    "Cello",
+    783
+   ]
+  ],
+  "midi_part_tracks": 4,
+  "bars_json": {
+   "parts": [
+    "Violin I",
+    "Violin II",
+    "Viola",
+    "Cello"
+   ],
+   "n": 313,
+   "first": 1,
+   "last": 313,
+   "tempos": [
+    {
+     "bar": 1,
+     "at": 0.0,
+     "qpm": 132.0,
+     "bpm": 132.0,
+     "beat": "quarter",
+     "text": null,
+     "marked": true
+    }
+   ],
+   "meters": 1
+  },
+  "bar_map_missing": [],
+  "bar_map_missing_n": 0,
+  "bar_map_extra_n": 0,
+  "bar_map_extra": [],
+  "sources": [
+   [
+    "musicxml",
+    false,
+    false
+   ],
+   [
+    "engraving",
+    false,
+    false
+   ],
+   [
+    "engraving",
+    false,
+    false
+   ]
+  ]
+ },
+ "cut_label": "cut:Violin I+Cello",
+ "voice": [
+  {
+   "line": "v03",
+   "said": "Cellos, bar twelve, that's an up bow, up bow on the first note.",
+   "expect": {
+    "bar_from": "12",
+    "bar_to": "12",
+    "audience": "part:Cello",
+    "kind": "bowing",
+    "expect": "Up bow at bar 12"
+   },
+   "status": "done",
+   "error": null,
+   "post_s": 1.4,
+   "seconds": 7.03,
+   "handler_s": 5.26,
+   "cost": 0.0034,
+   "transcript": "Cellos bar twelve that's an up bow up bow on the first note.",
+   "proposed": 1,
+   "unplaced": [],
+   "refused": [],
+   "cards": [
+    {
+     "kind": "bowing",
+     "body": "Up bow at bar 12",
+     "bars": [
+      12,
+      12
+     ],
+     "payload_bars": [
+      12,
+      12
+     ],
+     "who": [
+      [
+       "part",
+       "Cello"
+      ]
+     ],
+     "layer": null,
+     "confidence": null,
+     "ids": [
+      "61c496e0-c96a-4b64-bf79-af2f6a2fdcfd"
+     ]
+    }
+   ],
+   "accept": {
+    "status": 200,
+    "rows": [
+     [
+      "live",
+      "part",
+      "Cello",
+      12
+     ]
+    ]
+   },
+   "dismiss": "nothing else proposed",
+   "players_see": {
+    "test1@muse.test": [],
+    "test2@muse.test": [
+     [
+      "live",
+      "part",
+      "Cello"
+     ]
+    ]
+   },
+   "dismissed_left": 0
+  },
+  {
+   "line": "v12",
+   "said": "Pickup to thirty-four, firsts, that's where you come in, nobody else.",
+   "expect": {
+    "bar_from": "33",
+    "bar_to": "34",
+    "audience": "part:Violin I",
+    "kind": "text",
+    "expect": "Entry at the pickup to 34"
+   },
+   "status": "done",
+   "error": null,
+   "post_s": 0.96,
+   "seconds": 7.64,
+   "handler_s": 6.01,
+   "cost": 0.0043,
+   "transcript": "Pick up to 34, first that's where you come in. Nobody else.",
+   "proposed": 1,
+   "unplaced": [],
+   "refused": [],
+   "cards": [
+    {
+     "kind": "text",
+     "body": "Entry pickup to 34",
+     "bars": [
+      33,
+      34
+     ],
+     "payload_bars": [
+      33,
+      34
+     ],
+     "who": [
+      [
+       "part",
+       "Violin I"
+      ]
+     ],
+     "layer": null,
+     "confidence": null,
+     "ids": [
+      "d1cc37cc-9653-4959-829f-a85d71890159"
+     ]
+    }
+   ],
+   "accept": {
+    "status": 200,
+    "rows": [
+     [
+      "live",
+      "part",
+      "Violin I",
+      33
+     ]
+    ]
+   },
+   "dismiss": "nothing else proposed",
+   "players_see": {
+    "test1@muse.test": [
+     [
+      "live",
+      "part",
+      "Violin I"
+     ]
+    ],
+    "test2@muse.test": []
+   },
+   "dismissed_left": 0
+  }
+ ]
+}
