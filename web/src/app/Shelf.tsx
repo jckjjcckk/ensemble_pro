@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { AnimatePresence, motion } from 'motion/react'
 import type { Score } from '../mock'
-import { apiFailure, convertToDigital } from '../lib/api'
+import { ApiError, apiFailure, convertToDigital } from '../lib/api'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './auth'
 import { MY_LIBRARY, importMusicXml, importPdf, isPdf, shareBook, unshareBook, type AskJob } from './data'
@@ -134,6 +134,8 @@ export default function Shelf() {
       world.reload()
     } catch (e) {
       setConverting(c => { const { [s.id]: _, ...rest } = c; return rest })
+      // Already converting (409 names the live job): the sheet shows that one; nothing to say.
+      if (e instanceof ApiError && e.status === 409 && e.live) { world.reload(); return }
       setConvertMsg(m => ({ ...m, [s.id]: apiFailure(e, 'Converting to Digital') }))
     }
   }
@@ -252,10 +254,13 @@ function BookCard({ score: s, state, share, selected, onOpen, owner }: {
   const reduced = useReducedMotion()
   const dot = dotOf(state)
   const shared = !owner && share.sharedWith.length > 0
+  // A split or conversion at work, in a line: what, then where it stands or that it waits.
+  const job = state.split ?? state.convert
+  const jobLine = job ? `${job.kind === 'part_cut' ? 'Splitting' : 'Converting'} · ${job.state === 'needs_review' ? 'needs you' : job.state === 'queued' ? (job.resuming ? 'resuming' : 'queued') : job.detail.charAt(0).toLowerCase() + job.detail.slice(1)}` : null
   const said = [
     s.composer, s.title, state.kinds.map(k => kindWord[k]).join(' and '),
     s.bars ? `${s.bars} bars` : '', owner ? `${owner === 'Yours' ? 'your book' : `from ${owner}`}` : '',
-    state.busy === 'converting' ? 'converting to Digital' : state.busy ? 'being read' : '',
+    state.busy === 'converting' ? 'converting to Digital' : state.busy ? 'being read' : '', jobLine ?? '',
     dot === 'ask' ? 'needs your confirmation' : dot === 'fail' ? `import failed: ${oneLine(state.failed ?? '')}` : '',
     shared ? 'shared with a group' : '',
   ].filter(Boolean).join(', ')
@@ -277,7 +282,8 @@ function BookCard({ score: s, state, share, selected, onOpen, owner }: {
         </span>
       </span>
       {dot === 'fail' && state.failed && <span className="card-fail">{oneLine(state.failed)}</span>}
-      {state.busy && !dot && <span className="card-ring" aria-hidden="true" />}
+      {jobLine && <span className="card-live" aria-hidden="true">{jobLine}</span>}
+      {(state.busy || job?.state === 'running' || job?.state === 'queued') && !dot && <span className="card-ring" aria-hidden="true" />}
       {dot && <span className={`card-dot is-${dot}`} aria-hidden="true" />}
     </motion.button>
   )

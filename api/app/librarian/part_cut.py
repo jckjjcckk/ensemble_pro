@@ -873,10 +873,24 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                        + (f"Remembered for the later pages: {'; '.join(out['remembered'])}. " if out.get("remembered") else "")
                        + "Continue with the next uncommitted system or finish.")
 
+    def phase() -> dict[str, int]:
+        """Where the cut stands, for the iPad (`result.phase`): the first page with a system left to commit (the last page
+        when all are), of how many, and the systems cut so far."""
+        def open_systems(n: int) -> bool:
+            read = sc["pages"].get(str(n))
+            return read is None or any(f"{n}:{s['index']}" not in sc["commits"] for s in read["geometry"]["systems"])
+        at = next((k for k, n in enumerate(pages) if open_systems(n)), len(pages) - 1)
+        return {"page": at + 1, "pages": len(pages), "systems_cut": sum(1 for v in sc["commits"].values() if v.get("key"))}
+
     def persist(d: dict[str, Any]) -> None:
         ctx.result["agent"] = d
-        ctx.db.table("jobs").update({"result": ctx.result}).eq("id", job.id).execute()
+        ph = ctx.result["phase"] = phase()
+        done = sum(1 for n in pages if not (sc["pages"].get(str(n)) is None or any(f"{n}:{s['index']}" not in sc["commits"] for s in sc["pages"][str(n)]["geometry"]["systems"])))
+        ctx.result["note"] = f"Page {ph['page']} of {ph['pages']}, {ph['systems_cut']} system{'s' if ph['systems_cut'] != 1 else ''} cut"
+        ctx.db.table("jobs").update({"result": ctx.result, "progress": round(0.95 * done / len(pages), 3)}).eq("id", job.id).execute()
 
+    if resumed:                          # the iPad shows the answered run working again at once, before the first turn
+        persist(state.to_dict())
     if sc["header"] is not None:        # a resumed run: the pages not read yet are read ahead again
         start_prereads()
     st = await run_agent(system=SYSTEM, tools=box, state=state, answer=answer_text, client=c, model=m, persist=persist, charge=ctx.charge,

@@ -2,11 +2,16 @@
 
 export const apiBase = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:8000'
 
+/** The job a 409 names when the work is already under way on the book (007: one live job of a kind per book). */
+export interface LiveRef { job_id?: string; kind?: string; status?: 'queued' | 'running' | 'needs_review' }
+
 export class ApiError extends Error {
   status: number
-  constructor(status: number, message: string) {
+  live?: LiveRef
+  constructor(status: number, message: string, live?: LiveRef) {
     super(message)
     this.status = status
+    this.live = live
   }
 }
 
@@ -28,6 +33,9 @@ async function request<T>(path: string, token: string, body?: unknown, method?: 
 /** A refused call as an `ApiError` carrying the API's own words (`detail`), else a plain sentence. */
 async function refusal(res: Response): Promise<ApiError> {
   const detail = (await res.json().catch(() => ({})))?.detail
+  if (detail && typeof detail === 'object' && typeof detail.message === 'string') {
+    return new ApiError(res.status, detail.message, detail.job_id ? { job_id: detail.job_id, kind: detail.kind, status: detail.status } : undefined)
+  }
   return new ApiError(res.status, typeof detail === 'string' ? detail : `The librarian could not do that just now (error ${res.status}). Try again in a moment.`)
 }
 

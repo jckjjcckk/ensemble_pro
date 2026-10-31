@@ -16,7 +16,7 @@ import { PartsPanel } from './Parts'
 import { ShareSheet } from './Groups'
 import { placeOf, IStand } from './layout'
 import { EASE_OUT } from './Sheet'
-import type { BookShare, BookState } from './book'
+import { liveWord, type BookShare, type BookState, type LiveJob } from './book'
 import { fmtDateTime, useStore } from './store'
 
 const kindWord = { pdf: 'PDF', digital: 'Digital' } as const
@@ -71,9 +71,11 @@ function Body({ score: s, state: st, share, onClose, onAsk, onConvert, convertMs
   const facts = [s.bars ? `${s.bars.toLocaleString('en')} bars` : null, parts_n > 1 ? `${parts_n} parts` : null, !digital && s.pages ? `${s.pages} ${s.pages === 1 ? 'page' : 'pages'}` : null].filter(Boolean).join(' · ')
   const canOpen = ready && (!!s.pageSource || !!s.engravings?.length || !!s.fixture)
   const openWhy = s.status === 'processing' ? 'Opens when the reading finishes' : s.status === 'failed' ? 'The pages could not be read' : s.status === 'ordering' ? 'The pages wait for their order' : 'Not read yet'
-  const canConvert = canEdit && st.hasPdf && !st.hasDigital && ready && !st.busy && !st.asking
+  const canConvert = canEdit && st.hasPdf && !st.hasDigital && ready && !st.busy && !st.asking && !st.convert
   const canSplit = !borrowed && canEdit && (!digital || (ready && parts_n > 1))
-  const convertTile = st.hasPdf && (st.hasDigital || canConvert || st.busy === 'converting')
+  // A live split or conversion stands where its action was (one at a time: CK, 2026-10-31).
+  const splitTile = !!st.split || canSplit
+  const convertTile = st.hasPdf && (st.hasDigital || canConvert || !!st.convert)
   const exportPath = digital ? s.sourcePath : s.transcriptionPath
   const sharedGroups = share.sharedWith.map(id => contextFor(id)?.ensemble.name).filter((n): n is string => !!n)
   const home = s.ensembleId !== MY_LIBRARY ? contextFor(s.ensembleId)?.ensemble.name : null
@@ -146,23 +148,27 @@ function Body({ score: s, state: st, share, onClose, onAsk, onConvert, convertMs
           </span>
           <IChev />
         </button>
-        {canSplit && (
+        {st.split ? (
+          <JobTile job={st.split} wide={!convertTile} canAnswer={canEdit} onOpen={() => (st.split!.ask && canEdit ? onAsk(st.split!.ask) : setParts(true))} />
+        ) : canSplit && (
           <button type="button" className={`bs-tile ${convertTile ? '' : 'is-wide'}`} onClick={() => setParts(true)} aria-haspopup="dialog">
             <ISplit />
             <span className="bs-tile-text"><b>Split by instrument</b><span>One book per part</span></span>
           </button>
         )}
         {st.hasPdf && (st.hasDigital ? (
-          <button type="button" className={`bs-tile ${canSplit ? '' : 'is-wide'}`} disabled={!st.digitalReady} onClick={() => go('digital')}>
+          <button type="button" className={`bs-tile ${splitTile ? '' : 'is-wide'}`} disabled={!st.digitalReady} onClick={() => go('digital')}>
             <IConvert />
             <span className="bs-tile-text"><b>Digital</b><span>{st.digitalReady ? 'Read the engraved pages' : 'Being prepared'}</span></span>
           </button>
-        ) : (canConvert || st.busy === 'converting') && (
-          <button type="button" className={`bs-tile ${canSplit ? '' : 'is-wide'} ${st.busy === 'converting' ? 'is-busy' : ''}`} disabled={!!st.busy} onClick={onConvert}>
+        ) : st.convert ? (
+          <JobTile job={st.convert} wide={!splitTile} canAnswer={canEdit} onOpen={() => { if (st.convert!.ask && canEdit) onAsk(st.convert!.ask) }} />
+        ) : canConvert && (
+          <button type="button" className={`bs-tile ${splitTile ? '' : 'is-wide'} ${st.busy === 'converting' ? 'is-busy' : ''}`} disabled={!!st.busy} onClick={onConvert}>
             {st.busy === 'converting' ? <span className="r3-ring" aria-hidden="true" /> : <IConvert />}
             <span className="bs-tile-text">
-              <b>{st.busy === 'converting' ? 'Digitalising in progress' : 'Convert to Digital'}</b>
-              <span>{st.busy === 'converting' ? 'The PDF stays open to read meanwhile' : s.pages ? `About ${convertMinutes(s.pages)} minutes for ${s.pages} ${s.pages === 1 ? 'page' : 'pages'}` : 'About a minute a page'}</span>
+              <b>{st.busy === 'converting' ? 'Converting to Digital' : 'Convert to Digital'}</b>
+              <span>{st.busy === 'converting' ? 'Starting' : s.pages ? `About ${convertMinutes(s.pages)} minutes for ${s.pages} ${s.pages === 1 ? 'page' : 'pages'}` : 'About a minute a page'}</span>
             </span>
           </button>
         ))}
@@ -226,7 +232,7 @@ function StateLine({ score: s, state: st, canEdit, borrowed, onAsk }: { score: S
         <span className="bs-state-text"><b>The librarian has a question</b>{st.question && <span>{st.question}</span>}</span>
         {st.ask && canEdit
           ? <button type="button" className="r3-btn is-solid" onClick={() => onAsk(st.ask!)}>Answer</button>
-          : <span className="bs-state-who">{borrowed ? 'Its owner answers it' : 'The admin answers it'}</span>}
+          : !canEdit && <span className="bs-state-who">{borrowed ? 'Its owner answers it' : 'The admin answers it'}</span>}
       </div>
     )
   }
@@ -257,6 +263,27 @@ function StateLine({ score: s, state: st, canEdit, borrowed, onAsk }: { score: S
     )
   }
   return null
+}
+
+/** A split or a conversion at work, in place of the action that started it: what it is doing, where it stands (from its
+ *  row over Realtime), and whether it waits for you. Waiting on a question, a tap answers it. */
+function JobTile({ job: j, wide, canAnswer, onOpen }: { job: LiveJob; wide: boolean; canAnswer: boolean; onOpen: () => void }) {
+  const word = liveWord(j, canAnswer)
+  const asks = j.state === 'needs_review'
+  return (
+    <button
+      type="button" className={`bs-tile is-job ${wide ? 'is-wide' : ''} ${asks ? 'is-ask' : ''}`} onClick={onOpen} aria-haspopup="dialog"
+      aria-label={`${j.what}. ${word}. ${j.detail}`}
+    >
+      {asks ? <span className="card-dot is-ask is-inline" aria-hidden="true" /> : <span className="r3-ring" aria-hidden="true" />}
+      <span className="bs-tile-text">
+        <b>{j.what}</b>
+        <span aria-live="polite">{j.detail}</span>
+      </span>
+      <span className={`bs-job-word ${asks ? 'is-ask' : ''}`}>{word}</span>
+      {j.state === 'running' && j.progress > 0 && <span className="bs-job-meter" aria-hidden="true"><span style={{ width: `${Math.round(Math.min(1, j.progress) * 100)}%` }} /></span>}
+    </button>
+  )
 }
 
 /** The (i): the book's housekeeping, which the sheet does not lead with. */

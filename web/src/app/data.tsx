@@ -64,6 +64,10 @@ export interface PartJob {
   pages?: number[]
   /** The handler's last progress note. */
   note?: string
+  /** Where the cut stands (008): the page it is on, of how many, and the systems cut so far. */
+  phase?: { page: number; pages: number; systemsCut: number }
+  /** This run answers a question (`payload.resume_from`): queued, it is resuming with the admin's answer. */
+  resumed: boolean
   /** The handler's log lines (what it read, what it cut) while it runs. */
   log: string[]
   error?: string
@@ -85,6 +89,9 @@ export interface BookJob {
   question?: string
   /** The typed question: `choose_staves` (011), or the reader's "which parts are on page N" (004). */
   questionPayload?: Record<string, unknown>
+  /** The handler's last progress note ("Read 2 of 4 pages"). */
+  note?: string
+  resumed: boolean
   createdAt: string
 }
 
@@ -126,6 +133,9 @@ export const partLabel = (instruments: string[]) => instruments.join(' & ')
 
 export const MY_LIBRARY = 'me'
 
+/** The engine of a split's own run (008); its interpretation rows are the split's, not the book's reading. */
+const PART_CUT_ENGINE = 'part-cut-agent'
+
 type Row = Record<string, any>
 
 const SIGN_SEC = 3600
@@ -142,12 +152,12 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
     supabase.from('profiles').select('display_name,email').eq('id', uid).maybeSingle(),
     // Narrow JSON paths: a job's result also holds the agent transcript, which nobody on the iPad reads.
     supabase.from('jobs')
-      .select('id,kind,status,progress,error,score_id,created_at,payload,note:result->>note,question:result->>question,question_payload:result->question_payload,source_id:result->>source_id,systems_cut:result->systems_cut,log:result->agent->scratch->log,agent_log:result->agent->log')
+      .select('id,kind,status,progress,error,score_id,created_at,payload,note:result->>note,phase:result->phase,question:result->>question,question_payload:result->question_payload,source_id:result->>source_id,systems_cut:result->systems_cut,log:result->agent->scratch->log,agent_log:result->agent->log')
       .eq('kind', 'part_cut').order('created_at'),
     supabase.from('sources').select('id,score_id,kind,storage_paths,page_order,meta,created_at').order('created_at'),
     supabase.from('interpretations').select('id,score_id,engine,status,created_at,header:params->state->header->instruments,summary_header:summary->header->instruments,summary_parts:summary->parts,summary_question:summary->>question,unreadable:summary->unreadable_pages').order('created_at'),
     supabase.from('jobs')
-      .select('id,kind,status,progress,error,score_id,created_at,payload,question:result->>question,question_payload:result->question_payload')
+      .select('id,kind,status,progress,error,score_id,created_at,payload,note:result->>note,question:result->>question,question_payload:result->question_payload')
       .neq('kind', 'part_cut').order('created_at'),
     // `*` so a stack without `join_code` yet still answers (the code then simply does not show).
     supabase.from('ensembles').select('*'),
@@ -233,7 +243,9 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
     const kinds: NonNullable<Score['kinds']> = []
     if (book === 'pdf' || pagesRow) kinds.push('pdf')
     if (book === 'digital' || transcriptionPath || (book === 'pdf' && firstPath(s))) kinds.push('digital')
-    const latest = interpRows.filter(r => r.score_id === s.id).pop()
+    // The book's own reading (004). A split's run (`part-cut-agent`) parks on its own question, which the split's job
+    // carries; its interpretation is not the book's, so it never makes the book "ask".
+    const latest = interpRows.filter(r => r.score_id === s.id && r.engine !== PART_CUT_ENGINE).pop()
     return {
       kinds,
       pageSource: pagesRow ? { kind: pagesRow.kind, paths: (pagesRow.storage_paths as string[]) ?? [], order: (pagesRow.page_order as number[] | null) ?? null } : undefined,
@@ -293,12 +305,17 @@ function partJobs(rows: Row[]): PartJob[] {
       return {
         id: r.id, scoreId: r.score_id, status, progress: Number(r.progress ?? 0),
         instruments: instrumentsOf(r.payload), pages: Array.isArray(r.payload?.pages) ? r.payload.pages : undefined,
-        note: r.note ?? undefined, log, error: r.error ?? (status === 'failed' && r.status === 'done' ? 'The split stopped before anything was made.' : undefined),
+        note: r.note ?? undefined, phase: phaseOf(r.phase), resumed: !!r.payload?.resume_from, log, error: r.error ?? (status === 'failed' && r.status === 'done' ? 'The split stopped before anything was made.' : undefined),
         question: parked ? r.question : undefined, questionPayload: parked ? q! : undefined,
         sourceId: r.source_id ?? undefined, systemsCut: r.systems_cut ?? undefined, createdAt: r.created_at,
       }
     })
     .reverse()
+}
+
+const phaseOf = (x: Row | null | undefined): PartJob['phase'] => {
+  const page = Number(x?.page), pages = Number(x?.pages)
+  return page > 0 && pages > 0 ? { page, pages, systemsCut: Number(x?.systems_cut) || 0 } : undefined
 }
 
 /** The other jobs on a book, chained the same way: a parked one is `needs_review` until a later job answers it. */
@@ -312,7 +329,8 @@ function chainedBookJobs(rows: Row[]): BookJob[] {
       return {
         id: r.id, scoreId: (r.score_id ?? r.payload?.score_id) as string, kind: r.kind, status: (parked ? 'needs_review' : r.status) as PartJobStatus, progress: Number(r.progress ?? 0),
         error: r.error ?? undefined, question: parked ? r.question : undefined,
-        questionPayload: parked ? (r.question_payload as Record<string, unknown> | null) ?? {} : undefined, createdAt: r.created_at,
+        questionPayload: parked ? (r.question_payload as Record<string, unknown> | null) ?? {} : undefined,
+        note: r.note ?? undefined, resumed: !!r.payload?.resume_from, createdAt: r.created_at,
       }
     })
     .reverse()
@@ -332,7 +350,7 @@ function flaggedOf(rows: Row[], scoreId: string): FlaggedBar[] | undefined {
 
 /** The pages the latest reading found no staves on (`summary.unreadable_pages`, 004). */
 function unreadableOf(rows: Row[], scoreId: string): { page: number; reason: string }[] | undefined {
-  const latest = rows.filter(r => r.score_id === scoreId).pop()
+  const latest = rows.filter(r => r.score_id === scoreId && r.engine !== PART_CUT_ENGINE).pop()
   const xs = Array.isArray(latest?.unreadable) ? latest!.unreadable : null
   return xs?.length ? xs.map((u: Row) => ({ page: Number(u.page), reason: String(u.reason ?? '') })) : undefined
 }

@@ -5,7 +5,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import type { Score } from '../mock'
-import { apiFailure, cutParts } from '../lib/api'
+import { ApiError, apiFailure, cutParts } from '../lib/api'
 import { useAuth } from './auth'
 import { exportName, exportStored, partLabel, type PartJob, type PartStrip } from './data'
 import { fmtDateTime, useStore } from './store'
@@ -71,6 +71,8 @@ function PickerForm({ score, onClose }: { score: Score; onClose: () => void }) {
       world.reload()
       onClose()
     } catch (e) {
+      // The same split is already under way (409 names it): show that one instead of a second.
+      if (e instanceof ApiError && e.status === 409 && e.live) { world.reload(); onClose(); return }
       setMsg(apiFailure(e, 'Splitting by instrument'))
     } finally {
       setBusy(false)
@@ -119,7 +121,7 @@ function PickerForm({ score, onClose }: { score: Score; onClose: () => void }) {
   )
 }
 
-const stateWord: Record<PartJob['status'], string> = { queued: 'Waiting', running: 'Splitting', needs_review: 'Needs you', done: 'Done', failed: 'Stopped' }
+const stateWord: Record<PartJob['status'], string> = { queued: 'Queued', running: 'Working', needs_review: 'Waiting for you', done: 'Done', failed: 'Stopped' }
 
 /** A finished split. PDF: its strip of systems. Digital: read it with only these instruments, or export it. */
 function SplitRow({ score, split, twins }: { score: Score; split: PartStrip; twins: boolean }) {
@@ -178,6 +180,8 @@ export function PartsPanel({ score }: { score: Score }) {
   const asked = jobs.find(j => j.id === answering && j.status === 'needs_review') ?? null
   // A digital book can be split once it is read and has more than one instrument; a PDF book's cut works from the pages.
   const canSplit = canEdit && (!digital || (score.status === 'ready' && score.partIds.length > 1))
+  // One split at a time (CK, 2026-10-31): while one works or waits on a question, it stands in place of the action.
+  const working = jobs.find(j => j.status === 'queued' || j.status === 'running' || j.status === 'needs_review')
   if (!canSplit && !strips.length && !jobs.length) return null
 
   return (
@@ -203,14 +207,17 @@ export function PartsPanel({ score }: { score: Score }) {
                   </span>
                 )}
                 {j.status === 'failed' && <IWarning size={15} />}
-                {stateWord[j.status]}
+                {j.status === 'queued' && j.resumed ? 'Resuming' : stateWord[j.status]}
               </span>
+              {j.status === 'running' && j.phase && (
+                <span className="pt-note num">Page {j.phase.page} of {j.phase.pages} · {j.phase.systemsCut} {j.phase.systemsCut === 1 ? 'system' : 'systems'} cut</span>
+              )}
               {j.status === 'running' && (j.log.length > 0 || j.note) && (
                 <ul className="pt-log" aria-label="What the librarian did">
                   {(j.log.length ? j.log.slice(-3) : [j.note!]).map((line, i) => <li key={i}>{line}</li>)}
                 </ul>
               )}
-              {j.status === 'queued' && <span className="pt-note">Waiting for the librarian{j.pages ? `, ${j.pages.length} pages` : ''}.</span>}
+              {j.status === 'queued' && <span className="pt-note">{j.resumed ? 'Your answer is in. Picking up from it.' : `Starting${j.pages ? `, ${j.pages.length} pages` : ''}.`}</span>}
               {j.status === 'failed' && <span className="pt-fail">{j.error ?? 'The split stopped.'}</span>}
               {j.status === 'needs_review' && (
                 <div className="pt-q">
@@ -224,7 +231,8 @@ export function PartsPanel({ score }: { score: Score }) {
       )}
       {canSplit && (
         <div className="pt-actions">
-          <button type="button" className="btn btn-line" onClick={() => setPicking(true)}><IParts size={18} />Split by instrument</button>
+          <button type="button" className="btn btn-line" disabled={!!working} onClick={() => setPicking(true)}><IParts size={18} />Split by instrument</button>
+          {working && <span className="pt-note">One split at a time. {partLabel(working.instruments)} {working.status === 'needs_review' ? 'waits for your answer' : 'is under way'}.</span>}
         </div>
       )}
       {canEdit && <PartPicker score={score} open={picking} onClose={() => setPicking(false)} />}

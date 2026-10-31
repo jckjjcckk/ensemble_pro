@@ -160,6 +160,10 @@ async def test_happy_path_three_pages():
     assert len(db.rows["measure_placements"]) == 6
     assert len(t.calls) == 2 + 3 * 4 + 1 and len(ctx.charges) == len(t.calls)   # every call charged
     assert ctx.result["agent"]["status"] == "done"
+    # the row the iPad watches said where the cut stood on every turn: page 3 of 3 and three systems at the end
+    assert ctx.result["phase"] == {"page": 3, "pages": 3, "systems_cut": 3}
+    progress = [op[2]["progress"] for op in db.ops if op[0] == "jobs" and op[1] == "update" and "progress" in op[2]]
+    assert progress == sorted(progress) and progress[0] == 0 and 0.95 in progress and progress[-1] == 1.0
 
 
 @pytest.mark.asyncio

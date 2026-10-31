@@ -4,7 +4,25 @@
  *  book (`needs_review`), or the reading run's interpretation marked `needs_review`. Failed: the read stopped, or the
  *  last conversion did and no transcription exists. A book carries one status dot at most: question over failure. */
 import type { BookKind, Score } from '../mock'
-import type { AskJob, BookJob, PartJob, ScoreShare } from './data'
+import { partLabel, type AskJob, type BookJob, type PartJob, type ScoreShare } from './data'
+
+/** A job working on the book that the sheet and the card show in place of the action that started it (CK, 2026-10-31:
+ *  one at a time, never a duplicate): a split by instrument or a conversion to Digital, from its row over Realtime. */
+export interface LiveJob {
+  id: string
+  kind: 'part_cut' | 'omr_convert'
+  /** queued (or resuming with an answer), working, or parked on a question. */
+  state: 'queued' | 'running' | 'needs_review'
+  /** Queued with the admin's answer: the question is answered and the run picks up from it. */
+  resuming: boolean
+  /** "Splitting out the Pianoforte", "Converting to Digital". */
+  what: string
+  /** Where it stands: "Page 2 of 4 · 3 systems cut", the handler's own note, or the question. */
+  detail: string
+  progress: number
+  /** The question to answer, when it is parked on one. */
+  ask: AskJob | null
+}
 
 export interface BookState {
   busy: 'reading' | 'converting' | null
@@ -20,6 +38,9 @@ export interface BookState {
   hasDigital: boolean
   /** Digital can be opened now: read, and a file to engrave. */
   digitalReady: boolean
+  /** The book's live split by instrument and live conversion, if any. */
+  split: LiveJob | null
+  convert: LiveJob | null
 }
 
 const active = (j: { status: string }) => j.status === 'queued' || j.status === 'running'
@@ -32,7 +53,10 @@ export function bookState(s: Score, bookJobs: BookJob[], partJobs: PartJob[]): B
   const hasDigital = kinds.includes('digital')
   const parked = [...mine, ...partJobs.filter(j => j.scoreId === s.id)].find(j => j.status === 'needs_review' && j.question)
   const ask: AskJob | null = parked ? { id: parked.id, scoreId: parked.scoreId, kind: 'kind' in parked ? parked.kind : 'part_cut', question: parked.question, questionPayload: parked.questionPayload } : null
-  const asking = !!ask || !!s.review
+  // A reading parked on a question keeps its interpretation `needs_review` until the resumed run picks it up; once a
+  // later job carries the answer (queued or running), the book is no longer asking.
+  const readingResumes = mine.some(j => j.kind === 'process_pages' && active(j))
+  const asking = !!ask || (!!s.review && !readingResumes)
   // A read parked on a question stays `processing` with its interpretation `needs_review`: that is waiting, not busy.
   const busy = s.status === 'processing' && !asking ? 'reading' : convert.some(active) ? 'converting' : null
   const lastConvert = convert[0]
@@ -44,7 +68,47 @@ export function bookState(s: Score, bookJobs: BookJob[], partJobs: PartJob[]): B
   return {
     busy, ask, asking, question: ask?.question ?? s.review?.question ?? null, failed, kinds, hasPdf, hasDigital,
     digitalReady: hasDigital && s.status === 'ready' && !!s.fixture,
+    split: liveSplit(partJobs.filter(j => j.scoreId === s.id)),
+    convert: liveConvert(convert[0]),
   }
+}
+
+const live = (j: { status: string }) => j.status === 'queued' || j.status === 'running' || j.status === 'needs_review'
+const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`
+
+/** The newest split still working or waiting on a question. */
+function liveSplit(jobs: PartJob[]): LiveJob | null {
+  const j = jobs.find(live)
+  if (!j) return null
+  const state = j.status as LiveJob['state']
+  const detail = state === 'needs_review'
+    ? (j.question?.split('?')[0] ?? 'A question about the staves') + '?'
+    : state === 'queued'
+      ? (j.resumed ? 'Picking up with your answer' : 'Starting')
+      : j.phase
+        ? `Page ${j.phase.page} of ${j.phase.pages} · ${plural(j.phase.systemsCut, 'system')} cut`
+        : j.note ?? 'Reading the first page'
+  return {
+    id: j.id, kind: 'part_cut', state, resuming: state === 'queued' && j.resumed, what: `Splitting out ${partLabel(j.instruments)}`, detail,
+    progress: j.progress, ask: state === 'needs_review' ? { id: j.id, scoreId: j.scoreId, kind: 'part_cut', question: j.question, questionPayload: j.questionPayload } : null,
+  }
+}
+
+function liveConvert(j: BookJob | undefined): LiveJob | null {
+  if (!j || !live(j)) return null
+  const state = j.status as LiveJob['state']
+  return {
+    id: j.id, kind: 'omr_convert', state, resuming: state === 'queued' && j.resumed, what: 'Converting to Digital',
+    detail: state === 'needs_review' ? j.question ?? 'A question' : state === 'queued' ? 'Starting' : j.note ?? 'Working',
+    progress: j.progress, ask: state === 'needs_review' ? { id: j.id, scoreId: j.scoreId, kind: j.kind, question: j.question, questionPayload: j.questionPayload } : null,
+  }
+}
+
+/** What a live job is doing, in a word, for whoever reads it. */
+export function liveWord(j: LiveJob, canAnswer: boolean): string {
+  if (j.state === 'needs_review') return canAnswer ? 'Waiting for you' : 'Waiting for the admin'
+  if (j.state === 'queued') return j.resuming ? 'Resuming' : 'Queued'
+  return 'Working'
 }
 
 /** The status dot's colour, or none when the book is fine. */
