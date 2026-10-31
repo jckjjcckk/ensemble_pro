@@ -218,3 +218,28 @@ async def test_the_signature_and_the_header_are_read_at_once():
     summary = db.rows["interpretations"][0]["summary"]
     assert summary["key_sig"] == "F# minor" and summary["header"]["expected_staves"] == 6
     assert summary["log"][0].startswith("Page 1, first system: F# minor") and summary["log"][1].startswith("Page 1, score header: 6 staves")
+
+
+def test_a_comma_joined_answer_keeps_a_part_whose_name_has_a_comma():
+    """The iPad joins the chosen names with ", " (StaffQuestion.tsx); a name the question offered that holds a comma
+    stays one part (E2E night, PC5 p4: "Timpani in Es, B" became "Timpani in Es" and "B")."""
+    offered = ["Oboi I II", "Timpani in Es, B", "Violino I", "Flute I, II", "Viola"]
+    said = "Oboi I II, Timpani in Es, B, Violino I"
+    assert pp.parse_answer(said, offered) == ["Oboi I II", "Timpani in Es, B", "Violino I"]
+    assert pp.parse_answer("Flute I, II, Viola", offered) == ["Flute I, II", "Viola"]
+    assert pp.parse_answer(said) == ["Oboi I II", "Timpani in Es", "B", "Violino I"]          # nothing offered: commas split
+    assert pp.parse_answer(["Timpani in Es, B", "Violino I"], offered) == ["Timpani in Es, B", "Violino I"]   # a list is exact
+    assert pp.parse_answer("Piano, Violin 1", ["Piano"]) == ["Piano", "Violin I"]
+
+
+async def test_the_resumed_page_reads_the_answer_against_the_offered_names():
+    job, db, pages = world(5)
+    script = [labels(), labels(), labels("Viola, Cello", "p3"), labels(brief="p4"), labels(brief="p5")]
+    ctx = WaveCtx(job, db, pages, labels=script, order=[0, 2, 3, 4, 1])
+    c, _ = fake_client([sig(), HEADER])
+    out = await process_pages(job, ctx, client=c, model="muse-spark-1.3")
+    assert "Which parts are on page 3" in out["question"]
+    job2, _, _ = world(5, "job2", {"answer": "Flute, Oboe, Horn, Piano, Viola, Cello"}, db=db)
+    out2 = await process_pages(job2, WaveCtx(job2, db, pages, labels=[]), client=fake_client([])[0], model="muse-spark-1.3")
+    assert not out2.get("question")
+    assert state_of(db)["pages"]["3"]["parts"][0]["parts"] == ["Flute", "Oboe", "Horn", "Piano", "Viola, Cello"]

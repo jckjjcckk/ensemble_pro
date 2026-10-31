@@ -128,7 +128,8 @@ function PartsBody({ job, q, score, onClose }: { job: AskJob; q: PageParts; scor
     if (!session || !names.length) return
     setBusy(true); setMsg(null)
     try {
-      await answerJob(job.id, { answer: names.join(', ') }, session.access_token)
+      // The names as a list: one may hold a comma ("Timpani in Es, B"), and a joined string split it into two parts.
+      await answerJob(job.id, { answer: names }, session.access_token)
       world.reload()
       onClose()
     } catch (e) {

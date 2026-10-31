@@ -80,13 +80,32 @@ def page_paths(score_id: str, src: dict[str, Any]) -> list[str]:
     return out
 
 
-def parse_answer(answer: Any) -> list[str]:
+def parse_answer(answer: Any, names: list[str] | None = None) -> list[str]:
+    """The admin's parts, top to bottom. A list is taken as it is. A string is split on commas and semicolons, but a run
+    of pieces that together spell a name the question offered (`names`: the parts read so far, Spark's for that page,
+    the header's) stays one part: the iPad joins the chosen names with ", ", and "Timpani in Es, B" or "Flute I, II" is
+    one part, not two (E2E night 2026-10-31, PC5 p4: the answer made "Timpani in Es" and "B" two parts)."""
     if answer is None:
         return []
     if isinstance(answer, dict):
         answer = answer.get("parts") or answer.get("answer") or []
     if isinstance(answer, str):
-        answer = [a for a in answer.replace(";", ",").split(",")]
+        pieces = [a.strip() for a in answer.replace(";", ",").split(",")]
+        known = {canon_part(n).casefold(): canon_part(n) for n in names or [] if str(n).strip()}
+        longest = max((n.count(",") for n in known.values()), default=0)
+        out: list[str] = []
+        i = 0
+        while i < len(pieces):
+            for k in range(min(longest, len(pieces) - 1 - i), 0, -1):
+                joined = canon_part(", ".join(pieces[i:i + k + 1])).casefold()
+                if joined in known:
+                    out.append(known[joined])
+                    i += k + 1
+                    break
+            else:
+                out.append(pieces[i])
+                i += 1
+        answer = out
     return [canon_part(a) for a in answer if str(a).strip()]
 
 
@@ -168,7 +187,8 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
     t0 = time.time()
     score_id = job.payload["score_id"]
     source_id = job.payload.get("source_id")
-    answer = parse_answer(job.payload.get("answer"))
+    raw_answer = job.payload.get("answer")
+    answer = parse_answer(raw_answer)
 
     q = ctx.db.table("sources").select("*").eq("score_id", score_id)
     q = q.eq("id", source_id) if source_id else q.order("created_at", desc=True)
@@ -201,6 +221,10 @@ async def process_pages(job: Job, ctx: JobContext, *, client: AsyncAnthropic | N
         page_q = str(question.get("page", ""))
         if page_q and page_q in state.get("pages", {}):
             page = state["pages"][page_q]
+            offered = list(state.get("known_parts") or []) + header_names(state.get("header"))
+            for sy in page["geometry"]["systems"]:
+                offered += PageLabels.from_dict(page["labels"]).parts_for_system(sy["index"])[0]
+            answer = parse_answer(raw_answer, offered)
             page["parts"] = apply_answer(page["geometry"]["systems"], answer)
             page["ambiguous"] = None
             page["answered"] = True
