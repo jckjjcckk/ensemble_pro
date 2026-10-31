@@ -433,3 +433,43 @@
 {"ts": "2026-10-30T12:21:10", "kind": "stream_eval", "id": "v26", "usd": 0.002459, "secs": 2.21, "input_tokens": 1773, "cached_tokens": 1649, "output_tokens": 484, "reasoning_tokens": 327, "model": "muse-spark-1.3", "effort": "minimal", "api": "chat"}
 {"ts": "2026-10-30T12:21:49", "kind": "stream_eval", "id": "n10", "usd": 0.002324, "secs": 2.08, "input_tokens": 1773, "cached_tokens": 1521, "output_tokens": 419, "reasoning_tokens": 250, "model": "muse-spark-1.3", "effort": "minimal", "api": "chat"}
 {"ts": "2026-10-30T12:21:51", "kind": "stream_eval", "id": "v07c", "usd": 0.004447, "secs": 3.9, "input_tokens": 1783, "cached_tokens": 1009, "output_tokens": 783, "reasoning_tokens": 696, "model": "muse-spark-1.3", "effort": "minimal", "api": "chat"}
+{"ts": "2026-10-30T20:41:27", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.00045, "secs": 9.26}
+{"ts": "2026-10-30T20:41:29", "kind": "asr_batch:DIARIZATION", "id": "v02", "usd": 0.00045, "secs": 2.62}
+{"ts": "2026-10-30T20:41:30", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.00045, "secs": 9.26}
+{"ts": "2026-10-30T20:41:31", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.0003, "secs": 6.4}
+{"ts": "2026-10-30T20:41:33", "kind": "asr_batch:DIARIZATION", "id": "v08", "usd": 0.0003, "secs": 1.69}
+{"ts": "2026-10-30T20:41:34", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.0003, "secs": 6.4}
+{"ts": "2026-10-30T20:41:35", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.0003, "secs": 6.23}
+{"ts": "2026-10-30T20:41:37", "kind": "asr_batch:DIARIZATION", "id": "v11", "usd": 0.0003, "secs": 1.57}
+{"ts": "2026-10-30T20:41:38", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.0003, "secs": 6.23}
+{"ts": "2026-10-30T20:41:39", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.00025, "secs": 5.55}
+{"ts": "2026-10-30T20:41:40", "kind": "asr_batch:DIARIZATION", "id": "v15", "usd": 0.00025, "secs": 1.21}
+{"ts": "2026-10-30T20:41:41", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.00025, "secs": 5.55}
+{"ts": "2026-10-30T20:41:42", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.00045, "secs": 9.24}
+{"ts": "2026-10-30T20:41:44", "kind": "asr_batch:DIARIZATION", "id": "v21", "usd": 0.00045, "secs": 2.31}
+{"ts": "2026-10-30T20:41:45", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.00045, "secs": 9.24}
+{"ts": "2026-10-30T20:44:24", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.00045, "secs": 9.26}
+{"ts": "2026-10-30T20:44:25", "kind": "asr_batch:DIARIZATION", "id": "v02", "usd": 0.00045, "secs": 1.76}
+{"ts": "2026-10-30T20:44:28", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.00045, "secs": 9.26}
+{"ts": "2026-10-30T20:44:29", "kind": "e5", "id": "v02", "usd": 0.003436, "secs": 1.47, "input_tokens": 1940, "cached_tokens": 0, "output_tokens": 238, "reasoning_tokens": 150, "model": "muse-spark-1.3", "effort": "minimal", "api": "chat"}
+{"ts": "2026-10-30T20:44:29", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.0003, "secs": 6.4}
+{"ts": "2026-10-30T20:44:31", "kind": "asr_batch:DIARIZATION", "id": "v08", "usd": 0.0003, "secs": 1.36}
+{"ts": "2026-10-30T20:44:32", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.0003, "secs": 6.4}
+{"ts": "2026-10-30T20:44:34", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.0003, "secs": 6.23}
+{"ts": "2026-10-30T20:44:34", "kind": "e5", "id": "v08", "usd": 0.003222, "secs": 2.33, "input_tokens": 1925, "cached_tokens": 0, "output_tokens": 192, "reasoning_tokens": 119, "model": "muse-spark-1.3", "effort": "minimal", "api": "chat"}
+{"ts": "2026-10-30T20:44:35", "kind": "asr_batch:DIARIZATION", "id": "v11", "usd": 0.0003, "secs": 1.33}
+{"ts": "2026-10-30T20:44:37", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.0003, "secs": 6.23}
+{"ts": "2026-10-30T20:44:38", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.00025, "secs": 5.55}
+{"ts": "2026-10-30T20:44:39", "kind": "asr_batch:DIARIZATION", "id": "v15", "usd": 0.00025, "secs": 1.33}
+{"ts": "2026-10-30T20:44:41", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.00025, "secs": 5.55}
+{"ts": "2026-10-30T20:44:42", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.00045, "secs": 9.24}
+{"ts": "2026-10-30T20:44:44", "kind": "asr_batch:DIARIZATION", "id": "v21", "usd": 0.00045, "secs": 1.52}
+{"ts": "2026-10-30T20:44:46", "kind": "e5", "id": "v11", "usd": 0.004053, "secs": 2.82, "input_tokens": 1927, "cached_tokens": 0, "output_tokens": 387, "reasoning_tokens": 310, "model": "muse-spark-1.3", "effort": "minimal", "api": "chat"}
+{"ts": "2026-10-30T20:44:46", "kind": "asr_rt_blast:PUSH_TO_TALK", "usd": 0.00045, "secs": 9.24}
+{"ts": "2026-10-30T20:45:00", "kind": "e5", "id": "v15", "usd": 0.003392, "secs": 1.74, "input_tokens": 1925, "cached_tokens": 0, "output_tokens": 232, "reasoning_tokens": 158, "model": "muse-spark-1.3", "effort": "minimal", "api": "chat"}
+{"ts": "2026-10-30T20:45:06", "kind": "e5", "id": "v21", "usd": 0.003569, "secs": 1.81, "input_tokens": 1930, "cached_tokens": 0, "output_tokens": 272, "reasoning_tokens": 124, "model": "muse-spark-1.3", "effort": "minimal", "api": "chat"}
+{"ts": "2026-10-30T20:45:12", "kind": "e5", "id": "v02", "usd": 0.003295, "secs": 1.28, "input_tokens": 1939, "cached_tokens": 0, "output_tokens": 205, "reasoning_tokens": 118, "model": "muse-spark-1.3", "effort": "minimal", "api": "chat"}
+{"ts": "2026-10-30T20:45:16", "kind": "e5", "id": "v08", "usd": 0.00292, "secs": 1.04, "input_tokens": 1925, "cached_tokens": 0, "output_tokens": 121, "reasoning_tokens": 50, "model": "muse-spark-1.3", "effort": "minimal", "api": "chat"}
+{"ts": "2026-10-30T20:45:28", "kind": "e5", "id": "v11", "usd": 0.003855, "secs": 2.1, "input_tokens": 1928, "cached_tokens": 0, "output_tokens": 340, "reasoning_tokens": 261, "model": "muse-spark-1.3", "effort": "minimal", "api": "chat"}
+{"ts": "2026-10-30T20:45:43", "kind": "e5", "id": "v15", "usd": 0.003189, "secs": 5.47, "input_tokens": 1925, "cached_tokens": 1777, "output_tokens": 644, "reasoning_tokens": 570, "model": "muse-spark-1.3", "effort": "minimal", "api": "chat"}
+{"ts": "2026-10-30T20:45:49", "kind": "e5", "id": "v21", "usd": 0.004091, "secs": 2.23, "input_tokens": 1933, "cached_tokens": 0, "output_tokens": 394, "reasoning_tokens": 240, "model": "muse-spark-1.3", "effort": "minimal", "api": "chat"}
