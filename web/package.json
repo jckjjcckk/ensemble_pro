@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "build:hosted": "./scripts/build-hosted.sh",
     "build:ios": "./scripts/build-ios.sh",
-    "deploy:web": "./scripts/deploy-web.sh"
+    "deploy:web": "./scripts/deploy-web.sh",
+    "test": "node --test tests/"
   },
   "dependencies": {
     "@capacitor/camera": "^8.2.6",

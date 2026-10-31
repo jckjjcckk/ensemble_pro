@@ -6,7 +6,7 @@
  *  invented touch logic). Motion tracks the finger and its velocity; `turnFromDrag` only reads its result on release. */
 import { useRef, type PointerEvent, type RefObject } from 'react'
 import type { PanInfo } from 'motion/react'
-import type { Geo } from './geometry'
+import { barAtPoint, type Geo } from './geometry'
 
 const HOLD_MS = 500
 /** A flick: released faster than this (px/s) turns whatever the distance. */
@@ -33,13 +33,7 @@ export function useStageGestures({ geo, stageRef, onBarTap, onEmptyTap, onBarHol
   const barAt = (clientX: number, clientY: number): number | null => {
     if (!geo || !stageRef.current) return null
     const r = stageRef.current.getBoundingClientRect()
-    const x = clientX - r.left
-    const y = clientY - r.top
-    for (const b of geo.bars.values()) {
-      const pad = Math.max(10, b.h * 0.35)
-      if (x >= b.x && x <= b.x + b.w && y >= b.y - pad && y <= b.y + b.h + pad) return b.bar
-    }
-    return null
+    return barAtPoint(geo.bars.values(), clientX - r.left, clientY - r.top)
   }
 
   const gesture = useRef<{ x: number; y: number; hold?: number; done: boolean } | null>(null)

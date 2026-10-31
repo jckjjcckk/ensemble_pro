@@ -95,6 +95,23 @@ export function measureGeo(osmd: OpenSheetMusicDisplay, stage: HTMLElement, page
   return { ...model, pages, bars }
 }
 
+/** The bar under a point, in the boxes' own coordinates. A box that holds the point wins; between two that do (neighbours
+ *  share a barline's width) the one the point is deeper inside. A point just outside every box (a stem, a slur, a dynamic
+ *  above or below the staves) takes the nearest box above or below it within a reach of a third of that box's height,
+ *  at least 10 px and at most 48 px. Nearest, never first found: an orchestral system is half a page tall, and a reach
+ *  scaled to it once took the next system's box over the system the finger was on (CK, 2026-10-31, Rach 2 p. 2). */
+export function barAtPoint(bars: Iterable<Rect & { bar: number }>, x: number, y: number): number | null {
+  let best: { bar: number; d: number; depth: number } | null = null
+  for (const b of bars) {
+    if (x < b.x || x > b.x + b.w) continue
+    const d = y < b.y ? b.y - y : y > b.y + b.h ? y - (b.y + b.h) : 0
+    if (d > Math.min(48, Math.max(10, b.h / 3))) continue
+    const depth = Math.min(x - b.x, b.x + b.w - x)
+    if (!best || d < best.d || (d === best.d && depth > best.depth)) best = { bar: b.bar, d, depth }
+  }
+  return best?.bar ?? null
+}
+
 /** Group consecutive bars of a span into one rectangle per system line. */
 export function spanRects(geo: Geo, from: number, to: number): (Rect & { first: number; last: number })[] {
   const out: (Rect & { first: number; last: number; sys: number })[] = []
