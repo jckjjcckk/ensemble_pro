@@ -57,6 +57,8 @@ Web:
   (12 notes A1–C7, every 6 semitones) and strings (cello C2, G2, D3 + violin G3, E4, C5, G5, E6), MP3 from the npm
   packages `tonejs-instrument-{piano,cello,violin}-mp3` 1.1.x (MIT per their package.json; the samples come from
   nbrosowsky/tonejs-instruments). Keyboards sound as piano; strings, voices, winds and brass as sustained strings.
+  `web/src/app/sounds.ts` names the files and resolves them against the build's base; `player.ts` fetches and decodes
+  them itself (not Tone's loader, see below), once per session, and a lane gets its sampler only from decoded buffers.
 - `web/src/app/PlayParts.tsx` + `play.css`: the panel at the foot of the Stand, opened from the "…" menu ("Play the
   parts", a checkbox item) or by **Loop from here** on a bar (which now opens the player on that passage, the
   passage's length kept, else 4 bars, looping, instead of going to the practice mock). Graphite instrument surface in
@@ -79,10 +81,27 @@ Web:
   other three sounded; + to 85 % changed the tempo to 112.2 at once; Loop off stops after bar 26; Loop from here on bar
   7 gave 7–14 looping. AudioContext `running`; no console errors. Screenshots in the session scratchpad.
 
+## Fixed (2026-10-31): no instruments in the Capacitor shell
+
+CK on the iPad (and the iPad Air simulator): "The sound could not start on this device", then the count-in clicks and
+the rolling bar with no instrument. Measured in the shell's WKWebView (capacitor://localhost, iPad Air 11 M3 simulator
+on iOS 18.6, in-page logging): `fetch('capacitor://localhost/sounds/strings/cello-C2.mp3')` answers status 0, ok
+false, no headers (content-type null), with the whole file (93,306 bytes) as the body, which `decodeAudioData` decodes
+(3.89 s). Capacitor's iOS asset handler answers media extensions (.mp3, .m4a, .wav ...) with a plain URLResponse
+rather than an HTTP one (`WebViewAssetHandler.swift`, `isMediaExtension`), and Tone's `ToneAudioBuffer.load` throws on
+`!response.ok` ("could not load url"). So every sample failed; the failed buffers were kept, the second Play built
+samplers on them, the click synth (no samples) sounded and each note threw "buffer is either not set or not loaded".
+Fix: our own loader accepts status 0 with bytes (`sampleArrived`), decodes on Tone's context, forgets a failure, and
+leaves the player idle on one; the panel names the file ("The strings sound did not load: sounds/strings/cello-G2.mp3,
+not reachable (Load failed). Tap Play to try again."). Simulator after the fix: both samplers `loaded`, 20 buffers
+2.5–17.9 s, 16 of 16 notes triggered through them, no errors; one sample removed from the bundle gives that message
+and no clicks. `tests/sounds.test.ts` covers the URL and the arrival rule.
+
 ## Not verified
 
 - Real iPad Safari: the audio unlock in the tap, the silent switch (`audioSession`), sample decoding memory, touch on
-  the sliders. Device audio latency (the bar highlight does not compensate output latency). The Capacitor shell.
+  the sliders. Device audio latency (the bar highlight does not compensate output latency). The Capacitor shell on the
+  device (the simulator loads and triggers the samples; nobody has heard them yet).
 - What it sounds like: checked by the transport, the scheduled notes and the AudioContext, not by ear (the pane was
   hidden, so its rAF and timers were throttled; bar timing there was jittery, the average was right).
 - Convert to Digital end to end with a real PDF (the step is covered by `test_omr_convert`; no live convert was run).

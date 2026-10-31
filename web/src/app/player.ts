@@ -8,10 +8,12 @@
  *  start bar (clicks, the first one higher), then the chosen bars shifted to follow it. The transport's tempo is the
  *  printed tempo times the pace, so a pace change lands within a beat and tempo changes in the score still apply. A loop
  *  jumps back to the range start, after the count-in, so the count-in sounds once. A part that is off skips its notes;
- *  each part has its own gain. Tone and the samples (web/public/sounds, ~4.4 MB, two instruments) load on the first play. */
+ *  each part has its own gain. Tone and the samples (web/public/sounds, ~4.4 MB, two instruments) load on the first play,
+ *  fetched and decoded here rather than by Tone's loader (see `sampleArrived`), and kept for the session. */
 import type * as ToneNS from 'tone'
 import { supabase } from '../lib/supabase'
 import type { Playback } from '../mock'
+import { SAMPLES, SampleError, fetchFault, sampleArrived, samplePath, sampleUrl, voiceFor, type Voice } from './sounds'
 
 type Tone = typeof ToneNS
 
@@ -87,18 +89,40 @@ export async function loadBook(pb: Playback): Promise<PlayBook> {
 
 // ---------------------------------------------------------------- sounds
 
-type Voice = 'piano' | 'strings'
-const SOUNDS = `${import.meta.env.BASE_URL}sounds/`
-const SAMPLES: Record<Voice, Record<string, string>> = {
-  piano: { A1: 'A1', C2: 'C2', 'F#2': 'Fs2', C3: 'C3', 'F#3': 'Fs3', C4: 'C4', 'F#4': 'Fs4', C5: 'C5', 'F#5': 'Fs5', C6: 'C6', 'F#6': 'Fs6', C7: 'C7' },
-  strings: { C2: 'cello-C2', G2: 'cello-G2', D3: 'cello-D3', G3: 'violin-G3', E4: 'violin-E4', C5: 'violin-C5', G5: 'violin-G5', E6: 'violin-E6' },
+const errText = (e: unknown) => (e instanceof Error ? e.message || e.name : String(e))
+
+/** One sample, fetched and decoded. Not Tone's loader: in the iPad shell a bundled .mp3 answers with status 0 (see
+ *  `sampleArrived`), which Tone takes for a failed download. A failure names the file. */
+async function fetchSample(T: Tone, voice: Voice, stem: string): Promise<AudioBuffer> {
+  const path = samplePath(voice, stem)
+  let res: Response
+  let bytes: ArrayBuffer
+  try {
+    res = await fetch(sampleUrl(voice, stem, import.meta.env.BASE_URL, location.href))
+    bytes = await res.arrayBuffer()
+  } catch (e) {
+    throw new SampleError(voice, path, `not reachable (${errText(e)})`)
+  }
+  if (!sampleArrived(res.status, bytes.byteLength)) throw new SampleError(voice, path, fetchFault(res.status, bytes.byteLength))
+  try {
+    return await T.getContext().decodeAudioData(bytes)
+  } catch (e) {
+    throw new SampleError(voice, path, `not decodable here (${errText(e)})`)
+  }
 }
 
-/** Keyboards (and anything unnamed) sound as piano; bowed strings, voices, winds and brass as sustained strings. */
-export function voiceFor(name: string): Voice {
-  if (/piano|klavier|keyboard|harpsichord|cembalo|organ|celesta|harp|guitar|^part\b/i.test(name)) return 'piano'
-  if (/violin|viola|cello|violoncello|bass|string|soprano|alto|tenor|baritone|voice|choir|flute|oboe|clarinet|bassoon|horn|trumpet|trombone|tuba|sax/i.test(name)) return 'strings'
-  return 'piano'
+/** A voice's samples by note, decoded once per session. A failed load is forgotten, so the next Play fetches again. */
+const voices = new Map<Voice, Promise<Record<string, AudioBuffer>>>()
+function loadVoice(T: Tone, voice: Voice) {
+  let p = voices.get(voice)
+  if (!p) {
+    const loading = Promise.all(Object.entries(SAMPLES[voice]).map(async ([note, stem]) => [note, await fetchSample(T, voice, stem)] as const))
+      .then(pairs => Object.fromEntries(pairs))
+    loading.catch(() => { if (voices.get(voice) === loading) voices.delete(voice) })
+    voices.set(voice, loading)
+    p = loading
+  }
+  return p
 }
 
 // ---------------------------------------------------------------- the engine
@@ -123,7 +147,8 @@ export class PartsPlayer {
   private lanes: Lane[] = []
   private master: ToneNS.Gain | null = null
   private click: ToneNS.Synth | null = null
-  private buffers = new Map<Voice, ToneNS.ToneAudioBuffers>()
+  /** Bumped by every play and stop: a play whose samples arrive after a Stop (or after the panel closed) does not start. */
+  private gen = 0
   private pace = 0.8
   private marked = 120
   private pass: { startQ: number; endQ: number; ciTicks: number; ci: ReturnType<typeof countIn>; loop: boolean } | null = null
@@ -147,7 +172,10 @@ export class PartsPlayer {
     const T = this.T
     if (!T) return null
     const tr = T.getTransport()
-    return { context: T.getContext().state, bpm: tr.bpm.value, loop: tr.loop, ticks: tr.ticks, state: tr.state, lanes: this.lanes.map(l => ({ name: l.name, on: l.on, gain: l.gain.gain.value })) }
+    return {
+      context: T.getContext().state, bpm: tr.bpm.value, loop: tr.loop, ticks: tr.ticks, state: tr.state,
+      lanes: this.lanes.map(l => ({ name: l.name, voice: l.voice, on: l.on, gain: l.gain.gain.value, loaded: l.sampler?.loaded ?? false })),
+    }
   }
 
   get map() { return this.book.map }
@@ -204,20 +232,24 @@ export class PartsPlayer {
         this.lanes.push({ name: t.name, voice, gain, sampler: null, on, level })
       }
     }
-    const need = [...new Set(this.lanes.map(l => l.voice))].filter(v => !this.buffers.has(v))
+    // A lane gets its sampler only from decoded buffers; until every voice has loaded nothing is scheduled, and a failure
+    // leaves the player idle with no half-loaded sampler behind (the clicks used to play over silent parts).
+    const need = [...new Set(this.lanes.filter(l => !l.sampler).map(l => l.voice))]
     if (need.length) {
       this.emit({ status: 'loading' })
-      await Promise.all(need.map(v => new Promise<void>((resolve, reject) => {
-        const urls = Object.fromEntries(Object.entries(SAMPLES[v]).map(([n, f]) => [n, `${f}.mp3`]))
-        const b = new T.ToneAudioBuffers({ urls, baseUrl: `${SOUNDS}${v}/`, onload: () => resolve(), onerror: e => reject(e) })
-        this.buffers.set(v, b)
-      })))
-    }
-    for (const lane of this.lanes) {
-      if (lane.sampler) continue
-      const b = this.buffers.get(lane.voice)!
-      const urls = Object.fromEntries(Object.keys(SAMPLES[lane.voice]).map(n => [n, b.get(n)]))
-      lane.sampler = new T.Sampler({ urls, attack: lane.voice === 'strings' ? 0.03 : 0, release: lane.voice === 'strings' ? 0.25 : 0.9 }).connect(lane.gain)
+      let loaded: Record<string, AudioBuffer>[]
+      try {
+        loaded = await Promise.all(need.map(v => loadVoice(T, v)))
+      } catch (e) {
+        this.emit({ status: 'idle' })
+        throw e
+      }
+      need.forEach((voice, i) => {
+        for (const lane of this.lanes) {
+          if (lane.voice !== voice || lane.sampler) continue
+          lane.sampler = new T.Sampler({ urls: loaded[i], attack: voice === 'strings' ? 0.03 : 0, release: voice === 'strings' ? 0.25 : 0.9 }).connect(lane.gain)
+        }
+      })
     }
     return T
   }
@@ -235,7 +267,8 @@ export class PartsPlayer {
       const nav = navigator as Navigator & { audioSession?: { type: string } }
       if (nav.audioSession) nav.audioSession.type = 'playback'   // iOS: sound with the silent switch on
     } catch { /* not there */ }
-    return started.then(() => this.ensure()).then(T => this.schedule(T, req))
+    const gen = ++this.gen
+    return started.then(() => this.ensure()).then(T => { if (gen === this.gen) this.schedule(T, req) })
   }
 
   private schedule(T: Tone, req: PlayRequest) {
@@ -333,6 +366,7 @@ export class PartsPlayer {
   }
 
   stop() {
+    this.gen++
     cancelAnimationFrame(this.raf)
     const T = this.T
     if (T) {
@@ -352,8 +386,6 @@ export class PartsPlayer {
     this.lanes = []
     this.click?.dispose()
     this.master?.dispose()
-    for (const b of this.buffers.values()) b.dispose()
-    this.buffers.clear()
     this.listeners.clear()
   }
 }

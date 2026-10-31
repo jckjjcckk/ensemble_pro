@@ -10,6 +10,7 @@ import { barRange, type Span } from './store'
 import { IClose, IMinus, IPlay, IPlus, IRepeat, IStop } from './icons'
 import './play.css'
 import { PartsPlayer, countIn, loadBook, preloadTone, tempoAt, type PlayBook, type PlayPosition } from './player'
+import { SampleError } from './sounds'
 
 // ---------------------------------------------------------------- this device's practice state
 
@@ -152,7 +153,9 @@ export function PlayParts({ score, state, setState, ownPart, fromBar, onHead, on
     if (!p || !map) return
     setPick(null)
     p.play({ from: start, to: range?.to ?? null, loop: state.loop && !!range, countIn: state.countIn })
-      .catch(() => setError('The sound could not start on this device. Tap Play again.'))
+      .then(() => setError(null))
+      .catch((e: unknown) => setError(e instanceof SampleError ? e.message
+        : `The sound could not start on this device (${e instanceof Error ? e.message || e.name : String(e)}). Tap Play again.`))
   }
   const stop = () => player.current?.stop()
   const toggle = () => (playing || pos.status === 'loading' ? stop() : play())
