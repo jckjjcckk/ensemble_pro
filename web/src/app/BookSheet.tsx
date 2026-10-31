@@ -128,7 +128,9 @@ function Body({ score: s, state: st, share, onClose, onAsk, onConvert, convertMs
         </button>
       )}
 
-      <StateLine score={s} state={st} canEdit={canEdit} borrowed={borrowed} onAsk={onAsk} />
+      {/* A split's or a conversion's own question is on its tile below; the line says only the book's other questions. */}
+      <StateLine score={s} state={st.ask && (st.ask.id === st.split?.id || st.ask.id === st.convert?.id) ? { ...st, asking: !!s.review, ask: null, question: s.review?.question ?? null } : st}
+        canEdit={canEdit} borrowed={borrowed} onAsk={onAsk} />
       {canEdit && st.digitalReady && !!s.flaggedBars?.length && (
         <div className="bs-state">
           <span className="card-dot is-ask is-inline" aria-hidden="true" />
