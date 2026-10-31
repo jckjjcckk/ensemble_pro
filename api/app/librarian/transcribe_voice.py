@@ -247,6 +247,9 @@ def sweep_old_audio(ctx: JobContext, score_id: str) -> None:
         pass
 
 
+VOICE_EFFORT = "minimal"
+
+
 @handler("transcribe_voice")
 async def transcribe_voice(job: Job, ctx: JobContext, *, transcribe: Transcriber | None = None) -> dict[str, Any]:
     p = job.payload
@@ -270,7 +273,9 @@ async def transcribe_voice(job: Job, ctx: JobContext, *, transcribe: Transcriber
     cost = asr_cost
     if transcript:
         system, user = build_prompt(transcript, score.facts)
-        c = await ctx.complete(user, system=system, effort="low", max_tokens=8192, provider="meta")
+        # Effort minimal on chat completions, streamed: the setting every voice eval ran at (013-text-eval,
+        # 013-always-on) and half the time of Messages/low with the same marks (speed pass, benchmark 5.10).
+        c = await ctx.complete(user, system=system, effort=VOICE_EFFORT, max_tokens=8192, provider="meta", stream=True)
         cost += c.charge.cost_usd
         try:
             answer = parse_answer(c.text)

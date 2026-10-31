@@ -1,6 +1,6 @@
 """Voice note to proposed mark (013): the score facts, the Spark prompt and the proposal check.
 
-One Spark call per utterance (effort low, JSON only). The answer is one mark, a list of marks, or
+One Spark call per utterance (effort minimal on chat completions, JSON only). The answer is one mark, a list of marks, or
 `{"none": true}`. A mark the check refuses is dropped: the quote must be a verbatim span of the transcript,
 bars inside the score, the audience a known part, member or the ensemble. The admin confirms every survivor.
 
@@ -300,7 +300,7 @@ Answer: {"none": true}"""
 
 
 def build_prompt(transcript: str, facts: ScoreFacts) -> tuple[str, str]:
-    """(system, user) for one utterance; send with effort low and an 8k output budget."""
+    """(system, user) for one utterance; send with effort minimal (chat completions) and an 8k output budget."""
     user = (f"Score facts:\n{facts.as_text()}\n\n{RULES}\n\n"
             f"Worked examples (other instructions, same score):\n\n{EXAMPLES}\n\n"
             f"Transcript of what the conductor said:\n\"{transcript}\"\n\n"

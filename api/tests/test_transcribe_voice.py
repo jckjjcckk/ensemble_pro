@@ -110,13 +110,15 @@ async def test_a_take_becomes_proposed_rows_one_per_audience_sharing_a_mark_id()
     soft = [r for r in rows if r["kind"] == "dynamic"]
     assert {r["audience_part"] for r in soft} == {"Violin I", "Violin II"} and len({r["payload"]["mark_id"] for r in soft}) == 1
     assert cut["payload"]["mark_id"] != soft[0]["payload"]["mark_id"]
+    kw = ctx.prompts[0][1]       # one Spark call: minimal on chat completions, streamed, forced Meta
+    assert (kw["effort"], kw["stream"], kw["provider"], kw["max_tokens"]) == ("minimal", True, "meta", 8192)
     assert [c.kind for c in ctx.charges] == ["voice", "spark"] and ctx.charges[0].units == 4.0
     # What was said stays the sender's: no row carries the take's transcript or any quote; the job result does.
     assert all(set(r["payload"]) == {"source", "utterance_id", "mark_id", "position", "bar", "bar_to"} for r in rows)
     assert not any("forty" in json.dumps(r) for r in rows)
     assert out["transcript"] == SAID and out["quotes"][cut["payload"]["mark_id"]].startswith("Second violins")
     assert PATH not in db.storage.files                                          # the take is gone once transcribed
-    assert ctx.prompts[0][1]["provider"] == "meta" and ctx.prompts[0][1]["effort"] == "low"
+    assert ctx.prompts[0][1]["provider"] == "meta" and ctx.prompts[0][1]["effort"] == "minimal"
     assert "Lin" in ctx.prompts[0][0] and "Rehearsal letters: A, F." in ctx.prompts[0][0]
     assert {"Violin II", "violins", "firsts", "seconds", "Lin", "letter F"} <= set(asr.keywords)
     assert {"fermata", "sforzando", "pizzicato", "double bar"} <= set(asr.keywords)
