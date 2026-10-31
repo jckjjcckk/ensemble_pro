@@ -160,8 +160,12 @@ Times are wall clock from the request to the row's last state; cost is the job's
 - **Landmarks and label memory**: every PDF book has page landmarks after reading (1 on Sym 9 to 27 on the Goldberg) and label memory (2 entries
   from the header, more after a split); a converted book's MusicXML landmarks replace the page ones.
 - **Delete and re-import**: delete cascades every child row; Storage files are left behind.
-- **Hosted backfill (not run)**: 8 hosted books, all Digital, made before 2026-10-30, have neither landmarks nor
-  playback.
+- **Hosted backfill**: 8 hosted books, all Digital, made before 2026-10-30, have neither landmarks nor
+  playback. `api/scripts/backfill_landmarks_playback.py` (music21, no model; dry run by default, `--apply`, `--owner`)
+  found the same 8 on 2026-10-31: ck@muse.test 5 (the benchmark's Goldberg and Rach pages), admin@muse.test 2 (the
+  Hart House Chamber Players quartet and chorale), piano@muse.test 1 (the Mazurka); 2 of the 8 print no landmark (the
+  homr Rach page, the chorale), so only their playback would change. None belongs to admin1, test1 or muse2 (no such
+  account); the apply for them wrote nothing. Left for CK: `--apply --owner admin@muse.test` (and ck@, piano@).
 
 ## Bugs fixed (main, not pushed)
 
