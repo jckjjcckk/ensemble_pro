@@ -1033,7 +1033,12 @@ async def part_cut(job: Job, ctx: JobContext, *, client: AsyncAnthropic | None =
                  "systems": systems, "tacet": tacet, "pages": pages},
     }).execute().data[0]
     ctx.db.table("interpretations").update({"status": "done", "finished_at": ctx.now(), "params": {"instrument": label, "instruments": instruments, "source_id": derived["id"], "state": sc}}).eq("id", interp["id"]).execute()
-    ctx.db.table("parts").upsert({"score_id": score_id, "name": label, "position": 0, "storage_path": keys[0] if keys else None}, on_conflict="score_id,name").execute()
+    # The split names a part of the book; the row is added when the book has none of that name. Never a strip image in
+    # `storage_path` (a notation file's place: the iPad took the scanned book for a Digital one), never a move of a part
+    # the reading placed (its position is the score order).
+    names = [r.get("name") or "" for r in (ctx.db.table("parts").select("name").eq("score_id", score_id).execute().data or [])]
+    if not any(n == label or (len(instruments) == 1 and same_instrument(n, label)) for n in names):   # "Pianoforte" is the book's "Piano"
+        ctx.db.table("parts").insert({"score_id": score_id, "name": label, "position": 1000}).execute()
     await ctx.progress(1.0, f"{label}: {len(keys)} systems cut")
     return {**ctx.result, "interpretation_id": interp["id"], "source_id": derived["id"], "systems_cut": len(keys), "absent": len(commits) - len(keys),
             "questions": sc["questions"], "cost_usd": cost, "seconds": round(time.time() - t0, 1)}

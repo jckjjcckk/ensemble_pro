@@ -35,6 +35,8 @@ import { ScanPatches, UnreadablePages, useBarDecisions } from './CheckBars'
 import { useVoice, type Card } from './voice'
 import { PickHint, VoiceButton, VoiceGhosts, VoiceTray } from './VoiceNotes'
 import { PlayParts, usePlayState, type PlayHead } from './PlayParts'
+import { ApiError, apiFailure, convertToDigital } from '../lib/api'
+import { liveWord, type BookState } from './book'
 
 type Tool = null | 'marking' | 'cut' | 'voice'
 
@@ -225,6 +227,8 @@ export default function Stand({ score, pages, strip: stripId }: { score: Score; 
 
   // Play the parts (014): the player at the foot of the Stand, this device's pace, mix and passage.
   const [playOpen, setPlayOpen] = useState(false)
+  // A scanned book has no notes to engrave or play until it is converted (005): both actions say so and offer it.
+  const [needDigital, setNeedDigital] = useState<'pages' | 'play' | null>(null)
   const [play, setPlay] = usePlayState(score.id)
   const [playHead, setPlayHead] = useState<PlayHead | null>(null)
   const onPlayHead = useCallback((h: PlayHead | null) => setPlayHead(h), [])
@@ -483,6 +487,11 @@ export default function Stand({ score, pages, strip: stripId }: { score: Score; 
                 {pages ? 'Show the digital pages' : 'Show the PDF pages'}
               </button>
             )}
+            {st.hasPdf && !st.digitalReady && pages && (
+              <button type="button" role="menuitem" className="sm-item" onClick={() => { setMoreOpen(false); setPlayOpen(false); setNeedDigital('pages') }}>
+                <span className="sm-text"><span>Show the digital pages</span><small>Convert to Digital first</small></span>
+              </button>
+            )}
             {stripSplits.length > 0 && (pages || pstrip) && (
               <div className="sm-group" role="group" aria-label="Part">
                 <span className="r3-label">Part</span>
@@ -508,8 +517,9 @@ export default function Stand({ score, pages, strip: stripId }: { score: Score; 
                 <span className="sm-text"><span>{LAYOUT_WORDS.original}</span><small>{layout === 'original' ? 'On: the pages as the file prints them' : `Off: ${LAYOUT_WORDS.display.toLowerCase()}`}</small></span>
               </button>
             )}
-            <button type="button" role="menuitemcheckbox" aria-checked={playOpen} className="sm-item is-check" onClick={() => { setMoreOpen(false); setPlayOpen(v => !v) }}>
-              <span className="sm-text"><span>Play the parts</span>{!score.playback && <small>{st.hasPdf && !st.digitalReady ? 'Convert to Digital to play it' : 'Import the MusicXML again to play it'}</small>}</span>
+            <button type="button" role="menuitemcheckbox" aria-checked={playOpen} className="sm-item is-check"
+              onClick={() => { setMoreOpen(false); if (!score.playback && st.hasPdf && !st.hasDigital) { setNeedDigital('play'); setPlayOpen(false) } else setPlayOpen(v => !v) }}>
+              <span className="sm-text"><span>Play the parts</span>{!score.playback && <small>{st.hasPdf && !st.hasDigital ? 'Convert to Digital first' : 'Import the MusicXML again to play it'}</small>}</span>
             </button>
             <button type="button" role="menuitem" className="sm-item" onClick={() => { setMoreOpen(false); setListOpen(true) }}>Markings <span className="sm-count">{visible.length}</span></button>
             {canFollow && leader && (
@@ -657,6 +667,17 @@ export default function Stand({ score, pages, strip: stripId }: { score: Score; 
       </main>
 
       <AnimatePresence initial={false}>
+        {needDigital && !playOpen && (
+          <motion.div
+            key="need-digital" className="stand-play"
+            initial={reduced ? { opacity: 0 } : { opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0, y: 16, transition: { duration: 0.14 } }}
+            transition={reduced ? { duration: 0.16 } : { type: 'spring', stiffness: 320, damping: 26, mass: 0.8 }}
+          >
+            <NeedsDigital what={needDigital} score={score} state={st} canConvert={canEditBook(score)} token={session?.access_token ?? null}
+              onDone={() => world.reload()} onClose={() => setNeedDigital(null)} />
+          </motion.div>
+        )}
         {playOpen && (
           <motion.div
             key="play" className="stand-play"
@@ -701,6 +722,39 @@ export default function Stand({ score, pages, strip: stripId }: { score: Score; 
       )}
       <StaffQuestion job={st.ask} open={asking && !!st.ask} onClose={() => setAsking(false)} />
     </div>
+  )
+}
+
+// ---------------------------------------------------------------- a scanned book's Digital-only actions
+
+/** "Show the digital pages" and "Play the parts" on a book that is only its scan: both need the notes written out from
+ *  the scan first (Convert to Digital, 005). The panel says so in one line and offers the conversion to whoever may
+ *  start it; a conversion under way shows where it stands instead. Never an engraver's error. */
+function NeedsDigital({ what, score, state, canConvert, token, onDone, onClose }: {
+  what: 'pages' | 'play'; score: Score; state: BookState; canConvert: boolean; token: string | null; onDone: () => void; onClose: () => void
+}) {
+  const [busy, setBusy] = useState(false)
+  const [msg, setMsg] = useState<string | null>(null)
+  const live = state.convert
+  const why = what === 'play' ? 'Playing the parts needs the notes, written out from the scan.' : 'The digital pages are engraved from the notes, written out from the scan.'
+  const minutes = score.pages ? Math.max(1, Math.round((score.pages * 40) / 60)) : null
+  const start = async () => {
+    if (!token) return
+    setBusy(true); setMsg(null)
+    try { await convertToDigital(score.id, token); onDone() } catch (e) {
+      if (e instanceof ApiError && e.status === 409 && e.live) onDone()
+      else setMsg(apiFailure(e, 'Converting to Digital'))
+    } finally { setBusy(false) }
+  }
+  return (
+    <section className="pp is-empty need-digital" aria-label="Convert to Digital first" role="status">
+      <div className="nd-text">
+        <b>{live ? live.what : 'Convert to Digital first'}</b>
+        <span>{live ? `${liveWord(live, canConvert)} · ${live.detail}` : msg ?? (canConvert ? `${why} ${minutes ? `About ${minutes} ${minutes === 1 ? 'minute' : 'minutes'} for ${score.pages} ${score.pages === 1 ? 'page' : 'pages'}; the PDF stays open meanwhile.` : ''}` : `${why} The book's owner or the group's admin can convert it.`)}</span>
+      </div>
+      {canConvert && !live && <button type="button" className="nd-act" disabled={busy || !token} onClick={() => void start()}>{busy ? 'Starting' : 'Convert to Digital'}</button>}
+      <button type="button" className="pp-close" onClick={onClose} aria-label="Close"><IClose size={20} /></button>
+    </section>
   )
 }
 

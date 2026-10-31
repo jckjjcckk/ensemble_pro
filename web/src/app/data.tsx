@@ -144,6 +144,9 @@ export const MY_LIBRARY = 'me'
 /** The engine of a split's own run (008); its interpretation rows are the split's, not the book's reading. */
 const PART_CUT_ENGINE = 'part-cut-agent'
 
+/** A stored notation file (MusicXML, compressed or not), as opposed to a strip image or nothing. */
+const isNotation = (path: unknown): path is string => typeof path === 'string' && /\.(musicxml|mxl|xml)$/i.test(path)
+
 type Row = Record<string, any>
 
 const SIGN_SEC = 3600
@@ -219,7 +222,9 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
   // One signed URL per ready score: the file OSMD renders (the whole score for now; parts come from it).
   // A URL is kept across reloads while it has time left: the stage treats a new URL as a new score and engraves again.
   const ready = scoreRows.filter(s => s.status === 'ready')
-  const firstPath = (s: Row) => partRows.find(p => p.score_id === s.id && p.storage_path)?.storage_path as string | undefined
+  // Only a notation file is a book's Digital form. A split's part row once held its first strip's image (a .png): a
+  // scanned book then looked Digital and its "digital pages" asked OSMD to read a picture.
+  const firstPath = (s: Row) => partRows.find(p => p.score_id === s.id && isNotation(p.storage_path))?.storage_path as string | undefined
   // A PDF book converted to Digital (005) reads from its transcription when no part carries a file of its own.
   const transcriptionOf = (s: Row) => (sourceRows.filter(r => r.score_id === s.id && r.kind === 'musicxml' && r.meta?.transcribed_from).pop()?.storage_paths as string[] | undefined)?.[0]
   const playPath = (s: Row) => firstPath(s) ?? transcriptionOf(s)
@@ -230,7 +235,7 @@ async function load(session: Session): Promise<Omit<World, 'reload'>> {
   const urlFor = (path?: string) => (path ? signedUrls.get(path)?.url ?? '' : '')
 
   const parts: Part[] = partRows.map(p => ({
-    id: p.id, scoreId: p.score_id, name: p.name, fixture: urlFor(p.storage_path), pages: 0,
+    id: p.id, scoreId: p.score_id, name: p.name, fixture: isNotation(p.storage_path) ? urlFor(p.storage_path) : '', pages: 0,
     difficulty: (p.difficulty ?? 3) as Part['difficulty'],
   }))
   // A book is what it was first made from; splits (images or notation) are its children, not its kind.

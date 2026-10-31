@@ -162,6 +162,8 @@ async def test_happy_path_three_pages():
     assert ctx.result["agent"]["status"] == "done"
     # the row the iPad watches said where the cut stood on every turn: page 3 of 3 and three systems at the end
     assert ctx.result["phase"] == {"page": 3, "pages": 3, "systems_cut": 3}
+    # the split names its part without putting a strip image where a notation file goes (the scanned book looked Digital)
+    assert [(r["name"], r.get("storage_path")) for r in db.rows["parts"]] == [("Piano", None)]
     progress = [op[2]["progress"] for op in db.ops if op[0] == "jobs" and op[1] == "update" and "progress" in op[2]]
     assert progress == sorted(progress) and progress[0] == 0 and 0.95 in progress and progress[-1] == 1.0
 

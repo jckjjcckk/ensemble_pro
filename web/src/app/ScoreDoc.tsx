@@ -14,6 +14,10 @@ export default function ScoreDoc({ pages = false }: { pages?: boolean }) {
   // A PDF book's split (008) reads on the Stand as its strips (010), with taps and marks on the book's bars.
   if (search.get('view') === 'strips') return <Stand key={`${score.id}:strips`} score={score} pages={false} strip={search.get('strip') ?? ''} />
   const readable = pages ? !!score.pageSource : score.status === 'ready' && (!!score.engravings?.length || !!score.fixture)
+  if (!readable && !pages && score.pageSource && score.status === 'ready') {
+    // A scanned book's digital pages: there are none until it is converted (005). Its PDF pages carry the Convert action.
+    return <Unavailable title="Convert to Digital first" detail="The digital pages are engraved from the notes, written out from the scan. The PDF pages are ready to read." pdf={`/score/${score.id}/pages`} />
+  }
   if (!readable) {
     const why = score.status === 'failed' ? score.failureReason
       : score.status === 'processing' ? 'Still being read. It opens here when the reading finishes.'
@@ -23,7 +27,7 @@ export default function ScoreDoc({ pages = false }: { pages?: boolean }) {
   return <Stand key={`${score.id}:${pages}`} score={score} pages={pages} />
 }
 
-function Unavailable({ title, detail }: { title: string; detail?: string }) {
+function Unavailable({ title, detail, pdf }: { title: string; detail?: string; pdf?: string }) {
   return (
     <div className="stand">
       <header className="stand-top">
@@ -37,6 +41,7 @@ function Unavailable({ title, detail }: { title: string; detail?: string }) {
         <div className="stand-empty">
           <p className="stand-empty-title">{title}</p>
           {detail && <p>{detail}</p>}
+          {pdf && <Link className="r3-btn is-card" to={pdf} replace>Open the PDF pages</Link>}
           <Link className="r3-btn is-card" to="/">Back to the shelf</Link>
         </div>
       </main>

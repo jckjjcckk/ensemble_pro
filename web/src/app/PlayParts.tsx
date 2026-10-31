@@ -199,7 +199,7 @@ export function PlayParts({ score, state, setState, ownPart, fromBar, onHead, on
     const scan = score.kinds ? !score.kinds.includes('digital') : score.book !== 'digital'
     return (
       <section className="pp is-empty" aria-label="Play the parts">
-        <p className="pp-note">{scan ? 'Convert to Digital to play it.' : 'This book was imported before playback existed. Import its MusicXML again to play it.'}</p>
+        <p className="pp-note">{scan ? 'Convert to Digital first: playing the parts needs the notes, written out from the scan.' : 'This book was imported before playback existed. Import its MusicXML again to play it.'}</p>
         <button type="button" className="pp-close" onClick={onClose} aria-label="Close the player"><IClose size={20} /></button>
       </section>
     )

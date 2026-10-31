@@ -98,6 +98,12 @@
 
 .fo .pp.is-empty { display: flex; align-items: center; gap: 12px; padding-top: 12px; }
 .fo .pp-note { flex: 1; font-size: 15px; color: var(--dk-ink-2); }
+.fo .need-digital .nd-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.fo .need-digital .nd-text b { font-weight: 500; font-size: 16px; color: var(--dk-ink); }
+.fo .need-digital .nd-text span { font-size: 14px; line-height: 1.4; color: var(--dk-ink-2); }
+.fo .need-digital .nd-act { flex: none; height: 48px; padding: 0 20px; border: 0; border-radius: 12px; background: var(--dk-ink); color: var(--dk); font: 500 15px var(--font-ui); }
+.fo .need-digital .nd-act:disabled { opacity: 0.5; }
+.fo .need-digital .nd-act:active:not(:disabled) { transform: scale(0.98); }
 
 .fo .pp button:focus-visible { outline: 2px solid var(--dk-ink); outline-offset: 2px; }
 @media (hover: hover) {
