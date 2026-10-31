@@ -1,0 +1,137 @@
+{
+ "summary": {
+  "mode": "yoga",
+  "n": 15,
+  "median_s": 1.0692138671875,
+  "mean_s": 1.1063230991363526,
+  "p90_s": 1.8690910339355469,
+  "max_s": 1.9354491233825684,
+  "min_s": 0.06635212898254395,
+  "won_local": 0,
+  "won_yoga": 15,
+  "wake_events": null,
+  "wake_connects": null
+ },
+ "rows": [
+  {
+   "i": 0,
+   "id": "c9cd49e8-c9bc-483a-9c8c-27d02e2a63f0",
+   "pickup_s": 1.9354491233825684,
+   "by": "yoga",
+   "insert_http_s": 0.37074995040893555,
+   "client_insert_to_run_s": null
+  },
+  {
+   "i": 1,
+   "id": "ef93e52c-ba74-4948-ada4-e328db307097",
+   "pickup_s": 0.06635212898254395,
+   "by": "yoga",
+   "insert_http_s": 0.24690699577331543,
+   "client_insert_to_run_s": null
+  },
+  {
+   "i": 2,
+   "id": "e7653b43-bb0e-4d8d-9f8e-da30d83fd864",
+   "pickup_s": 1.8574130535125732,
+   "by": "yoga",
+   "insert_http_s": 0.18406391143798828,
+   "client_insert_to_run_s": null
+  },
+  {
+   "i": 3,
+   "id": "71e7e819-c8ae-46f2-92de-9c15e94e4da8",
+   "pickup_s": 1.9030520915985107,
+   "by": "yoga",
+   "insert_http_s": 0.10420894622802734,
+   "client_insert_to_run_s": null
+  },
+  {
+   "i": 4,
+   "id": "c1339fc0-0a00-492c-bbce-4af4cdea25e8",
+   "pickup_s": 0.3575010299682617,
+   "by": "yoga",
+   "insert_http_s": 0.11375594139099121,
+   "client_insert_to_run_s": null
+  },
+  {
+   "i": 5,
+   "id": "70fc2c64-2af1-4ff8-bba5-f37f7d6da89a",
+   "pickup_s": 1.8690910339355469,
+   "by": "yoga",
+   "insert_http_s": 0.19904804229736328,
+   "client_insert_to_run_s": null
+  },
+  {
+   "i": 6,
+   "id": "5cfa4d76-7b7a-41b4-9040-7acb46747347",
+   "pickup_s": 1.149271011352539,
+   "by": "yoga",
+   "insert_http_s": 0.1178896427154541,
+   "client_insert_to_run_s": null
+  },
+  {
+   "i": 7,
+   "id": "731f81f9-f9b3-4b0e-b5c9-e9db43a7fc3b",
+   "pickup_s": 1.6038129329681396,
+   "by": "yoga",
+   "insert_http_s": 0.17931699752807617,
+   "client_insert_to_run_s": null
+  },
+  {
+   "i": 8,
+   "id": "9b5c15f4-d412-4565-a3d0-26e4b853d0d2",
+   "pickup_s": 0.49254703521728516,
+   "by": "yoga",
+   "insert_http_s": 0.10635900497436523,
+   "client_insert_to_run_s": null
+  },
+  {
+   "i": 9,
+   "id": "9d951757-5c2a-419e-9fc2-ec4469e375c9",
+   "pickup_s": 1.0692138671875,
+   "by": "yoga",
+   "insert_http_s": 0.10474896430969238,
+   "client_insert_to_run_s": null
+  },
+  {
+   "i": 10,
+   "id": "e8bbd367-a6ec-47c6-a5d1-a6322c0a9928",
+   "pickup_s": 0.6926579475402832,
+   "by": "yoga",
+   "insert_http_s": 0.12073612213134766,
+   "client_insert_to_run_s": null
+  },
+  {
+   "i": 11,
+   "id": "388f5e78-cd54-4f39-bd79-62234a460c78",
+   "pickup_s": 0.7591760158538818,
+   "by": "yoga",
+   "insert_http_s": 0.08938193321228027,
+   "client_insert_to_run_s": null
+  },
+  {
+   "i": 12,
+   "id": "f4312e69-dbd1-410a-abc8-103bd7661515",
+   "pickup_s": 1.7608330249786377,
+   "by": "yoga",
+   "insert_http_s": 0.09951901435852051,
+   "client_insert_to_run_s": null
+  },
+  {
+   "i": 13,
+   "id": "2de2a118-05f6-455d-a581-82d8c5b0a4e8",
+   "pickup_s": 0.39005303382873535,
+   "by": "yoga",
+   "insert_http_s": 0.0912477970123291,
+   "client_insert_to_run_s": null
+  },
+  {
+   "i": 14,
+   "id": "88ed8977-1dce-411a-8b67-96d71198a68e",
+   "pickup_s": 0.6884231567382812,
+   "by": "yoga",
+   "insert_http_s": 0.10307002067565918,
+   "client_insert_to_run_s": null
+  }
+ ]
+}

@@ -1,0 +1,5 @@
+{"ts": "2026-10-31T11:51:44.491080+00:00", "run": "20261031-045144-yoga", "probes": 15, "provider": "none", "usd": 0.0, "note": "wake_probe rows only; no model call"}
+{"ts": "2026-10-31T11:53:10.695171+00:00", "run": "20261031-045310-poll", "probes": 15, "provider": "none", "usd": 0.0, "note": "wake_probe rows only; no model call"}
+{"ts": "2026-10-31T11:54:21.005450+00:00", "run": "20261031-045421-wake", "probes": 15, "provider": "none", "usd": 0.0, "note": "wake_probe rows only; no model call"}
+{"ts": "2026-10-31T11:55:38.985289+00:00", "run": "20261031-045538-wake", "probes": 15, "provider": "none", "usd": 0.0, "note": "wake_probe rows only; no model call"}
+{"ts": "2026-10-31T11:56:51.249200+00:00", "run": "20261031-045651-yoga", "probes": 15, "provider": "none", "usd": 0.0, "note": "wake_probe rows only; no model call"}

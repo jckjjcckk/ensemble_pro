@@ -15,15 +15,22 @@ logging.basicConfig(level=logging.INFO)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # The job worker runs inside the API process unless WORKER=0 (e.g. a second process that only serves).
+    # With it, a Realtime listener wakes the loop when a job is inserted (WORKER_WAKE, default on; the poll stays).
     stop = asyncio.Event()
-    task = None
+    tasks = []
     if os.environ.get("WORKER", "1") != "0" and settings.supabase_url:
         from .worker import loop
-        task = asyncio.create_task(loop(stop))
+        wake = None
+        if settings.worker_wake and settings.supabase_secret_key:
+            from .wake import Wake
+            w = Wake(settings.supabase_url, settings.supabase_secret_key)
+            wake = w.event
+            tasks.append(asyncio.create_task(w.run(stop)))
+        tasks.append(asyncio.create_task(loop(stop, wake=wake)))
     yield
     stop.set()
-    if task:
-        await task
+    if tasks:
+        await asyncio.gather(*tasks, return_exceptions=True)
 
 
 app = FastAPI(title="Folio API", version="0.1.0", lifespan=lifespan)

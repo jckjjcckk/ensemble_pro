@@ -22,3 +22,14 @@ def _no_chat_network(monkeypatch):
     def refuse(req):
         raise RuntimeError(f"a test reached the network: {req.url}")
     monkeypatch.setattr(llm, "_chat_transport", httpx.MockTransport(refuse))
+
+
+@pytest.fixture(autouse=True)
+def _no_realtime_network(monkeypatch):
+    """The worker's Realtime wake (app/wake.py) never opens a socket from a test: a test hands `Wake` its own fake
+    `connect`."""
+    import websockets.asyncio.client as ws_client
+
+    def refuse(*a, **kw):
+        raise RuntimeError("a test reached the network: a websocket")
+    monkeypatch.setattr(ws_client, "connect", refuse)

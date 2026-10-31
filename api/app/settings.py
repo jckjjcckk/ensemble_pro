@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     # never get the same job; 2 lets a voice take or an import go ahead while a convert or a part cut runs.
     worker_concurrency: int = 2
 
+    # The worker also listens on Supabase Realtime for new `jobs` rows and claims at once (app/wake.py); the 2 s poll
+    # stays as the fallback. WORKER_WAKE=0 turns the listener off. Nothing listens where WORKER=0 (the Mac dev API).
+    worker_wake: bool = True
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

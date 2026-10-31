@@ -1,6 +1,7 @@
 """The durable job loop. Runs inside the API process; the database is the queue.
 
-Polls `claim_job()` (SKIP LOCKED, so a second API process, or a second claim in this one, is safe), runs the handler
+Polls `claim_job()` (SKIP LOCKED, so a second API process, or a second claim in this one, is safe) every 2 s, and at
+once when app/wake.py hears a new queued row over Realtime (`WORKER_WAKE`, default on; the poll stays the fallback), runs the handler
 registered for the job's kind, up to `WORKER_CONCURRENCY` jobs at once (default 2), and writes the outcome. A
 handler that raises is retried with backoff until max_attempts, then
 the job fails with the error text and the score, if any, is marked failed. Survives a restart: a job that
@@ -70,10 +71,12 @@ def requeue_stale() -> None:
     db().table("jobs").update({"status": "queued", "error": "worker died; requeued"}).eq("status", "running").lt("locked_at", cutoff).execute()
 
 
-async def loop(stop: asyncio.Event, concurrency: int | None = None) -> None:
+async def loop(stop: asyncio.Event, concurrency: int | None = None, wake: asyncio.Event | None = None) -> None:
     """Claim and run jobs, at most `concurrency` at once (`WORKER_CONCURRENCY`, default 2). A free slot claims again at
-    once; with every slot busy or the queue empty the loop waits POLL_S or until a job finishes. On stop, the jobs in
-    hand run to the end."""
+    once; with every slot busy or the queue empty the loop waits POLL_S or until a job finishes, or, with a free slot,
+    until `wake` is set (app/wake.py: a new queued row arrived over Realtime). The wake is cleared before each claim, so
+    a row inserted during the claim wakes the next wait at once; with every slot busy it stays set until one frees. On
+    stop, the jobs in hand run to the end."""
     load_handlers()
     n = max(1, concurrency if concurrency is not None else settings.worker_concurrency)
     log.info("worker up, %d at once, handlers: %s", n, sorted(HANDLERS))
@@ -83,7 +86,10 @@ async def loop(stop: asyncio.Event, concurrency: int | None = None) -> None:
         log.warning("requeue_stale: %s", e)
     running: set[asyncio.Task] = set()
     while not stop.is_set():
-        if len(running) < n:
+        free = len(running) < n
+        if free:
+            if wake is not None:
+                wake.clear()
             try:
                 row = db().rpc("claim_job", {}).execute().data
                 if row and row.get("id"):
@@ -92,8 +98,14 @@ async def loop(stop: asyncio.Event, concurrency: int | None = None) -> None:
             except Exception as e:  # noqa: BLE001
                 log.warning("worker poll: %s", e)
         stopping = asyncio.create_task(stop.wait())
-        done, _ = await asyncio.wait({stopping, *running}, timeout=POLL_S, return_when=asyncio.FIRST_COMPLETED)
+        waiting = {stopping, *running}
+        woken = asyncio.create_task(wake.wait()) if free and wake is not None else None
+        if woken:
+            waiting.add(woken)
+        done, _ = await asyncio.wait(waiting, timeout=POLL_S, return_when=asyncio.FIRST_COMPLETED)
         stopping.cancel()
+        if woken:
+            woken.cancel()
         running -= done
     if running:
         await asyncio.gather(*running, return_exceptions=True)

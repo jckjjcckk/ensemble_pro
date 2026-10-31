@@ -11,7 +11,7 @@ and a record of what each page cost and what the models said about it.
 
 - `jobs` table (kind, status queued|running|done|failed, payload, progress, attempts, max_attempts 3, error,
   started/finished, result, created_by, score_id); `claim_job()` with SKIP LOCKED.
-- `api/app/worker.py` runs inside the API process (`WORKER=0` disables): polls every 2 s, claims one job,
+- `api/app/worker.py` runs inside the API process (`WORKER=0` disables): polls every 2 s (and wakes on a new row, below), claims one job,
   runs the handler registered for `kind` (`api/app/librarian/__init__.py`, `@handler`), retries with backoff
   to `max_attempts`, marks the score failed on the last failure, requeues jobs left `running` by a dead
   process after 15 min. `context_for(job_id)` builds a `JobContext`.
@@ -38,6 +38,22 @@ job; on stop the jobs in hand finish; 1 is the old loop. `claim_job`'s SKIP LOCK
 stack, two queued 3-second jobs of a test-only kind (`experiments/speed_pass/worker_local.py`): concurrency 2 finished
 both in 3.1 s, started 2 ms apart, in 4 of 5 runs; the first run after a cold start ran them one after the other (6.2 s),
 not explained. Concurrency 1: 6.1-6.2 s. The handlers' own sync database calls still block the loop while they run.
+
+### Wake (2026-10-31)
+
+A new queued job is claimed at once instead of at the next poll. `api/app/wake.py` holds one Supabase Realtime channel
+(postgres_changes, INSERT on `public.jobs`, which the `supabase_realtime` publication already carries) as the service
+role, so RLS lets every row through; an INSERT whose `status` is `queued` sets an asyncio Event that `worker.loop` waits
+on beside the 2 s timeout, and only while a slot is free (a busy worker keeps the wake for its next free slot, no
+spin). The event carries no job: the loop still claims through `claim_job()`, so two workers woken by one row never
+both get it, `WORKER_CONCURRENCY` and the one-live-job index are untouched, and a missed event costs one poll. A row
+inserted as `running` (a part split, a local run) wakes nobody. The listener reconnects on its own (backoff 1 s
+doubling to 30 s; a heartbeat unanswered for 10 s counts as a drop) and wakes the loop once on every (re)subscribe.
+Postgres LISTEN/NOTIFY was not an option: the API has no direct database connection (no psycopg/asyncpg, and the
+database password is CK's), only PostgREST and Realtime. `WORKER_WAKE=0` turns it off; with `WORKER=0` (the Mac dev
+API) nothing listens. Hosted, insert to claim, database clock (`locked_at - created_at`), `wake_probe` rows of no cost
+(`api/experiments/worker_wake/bench.py`): yoga's poll alone median 0.88 s, max 1.98 s (n=30); a local worker with the
+wake median 0.26 s, max 0.70 s (n=30, 25 of 30 claimed before yoga's poll). Tests `api/tests/test_worker_wake.py`.
 
 ### One live job of a kind per book (CK, 2026-10-31: never submit a duplicate)
 
