@@ -4,7 +4,8 @@
  *  vertical quick menu (Highlight, Note, Scribble, Loop from here); notes stand above their bar with their author's face;
  *  the others' faces wait at the page edge level with their bar; "Following Anna's page turns" sits at the foot. PDF
  *  page images and engraved digital pages are the same stage (`EngravedStage`); a single part or a split without
- *  engraved pages is engraved on the device (`ScoreStage`). Three appearances: light, dark with the paper dimmed, dark
+ *  engraved pages is engraved on the device (`ScoreStage`); a PDF book's split reads as its strips (`StripStage`), with
+ *  the same taps and marks on the book's own bar numbers. Three appearances: light, dark with the paper dimmed, dark
  *  with the page inverted (the account menu). */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router'
@@ -14,6 +15,7 @@ import { LAYOUT_WORDS } from '../mock'
 import { supabase } from '../lib/supabase'
 import { ScoreStage, type StageView } from './ScoreStage'
 import { EngravedStage, type ZoomView } from './EngravedStage'
+import { StripStage } from './StripStage'
 import { Fade, Pop, Scrim, Sheet } from './Sheet'
 import { spanRects, type Geo } from './geometry'
 import { CutLayer, KindIcon, NoteBody } from './marks'
@@ -103,7 +105,7 @@ const unnamed = (m: Member) => !m.name || m.name === 'A member'
 const memberName = (m: Member) => (unnamed(m) ? m.instrument || 'A member' : firstName(m.name))
 const faceLabel = (m: Member) => initials(unnamed(m) ? m.instrument || '?' : m.name)
 
-export default function Stand({ score, pages }: { score: Score; pages: boolean }) {
+export default function Stand({ score, pages, strip: stripId }: { score: Score; pages: boolean; /** `?view=strips`: the split to read ('' for the newest) */ strip?: string }) {
   const vp = useViewport()
   const reduced = useReducedMotion()
   const navigate = useNavigate()
@@ -145,6 +147,10 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
   const splitId = search.get('split')
   const split = splitId ? stripsFor(score.id).find(x => x.id === splitId && x.kind === 'musicxml') : undefined
   const splitSel = split ? `split:${split.id}` : null
+  // A PDF book's split (008) reads as its strips: the cut systems of the chosen instruments, with the book's bar numbers.
+  const stripSplits = stripsFor(score.id).filter(x => x.kind === 'images')
+  const pstrip = stripId !== undefined ? stripSplits.find(x => x.id === stripId) ?? stripSplits[0] : undefined
+  const stripPart = pstrip && pstrip.instruments.length === 1 ? parts.find(p => p.name === pstrip.instruments[0]) ?? null : null
   const seat = parts.find(p => p.name === persona.instrument)?.id
   const seatName = groupId && seat ? partsById[seat]?.name ?? null : null
   const defaultPart = splitSel ?? (role === 'player' && seat && !pages ? seat : 'full')
@@ -156,8 +162,8 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
   const splitPartIds = splitKey ? splitKey.split('\n') : []
   const splitIdx = splitPartIds.map(id => score.partIds.indexOf(id)).filter(i => i >= 0)
   const instruments = isFull ? null : isSplit ? (splitIdx.length ? splitIdx : null) : [score.partIds.indexOf(partSel)]
-  const partName = isFull || isSplit ? null : partsById[partSel]?.name ?? null
-  const inkPart = isSplit && split ? `split:${split.id}` : partName
+  const partName = pstrip ? stripPart?.name ?? null : isFull || isSplit ? null : partsById[partSel]?.name ?? null
+  const inkPart = pstrip ? `strip:${pstrip.id}` : isSplit && split ? `split:${split.id}` : partName
 
   const pdf = usePdfPages(score, pages)
   const engraving = pages ? pdf.engraving : isFull ? score.engravings?.find(e => e.layout === (score.digitalLayout ?? 'display')) ?? score.engravings?.[0] : undefined
@@ -270,12 +276,12 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
     () => [
       ...annotations.filter(a => a.scoreId === score.id).map(a => ({ ...a, mine: false, removable: false, audience: a.partId ? 'part' as const : 'ensemble' as const })),
       ...quick.marks,
-    ].filter(a => isFull || a.partId === null || a.partId === partSel || (isSplit && !!a.partId && splitPartIds.includes(a.partId)))
+    ].filter(a => (pstrip ? a.partId === null || a.partId === stripPart?.id : isFull || a.partId === null || a.partId === partSel || (isSplit && !!a.partId && splitPartIds.includes(a.partId))))
       .filter(a => !filterMine || a.mine)
       .sort((a, b) => a.barFrom - b.barFrom),
     // splitKey stands in for splitPartIds (a fresh array each render).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [annotations, quick.marks, score.id, isFull, isSplit, splitKey, partSel, filterMine],
+    [annotations, quick.marks, score.id, isFull, isSplit, splitKey, partSel, filterMine, pstrip, stripPart?.id],
   )
   // A voice cut's text is already "Cut 42–48" (013): say it once.
   const cuts = visible.filter(a => a.kind === 'cut').map(a => {
@@ -405,7 +411,7 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
 
   // "Beethoven, Ludwig van" and "Ludwig van Beethoven" both read "Beethoven".
   const composerLast = score.composer.includes(',') ? score.composer.split(',')[0].trim() : score.composer.split(/\s+/).slice(-1)[0] || score.composer
-  const partWord = isSplit ? split!.label : partName
+  const partWord = pstrip ? pstrip.label : isSplit ? split!.label : partName
   const where = zoom && view
     ? `${barRange(view.first, view.last).includes('–') ? 'bars' : 'bar'} ${barRange(view.first, view.last)} · p. ${zoom.page + 1}${zoom.bottom - zoom.top < 0.92 ? `, ${zoom.top < 0.12 ? 'upper' : zoom.bottom > 0.88 ? 'lower' : 'middle'} ${zoom.bottom - zoom.top < 0.6 ? 'half' : 'part'}` : ''}`
     : view ? `bars ${view.first}–${view.last}${score.bars ? ` of ${score.bars}` : ''}` : pages ? 'PDF' : ''
@@ -477,7 +483,19 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
                 {pages ? 'Show the digital pages' : 'Show the PDF pages'}
               </button>
             )}
-            {!pages && (parts.length > 1 || split) && (
+            {stripSplits.length > 0 && (pages || pstrip) && (
+              <div className="sm-group" role="group" aria-label="Part">
+                <span className="r3-label">Part</span>
+                <button type="button" role="menuitemradio" aria-checked={!pstrip} className="sm-item is-radio" onClick={() => { setMoreOpen(false); if (pstrip) navigate(`/score/${score.id}/pages`, { replace: true }) }}>Score</button>
+                {stripSplits.map(x => (
+                  <button key={x.id} type="button" role="menuitemradio" aria-checked={pstrip?.id === x.id} className="sm-item is-radio"
+                    onClick={() => { setMoreOpen(false); navigate(`/score/${score.id}?view=strips&strip=${x.id}`, { replace: true }) }}>
+                    {x.label}{stripSplits.filter(y => y.label === x.label).length > 1 ? ` · ${new Date(x.createdAt).toLocaleDateString()}` : ''}
+                  </button>
+                ))}
+              </div>
+            )}
+            {!pages && !pstrip && (parts.length > 1 || split) && (
               <div className="sm-group" role="group" aria-label="Part">
                 <span className="r3-label">Part</span>
                 {[{ id: 'full', name: 'Score' }, ...(split && splitSel ? [{ id: splitSel, name: split.label }] : []), ...parts].map(pt => (
@@ -569,7 +587,7 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
     </motion.form>
   )
 
-  const scoreParts = isFull ? 'Full score' : isSplit ? split!.label : partsById[partSel]?.name
+  const scoreParts = pstrip ? pstrip.label : isFull ? 'Full score' : isSplit ? split!.label : partsById[partSel]?.name
 
   return (
     <div className="stand">
@@ -589,6 +607,17 @@ export default function Stand({ score, pages }: { score: Score; pages: boolean }
               {pdf.state === 'none' && pdfFile && <button type="button" className="r3-btn is-card" onClick={() => void openPdfFile()}>Open the PDF file</button>}
             </div>
           )
+        ) : stripId !== undefined && !pstrip ? (
+          <div className="stand-empty">
+            <p className="stand-empty-title">Nothing split out yet</p>
+            <p>Split by instrument from the book's sheet on the shelf; each split reads here as its strips.</p>
+          </div>
+        ) : pstrip ? (
+          <StripStage
+            strip={pstrip} focus={focus} follow={followBar} onUserTurn={() => setFollowing(false)}
+            underlay={underlay} overlay={g => overlay(g, null)} onBarTap={onBarTap} onBarHold={onBarHold} onEmptyTap={() => { setPin(null); menu.close() }}
+            onView={v => { setView(v); setZoom(null) }} still={scribble} label={`${pstrip.label}, ${score.title}, the split's systems`}
+          />
         ) : engraving ? (
           <EngravedStage
             engraving={engraving} focus={focus} follow={followBar} onUserTurn={() => setFollowing(false)}

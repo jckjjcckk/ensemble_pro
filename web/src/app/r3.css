@@ -395,6 +395,12 @@
 .fo .stand .stage.is-engraved { touch-action: none; }
 .fo .stand .stage.is-zoomed { overflow: auto; touch-action: pan-x pan-y; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .fo .stand .stage.is-zoomed::-webkit-scrollbar { display: none; }
+/* A split's strips (StripStage): scrolled like a part, the page's own pan; captions under each strip, tacet rows between. */
+.fo .stand .stage.is-strips { overflow-x: hidden; overflow-y: auto; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+.fo .stand .strip-page { box-shadow: 0 1px 0 var(--line), 0 6px 18px rgba(28, 26, 22, 0.06); }
+.fo .stand .strip-caption { position: absolute; left: 0; right: 0; display: flex; gap: 14px; padding: 8px 2px 0; font-size: 13px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.fo .stand .strip-tacet.is-stage { position: absolute; display: flex; align-items: center; gap: 14px; padding: 0 18px; box-sizing: border-box; border: 1px dashed var(--line-2); border-radius: 4px; font-size: 13px; color: var(--text-3); }
+.fo .stand .strip-tacet.is-stage b { font: italic 500 17px var(--font-title); color: var(--text-2); }
 .fo .stand .stage-content { position: relative; }
 .fo .stand .stage-turn { position: absolute; inset: 0; }
 .fo .stand .page-paper, .fo .stand .sheet { background: var(--pg); border-radius: 0; box-shadow: var(--pg-shadow), inset 0 0 0 1px var(--pg-edge); }

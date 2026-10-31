@@ -1,8 +1,8 @@
 /** The book routes: `/score/{id}` (a digital book's pages, or a part or split engraved on the device) and
- *  `/score/{id}/pages` (a PDF book's pages) both open the Stand; `?view=strips` reads a PDF book's split as strips. */
+ *  `/score/{id}/pages` (a PDF book's pages) both open the Stand; `?view=strips&strip=` reads a PDF book's split on the
+ *  Stand as its strips. */
 import { Link, useParams, useSearchParams } from 'react-router'
 import Stand from './Stand'
-import Strips from './Strips'
 import { useStore } from './store'
 
 export default function ScoreDoc({ pages = false }: { pages?: boolean }) {
@@ -11,7 +11,8 @@ export default function ScoreDoc({ pages = false }: { pages?: boolean }) {
   const score = scoresById[scoreId]
   const [search] = useSearchParams()
   if (!score) return <Unavailable title={world.loaded ? 'This book is not on your shelf.' : 'Opening the book'} />
-  if (search.get('view') === 'strips') return <Strips score={score} />   // a PDF book's split (008) reads as strips (010)
+  // A PDF book's split (008) reads on the Stand as its strips (010), with taps and marks on the book's bars.
+  if (search.get('view') === 'strips') return <Stand key={`${score.id}:strips`} score={score} pages={false} strip={search.get('strip') ?? ''} />
   const readable = pages ? !!score.pageSource : score.status === 'ready' && (!!score.engravings?.length || !!score.fixture)
   if (!readable) {
     const why = score.status === 'failed' ? score.failureReason
