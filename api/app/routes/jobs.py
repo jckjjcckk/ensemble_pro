@@ -1,12 +1,15 @@
 """Jobs: answering a parked question (feature 011). A handler that cannot decide parks its job `done` with
 `result.question` and a typed `result.question_payload`; the admin's answer queues a follow-up job of the same
-kind with the same payload plus `answer` and `resume_from`, which the handler resumes from the saved state."""
+kind with the same payload plus `answer` and `resume_from`, which the handler resumes from the saved state. The
+answered split's interpretation goes back to `running` at once (the reading's own stays `needs_review` until the
+resumed `process_pages` picks it up by that status)."""
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
 from ..db import db
 from ..spend import BudgetedUser
+from .live_jobs import insert_job, parts_key
 from .scores import assert_can_edit
 
 router = APIRouter()
@@ -36,4 +39,12 @@ def answer_job(job_id: str, body: dict[str, Any], user: BudgetedUser) -> dict:
     if q.get("interpretation_id") and not payload.get("interpretation_id"):
         payload["interpretation_id"] = q["interpretation_id"]
     payload.update({"answer": body["answer"] if set(body) == {"answer"} else body, "resume_from": job_id})
-    return db().table("jobs").insert({"kind": job["kind"], "score_id": job["score_id"], "created_by": user.id, "payload": payload}).execute().data[0]
+    key = payload.get("parts_key") if job["kind"] == "part_cut" else None
+    if job["kind"] == "part_cut" and key is None:
+        key = payload["parts_key"] = parts_key(payload.get("instruments") or ([payload["instrument"]] if payload.get("instrument") else []))
+    row = insert_job({"kind": job["kind"], "status": "queued", "score_id": job["score_id"], "created_by": user.id, "payload": payload}, key)
+    if job["kind"] == "part_cut" and q.get("interpretation_id"):
+        # The split's own run stops asking the moment it is answered: its interpretation said `needs_review` until the
+        # resumed run wrote it again at its very end, minutes later, and the book showed a question nobody could answer.
+        db().table("interpretations").update({"status": "running"}).eq("id", q["interpretation_id"]).eq("status", "needs_review").execute()
+    return row

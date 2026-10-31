@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 
 from app.auth import User, current_user
 from app.main import app
-from app.routes import jobs as jobs_routes, scores as scores_routes
+from app.routes import jobs as jobs_routes, live_jobs, scores as scores_routes
 from app.spend import require_budget
 from tests.test_part_cut import FakeDB
 
@@ -42,10 +42,10 @@ def test_parts_route_queues_a_part_cut_job(world):
     assert r.status_code == 200, r.text
     job = r.json()
     assert job["kind"] == "part_cut" and job["score_id"] == SCORE and job["created_by"] == "u1" and job["id"]
-    assert job["payload"] == {"score_id": SCORE, "instruments": ["Soprano", "Alto"], "pages": [1, 3]}
+    assert job["payload"] == {"score_id": SCORE, "instruments": ["Soprano", "Alto"], "parts_key": "alto|soprano", "pages": [1, 3]}
     assert db.rows["jobs"][-1]["id"] == job["id"]
     r = client.post(f"/scores/{SCORE}/parts", json={"instruments": ["Piano"]})
-    assert r.status_code == 200 and r.json()["payload"] == {"score_id": SCORE, "instruments": ["Piano"]}     # no pages: every page
+    assert r.status_code == 200 and r.json()["payload"] == {"score_id": SCORE, "instruments": ["Piano"], "parts_key": "piano"}     # no pages: every page
 
 
 def test_parts_route_refuses_bad_input_and_strangers(world):
@@ -79,7 +79,7 @@ def test_answer_route_queues_the_resume_job(world):
     job = r.json()
     assert job["kind"] == "part_cut" and job["score_id"] == SCORE and job["created_by"] == "u1" and job["id"] != "job1"
     assert job["payload"] == {"score_id": SCORE, "instruments": ["Soprano", "Tenor"], "pages": [1, 2], "interpretation_id": "interp9",
-                              "answer": {"blocks": [[13], [15]]}, "resume_from": "job1"}
+                              "answer": {"blocks": [[13], [15]]}, "resume_from": "job1", "parts_key": "soprano|tenor"}
     assert client.post("/jobs/job1/answer", json={"staves": "absent"}).status_code == 409        # answered once
     parked_job(db, job_id="job2")                                                                 # the staves and absent forms pass as they are
     r = client.post("/jobs/job2/answer", json={"staves": "absent"})
@@ -156,3 +156,81 @@ def test_details_route_renumbers_from_the_first_bar_on_a_page(monkeypatch):
         assert len(db.calls) == 1
     finally:
         app.dependency_overrides.clear()
+
+
+# ---------------------------------------------------------------- one live job per kind per book (007, CK 2026-10-31)
+
+def test_a_second_split_of_the_same_parts_is_refused_with_the_live_job(world):
+    """Queued, running or parked on an unanswered question, a split of the same parts (in any order or case) is the
+    book's live split: 409 names it and nothing is inserted. Other parts may split meanwhile; a finished, failed or
+    answered one does not block."""
+    db, client = world
+    as_user(OWNER)
+    first = client.post(f"/scores/{SCORE}/parts", json={"instruments": ["Pianoforte"]}).json()
+    for status in ("queued", "running"):
+        first_row = next(r for r in db.rows["jobs"] if r["id"] == first["id"])
+        first_row["status"] = status
+        r = client.post(f"/scores/{SCORE}/parts", json={"instruments": [" pianoforte "]})
+        assert r.status_code == 409, r.text
+        assert r.json()["detail"] == {"message": "This split is already under way.", "job_id": first["id"], "kind": "part_cut", "status": status}
+    assert len(db.rows["jobs"]) == 1
+    two = client.post(f"/scores/{SCORE}/parts", json={"instruments": ["Viola", "Flauto"]})
+    assert two.status_code == 200                                                                 # other parts are another split
+    assert client.post(f"/scores/{SCORE}/parts", json={"instruments": ["flauto", "VIOLA"]}).status_code == 409   # same set, other order
+    first_row = next(r for r in db.rows["jobs"] if r["id"] == first["id"])
+    first_row.update(status="done", result={"question": "Which staves are the Pianoforte's on page 2, line 3?"})
+    r = client.post(f"/scores/{SCORE}/parts", json={"instruments": ["Pianoforte"]})
+    assert r.status_code == 409 and r.json()["detail"]["status"] == "needs_review"                # parked: still live
+    ans = client.post(f"/jobs/{first['id']}/answer", json={"staves": [16, 17]})
+    assert ans.status_code == 200
+    assert client.post(f"/scores/{SCORE}/parts", json={"instruments": ["Pianoforte"]}).json()["detail"]["job_id"] == ans.json()["id"]
+    next(r for r in db.rows["jobs"] if r["id"] == ans.json()["id"]).update(status="done", result={"systems_cut": 7})
+    assert client.post(f"/scores/{SCORE}/parts", json={"instruments": ["Pianoforte"]}).status_code == 200   # finished: a new split may start
+
+
+def test_answering_a_split_marks_its_interpretation_running(world):
+    """The book stops showing the split's question the moment it is answered: the parked run's interpretation goes from
+    needs_review to running in the same request (the resumed run used to rewrite it only when it ended)."""
+    db, client = world
+    parked_job(db)
+    db.rows["interpretations"] = [{"id": "interp9", "score_id": SCORE, "status": "needs_review", "engine": "part-cut-agent"}]
+    as_user(OWNER)
+    assert client.post("/jobs/job1/answer", json={"staves": [13, 15]}).status_code == 200
+    assert db.rows["interpretations"][0]["status"] == "running"
+
+
+class RacingDB(FakeDB):
+    """A second request that passed the check before the first one's row existed: the index refuses its insert."""
+    def __init__(self, live: dict):
+        super().__init__()
+        self.live = live
+
+    def table(self, name):
+        q = super().table(name)
+        if name == "jobs":
+            ex = q.execute
+
+            def execute():
+                if q.op == "insert":
+                    self.rows.setdefault("jobs", []).append(self.live)
+                    raise Exception({"code": "23505", "message": 'duplicate key value violates unique constraint "jobs_one_live"'})
+                return ex()
+            q.execute = execute
+        return q
+
+
+def test_the_index_refusal_comes_back_as_the_same_409(monkeypatch):
+    live = {"id": "live1", "kind": "part_cut", "status": "running", "score_id": SCORE, "created_at": "2026-10-31T00:00:00Z",
+            "payload": {"score_id": SCORE, "instruments": ["Piano"], "parts_key": "piano"}, "result": {}}
+    db = RacingDB(live)
+    db.rows["scores"] = [{"id": SCORE, "owner_user_id": "u1", "ensemble_id": None}]
+    db.rows["sources"] = [{"id": "src1", "score_id": SCORE, "kind": "images"}]
+    for m in (scores_routes, jobs_routes):
+        monkeypatch.setattr(m, "db", lambda: db)
+    as_user(OWNER)
+    try:
+        r = TestClient(app).post(f"/scores/{SCORE}/parts", json={"instruments": ["Piano"]})
+    finally:
+        app.dependency_overrides.clear()
+    assert r.status_code == 409 and r.json()["detail"]["job_id"] == "live1" and r.json()["detail"]["status"] == "running"
+    assert live_jobs.parts_key(["Violino  I", "piano", "Piano"]) == "piano|violino i"

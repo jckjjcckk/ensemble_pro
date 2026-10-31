@@ -13,6 +13,7 @@ from ..librarian import HANDLERS, load_handlers
 from ..librarian.signature import canonical_key, canonical_meter
 from ..spend import BudgetedUser
 from ..worker import run_one
+from .live_jobs import insert_job, parts_key, refuse_if_live
 
 router = APIRouter()
 
@@ -146,7 +147,8 @@ def import_pdf(score_id: str, body: ImportBody, user: User) -> dict:
     busy = [j for j in db().table("jobs").select("id,kind,status").eq("score_id", score_id).execute().data or []
             if j.get("kind") in READING_KINDS and j.get("status") in ("queued", "running")]
     if busy:
-        raise HTTPException(409, "This score is already being read")
+        raise HTTPException(409, {"message": "This book is already being read.", "job_id": busy[0]["id"], "kind": busy[0]["kind"], "status": busy[0]["status"]})
+    refuse_if_live(score_id, "process_pages")   # a reading parked on a question is still this book's reading
     sources = [s for s in db().table("sources").select("id,kind,storage_paths,created_at").eq("score_id", score_id).execute().data or []
                if s.get("kind") == "pdf" and body.path in (s.get("storage_paths") or [])]
     if sources:
@@ -169,7 +171,10 @@ def cut_parts(score_id: str, body: PartsBody, user: BudgetedUser) -> dict:
     A Digital book (an imported `musicxml` source): the names must be the score's `parts.name` rows (400 naming the
     available parts otherwise); the `part_split` job runs here and now, no model, and the row comes back `done` with
     `result = {source_id, instruments, storage_path}`. Should the process die mid-split, the row is `running` and
-    the worker's stale sweep queues it again."""
+    the worker's stale sweep queues it again.
+
+    One live split per set of parts (CK 2026-10-31): while a `part_cut` taking the same parts is queued, running or
+    parked on a question, 409 `{message, job_id, kind, status}`; `payload.parts_key` is what the index compares."""
     assert_can_edit(user, score_id)
     instruments: list[str] = []
     for name in body.instruments:
@@ -185,10 +190,12 @@ def cut_parts(score_id: str, body: PartsBody, user: BudgetedUser) -> dict:
         if not xml:
             raise HTTPException(400, "This score has no scanned pages or MusicXML to split")
         return split_now(score_id, instruments, user)
-    payload: dict = {"score_id": score_id, "instruments": instruments}
+    key = parts_key(instruments)
+    refuse_if_live(score_id, "part_cut", key)
+    payload: dict = {"score_id": score_id, "instruments": instruments, "parts_key": key}
     if pages:
         payload["pages"] = pages
-    return db().table("jobs").insert({"kind": "part_cut", "score_id": score_id, "created_by": user.id, "payload": payload}).execute().data[0]
+    return insert_job({"kind": "part_cut", "status": "queued", "score_id": score_id, "created_by": user.id, "payload": payload}, key)
 
 
 def split_now(score_id: str, instruments: list[str], user: User) -> dict:

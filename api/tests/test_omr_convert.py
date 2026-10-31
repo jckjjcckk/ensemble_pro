@@ -474,8 +474,12 @@ def test_route_queues_one_convert_job(client):
     j = r.json()
     assert j["kind"] == "omr_convert" and j["score_id"] is None and j["created_by"] == "u1" and j["max_attempts"] == 1
     assert j["payload"] == {"score_id": SCORE, "source_id": "pdf1", "pages": [1, 2, 3]}
-    r = client(db).post(f"/scores/{SCORE}/convert")
-    assert r.status_code == 400 and r.json()["detail"] == "A transcription of this book is already in progress"
+    r = client(db).post(f"/scores/{SCORE}/convert")                     # one conversion at a time: 409 naming the live one
+    assert r.status_code == 409 and r.json()["detail"] == {"message": "This book is already being converted to Digital.", "job_id": j["id"],
+                                                           "kind": "omr_convert", "status": "queued"}
+    assert len(db.rows["jobs"]) == 1
+    db.rows["jobs"][0]["status"] = "running"
+    assert client(db).post(f"/scores/{SCORE}/convert").json()["detail"]["status"] == "running"
     db.rows["jobs"][0]["status"] = "failed"
     r = client(db).post(f"/scores/{SCORE}/convert")                     # a finished one does not block; no body: every page
     assert r.status_code == 200 and r.json()["payload"] == {"score_id": SCORE, "source_id": "pdf1"}
